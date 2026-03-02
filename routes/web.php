@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 
 Route::get('/', function () {
-    return view('welcome')
+    return view('welcome');
 })->name('welcome');
 
 Route::get('login', function () {
