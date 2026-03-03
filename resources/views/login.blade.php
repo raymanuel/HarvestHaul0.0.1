@@ -1,5 +1,8 @@
 <x-layout>
+
+
 <div class="login-container">
+
     <form method="POST" action="{{ route('login.attempt') }}">
         @csrf
 
