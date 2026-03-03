@@ -13,9 +13,12 @@
     <body class="bg-[#FDFDFC] dark:bg-[#0a0a0a] text-[#1b1b18] dark:text-[#EDEDEC] antialiased min-h-screen flex flex-col items-center p-6 lg:p-8">
 
         <header class="w-full lg:max-w-4xl flex justify-between items-center mb-12">
-            <div class="text-xl font-bold tracking-tight text-[#f53003]">
-                HarvestHaul
-            </div>
+            <a href="/" class="flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="#2D8A37" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8a13 13 0 0 1-10 10Z"/><path d="M9 21s-4.5-3-4.5-7"/><path d="M7 20s-4-3.5-4-9"/>
+                </svg>
+                <span class="text-xl font-bold tracking-tight text-[#2D8A37]">HarvestHaul</span>
+            </a>
 
             @if (Route::has('login'))
                 <nav class="flex gap-4">
@@ -47,14 +50,6 @@
                     Resource pooling and marketplace logistics tailored for local agriculture.
                 </p>
 
-                <div class="flex flex-wrap justify-center gap-4">
-                    <a href="{{ route('register') }}" class="px-8 py-3 bg-[#f53003] text-white font-medium rounded-sm shadow-sm hover:bg-[#d42a02] transition">
-                        Join the Marketplace
-                    </a>
-                    <a href="#about" class="px-8 py-3 border border-[#19140035] dark:border-[#3E3E3A] font-medium rounded-sm hover:bg-gray-50 dark:hover:bg-[#161615] transition">
-                        Learn More
-                    </a>
-                </div>
             </div>
         </main>
 
