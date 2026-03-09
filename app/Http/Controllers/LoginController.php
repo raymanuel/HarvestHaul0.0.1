@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Auth;
 
 class LoginController extends Controller
 {
-    public function __invoke(Request $request): RedirectResponse
+    public function authenticate(Request $request): RedirectResponse
     {
         $credentials = $request->validate([
             'email' => ['required', 'email'],
@@ -25,6 +25,16 @@ class LoginController extends Controller
         return back()->withErrors([
             'email' => 'The provided credentials do not match our records.',
         ])->onlyInput('email');
+    }
+
+    public function logout(Request $request): RedirectResponse
+    {
+        Auth::logout(); // This does what Auth::guard('web')->logout() did
+
+        $request->session()->invalidate(); // This is your Session::invalidate()
+        $request->session()->regenerateToken(); // This is your Session::regenerateToken()
+
+        return redirect('/'); // This is your redirect
     }
 
 }
