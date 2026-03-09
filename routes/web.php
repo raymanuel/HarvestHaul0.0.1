@@ -4,23 +4,36 @@ use App\Http\Controllers\LoginController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Validator;
+
+/*
+|--------------------------------------------------------------------------
+| Public Routes
+|--------------------------------------------------------------------------
+*/
 
 Route::get('/', function () {
     return view('welcome');
 })->name('welcome');
 
-Route::get('login', function () {
-    return view('login');
-})->name('login');
+/*
+|--------------------------------------------------------------------------
+| Guest Routes (Only accessible if NOT logged in)
+|--------------------------------------------------------------------------
+*/
+Route::middleware('guest')->group(function () {
+    Route::view('login', 'login')->name('login');
+    Route::post('login', [LoginController::class, 'authenticate'])->name('login.attempt');
+});
 
-Route::post('login', LoginController::class)->name('login.attempt');
+/*
+|--------------------------------------------------------------------------
+| Authenticated Routes (Only accessible if logged in)
+|--------------------------------------------------------------------------
+*/
+Route::middleware('auth')->group(function () {
+    Route::view('dashboard', 'admin_dashboard')->name('admin_dashboard');
+    Route::post('logout', [LoginController::class, 'logout'])->name('logout');
+});
 
-Route::view('dashboard', 'dashboard')->name('dashboard');
 
-Route::post('logout', function () {
-    Auth::guard('web')->logout();
-
-    Session::invalidate();
-    Session::regenerateToken();
-    return redirect('/');
-}) ->name('logout');
