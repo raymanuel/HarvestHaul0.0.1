@@ -17,7 +17,7 @@
             <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="#2D8A37" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8a13 13 0 0 1-10 10Z"/><path d="M9 21s-4.5-3-4.5-7"/><path d="M7 20s-4-3.5-4-9"/>
                 </svg>
-                <span class="text-xl font-bold tracking-tight text-[#2D8A37]">Harvesting-Haul v.0.0.5</span>
+                <span class="text-xl font-bold tracking-tight text-[#2D8A37]">HarvestHaul</span>
             </a>
 
             @if (Route::has('login'))
