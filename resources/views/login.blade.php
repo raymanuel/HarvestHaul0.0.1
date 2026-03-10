@@ -1,13 +1,8 @@
-<x-layout>
-
-
-<div class="login-container">
-
-    <form method="POST" action="{{ route('login.attempt') }}">
+<x-guest-layout>
+    <form method="POST" action="{{ route('login') }}">
         @csrf
-
         <div class="form-group">
-            <input type="email" name="email" placeholder="Email" required>
+            <input type="email" name="email" placeholder="Email" required autofocus>
         </div>
 
         <div class="form-group">
@@ -16,5 +11,4 @@
 
         <button type="submit">Submit</button>
     </form>
-</div>
-</x-layout>
+</x-guest-layout>

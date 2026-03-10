@@ -17,38 +17,38 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
+        // farmer user
         User::factory()->create([
-            'name' => 'Diego Lastiko Inat-inat Jr',
-            'email' => 'test@example.com',
-            'password' => 'pass'
+            'name' => 'Farmer A',
+            'email' => 'farmera@mail.com',
+            'password' => '123',
+            'role' => 'farmer'
         ]);
 
-        // Second User (Ray)
+        // admin User
         User::factory()->create([
-        'name' => 'Ray Manuel Pineda',
-        'email' => 'ray@mail.com',
-        'password' => bcrypt('ray')
+        'name' => 'Admin',
+        'email' => 'admin@mail.com',
+        'password' => bcrypt('123'),
+        'role' => 'admin'
         ]);
 
-        // 3rd User (Iver)
+        // logistics partner user
         User::factory()->create([
-        'name' => 'Iver Jude Relox',
-        'email' => 'iver@mail.com',
-        'password' => bcrypt('iver')
+        'name' => 'Logistics Partner',
+        'email' => 'logistics@mail.com',
+        'password' => bcrypt('123'),
+        'role' => 'logistics_partner'
         ]);
 
-        // Second User (Ray)
+        // driver user
         User::factory()->create([
-        'name' => 'Elnes Jake Gabales',
-        'email' => 'jake@mail.com',
-        'password' => bcrypt('jake')
+        'name' => 'Driver A',
+        'email' => 'driver@mail.com',
+        'password' => bcrypt('123'),
+        'role' => 'driver'
         ]);
 
-        // Second User (Ray)
-        User::factory()->create([
-        'name' => 'Gabriel Andrei Lopez',
-        'email' => 'gab@mail.com',
-        'password' => bcrypt('gab')
-        ]);
+
     }
 }

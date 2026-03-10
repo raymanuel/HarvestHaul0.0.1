@@ -32,7 +32,7 @@ Route::middleware('guest')->group(function () {
 |--------------------------------------------------------------------------
 */
 Route::middleware('auth')->group(function () {
-    Route::view('dashboard', 'admin_dashboard')->name('admin_dashboard');
+    Route::view('dashboard', 'dashboard')->name('dashboard');
     Route::post('logout', [LoginController::class, 'logout'])->name('logout');
 });
 
