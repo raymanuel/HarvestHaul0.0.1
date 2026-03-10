@@ -47,7 +47,7 @@
             /* CHANGE: Change center to flex-start */
             align-items: flex-start;
             overflow-y: auto;
-            background-color: #0d3c2e;
+            background-color: #9fc7bb;
 
         }
 
@@ -56,7 +56,6 @@
             max-width: {{ $maxWidth ?? '1000px' }};
             padding: 2rem;
             padding-top: 0;
-
             background: rgba(255, 255, 255, 0.5);
             backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.3);
