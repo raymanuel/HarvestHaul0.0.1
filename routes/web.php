@@ -12,9 +12,7 @@ use Illuminate\Support\Facades\Validator;
 |--------------------------------------------------------------------------
 */
 
-Route::get('/', function () {
-    return view('welcome');
-})->name('welcome');
+Route::view('/', 'welcome')->name('welcome');
 
 /*
 |--------------------------------------------------------------------------
