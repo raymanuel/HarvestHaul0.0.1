@@ -1,37 +1,50 @@
-<div class="text-left">
-    <h1 class="text-3xl font-bold text-gray-900 mb-2">Welcome, {{ Auth::user()->name }}</h1>
-    <p class="text-gray-500 mb-10 text-lg">Manage your fleet, drivers, and logistical operations from here.</p>
+<div class="w-full">
+    <header class="pt-8 mb-4">
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">Welcome, {{ Auth::user()->name }}</h1>
+        <p class="text-gray-500 text-lg">Manage your fleet, drivers, and logistical operations from here.</p>
+    </header>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div class="p-8 bg-white/40 rounded-2xl border border-white shadow-sm">
+    <div class="report-grid">
+
+        <div class="report-widget">
             <span class="text-4xl mb-3 block">🚛</span>
-            <h3 class="font-bold text-gray-800">Active Fleet</h3>
-            <p class="text-2xl font-black text-gray-900">0 Vehicles</p>
+            <h3 class="font-bold text-gray-400 text-sm uppercase tracking-wider">Active Fleet</h3>
+            <p class="text-3xl font-black text-gray-900 mt-2">0 <span class="text-sm font-medium text-gray-400">Vehicles</span></p>
+            <div class="mt-6 pt-4 border-t border-gray-100">
+                <a href="#" class="text-blue-600 font-bold text-sm hover:underline">Manage vehicles →</a>
+            </div>
         </div>
 
-        <div class="p-8 bg-white/40 rounded-2xl border border-white shadow-sm">
+        <div class="report-widget">
             <span class="text-4xl mb-3 block">👤</span>
-            <h3 class="font-bold text-gray-800">Managed Drivers</h3>
-            <p class="text-2xl font-black text-gray-900">0 Staff</p>
+            <h3 class="font-bold text-gray-400 text-sm uppercase tracking-wider">Managed Drivers</h3>
+            <p class="text-3xl font-black text-gray-900 mt-2">0 <span class="text-sm font-medium text-gray-400">Staff</span></p>
+            <div class="mt-6 pt-4 border-t border-gray-100">
+                <a href="#" class="text-blue-600 font-bold text-sm hover:underline">Assign tasks →</a>
+            </div>
         </div>
 
-        <div class="p-8 bg-white/40 rounded-2xl border border-white shadow-sm">
+        <div class="report-widget">
             <span class="text-4xl mb-3 block">📊</span>
-            <h3 class="font-bold text-gray-800">Total Revenue</h3>
-            <p class="text-2xl font-black text-gray-900">₱0.00</p>
+            <h3 class="font-bold text-gray-400 text-sm uppercase tracking-wider">Total Revenue</h3>
+            <p class="text-3xl font-black text-gray-900 mt-2">₱0.00</p>
+            <div class="mt-6 pt-4 border-t border-gray-100">
+                <a href="#" class="text-blue-600 font-bold text-sm hover:underline">Revenue logs →</a>
+            </div>
         </div>
+
     </div>
 
-    <div class="mt-12 space-y-4">
-        <h2 class="text-xl font-bold text-gray-800 mb-4">Partner Actions</h2>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            <button class="bg-blue-600 text-white p-4 rounded-xl font-semibold hover:bg-blue-700 transition shadow-sm">
+    <div class="mt-12">
+        <h2 class="text-xl font-bold text-gray-800 mb-6">Partner Actions</h2>
+        <div class="flex flex-wrap gap-4">
+            <button class="bg-blue-600 text-white px-8 py-4 rounded-xl font-semibold hover:bg-blue-700 transition shadow-md">
                 Add New Vehicle
             </button>
-            <button class="bg-slate-800 text-white p-4 rounded-xl font-semibold hover:bg-black transition shadow-sm">
+            <button class="bg-slate-800 text-white px-8 py-4 rounded-xl font-semibold hover:bg-black transition shadow-md">
                 Register Driver
             </button>
-            <button class="bg-slate-100 text-slate-700 p-4 rounded-xl font-semibold hover:bg-slate-200 transition shadow-sm border border-slate-200">
+            <button class="bg-white text-slate-700 px-8 py-4 rounded-xl font-semibold hover:bg-slate-50 transition shadow-sm border border-slate-200">
                 Optimize Route Stops
             </button>
         </div>

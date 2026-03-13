@@ -136,7 +136,7 @@
         <nav>
             <a href="/dashboard" class="nav-link">🏠 Dashboard</a>
 
-            @if(Auth::check() && Auth::user()->role === 'producer')
+            @if(Auth::check() && Auth::user()->role === 'farmer')
                 <a href="#" class="nav-link">🚜 Post Harvest</a>
                 <a href="#" class="nav-link">🤝 Resource Pooling</a>
                 <a href="#" class="nav-link">🚚 Track Shipments</a>
@@ -147,7 +147,6 @@
             @if(Auth::check() && Auth::user()->role === 'admin')
                 <a href="#" class="nav-link">📁 User Verification</a>
                 <a href="#" class="nav-link">🔑 Role Management</a>
-
                 <a href="#" class="nav-link">🔍 System Audit</a>
             @endif
 
