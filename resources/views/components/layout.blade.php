@@ -17,7 +17,7 @@
 
         /* Fixed Sidebar on the Left */
         .sidebar {
-            width: 260px;
+            width: 220px;
             background: rgba(255, 255, 255, 0.7);
             backdrop-filter: blur(10px);
             border-right: 1px solid rgba(255, 255, 255, 0.3);
@@ -40,29 +40,32 @@
 
         /* Main Content Area - Flexible */
         .main-content {
-            flex: 1;
-            padding: 0;
+            flex: auto;
             display: flex;
-            flex-direction: column;
+            flex-direction: ;
             /* CHANGE: Change center to flex-start */
-            align-items: flex-start;
+            /* align-items: flex-start; */
             overflow-y: auto;
-            background-color: #9fc7bb;
-
+            height: auto;
         }
 
         .glass-card {
             width: 100%;
+
             max-width: {{ $maxWidth ?? '1000px' }};
             padding: 2rem;
             padding-top: 0;
-            background: rgba(255, 255, 255, 0.5);
+            background-color: #2d8a369d;
             backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.3);
             border-radius: 0;
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05);
             /* ADD: Ensure card content stays left-aligned */
             text-align: left;
+            /* FORCE block behavior so internal grid isn't ignored */
+    display: block !important;
+    box-sizing: border-box;
+
         }
 
 
@@ -83,9 +86,20 @@
             color: #2D8A37;
         }
 
+        .report-grid {
+    display: grid;
+    /* This forces 3 columns of 320px. If they don't fit, they wrap. */
+    grid-template-columns: repeat(auto-fit, 245px);
+    gap: 5rem;
+    width: 100%;
+    margin-top: 2rem;
+    justify-content: flex-start; /* Aligns grid to the left */
+}
+
         /* The INTERNAL modern cards you want */
         .report-widget {
-            width: 25%;
+            /* Hard-coding width to prevent the "Too Wide" stretching */
+    width: 245px !important;
             background: rgba(255, 255, 255, 0.85);
             border-radius: 1.5rem;
             padding: 1.5rem;
