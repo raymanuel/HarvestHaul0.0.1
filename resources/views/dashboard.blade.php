@@ -4,11 +4,8 @@
             <div class="bg-white dark:bg-gray-800    overflow-hidden shadow-sm sm:rounded-lg p-6">
 
                 {{-- PHP Role Switcher Logic --}}
-                @php
-                    $role = auth()->user()->role;
-                @endphp
 
-                @switch($role)
+                @switch(auth()->user()->role)
                     @case('farmer')
                         @include('dashboards.farmer-view')
                         @break

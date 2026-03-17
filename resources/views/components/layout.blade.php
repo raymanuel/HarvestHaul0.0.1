@@ -6,142 +6,154 @@
     <title>{{ $title ?? 'HarvestHaul' }}</title>
 
     <style>
+        /* CSS Variables for Brand Consistency */
+        :root {
+            --brand-green: #2D8A37;
+            --obsidian: #0A0A0A; /* Matches Welcome Page Background */
+            --slate-text: #475569;
+            --glass-white: rgba(255, 255, 255, 0.75);
+        }
+
         body {
             margin: 0; padding: 0;
             font-family: 'figtree', ui-sans-serif, system-ui, sans-serif;
-            background: linear-gradient(135deg, #f1f5f9 0%, #faf5ff 50%, #eff6ff 100%);
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
             min-height: 100vh;
-            display: flex; /* Positions sidebar and content side-by-side */
-
+            display: flex;
         }
 
-        /* Fixed Sidebar on the Left */
+        /* Fixed Sidebar - Obsidian Theme */
         .sidebar {
-            width: 220px;
+            width: 220px; /* Slightly wider for better text breathing room */
             background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(10px);
-            border-right: 1px solid rgba(255, 255, 255, 0.3);
+            background-color: #111827;
             display: flex;
             flex-direction: column;
-            padding: 2rem 1.5rem;
+            padding: 2.5rem 1.5rem;
             height: 100vh;
             position: sticky;
             top: 0;
-            background-color: #111827;
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         .brand-title {
-            color: #2D8A37;
+            color: var(--brand-green);
             font-size: 1.6rem;
-            font-weight: 700;
+            font-weight: 800;
             margin-bottom: 2.5rem;
             text-decoration: none;
-        }
-
-        /* Main Content Area - Flexible */
-        .main-content {
-            flex: auto;
             display: flex;
-            flex-direction: ;
-            /* CHANGE: Change center to flex-start */
-            /* align-items: flex-start; */
-            overflow-y: auto;
-            height: auto;
+            align-items: center;
+            gap: 0.5rem;
         }
 
+        /* Main Content Area */
+        .main-content {
+            flex: 1;
+            display: block;
+            min-width: 0;
+            background-color: var(--glass-white); /* Subtle contrast from the cards */
+            min-height: 100vh;
+        }
+
+        /* The Glass Dashboard Area */
         .glass-card {
             width: 100%;
-
-            max-width: {{ $maxWidth ?? '1000px' }};
-            padding: 2rem;
-            padding-top: 0;
-            background-color: #2d8a369d;
+            max-width: {{ $maxWidth ?? '1200px' }};
+            padding: 3rem 2rem;
+            background-color: var(--glass-white);
             backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 0;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05);
-            /* ADD: Ensure card content stays left-aligned */
+            min-height: 100vh;
             text-align: left;
-            /* FORCE block behavior so internal grid isn't ignored */
-    display: block !important;
-    box-sizing: border-box;
-
+            display: block !important;
+            box-sizing: border-box;
+            border-left: 1px solid rgba(0, 0, 0, 0.05);
         }
 
-
-
+        /* Navigation Links - Dark Mode Style */
         .nav-link {
-            display: block;
-            padding: 0.8rem 1rem;
-            color: #475569;
+            display: flex;
+            align-items: center;
+            padding: 0.85rem 1rem;
+            color: #94a3b8; /* Muted slate for dark background */
             text-decoration: none;
             border-radius: 0.75rem;
             margin-bottom: 0.5rem;
-            transition: all 0.2s;
+            transition: all 0.3s ease;
             font-weight: 500;
         }
 
         .nav-link:hover {
-            background: rgba(45, 138, 55, 0.1);
-            color: #2D8A37;
+            background: rgba(45, 138, 55, 0.15);
+            color: #4ade80; /* Vibrant leaf green on hover */
         }
 
+        .nav-link.active {
+            background: rgba(45, 138, 55, 0.2);
+            color: var(--brand-green);
+            border-left: 3px solid var(--brand-green);
+        }
+
+        /* The Internal Grid System */
         .report-grid {
-    display: grid;
-    /* This forces 3 columns of 320px. If they don't fit, they wrap. */
-    grid-template-columns: repeat(auto-fit, 245px);
-    gap: 5rem;
-    width: 100%;
-    margin-top: 2rem;
-    justify-content: flex-start; /* Aligns grid to the left */
-}
-
-        /* The INTERNAL modern cards you want */
-        .report-widget {
-            /* Hard-coding width to prevent the "Too Wide" stretching */
-    width: 245px !important;
-            background: rgba(255, 255, 255, 0.85);
-            border-radius: 1.5rem;
-            padding: 1.5rem;
-            border: 1px solid white;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
-            transition: all 0.3s ease;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, 240px);
+            gap: 5rem;
+            width: 100%;
+            margin-top: 2rem;
+            justify-content: flex-start;
         }
+
+        .report-widget {
+            width: 240px !important;
+            background: white;
+            border-radius: 1.5rem;
+            padding: 2rem;
+            border: 1px solid rgba(0, 0, 0, 0.03);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
         .report-widget:hover {
             transform: translateY(-5px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.08);
+            border-color: rgba(45, 138, 55, 0.2);
         }
 
-
-
+        /* Logout Section */
         .logout-form { margin-top: auto; }
         .logout-btn {
             width: 100%;
-            background: ghostwhite;
-            color: #111827;;
-            border: none;
+            background: rgba(255, 255, 255, 0.05);
+            color: #ef4444; /* Red for destructive action */
+            border: 1px solid rgba(239, 68, 68, 0.2);
             padding: 0.8rem;
             border-radius: 0.75rem;
             cursor: pointer;
             font-weight: 600;
+            transition: all 0.2s;
+        }
+        .logout-btn:hover {
+            background: #ef4444;
+            color: white;
         }
     </style>
 </head>
 <body>
 
     <aside class="sidebar">
-        <a href="/dashboard" class="brand-title">HarvestHaul</a>
+        <a href="/dashboard" class="brand-title">
+            <span style="color: white">Harvest</span>Haul
+        </a>
 
-        <!-- add Auth check role here for buttons -->
         <nav>
-            <a href="/dashboard" class="nav-link">🏠 Dashboard</a>
+            <a href="/dashboard" class="nav-link {{ request()->is('dashboard') ? 'active' : '' }}">🏠 Dashboard</a>
 
             @if(Auth::check() && Auth::user()->role === 'farmer')
                 <a href="#" class="nav-link">🚜 Post Harvest</a>
                 <a href="#" class="nav-link">🤝 Resource Pooling</a>
                 <a href="#" class="nav-link">🚚 Track Shipments</a>
                 <a href="#" class="nav-link">📊 Market Trends</a>
-                <a href="#" class="nav-link">⭐ Rate Partners</a>
             @endif
 
             @if(Auth::check() && Auth::user()->role === 'admin')
@@ -151,20 +163,34 @@
             @endif
 
             @if(Auth::check() && Auth::user()->role === 'logistics_partner')
+
                 <a href="#" class="nav-link">🚛 Fleet Management</a>
+
                 <a href="#" class="nav-link">👥 Driver Accounts</a>
+
                 <a href="#" class="nav-link">📍 Route Optimization</a>
+
                 <a href="#" class="nav-link">💰 Revenue Analytics</a>
+
                 <a href="#" class="nav-link">📝 Assign Tasks</a>
+
             @endif
 
+
             @if(Auth::check() && Auth::user()->role === 'driver')
+
                 <a href="#" class="nav-link">📍 Waypoint Navigation</a>
+
                 <a href="#" class="nav-link">📷 Proof of Delivery</a>
+
                 <a href="#" class="nav-link">⚠️ Report Issue</a>
+
                 <a href="#" class="nav-link">🕒 Trip History</a>
+
             @endif
-        </nav>
+
+
+            </nav>
 
         <form method="POST" action="{{ route('logout') }}" class="logout-form">
             @csrf
