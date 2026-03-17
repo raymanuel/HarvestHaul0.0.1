@@ -21,6 +21,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
     ];
 
     /**
@@ -44,5 +45,22 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    // Relationship: A User HAS ONE Producer Profile
+    public function farmerProfile()
+    {
+        return $this->hasOne(FarmerProfile::class);
+    }
+
+    // Relationship: A User HAS ONE Partner Profile
+    public function logisticsProfile()
+    {
+        return $this->hasOne(LogisticsProfile::class);
+    }
+
+    public function driverProfile()
+    {
+        return $this->hasOne(DriverProfile::class);
     }
 }

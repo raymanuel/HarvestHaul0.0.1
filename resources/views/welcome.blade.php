@@ -23,15 +23,19 @@
             @if (Route::has('login'))
                 <nav class="flex gap-4">
                     @auth
-                        <a href="{{ url('/dashboard') }}" class="px-5 py-2 border border-[#19140035] dark:border-[#3E3E3A] rounded-sm text-sm font-medium hover:bg-gray-50 dark:hover:bg-[#161615] transition">
-                            Dashboard
-                        </a>
-                    @else
-                        <a href="{{ route('login') }}" class="px-5 py-2 text-sm font-medium hover:opacity-70 transition">
-                            Log in
-                        </a>
+                    <a href="{{ url('/dashboard') }}" class="px-5 py-2 border border-[#19140035] dark:border-[#3E3E3A] rounded-sm text-sm font-medium hover:bg-gray-50 dark:hover:bg-[#161615] transition">
+                        Dashboard
+                    </a>
+            @else
+                    <a href="{{ route('login') }}" class="px-5 py-2 text-sm font-medium hover:opacity-70 transition">
+                    Log in
+                    </a>
 
-
+            @if (Route::has('register'))
+                <a href="{{ route('register') }}" class="px-5 py-2 bg-[#2D8A37] text-white rounded-sm text-sm font-medium hover:bg-[#246e2c] transition">
+                    Register
+                </a>
+            @endif
                     @endauth
                 </nav>
             @endif
@@ -45,6 +49,20 @@
                 <p class="text-lg text-[#706f6c] dark:text-[#A1A09A] max-w-2xl mx-auto mb-8">
                     Resource pooling and marketplace logistics tailored for local agriculture.
                 </p>
+                @guest
+                    <div class="flex gap-4 justify-center">
+                        <a href="{{ route('register') }}" class="px-8 py-3 bg-[#2D8A37] text-white rounded-md font-medium hover:bg-[#246e2c] transition shadow-lg">
+                        Join the Network
+                        </a>
+                        <a href="#how-it-works" class="px-8 py-3 border border-gray-300 dark:border-[#3E3E3A] rounded-md font-medium hover:bg-gray-50 dark:hover:bg-[#161615] transition">
+                        Learn More
+                        </a>
+                    </div>
+                @else
+                    <a href="{{ route('dashboard') }}" class="px-8 py-3 bg-[#2D8A37] text-white rounded-md font-medium hover:bg-[#246e2c] transition shadow-lg shadow-green-900/20">
+                        Go to Dashboard
+                    </a>
+                @endguest
 
             </div>
         </main>

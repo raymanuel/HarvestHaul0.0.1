@@ -17,6 +17,13 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+
+            /** * ARCHITECT UPDATE: Required Role
+             * Removing '->default()' forces the application to explicitly
+             * define the role during the creation process.
+             */
+            $table->enum('role', ['admin', 'farmer', 'logistics_partner', 'driver']);
+
             $table->rememberToken();
             $table->timestamps();
         });
