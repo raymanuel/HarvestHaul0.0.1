@@ -9,10 +9,11 @@ class FarmerProfile extends Model
     // Allow these to be saved via create()
     protected $fillable = [
         'user_id',
-        'rsbsa_number',
+        'phone',
+        'farm_location',
         'is_verified',
-        'farm_name',
-        'farm_location'
+        'latitude',
+        'longitude'
     ];
 
     // Link back to the User

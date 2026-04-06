@@ -13,7 +13,7 @@ return new class extends Migration
         $table->foreignId('user_id')->unique()->constrained()->onDelete('cascade');
 
         // This links the Driver to a specific Logistics Partner's company
-        $table->foreignId('partner_id')->constrained('partner_profiles')->onDelete('cascade');
+        $table->foreignId('partner_id')->constrained('logistics_profiles')->onDelete('cascade');
 
         $table->string('license_number')->unique();
         $table->string('vehicle_type')->nullable(); // e.g., 6-wheeler, L300

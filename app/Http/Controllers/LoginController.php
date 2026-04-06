@@ -9,6 +9,11 @@ use Illuminate\Support\Facades\Auth;
 
 class LoginController extends Controller
 {
+
+    public function showLoginForm()
+    {
+        return view('auth.login');
+    }
     public function authenticate(Request $request): RedirectResponse
     {
         $credentials = $request->validate([
@@ -36,5 +41,7 @@ class LoginController extends Controller
 
         return redirect('/'); // This is your redirect
     }
+
+
 
 }

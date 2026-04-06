@@ -4,39 +4,48 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use App\Models\ProducerProfile;
-use App\Models\PartnerProfile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Models\FarmerProfile;
+use App\Models\LogisticsProfile;
 
 class RegisterController extends Controller
 {
-    public function create()
+    public function index()
     {
-        // Public registration is only for the "Entry Entities"
-        return view('auth.register');
+        return view('auth.register-select');
+    }
+
+    public function create($role)
+    {
+        $validRoles = ['farmer', 'logistics_partner'];
+
+        if (!in_array($role, $validRoles)) {
+            abort(404);
+        }
+
+        return view("auth.register-{$role}");
     }
 
     public function store(Request $request)
-    {
-        // 1. Validation (only Farmer vs Partner)
-        $request->validate([
-            'name'     => 'required|string|max:255',
-            'email'    => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
+{
+    // 1. Validation
+    $request->validate([
+        'name'          => 'required|string|max:255',
+        'email'         => 'required|string|email|max:255|unique:users',
+        'phone'         => 'required|string|max:20',
+        'password'      => 'required|string|min:8|confirmed',
+        'role'          => 'required|in:farmer,logistics_partner',
+        'farm_location' => 'required_if:role,farmer|nullable|string|max:255',
+        'company_name'  => 'required_if:role,logistics_partner|nullable|string|max:255',
+        'business_permit_no' => 'nullable|string|max:255',
+    ]);
 
-            // Strictly Farmer or Partner for public signup
-            'role'     => 'required|in:farmer,logistics_partner',
-
-            'rsbsa_number' => 'required_if:role,farmer|nullable|string|size:12|unique:producer_profiles',
-            'company_name' => 'required_if:role,logistics_partner|nullable|string|max:255',
-        ]);
-
+    // 2. Data Persistence
+    try {
         return DB::transaction(function () use ($request) {
-
-            // A. Create User
             $user = User::create([
                 'name'     => $request->name,
                 'email'    => $request->email,
@@ -44,22 +53,26 @@ class RegisterController extends Controller
                 'role'     => $request->role,
             ]);
 
-            // B. Create Profile (Farmer or Partner)
-            if ($user->role === 'farmer') {
+            if ($request->role === 'farmer') {
                 $user->farmerProfile()->create([
-                    'rsbsa_number' => $request->rsbsa_number,
-                    'is_verified'  => false,
+                    'phone'         => $request->phone,
+                    'farm_location' => $request->farm_location,
+                    'is_verified'   => false,
                 ]);
             }
-
-            elseif ($user->role === 'logistics_partner') {
+            elseif ($request->role === 'logistics_partner') {
                 $user->logisticsProfile()->create([
-                    'company_name' => $request->company_name,
+                    'phone'              => $request->phone,
+                    'company_name'       => $request->company_name,
+                    'business_permit_no' => $request->business_permit_no,
                 ]);
             }
-
-            Auth::login($user);
-            return redirect()->route('dashboard');
+            return redirect()->route('login')->with('status', 'Registration successful! Please log in.');
         });
+    } catch (\Exception $e) {
+        // This will stop the code and show you exactly why it's failing
+        dd($e->getMessage());
     }
+}
+
 }
