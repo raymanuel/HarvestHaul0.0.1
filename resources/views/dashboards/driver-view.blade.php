@@ -1,3 +1,4 @@
+<x-layout>
 <div class="w-full">
     <header class="pt-8 mb-4">
         <h1 class="text-3xl font-bold text-gray-900 mb-2">Welcome, {{ Auth::user()->name }}</h1>
@@ -50,3 +51,4 @@
         </div>
     </div>
 </div>
+</x-layout>

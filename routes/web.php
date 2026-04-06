@@ -19,12 +19,15 @@ Route::view('/', 'welcome')->name('welcome');
 */
 Route::middleware('guest')->group(function () {
     // Login
-    Route::view('login', 'auth.login')->name('login'); // Adjusted to standard auth folder
+    Route::get('login', [LoginController::class, 'showLoginForm'])->name('login');
     Route::post('login', [LoginController::class, 'authenticate'])->name('login.attempt');
 
+
+
     // Registration (Moved inside Guest middleware)
-    Route::get('/register', [RegisterController::class, 'create'])->name('register');
-    Route::post('/register', [RegisterController::class, 'store']);
+    Route::get('register', [RegisterController::class, 'index'])->name('register');
+    Route::get('/register/{role}', [RegisterController::class, 'create'])->name('register.role');
+    Route::post('/register', [RegisterController::class, 'store'])->name('register.store');
 });
 
 /*

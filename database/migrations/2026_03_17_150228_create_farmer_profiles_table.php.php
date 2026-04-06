@@ -15,10 +15,8 @@ return new class extends Migration
         $table->id();
         // Links to users.id. If user is deleted, this profile is deleted.
         $table->foreignId('user_id')->unique()->constrained()->onDelete('cascade');
-
-        $table->string('rsbsa_number', 12)->unique();
+        $table->string('phone')->nullable();
         $table->boolean('is_verified')->default(false); // Controlled by Admin
-        $table->string('farm_name')->nullable();
         $table->text('farm_location')->nullable();
 
         $table->timestamps();

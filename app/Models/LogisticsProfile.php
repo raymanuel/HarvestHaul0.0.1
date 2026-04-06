@@ -9,7 +9,8 @@ class LogisticsProfile extends Model
     protected $fillable = [
         'user_id',
         'company_name',
-        'business_permit_no'
+        'business_permit_no',
+        'phone'
     ];
 
     public function user()
