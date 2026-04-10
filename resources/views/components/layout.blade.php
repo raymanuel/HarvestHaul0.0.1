@@ -150,7 +150,7 @@
             <a href="/dashboard" class="nav-link {{ request()->is('dashboard') ? 'active' : '' }}">🏠 Dashboard</a>
 
             @if(Auth::check() && Auth::user()->role === 'farmer')
-                <a href="#" class="nav-link">🚜 Post Harvest</a>
+                <a href="{{ route('harvests.index') }}" class="nav-link {{ request()->routeIs('harvests.*') ? 'active' : '' }}">🚜 Post Harvest</a>
                 <a href="#" class="nav-link">🤝 Resource Pooling</a>
                 <a href="#" class="nav-link">🚚 Track Shipments</a>
                 <a href="#" class="nav-link">📊 Market Trends</a>
@@ -168,9 +168,9 @@
 
                 <a href="#" class="nav-link">👥 Driver Accounts</a>
 
-                <a href="#" class="nav-link">📍 Route Optimization</a>
+                <a href="{{ route('route.optimization') }}" class="nav-link {{ request()->routeIs('route.optimization') ? 'active' : '' }}">📍 Route Optimization</a>
 
-                <a href="#" class="nav-link">💰 Revenue Analytics</a>
+                <!-- <a href="#" class="nav-link">💰 Revenue Analytics</a> -->
 
                 <a href="#" class="nav-link">📝 Assign Tasks</a>
 

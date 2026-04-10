@@ -21,4 +21,16 @@ class FarmerProfile extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function harvests()
+    {
+        return $this->hasMany(Harvest::class, 'user_id', 'user_id');
+    }
+
+    // Convenience: only active harvests — used by RouteOptimizationController
+    public function activeHarvests()
+    {
+        return $this->hasMany(Harvest::class, 'user_id', 'user_id')
+                    ->where('status', 'active');
+    }
 }
