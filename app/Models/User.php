@@ -6,8 +6,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Models\FarmerProfile;
 use App\Models\LogisticsProfile;
+use App\Models\Harvest;
 
 class User extends Authenticatable
 {
@@ -49,13 +51,13 @@ class User extends Authenticatable
         ];
     }
 
-    // Relationship: A User HAS ONE Producer Profile
+    // Relationship: A User HAS ONE FarmerProfile
     public function farmerProfile()
     {
         return $this->hasOne(FarmerProfile::class);
     }
 
-    // Relationship: A User HAS ONE Partner Profile
+    // Relationship: A User HAS ONE LogisticsProfile
     public function logisticsProfile()
     {
         return $this->hasOne(LogisticsProfile::class);
@@ -64,5 +66,17 @@ class User extends Authenticatable
     public function driverProfile()
     {
         return $this->hasOne(DriverProfile::class);
+    }
+
+    // A Farmer User HAS MANY Harvests they posted
+    public function harvests()
+    {
+        return $this->hasMany(Harvest::class, 'user_id');
+    }
+
+    // A Driver User HAS MANY Harvests assigned to them for pickup
+    public function assignedHarvests()
+    {
+        return $this->hasMany(Harvest::class, 'driver_id');
     }
 }

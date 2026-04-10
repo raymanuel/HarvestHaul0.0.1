@@ -67,7 +67,11 @@ class RegisterController extends Controller
                     'business_permit_no' => $request->business_permit_no,
                 ]);
             }
-            return redirect()->route('login')->with('status', 'Registration successful! Please log in.');
+
+            Auth::login($user);
+            $user->sendEmailVerificationNotification();
+            return redirect()->route('verification.notice');
+
         });
     } catch (\Exception $e) {
         // This will stop the code and show you exactly why it's failing

@@ -10,9 +10,9 @@
         <div class="report-widget">
             <span class="text-4xl mb-3 block">🚜</span>
             <h3 class="font-bold text-gray-400 text-sm uppercase tracking-wider">Active Listings</h3>
-            <p class="text-3xl font-black text-gray-900 mt-2">0 <span class="text-sm font-medium text-gray-400">Items</span></p>
+            <p class="text-3xl font-black text-gray-900 mt-2">{{ $activeCount }} <span class="text-sm font-medium text-gray-400">Items</span></p>
             <div class="mt-6 pt-4 border-t border-gray-100">
-                <a href="#" class="text-[#2D8A37] font-bold text-sm hover:underline">Manage posts →</a>
+                <a href="{{ route('harvests.index') }}" class="text-[#2D8A37] font-bold text-sm hover:underline">Manage posts →</a>
             </div>
         </div>
 
@@ -39,9 +39,9 @@
     <div class="mt-12">
         <h2 class="text-xl font-bold text-gray-800 mb-6">Farmer Actions</h2>
         <div class="flex flex-wrap gap-4">
-            <button class="bg-[#2D8A37] text-white px-8 py-4 rounded-xl font-semibold hover:bg-opacity-90 transition shadow-md">
+            <a href="{{ route('harvests.create') }}" class="bg-[#2D8A37] text-white px-8 py-4 rounded-xl font-semibold hover:bg-opacity-90 transition shadow-md inline-block">
                 Post New Harvest
-            </button>
+            </a>
             <button class="bg-slate-800 text-white px-8 py-4 rounded-xl font-semibold hover:bg-black transition shadow-md">
                 Request Pooling
             </button>
