@@ -10,7 +10,8 @@ class LogisticsProfile extends Model
         'user_id',
         'company_name',
         'business_permit_no',
-        'phone'
+        'phone',
+        'is_verified',
     ];
 
     public function user()

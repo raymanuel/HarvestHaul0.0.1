@@ -10,11 +10,8 @@
     <div class="max-w-md w-full bg-white rounded-2xl shadow-lg border border-gray-200 p-10 text-center">
 
         <div class="text-6xl mb-4">✅</div>
-
         <h1 class="text-2xl font-bold text-gray-800 mb-2">Email Verified!</h1>
-        <p class="text-gray-500 mb-6">
-            Your account has been successfully verified. You may now close this tab.
-        </p>
+        <p class="text-gray-500 mb-4">Your account has been successfully verified.</p>
 
         <p id="countdown-msg" class="text-sm text-gray-400 mb-6">
             This tab will close in <span id="countdown" class="font-bold text-gray-600">5</span> seconds...
@@ -42,11 +39,10 @@
                 clearInterval(timer);
                 window.close();
 
-                // If window.close() was blocked by the browser, show fallback
+                // If browser blocked window.close(), show fallback button
                 setTimeout(() => {
                     countdownMsg.classList.add('hidden');
                     fallbackBtn.classList.remove('hidden');
-                    fallbackBtn.textContent = "Browser blocked auto-close. Go to Dashboard →";
                 }, 500);
             }
         }, 1000);

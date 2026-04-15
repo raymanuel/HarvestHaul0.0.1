@@ -17,37 +17,19 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
-        // farmer user
-        User::factory()->create([
-            'name' => 'Farmer A',
-            'email' => 'farmera@mail.com',
-            'password' => '123',
-            'role' => 'farmer'
-        ]);
-
         // admin User
         User::factory()->create([
         'name' => 'Admin',
         'email' => 'admin@mail.com',
-        'password' => bcrypt('123'),
+        'password' => '123',
         'role' => 'admin'
         ]);
 
-        // logistics partner user
-        User::factory()->create([
-        'name' => 'Logistics Partner',
-        'email' => 'logistics@mail.com',
-        'password' => bcrypt('123'),
-        'role' => 'logistics_partner'
-        ]);
+        $this->call([
+        FarmerSeeder::class,
+        LogisticsSeeder::class,
+    ]);
 
-        // driver user
-        User::factory()->create([
-        'name' => 'Driver A',
-        'email' => 'driver@mail.com',
-        'password' => bcrypt('123'),
-        'role' => 'driver'
-        ]);
 
 
     }

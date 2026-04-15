@@ -43,12 +43,12 @@
         </div>
 
         <button type="submit" class="primary-btn">
-            Register as Logistics Partner
+            Register as Logistics Coordinator
         </button>
 
         {{-- Footer Link for Role Switching --}}
         <div style="margin-top: 1.5rem; font-size: 0.85rem; color: #6b7280;">
-            Not a logistics partner?
+            Not a logistics coordinator?
             <a href="{{ route('register.role', 'farmer') }}" style="color: #2D8A37; font-weight: 600; text-decoration: none;">
                 Sign up as Farmer
             </a>

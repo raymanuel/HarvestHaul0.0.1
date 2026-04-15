@@ -26,6 +26,7 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'status',
     ];
 
     /**
@@ -51,6 +52,10 @@ class User extends Authenticatable
         ];
     }
 
+    public function auditLogs()
+    {
+        return $this->hasMany(AuditLog::class, 'target_id');
+    }
     // Relationship: A User HAS ONE FarmerProfile
     public function farmerProfile()
     {

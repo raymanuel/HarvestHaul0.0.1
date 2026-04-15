@@ -6,6 +6,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\RouteOptimizationController;
 use App\Http\Controllers\HarvestController;
+use App\Http\Controllers\AdminController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
 
@@ -60,8 +61,12 @@ Route::middleware('auth')->group(function () {
     |----------------------------------------------------------------------
     */
     Route::get('/email/verify', function () {
+        // If already verified, skip this page and go straight to dashboard
+        if (auth()->user()->hasVerifiedEmail()) {
+            return redirect()->route('dashboard');
+        }
         return view('auth.verify-email');
-    })->name('verification.notice');
+        })->name('verification.notice');
 
     Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
         $request->fulfill();
@@ -86,7 +91,23 @@ Route::middleware('auth')->group(function () {
         Route::get('/harvests/create', [HarvestController::class, 'create'])->name('harvests.create');
         Route::post('/harvests', [HarvestController::class, 'store'])->name('harvests.store');
         Route::delete('/harvests/{id}', [HarvestController::class, 'destroy'])->name('harvests.destroy');
-});
+
+        // Admin Routes
+        Route::prefix('admin')->group(function () {
+        Route::get('/users',                    [AdminController::class, 'users'])->name('admin.users');
+        Route::post('/users/{user}/status',     [AdminController::class, 'toggleStatus'])->name('admin.users.status');
+
+        Route::get('/farmers',                  [AdminController::class, 'farmers'])->name('admin.farmers');
+        Route::post('/farmers/{user}/verify',   [AdminController::class, 'verifyFarmer'])->name('admin.farmers.verify');
+        Route::post('/farmers/{user}/reject',   [AdminController::class, 'rejectFarmer'])->name('admin.farmers.reject');
+
+        Route::get('/logistics',                [AdminController::class, 'logistics'])->name('admin.logistics');
+        Route::post('/logistics/{user}/verify', [AdminController::class, 'verifyLogistics'])->name('admin.logistics.verify');
+        Route::post('/logistics/{user}/reject', [AdminController::class, 'rejectLogistics'])->name('admin.logistics.reject');
+
+        Route::get('/audit-logs',               [AdminController::class, 'auditLogs'])->name('admin.audit-logs');
+    });
+    });
 
 
 });
