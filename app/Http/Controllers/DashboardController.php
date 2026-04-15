@@ -20,7 +20,7 @@ class DashboardController extends Controller
                 'activeCount'    => $user->harvests()->where('status', 'active')->count(),
             ]),
             'logistics_partner' => view('dashboards.logistics-view'),
-            'admin'             => view('dashboards.admin-view'),
+            'admin'             => app(AdminController::class)->index(),
             'driver'             => view('dashboards.driver-view'),
             default             => abort(403),
         };

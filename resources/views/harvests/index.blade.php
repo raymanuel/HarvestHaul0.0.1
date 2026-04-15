@@ -5,13 +5,13 @@
         <a href="{{ route('dashboard') }}" class="text-sm text-gray-400 hover:text-gray-600 mb-4 inline-block">
             ← Back to Dashboard
         </a>
-        <div class="flex items-center justify-between">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
                 <h1 class="text-3xl font-bold text-gray-900 mb-2">My Harvest Listings</h1>
-                <p class="text-gray-500">Manage your active crop listings. Active listings are visible on the logistics map.</p>
+                    <p class="text-gray-500">Manage your active crop listings. Active listings are visible on the logistics map.</p>
             </div>
-            <a href="{{ route('harvests.create') }}"
-                class="bg-[#2D8A37] text-white px-6 py-3 rounded-xl font-semibold hover:bg-opacity-90 transition shadow-md text-sm">
+                <a href="{{ route('harvests.create') }}"
+                class="bg-[#2D8A37] text-white px-6 py-3 rounded-xl font-semibold hover:bg-opacity-90 transition shadow-md text-sm self-start sm:self-center whitespace-nowrap">
                 + Post New Harvest
             </a>
         </div>
@@ -35,8 +35,8 @@
             </a>
         </div>
     @else
-        <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
-            <table class="w-full text-sm text-left">
+        <div class="table-responsive">
+            <table class="w-full text-sm text-left" style="min-width: 640px;">
                 <thead class="bg-slate-50 text-gray-500 uppercase text-xs tracking-wider">
                     <tr>
                         <th class="px-6 py-4">Crop</th>
