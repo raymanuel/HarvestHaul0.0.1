@@ -24,7 +24,7 @@ class FarmerSeeder extends Seeder
             $user = User::create([
                 'name' => $farm['name'] . ' Owner',
                 'email' => "farmer{$index}@test.com",
-                'password' => Hash::make('123'), // Kept your updated test password
+                'password' => ('123'), // Kept your updated test password
                 'role' => 'farmer',
             ]);
 

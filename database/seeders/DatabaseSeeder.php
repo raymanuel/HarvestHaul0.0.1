@@ -28,9 +28,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
         FarmerSeeder::class,
         LogisticsSeeder::class,
-    ]);
-
-
+        ]);
 
     }
 }

@@ -12,7 +12,7 @@
                 <tr>
                     <th class="px-6 py-4">Action</th>
                     <th class="px-6 py-4">Performed By</th>
-                    <th class="px-6 py-4">Target User</th>
+                    <th class="px-6 py-4">Target</th>
                     <th class="px-6 py-4">Notes</th>
                     <th class="px-6 py-4">Date & Time</th>
                 </tr>
@@ -26,7 +26,11 @@
                         </span>
                     </td>
                     <td class="px-6 py-4 font-semibold text-gray-800">{{ $log->admin->name ?? '—' }}</td>
-                    <td class="px-6 py-4 text-gray-600">{{ $log->target->name ?? '—' }}</td>
+                    <td class="px-6 py-4">
+                        <span class="text-xs font-mono bg-gray-100 text-gray-600 px-2 py-0.5 rounded">
+                            {{ str_replace('_', ' ', $log->target_type) }} #{{ $log->target_id }}
+                        </span>
+                    </td>
                     <td class="px-6 py-4 text-gray-500">{{ $log->notes ?? '—' }}</td>
                     <td class="px-6 py-4 text-gray-400 text-xs">{{ $log->created_at->format('M d, Y h:i A') }}</td>
                 </tr>
@@ -38,7 +42,6 @@
             </tbody>
         </table>
 
-        {{-- Pagination --}}
         @if($logs->hasPages())
             <div class="px-6 py-4 border-t border-gray-100">
                 {{ $logs->links() }}

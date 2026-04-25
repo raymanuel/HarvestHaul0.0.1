@@ -7,6 +7,8 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\RouteOptimizationController;
 use App\Http\Controllers\HarvestController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\Admin\CropManagerController;
+use App\Http\Middleware\EnsureUserIsFarmer;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
 
@@ -80,33 +82,60 @@ Route::middleware('auth')->group(function () {
 
     /*
     |----------------------------------------------------------------------
-    | Verified-Only Routes (single group — no duplicates)
+    | Verified-Only Routes
     |----------------------------------------------------------------------
     */
     Route::middleware('verified')->group(function () {
         Route::get('/route-optimization', [RouteOptimizationController::class, 'index'])->name('route.optimization');
 
-        // Harvest Listings
-        Route::get('/harvests', [HarvestController::class, 'index'])->name('harvests.index');
-        Route::get('/harvests/create', [HarvestController::class, 'create'])->name('harvests.create');
-        Route::post('/harvests', [HarvestController::class, 'store'])->name('harvests.store');
-        Route::delete('/harvests/{id}', [HarvestController::class, 'destroy'])->name('harvests.destroy');
+       Route::middleware(['auth', 'verified', EnsureUserIsFarmer::class])
+       ->group(function () {
+            Route::get('/harvests', [HarvestController::class, 'index'])->name('harvests.index');
+            Route::get('/harvests/create', [HarvestController::class, 'create'])->name('harvests.create');
+            Route::post('/harvests', [HarvestController::class, 'store'])->name('harvests.store');
+            Route::get('/harvests/{id}/edit', [HarvestController::class, 'edit'])->name('harvests.edit');
+            Route::put('/harvests/{id}', [HarvestController::class, 'update'])->name('harvests.update');
+            Route::delete('/harvests/{id}', [HarvestController::class, 'destroy'])->name('harvests.destroy');
+        });
 
-        // Admin Routes
-        Route::prefix('admin')->group(function () {
-        Route::get('/users',                    [AdminController::class, 'users'])->name('admin.users');
-        Route::post('/users/{user}/status',     [AdminController::class, 'toggleStatus'])->name('admin.users.status');
+        //Admin Routes — role:admin middleware enforced at controller level
 
-        Route::get('/farmers',                  [AdminController::class, 'farmers'])->name('admin.farmers');
-        Route::post('/farmers/{user}/verify',   [AdminController::class, 'verifyFarmer'])->name('admin.farmers.verify');
-        Route::post('/farmers/{user}/reject',   [AdminController::class, 'rejectFarmer'])->name('admin.farmers.reject');
+        Route::prefix('admin')->name('admin.')->middleware('verified')->group(function () {
 
-        Route::get('/logistics',                [AdminController::class, 'logistics'])->name('admin.logistics');
-        Route::post('/logistics/{user}/verify', [AdminController::class, 'verifyLogistics'])->name('admin.logistics.verify');
-        Route::post('/logistics/{user}/reject', [AdminController::class, 'rejectLogistics'])->name('admin.logistics.reject');
+            // Existing user/farmer/logistics management
+            Route::get('/users',                    [AdminController::class, 'users'])->name('users');
+            Route::post('/users/{user}/status',     [AdminController::class, 'toggleStatus'])->name('users.status');
 
-        Route::get('/audit-logs',               [AdminController::class, 'auditLogs'])->name('admin.audit-logs');
-    });
+            Route::get('/farmers',                  [AdminController::class, 'farmers'])->name('farmers');
+            Route::post('/farmers/{user}/verify',   [AdminController::class, 'verifyFarmer'])->name('farmers.verify');
+            Route::post('/farmers/{user}/reject',   [AdminController::class, 'rejectFarmer'])->name('farmers.reject');
+
+            Route::get('/logistics',                [AdminController::class, 'logistics'])->name('logistics');
+            Route::post('/logistics/{user}/verify', [AdminController::class, 'verifyLogistics'])->name('logistics.verify');
+            Route::post('/logistics/{user}/reject', [AdminController::class, 'rejectLogistics'])->name('logistics.reject');
+
+            Route::get('/audit-logs',               [AdminController::class, 'auditLogs'])->name('audit-logs');
+
+            // Crop Manager — categories, crops, varieties + pricing
+            Route::prefix('crops')->name('crops.')->group(function () {
+                Route::get('/',    [CropManagerController::class, 'index'])->name('index');
+
+                // Categories
+                Route::post('/categories',             [CropManagerController::class, 'storeCategory'])->name('categories.store');
+                Route::put('/categories/{category}',   [CropManagerController::class, 'updateCategory'])->name('categories.update');
+                Route::delete('/categories/{category}',[CropManagerController::class, 'destroyCategory'])->name('categories.destroy');
+
+                // Crops
+                Route::post('/',            [CropManagerController::class, 'storeCrop'])->name('store');
+                Route::put('/{crop}',       [CropManagerController::class, 'updateCrop'])->name('update');
+                Route::delete('/{crop}',    [CropManagerController::class, 'destroyCrop'])->name('destroy');
+
+                // Varieties
+                Route::post('/varieties',              [CropManagerController::class, 'storeVariety'])->name('varieties.store');
+                Route::put('/varieties/{variety}',     [CropManagerController::class, 'updateVariety'])->name('varieties.update');
+                Route::delete('/varieties/{variety}',  [CropManagerController::class, 'destroyVariety'])->name('varieties.destroy');
+            });
+        });
     });
 
 

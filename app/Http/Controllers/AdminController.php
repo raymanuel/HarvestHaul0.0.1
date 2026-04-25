@@ -30,14 +30,14 @@ class AdminController extends Controller
         $this->adminOnly();
 
         return view('dashboards.admin-view', [
-            'totalUsers'           => User::count(),
-            'pendingFarmers'       => User::where('role', 'farmer')
-                                         ->whereHas('farmerProfile', fn($q) => $q->where('is_verified', false))
-                                         ->count(),
-            'pendingLogistics'     => User::where('role', 'logistics_partner')
-                                         ->whereHas('logisticsProfile', fn($q) => $q->where('is_verified', false))
-                                         ->count(),
-            'recentLogs'           => AuditLog::with(['admin', 'target'])->latest()->take(5)->get(),
+            'totalUsers'       => User::count(),
+            'pendingFarmers'   => User::where('role', 'farmer')
+                                    ->whereHas('farmerProfile', fn($q) => $q->where('is_verified', false))
+                                    ->count(),
+            'pendingLogistics' => User::where('role', 'logistics_partner')
+                                    ->whereHas('logisticsProfile', fn($q) => $q->where('is_verified', false))
+                                    ->count(),
+            'recentLogs'       => AuditLog::with('admin')->latest()->take(5)->get(),
         ]);
     }
 
@@ -173,7 +173,7 @@ class AdminController extends Controller
     {
         $this->adminOnly();
 
-        $logs = AuditLog::with(['admin', 'target'])->latest()->paginate(20);
+        $logs = AuditLog::with(['admin'])->latest()->paginate(20);
 
         return view('admin.audit-logs', compact('logs'));
     }

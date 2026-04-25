@@ -1,3 +1,5 @@
+@props(['maxWidth' => '420px'])
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,14 +11,16 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700&display=swap" rel="stylesheet" />
 
+    {{-- Leaflet or other page-specific head injections --}}
+    @stack('head')
+
     <style>
         body {
             margin: 0;
-            padding: 0;
+            padding: 2rem 1rem;
             font-family: 'Figtree', sans-serif;
-            /* Light, modern gradient background */
             background: linear-gradient(135deg, #f1f5f9 0%, #faf5ff 50%, #eff6ff 100%);
-            height: 100vh;
+            min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -24,8 +28,8 @@
 
         .glass-card {
             width: 100%;
-            max-width: 400px;
-            padding: 2.5rem; /* Slightly reduced padding for a tighter look */
+            max-width: {{ $maxWidth }};
+            padding: 2.5rem;
             background: rgba(255, 255, 255, 0.6);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
@@ -35,7 +39,6 @@
             text-align: center;
         }
 
-        /* Standardized styles for the elements inside the slot */
         .brand-title {
             color: #2D8A37;
             font-size: 1.8rem;
@@ -48,8 +51,10 @@
             text-align: left;
         }
 
-        /* Customizing input style for the glass aesthetic */
-        input {
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        input[type="number"] {
             width: 100%;
             padding: 0.8rem 1rem;
             border-radius: 0.75rem;
@@ -78,23 +83,17 @@
             transition: background 0.2s, transform 0.1s;
         }
 
-        button.primary-btn:hover {
-            background: #000;
-        }
-
-        button.primary-btn:active {
-            transform: scale(0.98);
-        }
+        button.primary-btn:hover { background: #000; }
+        button.primary-btn:active { transform: scale(0.98); }
     </style>
 </head>
 
 <body>
     <div class="glass-card">
-        {{-- Brand Title is part of the layout for consistency --}}
         <div class="brand-title">HarvestHaul</div>
-
-        {{-- The specific form fields from Farmer or Logistics will appear here --}}
         {{ $slot }}
     </div>
+
+    @stack('scripts')
 </body>
 </html>

@@ -40,7 +40,8 @@
                 <thead class="bg-slate-50 text-gray-500 uppercase text-xs tracking-wider">
                     <tr>
                         <th class="px-6 py-4">Crop</th>
-                        <th class="px-6 py-4">Quantity</th>
+                        <th class="px-6 py-4">Variety</th>
+                        <th class="px-6 py-4">Est. Quantity</th>
                         <th class="px-6 py-4">Notes</th>
                         <th class="px-6 py-4">Status</th>
                         <th class="px-6 py-4">Posted</th>
@@ -51,6 +52,7 @@
                     @foreach($harvests as $harvest)
                     <tr class="hover:bg-slate-50 transition">
                         <td class="px-6 py-4 font-semibold text-gray-800">{{ $harvest->crop_type }}</td>
+                        <td class="px-6 py-4 text-gray-600">{{ $harvest->variety }}</td>
                         <td class="px-6 py-4 text-gray-600">{{ number_format($harvest->quantity_kg, 2) }} kg</td>
                         <td class="px-6 py-4 text-gray-500 max-w-xs truncate">{{ $harvest->notes ?? '—' }}</td>
                         <td class="px-6 py-4">

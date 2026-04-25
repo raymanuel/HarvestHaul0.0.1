@@ -221,7 +221,6 @@
                     <a href="{{ route('harvests.index') }}" class="nav-link {{ request()->routeIs('harvests.*') ? 'active' : '' }}">🚜 Post Harvest</a>
                     <a href="#" class="nav-link">🤝 Resource Pooling</a>
                     <a href="#" class="nav-link">🚚 Track Shipments</a>
-                    <a href="#" class="nav-link">📊 Market Trends</a>
                 @endif
 
                 @if(Auth::check() && Auth::user()->role === 'admin')
@@ -229,10 +228,11 @@
                     <a href="{{ route('admin.farmers') }}"    class="nav-link {{ request()->routeIs('admin.farmers*') ? 'active' : '' }}">🌾 Farmer Verification</a>
                     <a href="{{ route('admin.logistics') }}"  class="nav-link {{ request()->routeIs('admin.logistics*') ? 'active' : '' }}">🚛 Logistics Verification</a>
                     <a href="{{ route('admin.audit-logs') }}" class="nav-link {{ request()->routeIs('admin.audit-logs*') ? 'active' : '' }}">🔍 Audit Logs</a>
+                    <a href="{{ route('admin.crops.index') }}" class="nav-link {{ request()->routeIs('admin.crops*') ? 'active' : '' }}">🌱 Crop Registry</a>
                 @endif
 
                 @if(Auth::check() && Auth::user()->role === 'logistics_partner')
-                    <a href="#" class="nav-link">🚛 Fleet Management</a>
+                    <a href="#" class="nav-link">🚛 Hauling Trucks</a>
                     <a href="#" class="nav-link">👥 Driver Accounts</a>
                     <a href="{{ route('route.optimization') }}" class="nav-link {{ request()->routeIs('route.optimization') ? 'active' : '' }}">📍 Route Optimization</a>
                     <a href="#" class="nav-link">📝 Assign Tasks</a>

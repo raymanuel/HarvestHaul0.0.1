@@ -45,9 +45,7 @@
             <button class="bg-slate-800 text-white px-8 py-4 rounded-xl font-semibold hover:bg-black transition shadow-md">
                 Request Pooling
             </button>
-            <button class="bg-white text-slate-700 px-8 py-4 rounded-xl font-semibold hover:bg-slate-50 transition shadow-sm border border-slate-200">
-                View Market Trends
-            </button>
+
         </div>
     </div>
 </div>
