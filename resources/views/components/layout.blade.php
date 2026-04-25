@@ -213,26 +213,42 @@
             <a href="/dashboard" class="brand-title">
                 <span style="color:white">Harvest</span>Haul
             </a>
-
             <nav>
                 <a href="/dashboard" class="nav-link {{ request()->is('dashboard') ? 'active' : '' }}">🏠 Dashboard</a>
 
                 @if(Auth::check() && Auth::user()->role === 'farmer')
                     <a href="{{ route('harvests.index') }}" class="nav-link {{ request()->routeIs('harvests.*') ? 'active' : '' }}">🚜 Post Harvest</a>
-                    <a href="#" class="nav-link">🤝 Resource Pooling</a>
+                    <a href="{{ route('farmer.documents') }}" class="nav-link {{ request()->routeIs('farmer.documents*') ? 'active' : '' }}">📄 My Documents</a>
                     <a href="#" class="nav-link">🚚 Track Shipments</a>
-                    <a href="#" class="nav-link">📊 Market Trends</a>
                 @endif
 
                 @if(Auth::check() && Auth::user()->role === 'admin')
-                    <a href="{{ route('admin.users') }}"      class="nav-link {{ request()->routeIs('admin.users*') ? 'active' : '' }}">👥 User Management</a>
-                    <a href="{{ route('admin.farmers') }}"    class="nav-link {{ request()->routeIs('admin.farmers*') ? 'active' : '' }}">🌾 Farmer Verification</a>
-                    <a href="{{ route('admin.logistics') }}"  class="nav-link {{ request()->routeIs('admin.logistics*') ? 'active' : '' }}">🚛 Logistics Verification</a>
+
+                {{-- People --}}
+                <p style="font-size:0.65rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:#475569; padding:0.5rem 1rem 0.25rem; margin-top:0.5rem;">People</p>
+
+                    <a href="{{ route('admin.users') }}" class="nav-link {{ request()->routeIs('admin.users*') ? 'active' : '' }}">👥 User Management</a>
+
+                    <a href="{{ route('admin.farmers') }}" class="nav-link {{ request()->routeIs('admin.farmers*') ? 'active' : '' }}">🌾 Farmer Verification</a>
+                    <a href="{{ route('admin.farmer-documents') }}" class="nav-link {{ request()->routeIs('admin.farmer-documents*') ? 'active' : '' }}">📋 Farmer Documents</a>
+
+                    <a href="{{ route('admin.logistics') }}" class="nav-link {{ request()->routeIs('admin.logistics*') ? 'active' : '' }}">🚛 Logistics Verification</a>
+                    <a href="#" class="nav-link">📦 Logistics Documents</a>
+
+                    {{-- Platform --}}
+                    <p style="font-size:0.65rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:#475569; padding:0.5rem 1rem 0.25rem; margin-top:0.5rem;">Platform</p>
+
+                    <a href="{{ route('admin.crops.index') }}" class="nav-link {{ request()->routeIs('admin.crops*') ? 'active' : '' }}">🌱 Crop Registry</a>
+
+                    {{-- System --}}
+                    <p style="font-size:0.65rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:#475569; padding:0.5rem 1rem 0.25rem; margin-top:0.5rem;">System</p>
+
                     <a href="{{ route('admin.audit-logs') }}" class="nav-link {{ request()->routeIs('admin.audit-logs*') ? 'active' : '' }}">🔍 Audit Logs</a>
+
                 @endif
 
                 @if(Auth::check() && Auth::user()->role === 'logistics_partner')
-                    <a href="#" class="nav-link">🚛 Fleet Management</a>
+                    <a href="#" class="nav-link">🚛 Hauling Trucks</a>
                     <a href="#" class="nav-link">👥 Driver Accounts</a>
                     <a href="{{ route('route.optimization') }}" class="nav-link {{ request()->routeIs('route.optimization') ? 'active' : '' }}">📍 Route Optimization</a>
                     <a href="#" class="nav-link">📝 Assign Tasks</a>

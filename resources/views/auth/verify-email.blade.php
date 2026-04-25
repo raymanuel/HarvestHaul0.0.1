@@ -1,79 +1,52 @@
-<x-guest-layout>
-    <div class="max-w-md mx-auto mt-20 bg-white p-8 rounded-xl shadow border border-gray-200 text-center">
-        <div class="text-5xl mb-4">📧</div>
-        <h1 class="text-2xl font-bold text-gray-800 mb-2">Verify your email</h1>
-        <p class="text-gray-500 mb-6">
-            Thanks for registering! Please verify your email address by clicking the link we just sent you.
-        </p>
+<x-register-layout>
+    <h2 style="font-size: 1.1rem; font-weight: 700; color: #111827; margin-bottom: 0.5rem;">
+        Check your email
+    </h2>
+    <p style="font-size: 0.85rem; color: #6b7280; margin-bottom: 1.5rem; line-height: 1.6;">
+        We sent a verification link to your email address. Click it to activate your account.
+        This window will close automatically once verified.
+    </p>
 
-        @if (session('status') == 'verification-link-sent')
-            <div class="mb-4 text-sm text-green-600 bg-green-50 border border-green-200 rounded-lg p-3">
-                A new verification link has been sent to your email.
-            </div>
-        @endif
+    @if (session('status') == 'verification-link-sent')
+        <div style="margin-bottom: 1rem; padding: 0.75rem; background: rgba(45,138,55,0.08);
+                    border: 1px solid rgba(45,138,55,0.3); border-radius: 0.6rem;
+                    font-size: 0.8rem; color: #2D8A37;">
+            A new verification link has been sent to your email.
+        </div>
+    @endif
 
-        {{-- Shown after verification is detected --}}
-        <a id="dashboard-btn"
-           href="{{ route('dashboard') }}"
-           class="hidden w-full inline-block bg-[#2D8A37] text-white font-bold py-2 px-4 rounded-lg hover:bg-opacity-90 transition mb-4">
-            Go to Dashboard →
-        </a>
+    <p id="waiting-msg" style="font-size: 0.8rem; color: #9ca3af; font-style: italic; margin-bottom: 1.25rem;">
+        ⏳ Waiting for verification...
+    </p>
 
-        <p id="waiting-msg" class="text-sm text-gray-400 mb-6 italic">
-            Waiting for verification...
-        </p>
+    <form method="POST" action="{{ route('verification.send') }}">
+        @csrf
+        <button type="submit" class="primary-btn">Resend Verification Email</button>
+    </form>
 
-        <form method="POST" action="{{ route('verification.send') }}">
-            @csrf
-            <button type="submit"
-                class="w-full bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition">
-                Resend Verification Email
-            </button>
-        </form>
-
-        <form method="POST" action="{{ route('logout') }}" class="mt-4">
-            @csrf
-            <button type="submit" class="text-sm text-gray-400 hover:text-gray-600 underline">
-                Log out
-            </button>
-        </form>
-    </div>
+    <form method="POST" action="{{ route('logout') }}" style="margin-top: 1rem;">
+        @csrf
+        <button type="submit"
+            style="background: none; border: none; font-size: 0.8rem; color: #9ca3af;
+                   cursor: pointer; text-decoration: underline;">
+            Log out
+        </button>
+    </form>
 
     <script>
+        const interval = setInterval(async () => {
+            try {
+                const res  = await fetch('/verification-status');
+                const data = await res.json();
 
-        const dashboardBtn = document.getElementById('dashboard-btn');
-        const waitingMsg   = document.getElementById('waiting-msg');
-
-        // Track whether the user was already verified when the page first loaded
-        let wasVerifiedOnLoad = false;
-
-        // Check status on page load first
-        fetch('/verification-status')
-        .then(r => r.json())
-        .then(data => {
-            if (data.verified) {
-                // Already verified before clicking anything — redirect silently
-                wasVerifiedOnLoad = true;
-                window.location.href = "{{ route('dashboard') }}";
-            }
-        });
-
-    // Poll every 4 seconds
-    const interval = setInterval(async () => {
-        try {
-            const response = await fetch('/verification-status');
-            const data = await response.json();
-
-            if (data.verified && !wasVerifiedOnLoad) {
-                // Verified AFTER this page loaded — they clicked the link
-                clearInterval(interval);
-                waitingMsg.classList.add('hidden');
-                dashboardBtn.classList.remove('hidden');
-            }
+                if (data.verified) {
+                    clearInterval(interval);
+                    document.getElementById('waiting-msg').textContent = '✓ Verified! Redirecting...';
+                    window.location.href = "{{ route('dashboard') }}";
+                }
             } catch (e) {
-                // silent fail
+                // silent fail — keep polling
             }
         }, 4000);
-
     </script>
-</x-guest-layout>
+</x-register-layout>

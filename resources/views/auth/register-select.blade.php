@@ -18,7 +18,7 @@
         <a href="{{ route('register.role', 'logistics_partner') }}"
            class="flex flex-col items-center p-8 bg-blue-50 border-2 border-blue-200 rounded-2xl hover:border-blue-500 hover:bg-blue-100 transition-all duration-300 no-underline group">
             <span class="text-6xl mb-4 group-hover:scale-110 transition-transform">🚛</span>
-            <span class="text-2xl font-bold text-blue-700 mb-2">Logistics</span>
+            <span class="text-2xl font-bold text-blue-700 mb-2">Logistics Coordinator</span>
             <p class="text-sm text-gray-500 text-center">
                 Manage trucks, assign drivers, and optimize deliveries.
             </p>

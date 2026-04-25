@@ -84,4 +84,8 @@ class User extends Authenticatable
     {
         return $this->hasMany(Harvest::class, 'driver_id');
     }
+    public function farmerDocuments()
+    {
+        return $this->hasMany(FarmerDocument::class, 'user_id');
+    }
 }

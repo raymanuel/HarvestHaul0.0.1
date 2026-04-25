@@ -26,7 +26,8 @@ return new class extends Migration
                   ->onDelete('set null');
 
             $table->string('crop_type');
-            $table->decimal('quantity_kg', 8, 2);
+            $table->string('variety'); // Specific crop variety
+            $table->decimal('quantity_kg', 10, 2)->unsigned();
 
             /**
              * pending   → Farmer posted but not yet reviewed/visible

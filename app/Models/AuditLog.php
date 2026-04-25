@@ -14,19 +14,22 @@ class AuditLog extends Model
         'notes',
     ];
 
+    // The admin who performed the action
     public function admin()
     {
         return $this->belongsTo(User::class, 'admin_id');
     }
 
-    public function target()
-    {
-        return $this->belongsTo(User::class, 'target_id');
-    }
-
-    // Relationship: An AuditLog BELONGS TO a User
-    public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
+    // -------------------------------------------------------
+    // target() removed — target_id is a generic reference ID
+    // across multiple tables (users, crops, crop_categories,
+    // crop_varieties). Cannot be FK-constrained to User only.
+    //
+    // user() removed — redundant with admin(). AuditLog has
+    // no implicit user_id column.
+    //
+    // Use notes for human-readable context.
+    // Use target_type + target_id together if programmatic
+    // resolution is needed in the future.
+    // -------------------------------------------------------
 }

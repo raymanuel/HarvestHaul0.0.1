@@ -13,13 +13,15 @@
     @endif
 
     <div class="table-responsive">
-        <table class="w-full text-sm text-left" style="min-width: 600px;">
+        <table class="w-full text-sm text-left" style="min-width: 700px;">
             <thead class="bg-slate-50 text-gray-500 uppercase text-xs tracking-wider">
                 <tr>
                     <th class="px-6 py-4">Name</th>
                     <th class="px-6 py-4">Email</th>
                     <th class="px-6 py-4">Farm Location</th>
-                    <th class="px-6 py-4">Verified</th>
+                    <th class="px-6 py-4">Email Verified</th>
+                    <th class="px-6 py-4">Profile</th>
+                    <th class="px-6 py-4">Account</th>
                     <th class="px-6 py-4">Action</th>
                 </tr>
             </thead>
@@ -29,13 +31,35 @@
                     <td class="px-6 py-4 font-semibold text-gray-800">{{ $farmer->name }}</td>
                     <td class="px-6 py-4 text-gray-600">{{ $farmer->email }}</td>
                     <td class="px-6 py-4 text-gray-500">{{ $farmer->farmerProfile->farm_location ?? '—' }}</td>
+
+                    {{-- Email verification --}}
+                    <td class="px-6 py-4">
+                        @if($farmer->hasVerifiedEmail())
+                            <span class="bg-green-100 text-green-700 text-xs font-bold px-3 py-1 rounded-full uppercase">Verified</span>
+                        @else
+                            <span class="bg-red-100 text-red-600 text-xs font-bold px-3 py-1 rounded-full uppercase">Unverified</span>
+                        @endif
+                    </td>
+
+                    {{-- Profile verification --}}
                     <td class="px-6 py-4">
                         @if($farmer->farmerProfile?->is_verified)
-                            <span class="bg-green-100 text-green-700 text-xs font-bold px-3 py-1 rounded-full uppercase">Verified</span>
+                            <span class="bg-green-100 text-green-700 text-xs font-bold px-3 py-1 rounded-full uppercase">Approved</span>
                         @else
                             <span class="bg-yellow-100 text-yellow-700 text-xs font-bold px-3 py-1 rounded-full uppercase">Pending</span>
                         @endif
                     </td>
+
+                    {{-- Account status --}}
+                    <td class="px-6 py-4">
+                        @if(($farmer->status ?? 'active') === 'inactive')
+                            <span class="bg-gray-100 text-gray-500 text-xs font-bold px-3 py-1 rounded-full uppercase">Archived</span>
+                        @else
+                            <span class="bg-blue-100 text-blue-600 text-xs font-bold px-3 py-1 rounded-full uppercase">Active</span>
+                        @endif
+                    </td>
+
+                    {{-- Actions --}}
                     <td class="px-6 py-4 flex gap-2">
                         @if(!$farmer->farmerProfile?->is_verified)
                             <form method="POST" action="{{ route('admin.farmers.verify', $farmer->id) }}">
