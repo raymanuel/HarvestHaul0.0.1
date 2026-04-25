@@ -17,6 +17,11 @@ class HarvestController extends Controller
         }
     }
 
+    private function isVerifiedFarmer(): bool
+    {
+        return (bool) Auth::user()->farmerProfile?->is_verified;
+    }
+
     // -------------------------------------------------------
     // index — list farmer's own harvests
     // -------------------------------------------------------
@@ -40,6 +45,12 @@ class HarvestController extends Controller
     {
         $this->authorizeFarmer();
 
+        if (!$this->isVerifiedFarmer()) {
+            return redirect()
+                ->route('harvests.index')
+                ->with('error', 'Your account is pending verification. You cannot post harvest listings until approved by an administrator.');
+        }
+
         $crops = Crop::with(['varieties' => function ($query) {
                 $query->where('status', 'active')->orderBy('name');
             }])
@@ -56,6 +67,12 @@ class HarvestController extends Controller
     public function store(Request $request)
     {
         $this->authorizeFarmer();
+
+        if (!$this->isVerifiedFarmer()) {
+            return redirect()
+                ->route('harvests.index')
+                ->with('error', 'Your account is pending verification. You cannot post harvest listings until approved by an administrator.');
+        }
 
         $validated = $request->validate([
             'crop_id'         => ['required', 'exists:crops,id'],
@@ -84,8 +101,8 @@ class HarvestController extends Controller
             'crop_id'          => $validated['crop_id'],
             'crop_variety_id'  => $validated['crop_variety_id'],
             'crop_category_id' => $crop->crop_category_id,
-            'crop_type'        => $crop->name,        // legacy
-            'variety'          => $cropVariety->name, // legacy
+            'crop_type'        => $crop->name,
+            'variety'          => $cropVariety->name,
             'quantity_kg'      => $validated['quantity_kg'],
             'unit'             => 'kg',
             'notes'            => $validated['notes'] ?? null,
@@ -109,6 +126,12 @@ class HarvestController extends Controller
     {
         $this->authorizeFarmer();
 
+        if (!$this->isVerifiedFarmer()) {
+            return redirect()
+                ->route('harvests.index')
+                ->with('error', 'Your account is pending verification. You cannot edit harvest listings until approved by an administrator.');
+        }
+
         $harvest = Auth::user()->harvests()->findOrFail($id);
 
         $crops = Crop::with(['varieties' => function ($query) {
@@ -127,6 +150,12 @@ class HarvestController extends Controller
     public function update(Request $request, $id)
     {
         $this->authorizeFarmer();
+
+        if (!$this->isVerifiedFarmer()) {
+            return redirect()
+                ->route('harvests.index')
+                ->with('error', 'Your account is pending verification. You cannot edit harvest listings until approved by an administrator.');
+        }
 
         $harvest = Auth::user()->harvests()->findOrFail($id);
 
@@ -156,8 +185,8 @@ class HarvestController extends Controller
             'crop_id'          => $validated['crop_id'],
             'crop_variety_id'  => $validated['crop_variety_id'],
             'crop_category_id' => $crop->crop_category_id,
-            'crop_type'        => $crop->name,        // legacy
-            'variety'          => $cropVariety->name, // legacy
+            'crop_type'        => $crop->name,
+            'variety'          => $cropVariety->name,
             'quantity_kg'      => $validated['quantity_kg'],
             'notes'            => $validated['notes'] ?? null,
             'harvest_date'     => $validated['harvest_date'] ?? null,

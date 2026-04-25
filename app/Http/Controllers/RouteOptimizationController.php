@@ -10,45 +10,49 @@ class RouteOptimizationController extends Controller
 {
     public function index()
     {
-        // Security check: Only let logistics partners see this page
         if (Auth::user()->role !== 'logistics_partner') {
             abort(403, 'Unauthorized action.');
         }
 
-        // Fetch the farmers with valid coordinates
-        // 1. Have valid GPS coordinates on their profile
-        // 2. Have at least one active harvest listing requesting pickup
+        if (!Auth::user()->logisticsProfile?->is_verified) {
+            return redirect()
+                ->route('dashboard')
+                ->with('error', 'Your account is pending verification. Route optimization is not available until approved by an administrator.');
+        }
+
         $farmers = User::where('role', 'farmer')
-            ->whereHas('farmerProfile', function($query) {
+            ->whereHas('farmerProfile', function ($query) {
                 $query->whereNotNull('latitude')
                       ->whereNotNull('longitude');
             })
-            ->whereHas('harvests', function($query) {
+            ->whereHas('harvests', function ($query) {
                 $query->where('status', 'active');
             })
             ->with([
                 'farmerProfile',
-                'harvests' => fn($query) => $query->where('status', 'active'),
-                ])
+                'harvests' => fn($query) => $query->where('status', 'active')
+                                                   ->with(['crop', 'cropVariety']),
+            ])
             ->get();
 
-            $farmersData = $farmers->map(function ($f) {
-        return [
-            'name'           => $f->name,
-            'farmer_profile' => [
-                'latitude'      => $f->farmerProfile->latitude,
-                'longitude'     => $f->farmerProfile->longitude,
-                'farm_location' => $f->farmerProfile->farm_location,
-            ],
-            'harvests' => $f->harvests->map(function ($h) {
-                return [
-                    'crop'     => $h->crop_type,
-                    'quantity' => $h->quantity_kg,
-                    'status'   => $h->status,
-                ];
-            })->values(),
-        ];
-    });
+        $farmersData = $farmers->map(function ($f) {
+            return [
+                'name'           => $f->name,
+                'farmer_profile' => [
+                    'latitude'      => $f->farmerProfile->latitude,
+                    'longitude'     => $f->farmerProfile->longitude,
+                    'farm_location' => $f->farmerProfile->farm_location,
+                ],
+                'harvests' => $f->harvests->map(function ($h) {
+                    return [
+                        'crop'     => $h->crop->name ?? $h->crop_type ?? '—',
+                        'variety'  => $h->cropVariety->name ?? $h->variety ?? '—',
+                        'quantity' => $h->quantity_kg,
+                        'status'   => $h->status,
+                    ];
+                })->values(),
+            ];
+        });
 
         return view('dashboards.route-optimization', compact('farmersData'));
     }

@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
@@ -9,21 +8,31 @@ use Illuminate\Support\Facades\Auth;
 
 class LoginController extends Controller
 {
-
     public function showLoginForm()
     {
         return view('auth.login');
     }
+
     public function authenticate(Request $request): RedirectResponse
     {
         $credentials = $request->validate([
-            'email' => ['required', 'email'],
+            'email'    => ['required', 'email'],
             'password' => ['required'],
         ]);
 
         if (Auth::attempt($credentials)) {
-            $request->session()->regenerate();
+            // Credentials are correct — now check account status
+            if (Auth::user()->status === 'inactive') {
+                Auth::logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
 
+                return back()->withErrors([
+                    'email' => 'Your account has been archived. Contact the administrator.',
+                ])->onlyInput('email');
+            }
+
+            $request->session()->regenerate();
             return redirect()->intended('dashboard');
         }
 
@@ -34,14 +43,10 @@ class LoginController extends Controller
 
     public function logout(Request $request): RedirectResponse
     {
-        Auth::logout(); // This does what Auth::guard('web')->logout() did
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
 
-        $request->session()->invalidate(); // This is your Session::invalidate()
-        $request->session()->regenerateToken(); // This is your Session::regenerateToken()
-
-        return redirect('/'); // This is your redirect
+        return redirect('/');
     }
-
-
-
 }

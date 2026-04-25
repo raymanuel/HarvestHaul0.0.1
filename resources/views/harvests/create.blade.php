@@ -126,13 +126,16 @@
                 <label class="block text-sm font-semibold text-gray-700 mb-2">
                     Quality Grade <span class="text-gray-400 font-normal">(optional)</span>
                 </label>
-                <input
-                    type="text"
+                <select
                     name="quality_grade"
-                    value="{{ old('quality_grade') }}"
-                    placeholder="e.g. Grade A, Premium, Export Quality"
-                    class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8A37] focus:border-transparent transition"
-                />
+                    class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8A37] focus:border-transparent"
+                >
+                    <option value="" {{ old('quality_grade') ? '' : 'selected' }}>— Select grade —</option>
+                    <option value="Grade AA" {{ old('quality_grade') === 'Grade AA' ? 'selected' : '' }}>Grade AA — Export Quality</option>
+                    <option value="Grade A"  {{ old('quality_grade') === 'Grade A'  ? 'selected' : '' }}>Grade A — Commercial Quality</option>
+                    <option value="Grade B"  {{ old('quality_grade') === 'Grade B'  ? 'selected' : '' }}>Grade B — Local Market Quality</option>
+                    <option value="Reject / Processing Grade" {{ old('quality_grade') === 'Reject / Processing Grade' ? 'selected' : '' }}>Reject / Processing Grade</option>
+                </select>
                 @error('quality_grade')
                     <p class="mt-2 text-xs text-red-500">{{ $message }}</p>
                 @enderror
@@ -143,13 +146,18 @@
                 <label class="block text-sm font-semibold text-gray-700 mb-2">
                     Packaging Type <span class="text-gray-400 font-normal">(optional)</span>
                 </label>
-                <input
-                    type="text"
+                <select
                     name="packaging_type"
-                    value="{{ old('packaging_type') }}"
-                    placeholder="e.g. Sacks, Crates, Bulk"
-                    class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8A37] focus:border-transparent transition"
-                />
+                    class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8A37] focus:border-transparent"
+                >
+                    <option value="" {{ old('packaging_type') ? '' : 'selected' }}>— Select packaging —</option>
+                    <option value="Bulk / Loose"                    {{ old('packaging_type') === 'Bulk / Loose'                    ? 'selected' : '' }}>Bulk / Loose</option>
+                    <option value="Bamboo/Rattan Basket"            {{ old('packaging_type') === 'Bamboo/Rattan Basket'            ? 'selected' : '' }}>Bamboo / Rattan Basket</option>
+                    <option value="Plastic Crate"                   {{ old('packaging_type') === 'Plastic Crate'                   ? 'selected' : '' }}>Plastic Crate</option>
+                    <option value="Corrugated Fibreboard Box (CFB)" {{ old('packaging_type') === 'Corrugated Fibreboard Box (CFB)' ? 'selected' : '' }}>Corrugated Fibreboard Box (CFB)</option>
+                    <option value="Plastic Sack / Net Bag"          {{ old('packaging_type') === 'Plastic Sack / Net Bag'          ? 'selected' : '' }}>Plastic Sack / Net Bag</option>
+                    <option value="Styrofoam Box"                   {{ old('packaging_type') === 'Styrofoam Box'                   ? 'selected' : '' }}>Styrofoam Box</option>
+                </select>
                 @error('packaging_type')
                     <p class="mt-2 text-xs text-red-500">{{ $message }}</p>
                 @enderror

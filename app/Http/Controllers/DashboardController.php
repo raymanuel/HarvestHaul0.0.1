@@ -5,26 +5,25 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use App\Models\Harvest;
 
 class DashboardController extends Controller
 {
-
     public function index()
     {
         $user = Auth::user();
 
-        //  Handle all other roles normally
         return match($user->role) {
-            'farmer'            => view('dashboards.farmer-view', [
+            'farmer' => view('dashboards.farmer-view', [
                 'activeListings' => $user->harvests()->where('status', 'active')->get(),
                 'activeCount'    => $user->harvests()->where('status', 'active')->count(),
             ]),
-            'logistics_partner' => view('dashboards.logistics-view'),
-            'admin'             => app(AdminController::class)->index(),
-            'driver'             => view('dashboards.driver-view'),
-            default             => abort(403),
+            'logistics_partner' => view('dashboards.logistics-view', [
+                'activeHarvestCount' => Harvest::where('status', 'active')->count(),
+            ]),
+            'admin'  => app(AdminController::class)->index(),
+            'driver' => view('dashboards.driver-view'),
+            default  => abort(403),
         };
     }
-
-
 }

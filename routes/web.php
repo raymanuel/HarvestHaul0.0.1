@@ -8,6 +8,8 @@ use App\Http\Controllers\RouteOptimizationController;
 use App\Http\Controllers\HarvestController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\Admin\CropManagerController;
+use App\Http\Controllers\FarmerDocumentController;
+use App\Http\Controllers\Admin\AdminFarmerDocumentController;
 use App\Http\Middleware\EnsureUserIsFarmer;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
@@ -43,7 +45,7 @@ Route::middleware('guest')->group(function () {
 | Authenticated Routes (Only for users who ARE logged in)
 |--------------------------------------------------------------------------
 */
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', \App\Http\Middleware\EnsureAccountIsActive::class])->group(function () {
 
     Route::post('logout', [LoginController::class, 'logout'])->name('logout');
 
@@ -58,9 +60,7 @@ Route::middleware('auth')->group(function () {
     })->name('verification.status');
 
     /*
-    |----------------------------------------------------------------------
     | Email Verification Routes
-    |----------------------------------------------------------------------
     */
     Route::get('/email/verify', function () {
         // If already verified, skip this page and go straight to dashboard
@@ -86,7 +86,11 @@ Route::middleware('auth')->group(function () {
     |----------------------------------------------------------------------
     */
     Route::middleware('verified')->group(function () {
-        Route::get('/route-optimization', [RouteOptimizationController::class, 'index'])->name('route.optimization');
+        // After
+        Route::get('/route-optimization', [RouteOptimizationController::class, 'index'])
+            ->name('route.optimization')
+            ->middleware(\App\Http\Middleware\EnsureUserIsLogistics::class);
+
 
        Route::middleware(['auth', 'verified', EnsureUserIsFarmer::class])
        ->group(function () {
@@ -96,6 +100,11 @@ Route::middleware('auth')->group(function () {
             Route::get('/harvests/{id}/edit', [HarvestController::class, 'edit'])->name('harvests.edit');
             Route::put('/harvests/{id}', [HarvestController::class, 'update'])->name('harvests.update');
             Route::delete('/harvests/{id}', [HarvestController::class, 'destroy'])->name('harvests.destroy');
+
+            // Farmer Document Management
+            Route::get('/my-documents', [FarmerDocumentController::class, 'index'])->name('farmer.documents');
+            Route::post('/my-documents', [FarmerDocumentController::class, 'store'])->name('farmer.documents.store');
+            Route::delete('/my-documents/{document}', [FarmerDocumentController::class, 'destroy'])->name('farmer.documents.destroy');
         });
 
         //Admin Routes — role:admin middleware enforced at controller level
@@ -109,6 +118,10 @@ Route::middleware('auth')->group(function () {
             Route::get('/farmers',                  [AdminController::class, 'farmers'])->name('farmers');
             Route::post('/farmers/{user}/verify',   [AdminController::class, 'verifyFarmer'])->name('farmers.verify');
             Route::post('/farmers/{user}/reject',   [AdminController::class, 'rejectFarmer'])->name('farmers.reject');
+
+            Route::get('/farmer-documents', [AdminFarmerDocumentController::class, 'index'])->name('farmer-documents');
+            Route::patch('/farmer-documents/{document}/approve', [AdminFarmerDocumentController::class, 'approve'])->name('farmer-documents.approve');
+            Route::patch('/farmer-documents/{document}/reject', [AdminFarmerDocumentController::class, 'reject'])->name('farmer-documents.reject');
 
             Route::get('/logistics',                [AdminController::class, 'logistics'])->name('logistics');
             Route::post('/logistics/{user}/verify', [AdminController::class, 'verifyLogistics'])->name('logistics.verify');
