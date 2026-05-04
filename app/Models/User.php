@@ -24,6 +24,7 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'phone',
         'password',
         'role',
         'status',
@@ -87,5 +88,10 @@ class User extends Authenticatable
     public function farmerDocuments()
     {
         return $this->hasMany(FarmerDocument::class, 'user_id');
+    }
+
+    public function logisticsDocuments()
+    {
+        return $this->hasMany(LogisticsDocument::class, 'user_id');
     }
 }

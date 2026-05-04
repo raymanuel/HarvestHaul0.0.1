@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $title ?? 'HarvestHaul' }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -224,8 +225,8 @@
 
                 @if(Auth::check() && Auth::user()->role === 'admin')
 
-                {{-- People --}}
-                <p style="font-size:0.65rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:#475569; padding:0.5rem 1rem 0.25rem; margin-top:0.5rem;">People</p>
+                    {{-- People --}}
+                    <p style="font-size:0.65rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:#475569; padding:0.5rem 1rem 0.25rem; margin-top:0.5rem;">People</p>
 
                     <a href="{{ route('admin.users') }}" class="nav-link {{ request()->routeIs('admin.users*') ? 'active' : '' }}">👥 User Management</a>
 
@@ -233,11 +234,14 @@
                     <a href="{{ route('admin.farmer-documents') }}" class="nav-link {{ request()->routeIs('admin.farmer-documents*') ? 'active' : '' }}">📋 Farmer Documents</a>
 
                     <a href="{{ route('admin.logistics') }}" class="nav-link {{ request()->routeIs('admin.logistics*') ? 'active' : '' }}">🚛 Logistics Verification</a>
-                    <a href="#" class="nav-link">📦 Logistics Documents</a>
+                    <a href="{{ route('admin.logistics-documents') }}" class="nav-link {{ request()->routeIs('admin.logistics-documents*') ? 'active' : '' }}">📦 Logistics Documents</a>
+
+                    <a href="{{ route('admin.drivers') }}" class="nav-link {{ request()->routeIs('admin.drivers*') ? 'active' : '' }}">🧑‍✈️ Driver Accounts</a>
 
                     {{-- Platform --}}
                     <p style="font-size:0.65rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:#475569; padding:0.5rem 1rem 0.25rem; margin-top:0.5rem;">Platform</p>
 
+                    <a href="{{ route('admin.harvests') }}" class="nav-link {{ request()->routeIs('admin.harvests*') ? 'active' : '' }}">🌾 Harvest Listings</a>
                     <a href="{{ route('admin.crops.index') }}" class="nav-link {{ request()->routeIs('admin.crops*') ? 'active' : '' }}">🌱 Crop Registry</a>
 
                     {{-- System --}}
@@ -252,6 +256,8 @@
                     <a href="#" class="nav-link">👥 Driver Accounts</a>
                     <a href="{{ route('route.optimization') }}" class="nav-link {{ request()->routeIs('route.optimization') ? 'active' : '' }}">📍 Route Optimization</a>
                     <a href="#" class="nav-link">📝 Assign Tasks</a>
+                    <a href="{{ route('logistics.documents') }}" class="nav-link {{ request()->routeIs('logistics.documents*') ? 'active' : '' }}">📄 My Business Documents</a>
+
                 @endif
 
                 @if(Auth::check() && Auth::user()->role === 'driver')

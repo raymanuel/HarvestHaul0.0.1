@@ -40,7 +40,7 @@ class RegisterController extends Controller
             'latitude'      => 'required_if:role,farmer|nullable|numeric|between:-90,90',
             'longitude'     => 'required_if:role,farmer|nullable|numeric|between:-180,180',
             'company_name'  => 'required_if:role,logistics_partner|nullable|string|max:255',
-            'business_permit_no' => 'nullable|string|max:255',
+            'business_permit_no' => 'required_if:role,logistics_partner|nullable|string|max:255',
         ]);
 
         try {

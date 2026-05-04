@@ -44,14 +44,34 @@
                     <td class="px-6 py-4 text-gray-400 text-xs">{{ $user->created_at->format('M d, Y') }}</td>
                     <td class="px-6 py-4">
                         @if($user->role !== 'admin')
-                            <form method="POST" action="{{ route('admin.users.status', $user->id) }}">
-                                @csrf
-                                <button type="submit"
-                                    onclick="return confirm('Change status of {{ $user->name }}?')"
-                                    class="{{ $user->status === 'active' ? 'text-red-500 hover:text-red-700' : 'text-green-500 hover:text-green-700' }} font-semibold text-xs">
-                                    {{ $user->status === 'active' ? 'Archive' : 'Reactivate' }}
-                                </button>
-                            </form>
+                            @if($user->status === 'active')
+                                {{-- Archive button — AJAX for farmers, normal POST for others --}}
+                                @if($user->role === 'farmer')
+                                    <button type="button"
+                                        onclick="checkAndArchive({{ $user->id }}, '{{ addslashes($user->name) }}')"
+                                        class="text-red-500 hover:text-red-700 font-semibold text-xs">
+                                        Archive
+                                    </button>
+                                @else
+                                    <form method="POST" action="{{ route('admin.users.status', $user->id) }}">
+                                        @csrf
+                                        <button type="submit"
+                                            onclick="return confirm('Archive {{ addslashes($user->name) }}?')"
+                                            class="text-red-500 hover:text-red-700 font-semibold text-xs">
+                                            Archive
+                                        </button>
+                                    </form>
+                                @endif
+                            @else
+                                <form method="POST" action="{{ route('admin.users.status', $user->id) }}">
+                                    @csrf
+                                    <button type="submit"
+                                        onclick="return confirm('Reactivate {{ addslashes($user->name) }}?')"
+                                        class="text-green-500 hover:text-green-700 font-semibold text-xs">
+                                        Reactivate
+                                    </button>
+                                </form>
+                            @endif
                         @else
                             <span class="text-gray-300 text-xs">—</span>
                         @endif
@@ -62,4 +82,64 @@
         </table>
     </div>
 </div>
+
+{{-- Warning Modal --}}
+<div id="archiveModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:999; align-items:center; justify-content:center;">
+    <div style="background:white; border-radius:1.25rem; padding:2rem; max-width:440px; width:90%; box-shadow:0 20px 40px rgba(0,0,0,0.15);">
+        <h2 style="font-size:1.1rem; font-weight:800; color:#0f172a; margin:0 0 0.75rem;">⚠️ Active Listings Detected</h2>
+        <p id="modalMessage" style="font-size:0.875rem; color:#475569; margin:0 0 1.25rem; line-height:1.6;"></p>
+        <p style="font-size:0.8rem; color:#ef4444; font-weight:600; margin:0 0 1.5rem;">
+            Proceeding will cancel all active harvest listings and remove this farmer's pins from the logistics map.
+        </p>
+        <div style="display:flex; gap:0.75rem; justify-content:flex-end;">
+            <button onclick="closeModal()"
+                style="padding:0.6rem 1.25rem; border:1px solid #e2e8f0; border-radius:0.75rem; font-size:0.875rem; font-weight:600; color:#475569; background:white; cursor:pointer;">
+                Cancel
+            </button>
+            <form id="forceArchiveForm" method="POST">
+                @csrf
+                <input type="hidden" name="force" value="1">
+                <button type="submit"
+                    style="padding:0.6rem 1.25rem; border:none; border-radius:0.75rem; font-size:0.875rem; font-weight:600; color:white; background:#ef4444; cursor:pointer;">
+                    Archive Anyway
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function checkAndArchive(userId, userName) {
+        fetch(`/admin/users/${userId}/status`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({})
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.requires_confirmation) {
+                const count = data.active_harvest_count;
+                document.getElementById('modalMessage').textContent =
+                    `${userName} currently has ${count} active harvest listing${count > 1 ? 's' : ''}. Archiving this account will cancel ${count > 1 ? 'all of them' : 'it'}.`;
+                document.getElementById('forceArchiveForm').action = `/admin/users/${userId}/status`;
+                document.getElementById('archiveModal').style.display = 'flex';
+            } else if (data.success) {
+                window.location.reload();
+            }
+        });
+    }
+
+    function closeModal() {
+        document.getElementById('archiveModal').style.display = 'none';
+    }
+
+    // Close on backdrop click
+    document.getElementById('archiveModal').addEventListener('click', function(e) {
+        if (e.target === this) closeModal();
+    });
+</script>
 </x-layout>

@@ -115,7 +115,7 @@
             Not a farmer?
             <a href="{{ route('register.role', 'logistics_partner') }}"
                 style="color: #2D8A37; font-weight: 600; text-decoration: none;">
-                Sign up as Partner
+                Sign up as Logistics Coordinator
             </a>
         </div>
     </form>

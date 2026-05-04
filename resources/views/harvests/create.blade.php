@@ -1,4 +1,7 @@
 <x-layout>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <div class="w-full max-w-2xl">
 
     <header class="pt-8 mb-8">
@@ -176,6 +179,55 @@
                 >{{ old('notes') }}</textarea>
             </div>
 
+            {{-- Destination --}}
+            <div class="mb-6">
+                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                    Delivery Destination <span class="text-red-400">*</span>
+                </label>
+                <select
+                    name="destination_id"
+                    id="destination_id"
+                    class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8A37] focus:border-transparent"
+                    onchange="handleDestinationChange(this.value)"
+                    required
+                >
+                    <option value="" disabled {{ old('destination_id') ? '' : 'selected' }}>— Select a destination —</option>
+                    @foreach ($destinations as $destination)
+                        <option
+                            value="{{ $destination->id }}"
+                            data-lat="{{ $destination->latitude }}"
+                            data-lng="{{ $destination->longitude }}"
+                            data-address="{{ $destination->address }}"
+                            {{ old('destination_id') == $destination->id ? 'selected' : '' }}
+                        >
+                            {{ $destination->name }} ({{ ucfirst(str_replace('_', ' ', $destination->type)) }})
+                        </option>
+                    @endforeach
+                    <option value="custom" {{ old('destination_id') === 'custom' ? 'selected' : '' }}>
+                        📍 Custom Location — Pin on Map
+                    </option>
+                </select>
+                @error('destination_id')
+                    <p class="mt-2 text-xs text-red-500">{{ $message }}</p>
+                @enderror
+                @error('destination_latitude')
+                    <p class="mt-2 text-xs text-red-500">Please pin a destination on the map.</p>
+                @enderror
+            </div>
+
+            {{-- Custom Map Pin (hidden until "Custom Location" is selected) --}}
+            <div id="custom_map_wrapper" class="mb-6 hidden">
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Pin Your Destination</label>
+                <p class="text-xs text-gray-400 mb-2">Click on the map to drop a pin on your delivery destination.</p>
+                <div id="destination-map" class="w-full rounded-xl border border-gray-300" style="height: 300px;"></div>
+                <p id="pin-feedback" class="text-xs text-gray-500 mt-2 italic">No pin placed yet.</p>
+            </div>
+
+            {{-- Hidden fields — always submitted --}}
+            <input type="hidden" name="destination_address"   id="destination_address"   value="{{ old('destination_address') }}">
+            <input type="hidden" name="destination_latitude"  id="destination_latitude"  value="{{ old('destination_latitude') }}">
+            <input type="hidden" name="destination_longitude" id="destination_longitude" value="{{ old('destination_longitude') }}">
+
             {{-- Info Banner --}}
             <div class="mb-6 bg-green-50 border border-green-200 rounded-xl px-4 py-3 flex gap-3 items-start">
                 <span class="text-lg">📍</span>
@@ -263,5 +315,59 @@
             }
         }
     });
+
+
+        // Leaflet map for custom destination pinning
+        let destinationMap = null;
+        let destinationPin = null;
+
+        function handleDestinationChange(value) {
+            const wrapper = document.getElementById('custom_map_wrapper');
+
+            if (value === 'custom') {
+                wrapper.classList.remove('hidden');
+
+                // Init map only once
+                if (!destinationMap) {
+                    destinationMap = L.map('destination-map').setView([6.1164, 125.1716], 11);
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(destinationMap);
+
+                    destinationMap.on('click', function (e) {
+                        if (destinationPin) destinationMap.removeLayer(destinationPin);
+                        destinationPin = L.marker(e.latlng).addTo(destinationMap);
+
+                        document.getElementById('destination_latitude').value  = e.latlng.lat;
+                        document.getElementById('destination_longitude').value = e.latlng.lng;
+                        document.getElementById('destination_address').value   = `Custom (${e.latlng.lat.toFixed(5)}, ${e.latlng.lng.toFixed(5)})`;
+                        document.getElementById('pin-feedback').textContent    = `📍 Pinned at ${e.latlng.lat.toFixed(5)}, ${e.latlng.lng.toFixed(5)}`;
+                    });
+                }
+
+        // Invalidate size in case it rendered while hidden
+        setTimeout(() => destinationMap.invalidateSize(), 100);
+
+        // Clear predefined destination hidden values
+        document.getElementById('destination_latitude').value  = '';
+        document.getElementById('destination_longitude').value = '';
+        document.getElementById('destination_address').value   = '';
+
+    } else {
+        wrapper.classList.add('hidden');
+
+        // Fill hidden fields from the selected predefined destination
+        const selected = document.getElementById('destination_id');
+        const opt      = selected.options[selected.selectedIndex];
+
+        document.getElementById('destination_latitude').value  = opt.dataset.lat;
+        document.getElementById('destination_longitude').value = opt.dataset.lng;
+        document.getElementById('destination_address').value   = opt.dataset.address;
+    }
+}
+
+// Restore old() state on validation failure
+document.addEventListener('DOMContentLoaded', () => {
+    const oldDestId = "{{ old('destination_id') }}";
+    if (oldDestId) handleDestinationChange(oldDestId);
+});
 </script>
 </x-layout>

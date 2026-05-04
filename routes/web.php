@@ -10,7 +10,11 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\Admin\CropManagerController;
 use App\Http\Controllers\FarmerDocumentController;
 use App\Http\Controllers\Admin\AdminFarmerDocumentController;
+use App\Http\Controllers\LogisticsDocumentController;
+use App\Http\Controllers\Admin\AdminLogisticsDocumentController;
+use App\Http\Controllers\PoolingJobController;
 use App\Http\Middleware\EnsureUserIsFarmer;
+use App\Http\Middleware\EnsureUserIsLogistics;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
 
@@ -107,6 +111,22 @@ Route::middleware(['auth', \App\Http\Middleware\EnsureAccountIsActive::class])->
             Route::delete('/my-documents/{document}', [FarmerDocumentController::class, 'destroy'])->name('farmer.documents.destroy');
         });
 
+        // Logistics Document Management
+        Route::middleware(['auth', 'verified', EnsureUserIsLogistics::class])
+        ->group(function () {
+                Route::get('/business-documents', [LogisticsDocumentController::class, 'index'])->name('logistics.documents');
+                Route::post('/business-documents', [LogisticsDocumentController::class, 'store'])->name('logistics.documents.store');
+                Route::delete('/business-documents/{document}', [LogisticsDocumentController::class, 'destroy'])->name('logistics.documents.destroy');
+
+                // --- Pooling Jobs ---
+                Route::prefix('pooling')->name('pooling.')->group(function () {
+                    Route::get('/',                        [PoolingJobController::class, 'index'])   ->name('index');
+                    Route::get('/{poolingJob}',            [PoolingJobController::class, 'show'])    ->name('show');
+                    Route::post('/plan',                   [PoolingJobController::class, 'plan'])    ->name('plan');
+                    Route::post('/confirm',                [PoolingJobController::class, 'confirm']) ->name('confirm');
+                });
+            });
+
         //Admin Routes — role:admin middleware enforced at controller level
 
         Route::prefix('admin')->name('admin.')->middleware('verified')->group(function () {
@@ -127,6 +147,17 @@ Route::middleware(['auth', \App\Http\Middleware\EnsureAccountIsActive::class])->
             Route::post('/logistics/{user}/verify', [AdminController::class, 'verifyLogistics'])->name('logistics.verify');
             Route::post('/logistics/{user}/reject', [AdminController::class, 'rejectLogistics'])->name('logistics.reject');
 
+            Route::get('/logistics-documents', [AdminLogisticsDocumentController::class, 'index'])->name('logistics-documents');
+            Route::patch('/logistics-documents/{document}/approve', [AdminLogisticsDocumentController::class, 'approve'])->name('logistics-documents.approve');
+            Route::patch('/logistics-documents/{document}/reject', [AdminLogisticsDocumentController::class, 'reject'])->name('logistics-documents.reject');
+
+            // Harvest Oversight
+            Route::get('/harvests', [AdminController::class, 'harvests'])->name('harvests');
+
+            // Driver Management
+            Route::get('/drivers', [AdminController::class, 'drivers'])->name('drivers');
+
+            // audit logsss
             Route::get('/audit-logs',               [AdminController::class, 'auditLogs'])->name('audit-logs');
 
             // Crop Manager — categories, crops, varieties + pricing
