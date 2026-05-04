@@ -75,6 +75,7 @@
                         <th class="px-6 py-4">Est. Quantity</th>
                         <th class="px-6 py-4">Harvest Date</th>
                         <th class="px-6 py-4">Notes</th>
+                        <th class="px-6 py-4">Destination</th>
                         <th class="px-6 py-4">Status</th>
                         <th class="px-6 py-4">Posted</th>
                         <th class="px-6 py-4">Action</th>
@@ -94,6 +95,7 @@
                             {{ $harvest->harvest_date ? $harvest->harvest_date->format('M d, Y') : '—' }}
                         </td>
                         <td class="px-6 py-4 text-gray-500 max-w-xs truncate">{{ $harvest->notes ?? '—' }}</td>
+                        <td class="px-6 py-4 text-gray-500 text-xs"> {{ $harvest->destination_label }} </td>
                         <td class="px-6 py-4">
                             @if($harvest->status === 'active')
                                 <span class="bg-green-100 text-green-700 text-xs font-bold px-3 py-1 rounded-full uppercase">Active</span>
@@ -105,6 +107,7 @@
                                 <span class="bg-red-100 text-red-700 text-xs font-bold px-3 py-1 rounded-full uppercase">Cancelled</span>
                             @endif
                         </td>
+
                         <td class="px-6 py-4 text-gray-400 text-xs">{{ $harvest->created_at->format('M d, Y') }}</td>
                         <td class="px-6 py-4">
                             @if(in_array($harvest->status, ['active', 'pending']))

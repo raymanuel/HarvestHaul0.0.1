@@ -22,4 +22,13 @@ class LogisticsProfile extends Model
     {
         return $this->hasMany(DriverProfile::class, 'partner_id');
     }
+    public function trucks()
+    {
+        return $this->hasMany(Truck::class);
+    }
+
+    public function availableTrucks()
+    {
+        return $this->hasMany(Truck::class)->where('status', 'available');
+    }
 }

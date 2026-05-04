@@ -15,8 +15,8 @@ class Harvest extends Model
         'crop_category_id',
         'crop_id',
         'crop_variety_id',
-        'crop_type',        // legacy — remove after cleanup migration
-        'variety',          // legacy — remove after cleanup migration
+        'crop_type',
+        'variety',
         'quantity_kg',
         'unit',
         'status',
@@ -27,13 +27,20 @@ class Harvest extends Model
         'latitude',
         'longitude',
         'cluster_id',
+        // destination fields
+        'destination_id',
+        'destination_address',
+        'destination_latitude',
+        'destination_longitude',
     ];
 
     protected $casts = [
-        'quantity_kg'  => 'decimal:2',
-        'latitude'     => 'decimal:8',
-        'longitude'    => 'decimal:8',
-        'harvest_date' => 'date',
+        'quantity_kg'            => 'decimal:2',
+        'latitude'               => 'decimal:8',
+        'longitude'              => 'decimal:8',
+        'destination_latitude'   => 'decimal:8',
+        'destination_longitude'  => 'decimal:8',
+        'harvest_date'           => 'date',
     ];
 
     // -------------------------------------------------------
@@ -65,6 +72,11 @@ class Harvest extends Model
         return $this->belongsTo(CropVariety::class, 'crop_variety_id');
     }
 
+    public function destination()
+    {
+        return $this->belongsTo(Destination::class, 'destination_id');
+    }
+
     // -------------------------------------------------------
     // Scopes
     // -------------------------------------------------------
@@ -87,5 +99,38 @@ class Harvest extends Model
     public function scopeWithLocation($query)
     {
         return $query->whereNotNull('latitude')->whereNotNull('longitude');
+    }
+
+    public function scopeWithDestination($query)
+    {
+        return $query->whereNotNull('destination_latitude')
+                     ->whereNotNull('destination_longitude');
+    }
+
+    // -------------------------------------------------------
+    // Helpers
+    // -------------------------------------------------------
+
+    // Returns the resolved destination label for display
+    public function getDestinationLabelAttribute(): string
+    {
+        if ($this->destination_id && $this->destination) {
+            return $this->destination->name;
+        }
+
+        return $this->destination_address ?? '—';
+    }
+
+    // Returns destination coordinates as array regardless of source
+    public function getDestinationCoordinatesAttribute(): ?array
+    {
+        if ($this->destination_latitude && $this->destination_longitude) {
+            return [
+                'latitude'  => $this->destination_latitude,
+                'longitude' => $this->destination_longitude,
+            ];
+        }
+
+        return null;
     }
 }

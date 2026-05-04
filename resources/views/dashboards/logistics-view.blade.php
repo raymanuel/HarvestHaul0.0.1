@@ -13,7 +13,7 @@
                     <p class="text-sm font-semibold text-amber-800">Account Pending Verification</p>
                     <p class="text-sm text-amber-700 mt-0.5">
                         Your logistics partner account is awaiting approval from an administrator.
-                        You will be able to access fleet and driver management once verified.
+                        You will be able to access hauling trucks and driver menu once verified.
                     </p>
                 </div>
             </div>
