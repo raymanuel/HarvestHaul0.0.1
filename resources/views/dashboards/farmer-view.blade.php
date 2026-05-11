@@ -26,7 +26,7 @@
     @endif
 
     <div class="report-grid">
-
+        {{-- Active Listings --}}
         <div class="report-widget">
             <span class="text-4xl mb-3 block">🚜</span>
             <h3 class="font-bold text-gray-400 text-sm uppercase tracking-wider">Active Listings</h3>
@@ -35,7 +35,7 @@
                 <a href="{{ route('harvests.index') }}" class="text-[#2D8A37] font-bold text-sm hover:underline">Manage posts →</a>
             </div>
         </div>
-
+        {{-- Track Shipments --}}
         <div class="report-widget">
             <span class="text-4xl mb-3 block">📦</span>
             <h3 class="font-bold text-gray-400 text-sm uppercase tracking-wider">Track Shipments</h3>
@@ -44,7 +44,7 @@
                 <a href="#" class="text-[#2D8A37] font-bold text-sm hover:underline">View map →</a>
             </div>
         </div>
-
+        {{-- Shared Logistics --}}
         <div class="report-widget">
             <span class="text-4xl mb-3 block">🤝</span>
             <h3 class="font-bold text-gray-400 text-sm uppercase tracking-wider">Shared Logistics</h3>
