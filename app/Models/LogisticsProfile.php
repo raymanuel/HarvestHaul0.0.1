@@ -10,6 +10,7 @@ class LogisticsProfile extends Model
         'user_id',
         'company_name',
         'business_permit_no',
+        'cda_registration_no',
         'phone',
         'is_verified',
         'logistics_type',
