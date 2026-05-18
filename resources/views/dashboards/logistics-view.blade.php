@@ -34,7 +34,7 @@
         <div class="report-grid">
             <div class="report-widget">
                 <span class="text-4xl mb-3 block">🚛</span>
-                <h3 class="font-bold text-gray-400 text-sm uppercase tracking-wider">Active Fleet</h3>
+                <h3 class="font-bold text-gray-400 text-sm uppercase tracking-wider">Active Trucks</h3>
                 <p class="text-3xl font-black text-gray-900 mt-2">0 <span class="text-sm font-medium text-gray-400">Vehicles</span></p>
                 <div class="mt-6 pt-4 border-t border-gray-100">
                     @if (Auth::user()->logisticsProfile?->is_verified)
@@ -60,7 +60,7 @@
 
             <div class="report-widget">
                 <span class="text-4xl mb-3 block">🌾</span>
-                <h3 class="font-bold text-gray-400 text-sm uppercase tracking-wider">Active Harvest Requests</h3>
+                <h3 class="font-bold text-gray-400 text-sm uppercase tracking-wider">Active Haul Requests</h3>
                 <p class="text-3xl font-black text-gray-900 mt-2">
                     {{ $activeHarvestCount }}
                 </p>
