@@ -10,10 +10,12 @@ class RouteOptimizationController extends Controller
 {
     public function index()
     {
+        // Enforce role permission guard for logistics partners / coordinators
         if (Auth::user()->role !== 'logistics_partner') {
             abort(403, 'Unauthorized action.');
         }
 
+        // Verify registration status before granting system mapping interface visibility
         if (!Auth::user()->logisticsProfile?->is_verified) {
             return redirect()
                 ->route('dashboard')
@@ -22,10 +24,29 @@ class RouteOptimizationController extends Controller
 
         $logisticsProfile = Auth::user()->logisticsProfile;
 
+        // Fetch farmers with strict local visibility parameters applied at the query backbone
         $farmers = User::where('role', 'farmer')
-            ->whereHas('farmerProfile', function ($query) {
+            ->whereHas('farmerProfile', function ($query) use ($logisticsProfile) {
+                // Base geographic coordinates validation requirement
                 $query->whereNotNull('latitude')
-                      ->whereNotNull('longitude');
+                      ->whereNotNull('longitude')
+                      ->where('is_verified', true); // Protect system against unvetted listings
+
+                /**
+                 * Visibility Scoping Condition 1: Cooperative Scoping
+                 * Member farmers are strictly visible only to their respective cooperative group.
+                 */
+                if ($logisticsProfile->logistics_type === 'cooperative') {
+                    $query->where('affiliation_type', 'cooperative')
+                          ->where('cooperative_id', $logisticsProfile->id);
+                }
+                /**
+                 * Visibility Scoping Condition 2: Commercial Company Scoping
+                 * Independent farmers are visible exclusively to private commercial fleet corporations.
+                 */
+                elseif ($logisticsProfile->logistics_type === 'company') {
+                    $query->where('affiliation_type', 'independent');
+                }
             })
             ->whereHas('harvests', function ($query) {
                 $query->where('status', 'active');
@@ -37,6 +58,7 @@ class RouteOptimizationController extends Controller
             ])
             ->get();
 
+        // Map collection data structures cleanly for the interactive Leaflet mapping view
         $farmersData = $farmers->map(function ($f) {
             $firstHarvest = $f->harvests->first();
             return [
@@ -65,7 +87,7 @@ class RouteOptimizationController extends Controller
             ];
         });
 
-        // Available trucks belonging to this logistics partner
+        // Query available fleet assets managed by this logistics coordinator
         $trucks = $logisticsProfile->trucks()
             ->where('status', 'available')
             ->with('driver')

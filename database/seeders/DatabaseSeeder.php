@@ -29,6 +29,7 @@ class DatabaseSeeder extends Seeder
             LogisticsSeeder::class,  // must run first — farmers reference coop ID
             FarmerSeeder::class,
             DestinationSeeder::class,
+            CropSeeder::class,
         ]);
 
 
