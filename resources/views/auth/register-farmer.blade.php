@@ -109,6 +109,69 @@
             </p>
         </div>
 
+        {{-- AFFILIATION --}}
+        <div class="form-group">
+            <label style="font-size:0.8rem; font-weight:600; color:#374151; display:block; margin-bottom:0.5rem;">
+                Are you a member of a cooperative? <span style="color:red">*</span>
+            </label>
+            @error('affiliation_type')
+                <p style="font-size:0.75rem; color:#ef4444; margin-bottom:0.5rem;">{{ $message }}</p>
+            @enderror
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+                <label id="label-independent"
+                    style="display:flex; flex-direction:column; align-items:center; justify-content:center;
+                           padding:1rem 0.75rem; border:2px solid #e5e7eb; border-radius:0.75rem;
+                           cursor:pointer; transition:all 0.2s; text-align:center; gap:0.35rem;">
+                    <input type="radio" name="affiliation_type" value="independent"
+                        {{ old('affiliation_type') === 'independent' ? 'checked' : '' }}
+                        style="display:none;" onchange="handleAffiliation()">
+                    <span style="font-size:1.75rem;">🧑‍🌾</span>
+                    <span style="font-size:0.875rem; font-weight:700; color:#92400e;">Independent</span>
+                    <span style="font-size:0.7rem; color:#6b7280;">No cooperative</span>
+                </label>
+
+                <label id="label-cooperative"
+                    style="display:flex; flex-direction:column; align-items:center; justify-content:center;
+                           padding:1rem 0.75rem; border:2px solid #e5e7eb; border-radius:0.75rem;
+                           cursor:pointer; transition:all 0.2s; text-align:center; gap:0.35rem;">
+                    <input type="radio" name="affiliation_type" value="cooperative"
+                        {{ old('affiliation_type') === 'cooperative' ? 'checked' : '' }}
+                        style="display:none;" onchange="handleAffiliation()">
+                    <span style="font-size:1.75rem;">🤝</span>
+                    <span style="font-size:0.875rem; font-weight:700; color:#166534;">Under a Cooperative</span>
+                    <span style="font-size:0.7rem; color:#6b7280;">I have a coop</span>
+                </label>
+            </div>
+        </div>
+
+        {{-- Cooperative dropdown — only shown if under a coop --}}
+        <div id="coop-field" style="display:none;" class="form-group">
+            <label style="font-size:0.8rem; font-weight:600; color:#374151; display:block; margin-bottom:0.4rem;">
+                Select Your Cooperative <span style="color:red">*</span>
+            </label>
+            <select name="cooperative_id" id="cooperative_id"
+                style="width:100%; padding:0.75rem 1rem; border:1px solid #e5e7eb;
+                       border-radius:0.75rem; font-size:0.95rem; color:#111827;
+                       background:white; outline:none; cursor:pointer;
+                       {{ $errors->has('cooperative_id') ? 'border-color:#ef4444;' : '' }}">
+                <option value="">— Select your cooperative —</option>
+                @foreach($cooperatives as $coop)
+                    <option value="{{ $coop->id }}"
+                        {{ old('cooperative_id') == $coop->id ? 'selected' : '' }}>
+                        {{ $coop->company_name }}
+                    </option>
+                @endforeach
+            </select>
+            @error('cooperative_id')
+                <p style="font-size:0.75rem; color:#ef4444; margin-top:0.4rem;">{{ $message }}</p>
+            @enderror
+            @if($cooperatives->isEmpty())
+                <p style="font-size:0.75rem; color:#ef4444; margin-top:0.4rem;">
+                    No verified cooperatives are registered yet. Please sign up as independent for now.
+                </p>
+            @endif
+        </div>
+
         <button type="submit" class="primary-btn">Register as Farmer</button>
 
         <div style="margin-top: 1.5rem; font-size: 0.85rem; color: #6b7280;">
@@ -249,6 +312,37 @@
                     btn.textContent = '📍 Use My GPS Location';
                 }
             );
+        });
+
+        // ── AFFILIATION TOGGLE ──────────────────────────────────
+        function handleAffiliation() {
+            const independent = document.querySelector('input[name="affiliation_type"][value="independent"]');
+            const cooperative = document.querySelector('input[name="affiliation_type"][value="cooperative"]');
+            const coopField   = document.getElementById('coop-field');
+            const labelInd    = document.getElementById('label-independent');
+            const labelCoop   = document.getElementById('label-cooperative');
+
+            labelInd.style.borderColor  = independent.checked ? '#d97706' : '#e5e7eb';
+            labelInd.style.background   = independent.checked ? '#fffbeb' : '';
+            labelCoop.style.borderColor = cooperative.checked  ? '#2D8A37' : '#e5e7eb';
+            labelCoop.style.background  = cooperative.checked  ? '#f0fdf4' : '';
+
+            coopField.style.display = cooperative.checked ? 'block' : 'none';
+            const coopSelect = document.getElementById('cooperative_id');
+            coopSelect.required = cooperative.checked;
+        }
+
+        // Restore affiliation state on validation failure
+        document.addEventListener('DOMContentLoaded', function () {
+            const oldAffiliation = "{{ old('affiliation_type') }}";
+            if (oldAffiliation) {
+                const radio = document.querySelector(`input[name="affiliation_type"][value="${oldAffiliation}"]`);
+                if (radio) { radio.checked = true; handleAffiliation(); }
+            }
+
+            @if($errors->has('cooperative_id'))
+                document.getElementById('coop-field').style.display = 'block';
+            @endif
         });
     </script>
     @endpush

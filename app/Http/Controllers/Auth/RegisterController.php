@@ -26,21 +26,38 @@ class RegisterController extends Controller
             abort(404);
         }
 
-        return view("auth.register-{$role}");
+        $cooperatives = collect();
+        if ($role === 'farmer') {
+            $cooperatives = LogisticsProfile::where('logistics_type', 'cooperative')
+                ->where('is_verified', true)
+                ->with('user')
+                ->get();
+        }
+
+        return view("auth.register-{$role}", compact('cooperatives'));
     }
+
     public function store(Request $request)
     {
         $request->validate([
-            'name'          => 'required|string|max:255',
-            'email'         => 'required|string|email|max:255|unique:users',
-            'phone'         => 'required|string|max:20',
-            'password'      => 'required|string|min:8|confirmed',
-            'role'          => 'required|in:farmer,logistics_partner',
-            'farm_location' => 'required_if:role,farmer|nullable|string|max:255',
-            'latitude'      => 'required_if:role,farmer|nullable|numeric|between:-90,90',
-            'longitude'     => 'required_if:role,farmer|nullable|numeric|between:-180,180',
-            'company_name'  => 'required_if:role,logistics_partner|nullable|string|max:255',
-            'business_permit_no' => 'required_if:role,logistics_partner|nullable|string|max:255',
+            'name'                => 'required|string|max:255',
+            'email'               => 'required|string|email|max:255|unique:users',
+            'phone'               => 'required|string|max:20',
+            'password'            => 'required|string|min:8|confirmed',
+            'role'                => 'required|in:farmer,logistics_partner',
+
+            // Farmer fields
+            'farm_location'       => 'required_if:role,farmer|nullable|string|max:255',
+            'latitude'            => 'required_if:role,farmer|nullable|numeric|between:-90,90',
+            'longitude'           => 'required_if:role,farmer|nullable|numeric|between:-180,180',
+            'affiliation_type'    => 'required_if:role,farmer|nullable|in:cooperative,independent',
+            'cooperative_id'      => 'required_if:affiliation_type,cooperative|nullable|exists:logistics_profiles,id',
+
+            // Logistics fields
+            'company_name'        => 'required_if:role,logistics_partner|nullable|string|max:255',
+            'business_permit_no'  => 'required_if:role,logistics_partner|nullable|string|max:255',
+            'logistics_type'      => 'required_if:role,logistics_partner|nullable|in:cooperative,company',
+            'cda_registration_no' => 'required_if:logistics_type,cooperative|nullable|string|max:255',
         ]);
 
         try {
@@ -54,29 +71,34 @@ class RegisterController extends Controller
 
                 if ($request->role === 'farmer') {
                     $user->farmerProfile()->create([
-                        'phone'         => $request->phone,
-                        'farm_location' => $request->farm_location,
-                        'latitude'      => $request->latitude,
-                        'longitude'     => $request->longitude,
-                        'is_verified'   => false,
+                        'phone'            => $request->phone,
+                        'farm_location'    => $request->farm_location,
+                        'latitude'         => $request->latitude,
+                        'longitude'        => $request->longitude,
+                        'is_verified'      => false,
+                        'affiliation_type' => $request->affiliation_type,
+                        'cooperative_id'   => $request->affiliation_type === 'cooperative'
+                                                ? $request->cooperative_id
+                                                : null,
                     ]);
                 } elseif ($request->role === 'logistics_partner') {
                     $user->logisticsProfile()->create([
-                        'phone'              => $request->phone,
-                        'company_name'       => $request->company_name,
-                        'business_permit_no' => $request->business_permit_no,
+                        'phone'               => $request->phone,
+                        'company_name'        => $request->company_name,
+                        'business_permit_no'  => $request->business_permit_no,
+                        'logistics_type'      => $request->logistics_type,
+                        'cda_registration_no' => $request->logistics_type === 'cooperative'
+                                                    ? $request->cda_registration_no
+                                                    : null,
                     ]);
                 }
-
 
                 Auth::login($user);
                 $user->sendEmailVerificationNotification();
                 return redirect()->route('verification.notice');
             });
         } catch (\Exception $e) {
-            dd($e->getMessage());
+            return back()->withErrors(['error' => $e->getMessage()])->withInput();
         }
     }
 }
-
-

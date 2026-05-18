@@ -21,14 +21,14 @@ class DatabaseSeeder extends Seeder
         User::factory()->create([
         'name' => 'Admin',
         'email' => 'admin@mail.com',
-        'password' => '123',
+        'password' => '12345678',
         'role' => 'admin'
         ]);
 
         $this->call([
-        FarmerSeeder::class,
-        LogisticsSeeder::class,
-        DestinationSeeder::class
+            LogisticsSeeder::class,  // must run first — farmers reference coop ID
+            FarmerSeeder::class,
+            DestinationSeeder::class,
         ]);
 
 
