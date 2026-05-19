@@ -23,6 +23,20 @@
         </div>
     @endif
 
+    {{-- PRIORITY 5: Independent Farmer Logistics Warning --}}
+    @if (isset($isIndependent) && $isIndependent && !$hasCommercialLogistics)
+        <div class="mb-6 bg-orange-50 border border-orange-200 rounded-xl px-5 py-4 flex gap-3 items-start shadow-sm">
+            <span class="text-lg mt-0.5">🚚</span>
+            <div>
+                <p class="font-bold text-sm text-orange-800">Limited Transport Availability</p>
+                <p class="text-sm text-orange-700 mt-0.5 leading-relaxed">
+                    There are currently <strong>no verified commercial logistics partners</strong> active on the network.
+                    You may still post your harvest, but please be aware that pickup scheduling may be delayed until a partner becomes available.
+                </p>
+            </div>
+        </div>
+    @endif
+
     {{-- Validation Errors --}}
     @if ($errors->any())
         <div class="mb-6 bg-red-50 border border-red-200 text-red-700 rounded-xl px-5 py-4 text-sm">
