@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\AdminFarmerDocumentController;
 use App\Http\Controllers\LogisticsDocumentController;
 use App\Http\Controllers\Admin\AdminLogisticsDocumentController;
 use App\Http\Controllers\PoolingJobController;
+use App\Http\Controllers\DriverController;
 use App\Http\Middleware\EnsureUserIsFarmer;
 use App\Http\Middleware\EnsureUserIsLogistics;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
@@ -126,6 +127,12 @@ Route::middleware(['auth', \App\Http\Middleware\EnsureAccountIsActive::class])->
                     Route::post('/confirm',                [PoolingJobController::class, 'confirm']) ->name('confirm');
                 });
             });
+        // --- Driver Portal ---
+        Route::middleware(['auth', 'verified', 'driver'])->prefix('driver')->name('driver.')->group(function () {
+            Route::get('/',                                  [DriverController::class, 'index'])       ->name('dashboard');
+            Route::get('/jobs/{poolingJob}',                 [DriverController::class, 'show'])        ->name('jobs.show');
+            Route::patch('/jobs/{poolingJob}/status',        [DriverController::class, 'updateStatus'])->name('jobs.status');
+        });
 
         //Admin Routes — role:admin middleware enforced at controller level
 
