@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#16a34a" />
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Job #{{ $job->id }} — HarvestHaul</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
@@ -149,5 +150,55 @@
 
     </main>
 
+    {{-- HTML5 Geolocation Tracking Engine --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const jobStatus = '{{ $job->status }}';
+            const jobId = {{ $job->id }};
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+
+            if (jobStatus === 'in_progress') {
+                // Execute immediately on load, then loop every 15 seconds
+                postLocation();
+                setInterval(postLocation, 15000);
+            }
+
+            function postLocation() {
+                if (!navigator.geolocation) {
+                    console.error("Geolocation is not supported by this browser.");
+                    return;
+                }
+
+                navigator.geolocation.getCurrentPosition((position) => {
+                    const payload = {
+                        pooling_job_id: jobId,
+                        latitude: position.coords.latitude,
+                        longitude: position.coords.longitude,
+                        posted_at: new Date().toISOString()
+                    };
+
+                    fetch('{{ route("driver.tracking.store") }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken,
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify(payload)
+                    })
+                    .then(res => res.json())
+                    .then(data => console.log('Location Synced:', data))
+                    .catch(err => console.error('Sync Failed:', err));
+
+                }, (error) => {
+                    console.warn('GPS Error:', error.message);
+                }, {
+                    enableHighAccuracy: true,
+                    maximumAge: 10000, // Do not accept cached locations older than 10s
+                    timeout: 5000      // Drop connection if GPS lock takes too long
+                });
+            }
+        });
+    </script>
 </body>
 </html>

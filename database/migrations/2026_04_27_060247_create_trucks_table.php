@@ -11,30 +11,22 @@ return new class extends Migration
         Schema::create('trucks', function (Blueprint $table) {
             $table->id();
 
-            $table->foreignId('logistics_profile_id')
-                  ->constrained('logistics_profiles')
-                  ->onDelete('cascade');
+            // Foreign Keys
+            $table->foreignId('logistics_profile_id')->constrained('logistics_profiles')->cascadeOnDelete();
 
-            // Default assigned driver for this truck (nullable — truck may be unassigned)
-            $table->foreignId('driver_id')
-                  ->nullable()
-                  ->constrained('users')
-                  ->onDelete('set null');
+            // Nullable because a truck can be parked/idle without a driver assigned
+            $table->foreignId('driver_id')->nullable()->constrained('users')->nullOnDelete();
 
+            // Truck Details
+            $table->string('truck_name');
             $table->string('plate_number')->unique();
-            $table->string('truck_name')->nullable();
+
+            // ADD THIS LINE: To store "Light Truck", "Wing Van", etc.
+            $table->string('vehicle_type')->nullable();
+
             $table->decimal('capacity_kg', 10, 2);
+            $table->string('status')->default('available'); // available, in_transit, maintenance
 
-            /**
-             * available   → Ready to be assigned to a pooling job
-             * assigned    → Has a confirmed pooling plan, not yet on the road
-             * in_progress → Currently on a delivery run
-             * maintenance → Temporarily unavailable
-             */
-            $table->enum('status', ['available', 'assigned', 'in_progress', 'maintenance'])
-                  ->default('available');
-
-            $table->text('notes')->nullable();
             $table->timestamps();
         });
     }

@@ -112,7 +112,7 @@ Route::middleware(['auth', \App\Http\Middleware\EnsureAccountIsActive::class])->
             Route::delete('/my-documents/{document}', [FarmerDocumentController::class, 'destroy'])->name('farmer.documents.destroy');
         });
 
-        // Logistics Document Management
+        // Logistics Partner Routes
         Route::middleware(['auth', 'verified', EnsureUserIsLogistics::class])
         ->group(function () {
                 Route::get('/business-documents', [LogisticsDocumentController::class, 'index'])->name('logistics.documents');
@@ -126,16 +126,22 @@ Route::middleware(['auth', \App\Http\Middleware\EnsureAccountIsActive::class])->
                     Route::post('/plan',                   [PoolingJobController::class, 'plan'])    ->name('plan');
                     Route::post('/confirm',                [PoolingJobController::class, 'confirm']) ->name('confirm');
                 });
-            });
+
+                // --- Real-Time Tracking ---
+                Route::get('/tracking/{poolingJob}/latest', [App\Http\Controllers\TrackingController::class, 'latest'])->name('tracking.latest');
+        });
+
         // --- Driver Portal ---
         Route::middleware(['auth', 'verified', 'driver'])->prefix('driver')->name('driver.')->group(function () {
             Route::get('/',                                  [DriverController::class, 'index'])       ->name('dashboard');
             Route::get('/jobs/{poolingJob}',                 [DriverController::class, 'show'])        ->name('jobs.show');
             Route::patch('/jobs/{poolingJob}/status',        [DriverController::class, 'updateStatus'])->name('jobs.status');
+
+            // Fixed: Removed the extra '/driver' since the group handles the prefix
+            Route::post('/tracking/store', [App\Http\Controllers\TrackingController::class, 'store'])->name('tracking.store');
         });
 
         //Admin Routes — role:admin middleware enforced at controller level
-
         Route::prefix('admin')->name('admin.')->middleware('verified')->group(function () {
 
             // Existing user/farmer/logistics management

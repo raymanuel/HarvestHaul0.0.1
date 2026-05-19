@@ -30,6 +30,9 @@ class DatabaseSeeder extends Seeder
             FarmerSeeder::class,
             DestinationSeeder::class,
             CropSeeder::class,
+            DriverSeeder::class,
+            TruckSeeder::class,
+
         ]);
 
 

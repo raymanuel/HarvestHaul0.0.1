@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Models\Harvest;
+use App\Models\PoolingJob;
 
 class DashboardController extends Controller
 {
@@ -42,6 +43,25 @@ class DashboardController extends Controller
                 ->count();
         }
 
+        /**
+         * Driver dashboard metrics.
+         * Scoped strictly to jobs assigned to the authenticated driver's user ID.
+         */
+        $driverJobs      = collect();
+        $completedJobs   = 0;
+
+        if ($user->role === 'driver') {
+            $driverJobs = PoolingJob::where('driver_id', $user->id)
+                ->whereIn('status', ['confirmed', 'in_progress'])
+                ->with(['truck', 'harvests.crop', 'harvests.farmer', 'harvests.destination'])
+                ->latest()
+                ->get();
+
+            $completedJobs = PoolingJob::where('driver_id', $user->id)
+                ->where('status', 'completed')
+                ->count();
+        }
+
         return match($user->role) {
             'farmer' => view('dashboards.farmer-view', [
                 'activeListings' => $user->harvests()->where('status', 'active')->get(),
@@ -53,8 +73,13 @@ class DashboardController extends Controller
             ]),
 
             'admin'  => app(AdminController::class)->index(),
-            'driver' => view('dashboards.driver-view'),
-            default  => abort(403),
+
+            'driver' => view('dashboards.driver-view', [
+                'jobs'          => $driverJobs,
+                'completedJobs' => $completedJobs,
+            ]),
+
+            default => abort(403),
         };
     }
 }

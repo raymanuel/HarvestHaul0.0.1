@@ -3,6 +3,13 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
 
+    @php
+        // Fetch active pooling jobs for the authenticated logistics partner directly in the view
+        $activeJobIds = \App\Models\PoolingJob::where('logistics_profile_id', auth()->user()->logisticsProfile->id)
+            ->where('status', 'in_progress')
+            ->pluck('id');
+    @endphp
+
     <div class="w-full pb-12">
         <header class="pt-8 mb-6 border-b border-gray-200 pb-4">
             <h1 class="text-3xl font-bold text-gray-900 mb-2">Route Optimization Engine</h1>
@@ -544,6 +551,56 @@
                 btnGenerate.disabled = true;
                 this.classList.add('hidden');
             });
+
+
+            // ─── Real-Time Tracking Coordinator Engine ────────────────────
+            const activeJobs = @json($activeJobIds);
+            const activeTruckMarkers = {};
+
+            const truckIcon = L.icon({
+                iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-orange.png', // Distinct fleet icon
+                iconSize: [25, 41],
+                iconAnchor: [12, 41],
+                popupAnchor: [1, -34],
+            });
+
+            if (activeJobs.length > 0) {
+                pollTruckLocations();
+                setInterval(pollTruckLocations, 10000); // 10-second polling cycle
+            }
+
+            async function pollTruckLocations() {
+                for (const jobId of activeJobs) {
+                    try {
+                        let url = '{{ route("tracking.latest", "JOB_ID_PLACEHOLDER") }}'.replace('JOB_ID_PLACEHOLDER', jobId);
+
+                        const res = await fetch(url, {
+                            headers: { 'Accept': 'application/json' }
+                        });
+                        const response = await res.json();
+
+                        if (response.status === 'success' && response.data) {
+                            const lat = response.data.latitude;
+                            const lng = response.data.longitude;
+                            const postedAt = new Date(response.data.posted_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second:'2-digit' });
+
+                            if (activeTruckMarkers[jobId]) {
+                                // Update existing fleet marker dynamically
+                                activeTruckMarkers[jobId].setLatLng([lat, lng]);
+                                activeTruckMarkers[jobId].getPopup().setContent(`<b>🚛 Active Fleet (Job #${jobId})</b><br><span style="font-size:11px;color:gray;">Last GPS Sync: ${postedAt}</span>`);
+                            } else {
+                                // Plot new fleet marker
+                                const marker = L.marker([lat, lng], { icon: truckIcon })
+                                    .addTo(map)
+                                    .bindPopup(`<b>🚛 Active Fleet (Job #${jobId})</b><br><span style="font-size:11px;color:gray;">Last GPS Sync: ${postedAt}</span>`);
+                                activeTruckMarkers[jobId] = marker;
+                            }
+                        }
+                    } catch (error) {
+                        console.warn(`Polling failed for Job ${jobId}:`, error);
+                    }
+                }
+            }
         });
     </script>
 </x-layout>
