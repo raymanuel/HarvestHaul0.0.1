@@ -15,10 +15,6 @@ class DriverController extends Controller
     {
         $user = Auth::user();
 
-        if ($user->role !== 'driver') {
-            abort(403);
-        }
-
         $jobs = PoolingJob::where('driver_id', $user->id)
             ->whereIn('status', ['confirmed', 'in_progress'])
             ->with(['truck', 'harvests.crop', 'harvests.farmer', 'harvests.destination'])
