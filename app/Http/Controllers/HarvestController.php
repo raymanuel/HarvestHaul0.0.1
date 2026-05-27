@@ -39,100 +39,114 @@ class HarvestController extends Controller
     }
 
 
-        // create — show the post harvest form
-        // -------------------------------------------------------
-        public function create()
-        {
-            $this->authorizeFarmer();
+    // -------------------------------------------------------
+    // create — show the post harvest form
+    // -------------------------------------------------------
+    public function create()
+    {
+        $this->authorizeFarmer();
 
-            if (!$this->isVerifiedFarmer()) {
-                return redirect()
-                    ->route('harvests.index')
-                    ->with('error', 'Your account is pending verification. You cannot post harvest listings until approved by an administrator.');
-            }
-
-            $crops = Crop::with(['varieties' => function ($query) {
-                    $query->where('status', 'active')->orderBy('name');
-                }])
-                ->where('status', 'active')
-                ->orderBy('name')
-                ->get();
-
-            $destinations = \App\Models\Destination::active()->orderBy('type')->orderBy('name')->get();
-
-            return view('harvests.create', compact('crops', 'destinations'));
+        if (!$this->isVerifiedFarmer()) {
+            return redirect()
+                ->route('harvests.index')
+                ->with('error', 'Your account is pending verification. You cannot post harvest listings until approved by an administrator.');
         }
+
+        $crops = Crop::with(['varieties' => function ($query) {
+                $query->where('status', 'active')->orderBy('name');
+            }])
+            ->where('status', 'active')
+            ->orderBy('name')
+            ->get();
+
+        $destinations = \App\Models\Destination::active()->orderBy('type')->orderBy('name')->get();
+
+        // --- Priority 5: Independent Farmer Warning Logic ---
+        $farmerProfile = Auth::user()->farmerProfile;
+        $isIndependent = $farmerProfile?->affiliation_type === 'independent';
+
+        $hasCommercialLogistics = true; // Default to true so cooperative members bypass this logic
+
+        if ($isIndependent) {
+            // Count if there is at least one verified commercial fleet on the platform
+            $hasCommercialLogistics = \App\Models\LogisticsProfile::where('logistics_type', 'company')
+                ->where('is_verified', true)
+                ->exists();
+        }
+
+        return view('harvests.create', compact('crops', 'destinations', 'isIndependent', 'hasCommercialLogistics'));
+    }
 
     // -------------------------------------------------------
     // store — save new harvest listing
     // -------------------------------------------------------
     public function store(Request $request)
-{
-    $this->authorizeFarmer();
+    {
+        $this->authorizeFarmer();
 
-    if (!$this->isVerifiedFarmer()) {
+        if (!$this->isVerifiedFarmer()) {
+            return redirect()
+                ->route('harvests.index')
+                ->with('error', 'Your account is pending verification. You cannot post harvest listings until approved by an administrator.');
+        }
+
+        if ($request->destination_id === 'custom') {
+            $request->merge(['destination_id' => null]);
+        }
+
+        $validated = $request->validate([
+            'crop_id'               => ['required', 'exists:crops,id'],
+            'crop_variety_id'       => ['required', 'exists:crop_varieties,id'],
+            'quantity_kg'           => ['required', 'numeric', 'min:0.01', 'max:999999.99'],
+            'notes'                 => ['nullable', 'string', 'max:1000'],
+            'harvest_date'          => ['nullable', 'date', 'before_or_equal:today'],
+            'quality_grade'         => ['nullable', 'string', 'max:100'],
+            'packaging_type'        => ['nullable', 'string', 'max:100'],
+            // destination
+            'destination_id'        => ['nullable', 'exists:destinations,id'],
+            'destination_address'   => ['required', 'string', 'max:500'],
+            'destination_latitude'  => ['required', 'numeric', 'between:-90,90'],
+            'destination_longitude' => ['required', 'numeric', 'between:-180,180'],
+        ], [
+            'crop_id.required'              => 'Please select a crop.',
+            'crop_variety_id.required'      => 'Please select a crop variety.',
+            'quantity_kg.max'               => 'Quantity cannot exceed 999,999.99 kg.',
+            'quantity_kg.min'               => 'Quantity must be at least 0.01 kg.',
+            'quantity_kg.numeric'           => 'Quantity must be a valid number.',
+            'harvest_date.before_or_equal'  => 'Harvest date cannot be in the future.',
+            'destination_address.required'  => 'Please select or pin a delivery destination.',
+            'destination_latitude.required' => 'Please select or pin a delivery destination.',
+        ]);
+
+        $crop          = Crop::findOrFail($validated['crop_id']);
+        $cropVariety   = CropVariety::findOrFail($validated['crop_variety_id']);
+        $farmerProfile = Auth::user()->farmerProfile;
+
+        Auth::user()->harvests()->create([
+            'crop_id'               => $validated['crop_id'],
+            'crop_variety_id'       => $validated['crop_variety_id'],
+            'crop_category_id'      => $crop->crop_category_id,
+            'crop_type'             => $crop->name,
+            'variety'               => $cropVariety->name,
+            'quantity_kg'           => $validated['quantity_kg'],
+            'unit'                  => 'kg',
+            'notes'                 => $validated['notes'] ?? null,
+            'harvest_date'          => $validated['harvest_date'] ?? null,
+            'quality_grade'         => $validated['quality_grade'] ?? null,
+            'packaging_type'        => $validated['packaging_type'] ?? null,
+            'latitude'              => $farmerProfile?->latitude,
+            'longitude'             => $farmerProfile?->longitude,
+            'destination_id'        => $validated['destination_id'] ?? null,
+            'destination_address'   => $validated['destination_address'],
+            'destination_latitude'  => $validated['destination_latitude'],
+            'destination_longitude' => $validated['destination_longitude'],
+            'status'                => 'active',
+        ]);
+
         return redirect()
             ->route('harvests.index')
-            ->with('error', 'Your account is pending verification. You cannot post harvest listings until approved by an administrator.');
+            ->with('success', 'Harvest listing posted. You are now visible on the logistics map.');
     }
-
-    if ($request->destination_id === 'custom') {
-        $request->merge(['destination_id' => null]);
-    }
-
-    $validated = $request->validate([
-        'crop_id'               => ['required', 'exists:crops,id'],
-        'crop_variety_id'       => ['required', 'exists:crop_varieties,id'],
-        'quantity_kg'           => ['required', 'numeric', 'min:0.01', 'max:999999.99'],
-        'notes'                 => ['nullable', 'string', 'max:1000'],
-        'harvest_date'          => ['nullable', 'date', 'before_or_equal:today'],
-        'quality_grade'         => ['nullable', 'string', 'max:100'],
-        'packaging_type'        => ['nullable', 'string', 'max:100'],
-        // destination
-        'destination_id'        => ['nullable', 'exists:destinations,id'],
-        'destination_address'   => ['required', 'string', 'max:500'],
-        'destination_latitude'  => ['required', 'numeric', 'between:-90,90'],
-        'destination_longitude' => ['required', 'numeric', 'between:-180,180'],
-    ], [
-        'crop_id.required'              => 'Please select a crop.',
-        'crop_variety_id.required'      => 'Please select a crop variety.',
-        'quantity_kg.max'               => 'Quantity cannot exceed 999,999.99 kg.',
-        'quantity_kg.min'               => 'Quantity must be at least 0.01 kg.',
-        'quantity_kg.numeric'           => 'Quantity must be a valid number.',
-        'harvest_date.before_or_equal'  => 'Harvest date cannot be in the future.',
-        'destination_address.required'  => 'Please select or pin a delivery destination.',
-        'destination_latitude.required' => 'Please select or pin a delivery destination.',
-    ]);
-
-    $crop          = Crop::findOrFail($validated['crop_id']);
-    $cropVariety   = CropVariety::findOrFail($validated['crop_variety_id']);
-    $farmerProfile = Auth::user()->farmerProfile;
-
-    Auth::user()->harvests()->create([
-        'crop_id'               => $validated['crop_id'],
-        'crop_variety_id'       => $validated['crop_variety_id'],
-        'crop_category_id'      => $crop->crop_category_id,
-        'crop_type'             => $crop->name,
-        'variety'               => $cropVariety->name,
-        'quantity_kg'           => $validated['quantity_kg'],
-        'unit'                  => 'kg',
-        'notes'                 => $validated['notes'] ?? null,
-        'harvest_date'          => $validated['harvest_date'] ?? null,
-        'quality_grade'         => $validated['quality_grade'] ?? null,
-        'packaging_type'        => $validated['packaging_type'] ?? null,
-        'latitude'              => $farmerProfile?->latitude,
-        'longitude'             => $farmerProfile?->longitude,
-        'destination_id'        => $validated['destination_id'] ?? null,
-        'destination_address'   => $validated['destination_address'],
-        'destination_latitude'  => $validated['destination_latitude'],
-        'destination_longitude' => $validated['destination_longitude'],
-        'status'                => 'active',
-    ]);
-
-    return redirect()
-        ->route('harvests.index')
-        ->with('success', 'Harvest listing posted. You are now visible on the logistics map.');
-}
 
     // -------------------------------------------------------
     // edit — show edit form for an existing harvest

@@ -15,7 +15,7 @@ return new class extends Migration
         // This links the Driver to a specific Logistics Partner's company
         $table->foreignId('partner_id')->constrained('logistics_profiles')->onDelete('cascade');
 
-        $table->string('license_number')->unique();
+        $table->string('license_no')->unique();
         $table->string('vehicle_type')->nullable(); // e.g., 6-wheeler, L300
         $table->enum('employment_status', ['active', 'suspended', 'resigned'])->default('active');
 

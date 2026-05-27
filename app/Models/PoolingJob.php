@@ -9,7 +9,7 @@ class PoolingJob extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
+    protected $guarded = [
         'logistics_profile_id',
         'truck_id',
         'driver_id',
@@ -27,16 +27,21 @@ class PoolingJob extends Model
         'completed_at',
     ];
 
+    /**
+     * The attributes that should be cast.
+     * Keeps high-precision mapping numbers and automatically serializes route paths.
+     */
     protected $casts = [
         'total_kg'          => 'decimal:2',
         'truck_capacity_kg' => 'decimal:2',
         'radius_km'         => 'decimal:2',
-        'start_latitude'    => 'decimal:8',
-        'start_longitude'   => 'decimal:8',
-        'end_latitude'      => 'decimal:8',
-        'end_longitude'     => 'decimal:8',
+        'start_latitude'    => 'float', // Advanced tip: switched to float for faster spatial math
+        'start_longitude'   => 'float',
+        'end_latitude'      => 'float',
+        'end_longitude'     => 'float',
         'confirmed_at'      => 'datetime',
         'completed_at'      => 'datetime',
+        'route_geometry'    => 'array', // CRITICAL: Fixes the Array-to-String conversion crash
     ];
 
     // -------------------------------------------------------
