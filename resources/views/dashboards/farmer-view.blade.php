@@ -25,36 +25,50 @@
         </div>
     @endif
 
+    {{-- Farmer KPI Metrics Surveillance Panel --}}
     <div class="report-grid">
-        {{-- Active Listings --}}
-        <div class="report-widget">
-            <span class="text-4xl mb-3 block">🚜</span>
-            <h3 class="font-bold text-gray-400 text-sm uppercase tracking-wider">Active Listings</h3>
-            <p class="text-3xl font-black text-gray-900 mt-2">{{ $activeCount }} <span class="text-sm font-medium text-gray-400">Items</span></p>
-            <div class="mt-6 pt-4 border-t border-gray-100">
-                <a href="{{ route('harvests.index') }}" class="text-[#2D8A37] font-bold text-sm hover:underline">Manage posts →</a>
-            </div>
+    {{-- Card 1: Active Harvests --}}
+    <div class="report-widget">
+        <span class="text-4xl mb-3 block">🚜</span>
+        <h3 class="font-bold text-gray-400 text-sm uppercase tracking-wider">Active Harvests</h3>
+        <p class="text-3xl font-black text-gray-900 mt-2">
+            {{ $activeHarvestsCount ?? 0 }} <span class="text-sm font-medium text-gray-400">Items</span>
+        </p>
+        <div class="mt-6 pt-4 border-t border-gray-100">
+            <a href="{{ route('harvests.index') }}" class="text-[#2D8A37] font-bold text-sm hover:underline">
+                Manage harvests →
+            </a>
         </div>
-        {{-- Track Shipments --}}
-        <div class="report-widget">
-            <span class="text-4xl mb-3 block">📦</span>
-            <h3 class="font-bold text-gray-400 text-sm uppercase tracking-wider">Track Shipments</h3>
-            <p class="text-3xl font-black text-gray-900 mt-2">0 <span class="text-sm font-medium text-gray-400">Active</span></p>
-            <div class="mt-6 pt-4 border-t border-gray-100">
-                <a href="#" class="text-[#2D8A37] font-bold text-sm hover:underline">View map →</a>
-            </div>
+    </div>
+
+    {{-- Card 2: Track Shipments --}}
+    <div class="report-widget">
+        <span class="text-4xl mb-3 block">📦</span>
+        <h3 class="font-bold text-gray-400 text-sm uppercase tracking-wider">Track Shipments</h3>
+        <p class="text-3xl font-black text-gray-900 mt-2">
+            {{ $activeShipmentsCount ?? 0 }} <span class="text-sm font-medium text-gray-400">Active</span>
+        </p>
+        <div class="mt-6 pt-4 border-t border-gray-100">
+            <a href="{{ route('tracking.index') }}" class="text-[#2D8A37] font-bold text-sm hover:underline">
+                View live map →
+            </a>
         </div>
-        {{-- Shared Logistics --}}
+    </div>
+
+    {{-- CARD 3: B2B Pool Proposals --}}
         <div class="report-widget">
             <span class="text-4xl mb-3 block">🤝</span>
-            <h3 class="font-bold text-gray-400 text-sm uppercase tracking-wider">Shared Logistics</h3>
-            <p class="text-3xl font-black text-gray-900 mt-2">0 <span class="text-sm font-medium text-gray-400">Slots Nearby</span></p>
+            <h3 class="font-bold text-gray-400 text-sm uppercase tracking-wider">Pooling Proposals</h3>
+            <p class="text-3xl font-black text-gray-900 mt-2">
+                {{ $pendingProposalsCount ?? 0 }} <span class="text-sm font-medium text-gray-400">Offers</span>
+            </p>
             <div class="mt-6 pt-4 border-t border-gray-100">
-                <a href="#" class="text-[#2D8A37] font-bold text-sm hover:underline">Find Pooling Load →</a>
+                <a href="{{ route('farmer.proposals') }}" class="text-[#2D8A37] font-bold text-sm hover:underline">
+                    Review pooling rates →
+                </a>
             </div>
         </div>
-
-    </div>
+</div>
 
     <div class="mt-12">
         <h2 class="text-xl font-bold text-gray-800 mb-6">Farmer Actions</h2>

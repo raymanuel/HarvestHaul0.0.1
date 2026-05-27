@@ -152,32 +152,34 @@
 
     {{-- HTML5 Geolocation Tracking Engine --}}
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const jobStatus = '{{ $job->status }}';
-            const jobId = {{ $job->id }};
-            const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+    document.addEventListener('DOMContentLoaded', () => {
+        const jobStatus = '{{ $job->status }}';
+        const jobId = {{ $job->id }};
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
 
-            if (jobStatus === 'in_progress') {
-                // Execute immediately on load, then loop every 15 seconds
-                postLocation();
-                setInterval(postLocation, 15000);
-            }
+        // 1. Inject the planned route coordinates from the job
+        // Ensure your Job model has the OSRM geometry stored in 'route_geometry'
+        let routePoints = @json($job->route_geometry ?? []);
+        let currentIndex = 0;
 
-            function postLocation() {
-                if (!navigator.geolocation) {
-                    console.error("Geolocation is not supported by this browser.");
+        if (jobStatus === 'in_progress') {
+            // Run the simulation loop every 3 seconds
+            setInterval(async () => {
+                if (currentIndex >= routePoints.length) {
+                    console.log('Driver reached destination.');
                     return;
                 }
 
-                navigator.geolocation.getCurrentPosition((position) => {
-                    const payload = {
-                        pooling_job_id: jobId,
-                        latitude: position.coords.latitude,
-                        longitude: position.coords.longitude,
-                        posted_at: new Date().toISOString()
-                    };
+                const point = routePoints[currentIndex];
+                const payload = {
+                    pooling_job_id: jobId,
+                    latitude: point[1], // OSRM GeoJSON is [lng, lat]
+                    longitude: point[0],
+                    posted_at: new Date().toISOString()
+                };
 
-                    fetch('{{ route("driver.tracking.store") }}', {
+                try {
+                    const res = await fetch('{{ route("driver.tracking.store") }}', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -185,20 +187,18 @@
                             'Accept': 'application/json'
                         },
                         body: JSON.stringify(payload)
-                    })
-                    .then(res => res.json())
-                    .then(data => console.log('Location Synced:', data))
-                    .catch(err => console.error('Sync Failed:', err));
+                    });
 
-                }, (error) => {
-                    console.warn('GPS Error:', error.message);
-                }, {
-                    enableHighAccuracy: true,
-                    maximumAge: 10000, // Do not accept cached locations older than 10s
-                    timeout: 5000      // Drop connection if GPS lock takes too long
-                });
-            }
-        });
-    </script>
+                    if (res.ok) {
+                        currentIndex++;
+                        console.log(`Driving... point ${currentIndex}/${routePoints.length} synced.`);
+                    }
+                } catch (err) {
+                    console.error('Sync Failed:', err);
+                }
+            }, 3000); // 3-second movement intervals
+        }
+    });
+</script>
 </body>
 </html>

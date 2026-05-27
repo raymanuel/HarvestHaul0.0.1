@@ -42,7 +42,7 @@
             <button id="btn-generate-plan"
                     disabled
                     class="bg-green-600 text-white font-bold px-5 py-2 rounded-lg text-sm hover:bg-green-700 transition disabled:opacity-40 disabled:cursor-not-allowed">
-                ⚙️ Generate Pooling Plan
+                ⚙️ Generate Route Plan
             </button>
         </div>
 
@@ -82,7 +82,7 @@
             </div>
         </div>
 
-        {{-- ─── Pooling Plan Panel (hidden until plan is generated) ─── --}}
+        {{-- ─── Pooling Plan Panel ─── --}}
         <div id="plan-panel" class="hidden mt-8 bg-white border border-gray-200 rounded-xl shadow-sm p-6">
             <div class="flex items-center justify-between mb-4">
                 <h2 class="text-xl font-bold text-gray-800">🧮 Pooling Plan Preview</h2>
@@ -90,7 +90,7 @@
             </div>
 
             {{-- Summary row --}}
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
                 <div class="bg-gray-50 rounded-lg p-3 border border-gray-100 text-center">
                     <p class="text-xs text-gray-500 uppercase tracking-wide">Farms Selected</p>
                     <p id="plan-farm-count" class="text-2xl font-bold text-gray-900 mt-1">—</p>
@@ -104,7 +104,15 @@
                     <p id="plan-load-pct" class="text-2xl font-bold text-blue-700 mt-1">—</p>
                 </div>
                 <div class="bg-gray-50 rounded-lg p-3 border border-gray-100 text-center">
-                    <p class="text-xs text-gray-500 uppercase tracking-wide">Truck</p>
+                    <p class="text-xs text-gray-500 uppercase tracking-wide">Est. Distance</p>
+                    <p id="plan-distance" class="text-2xl font-bold text-slate-700 mt-1">—</p>
+                </div>
+                <div class="bg-gray-50 rounded-lg p-3 border border-gray-100 text-center ring-2 ring-green-600/10 bg-green-50/30">
+                    <p class="text-xs text-green-700 font-bold uppercase tracking-wide">Suggested Price</p>
+                    <p id="plan-price-ref" class="text-2xl font-black text-green-700 mt-1">—</p>
+                </div>
+                <div class="bg-gray-50 rounded-lg p-3 border border-gray-100 text-center">
+                    <p class="text-xs text-gray-500 uppercase tracking-wide">Assigned Truck</p>
                     <p id="plan-truck-label" class="text-sm font-bold text-gray-700 mt-1 truncate">—</p>
                 </div>
             </div>
@@ -118,16 +126,17 @@
                             <th class="py-2 pr-4">Farm</th>
                             <th class="py-2 pr-4">Location</th>
                             <th class="py-2 pr-4">Crop(s)</th>
-                            <th class="py-2">Load (kg)</th>
+                            <th class="py-2 pr-4">Load (kg)</th>
+                            <th class="py-2 text-right">Cost Share</th>
                         </tr>
                     </thead>
                     <tbody id="plan-table-body">
-                        <tr><td colspan="5" class="py-4 text-center text-gray-400">No plan generated yet.</td></tr>
+                        <tr><td colspan="6" class="py-4 text-center text-gray-400">No plan generated yet.</td></tr>
                     </tbody>
                 </table>
             </div>
 
-            {{-- Notes + Confirm --}}
+            {{-- Notes + Proposal Submission Trigger --}}
             <div class="flex flex-wrap items-end gap-4">
                 <div class="flex-1 min-w-[220px]">
                     <label class="block text-xs font-bold text-gray-600 uppercase tracking-wide mb-1">Notes (optional)</label>
@@ -137,7 +146,7 @@
                 </div>
                 <button id="btn-confirm-plan"
                         class="bg-green-700 text-white font-bold px-6 py-2 rounded-lg text-sm hover:bg-green-800 transition disabled:opacity-40 disabled:cursor-not-allowed">
-                    ✅ Confirm & Save Job
+                    📩 Create Delivery Proposal
                 </button>
             </div>
 
@@ -159,17 +168,20 @@
             let endMarker           = null;
             let routePolyline       = null;
             let currentRouteGeoJSON = null;
-            let lastNearbyFarms     = [];  // farms visible in current radius
-            let currentPlan         = null; // last plan returned from server
+            let lastNearbyFarms     = [];
+            let currentPlan         = null;
 
             const defaultIcon   = L.icon({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png',  iconSize: [25, 41], iconAnchor: [12, 41] });
             const highlightIcon = L.icon({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png', iconSize: [25, 41], iconAnchor: [12, 41] });
 
-            // ─── Truck selector ───────────────────────────────────────────
+            // NEW: High contrast red marker mapping for B2B wholesalers/markets
+            const destinationMarkerIcon = L.icon({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png', iconSize: [25, 41], iconAnchor: [12, 41] });
+
             const truckSelect   = document.getElementById('truck-select');
             const truckInfo     = document.getElementById('truck-info');
             const btnGenerate   = document.getElementById('btn-generate-plan');
 
+            // ─── Truck Selector & Driver Validation Guard ───────────────────────
             truckSelect.addEventListener('change', function () {
                 const opt = this.options[this.selectedIndex];
                 if (!this.value) {
@@ -177,14 +189,31 @@
                     btnGenerate.disabled = true;
                     return;
                 }
-                document.getElementById('truck-info-driver').textContent   = '🚗 ' + opt.dataset.driver;
-                document.getElementById('truck-info-capacity').textContent = '⚖️ ' + Number(opt.dataset.capacity).toLocaleString() + ' kg capacity';
-                truckInfo.classList.remove('hidden');
-                // Enable generate only when a route has also been drawn
-                btnGenerate.disabled = !(baseRouteGeoJSON && startMarker && endMarker);
+
+                const driverValue = opt.dataset.driver ? opt.dataset.driver.trim() : '';
+                const isDriverAssigned = driverValue !== '' && driverValue !== 'No driver assigned';
+
+                if (!isDriverAssigned) {
+                    document.getElementById('truck-info-driver').textContent   = '⚠️ ' + driverValue;
+                    document.getElementById('truck-info-capacity').textContent = 'Cannot route without fleet operator.';
+                    truckInfo.className = 'text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-4 py-2 font-medium';
+                    truckInfo.classList.remove('hidden');
+                    btnGenerate.disabled = true;
+                } else {
+                    document.getElementById('truck-info-driver').textContent   = '🚗 Driver: ' + driverValue;
+                    document.getElementById('truck-info-capacity').textContent = '⚖️ ' + Number(opt.dataset.capacity).toLocaleString() + ' kg max capacity';
+                    truckInfo.className = 'text-sm text-gray-600 bg-gray-50 border border-gray-200 rounded-lg px-4 py-2';
+                    truckInfo.classList.remove('hidden');
+
+                    btnGenerate.disabled = !(baseRouteGeoJSON && startMarker && endMarker);
+                }
+
+                if (lastNearbyFarms.length > 0) {
+                    renderPickupQueue(lastNearbyFarms);
+                }
             });
 
-            // ─── Map click: set start → end → generate base route ─────────
+            // ─── Map Click Handlers ───────────────────────────────────────
             map.on('click', function (e) {
                 if (!startMarker) {
                     startMarker = L.marker(e.latlng).addTo(map).bindPopup('<b>Start:</b> Logistics Hub').openPopup();
@@ -194,6 +223,7 @@
                 }
             });
 
+            // ─── OSRM Base Route Calculations & Callback Protections ──────
             async function generateBaseRoute(start, end) {
                 const osrmUrl = buildOsrmUrl([start, end]);
                 try {
@@ -216,8 +246,12 @@
                     renderPickupQueue(nearbyFarms);
                     document.getElementById('reset-map').classList.remove('hidden');
 
-                    // Enable Generate Plan button if a truck is selected
-                    if (truckSelect.value) btnGenerate.disabled = false;
+                    const selectedOpt = truckSelect.options[truckSelect.selectedIndex];
+                    const validDriver = selectedOpt && selectedOpt.value &&
+                                        selectedOpt.dataset.driver !== 'No driver assigned' &&
+                                        selectedOpt.dataset.driver.trim() !== '';
+
+                    btnGenerate.disabled = !validDriver;
                 } catch (err) {
                     console.error('Routing Error:', err);
                     alert('Failed to connect to routing engine.');
@@ -271,9 +305,10 @@
                 document.getElementById('reset-map').classList.remove('hidden');
             }
 
-            // Plot all farm markers on load
+            // ─── Plot all farm markers + Red Destinations on load ──────
             farms.forEach((farm) => {
                 if (farm.farmer_profile && farm.farmer_profile.latitude) {
+                    // Plot standard pickup pin
                     const marker = L.marker([farm.farmer_profile.latitude, farm.farmer_profile.longitude], { icon: defaultIcon }).addTo(map);
 
                     const harvestList = farm.harvests.length
@@ -318,16 +353,21 @@
                     `, { maxWidth: 260 });
 
                     farmMarkers.push({ marker, data: farm });
+
+                    // Plot Corresponding Red Drop-off Terminal Marker dynamically
+                    if (farm.destination_latitude && farm.destination_longitude) {
+                        const marketLabel = farm.destination ? farm.destination.name : (farm.destination_address ?? 'B2B Wholesale Terminal');
+
+                        L.marker([farm.destination_latitude, farm.destination_longitude], { icon: destinationMarkerIcon })
+                         .addTo(map)
+                         .bindPopup(`<b>📦 Dynamic Drop-off Terminal</b><br><span style="font-size:12px;color:gray;">Linked Cargo: ${farm.name} Wholesaler</span>`);
+                    }
                 }
             });
 
-            // ─── Radius detection ─────────────────────────────────────────
             function findFarmsAlongRoute() {
                 if (!baseRouteGeoJSON) return [];
                 const currentRadius = parseFloat(document.getElementById('radius-select').value);
-                document.getElementById('radius-description').innerText =
-                    `Farms within ${currentRadius}km of the selected route will appear here.`;
-
                 const routeLine = turf.lineString(baseRouteGeoJSON.coordinates);
                 const found = [];
 
@@ -348,7 +388,6 @@
                 return found;
             }
 
-            // ─── Pickup queue sidebar ─────────────────────────────────────
             function renderPickupQueue(nearbyFarms) {
                 const currentRadius  = parseFloat(document.getElementById('radius-select').value);
                 const queueContainer = document.getElementById('pickup-queue');
@@ -359,44 +398,42 @@
                     return;
                 }
 
+                const selectedOpt = truckSelect.options[truckSelect.selectedIndex];
+                const truckCapacity = selectedOpt && selectedOpt.value ? parseFloat(selectedOpt.dataset.capacity) : Infinity;
+
                 nearbyFarms.forEach(item => {
                     const totalKg = item.data.harvests.reduce((sum, h) => sum + parseFloat(h.quantity || 0), 0);
+                    const exceedsCapacity = totalKg > truckCapacity;
+
+                    const cardClass = exceedsCapacity
+                        ? 'bg-gray-100 p-3 rounded shadow-sm border-l-4 border-red-500 opacity-50 filter grayscale'
+                        : 'bg-white p-3 rounded shadow-sm border-l-4 border-green-500';
+
+                    const capacityBadge = exceedsCapacity
+                        ? `<span class="inline-block mt-1 text-[10px] font-bold bg-red-100 text-red-700 px-2 py-0.5 rounded">⚠️ Exceeds Capacity</span>`
+                        : '';
+
                     queueContainer.innerHTML += `
-                        <div class="bg-white p-3 rounded shadow-sm border-l-4 border-green-500">
-                            <strong class="text-green-700">${item.data.name}</strong>
+                        <div class="${cardClass}">
+                            <strong class="${exceedsCapacity ? 'text-gray-500 line-through' : 'text-green-700'}">${item.data.name}</strong>
                             <p class="text-xs text-gray-600 mt-1">📍 ${item.data.farmer_profile.farm_location}</p>
                             <p class="text-xs text-gray-500 mt-1">🚗 ${item.distance.toFixed(2)} km off-route</p>
-                            <p class="text-xs text-gray-500">⚖️ ${totalKg.toLocaleString()} kg total</p>
+                            <p class="text-xs ${exceedsCapacity ? 'text-red-600 font-bold' : 'text-gray-500'}">⚖️ ${totalKg.toLocaleString()} kg total</p>
+                            ${capacityBadge}
                         </div>
                     `;
                 });
             }
 
-            // ─── Generate Pooling Plan ────────────────────────────────────
             btnGenerate.addEventListener('click', async function () {
-                if (!truckSelect.value || !startMarker || !endMarker || lastNearbyFarms.length === 0) {
-                    alert('Please set a route and select a truck first.');
-                    return;
-                }
-
-                // Collect all harvest IDs from nearby farms
                 const harvestIds = lastNearbyFarms.flatMap(f => f.data.harvests.map(h => h.id));
-
-                if (!harvestIds.length) {
-                    alert('No harvest IDs found for nearby farms.');
-                    return;
-                }
-
                 btnGenerate.disabled = true;
                 btnGenerate.textContent = '⏳ Generating...';
 
                 try {
                     const res = await fetch('{{ route("pooling.plan") }}', {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        },
+                        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
                         body: JSON.stringify({
                             truck_id:    parseInt(truckSelect.value),
                             harvest_ids: harvestIds,
@@ -409,24 +446,17 @@
                     });
 
                     const plan = await res.json();
-
-                    if (!res.ok) {
-                        alert(plan.error ?? 'Failed to generate plan.');
-                        return;
-                    }
-
+                    if (!res.ok) { alert(plan.error); return; }
                     currentPlan = plan;
                     renderPlanPanel(plan);
                 } catch (err) {
-                    console.error('Plan error:', err);
-                    alert('An error occurred while generating the plan.');
+                    console.error(err);
                 } finally {
                     btnGenerate.disabled = false;
-                    btnGenerate.textContent = '⚙️ Generate Pooling Plan';
+                    btnGenerate.textContent = '⚙️ Generate Route Plan';
                 }
             });
 
-            // ─── Render plan panel ────────────────────────────────────────
             function renderPlanPanel(plan) {
                 const panel = document.getElementById('plan-panel');
                 panel.classList.remove('hidden');
@@ -436,171 +466,84 @@
                 document.getElementById('plan-total-kg').textContent   = (plan.total_kg ?? 0).toLocaleString() + ' kg';
                 document.getElementById('plan-load-pct').textContent   = (plan.load_percentage ?? 0).toFixed(1) + '%';
                 document.getElementById('plan-truck-label').textContent = truckSelect.options[truckSelect.selectedIndex].text;
-                document.getElementById('plan-status-badge').textContent = 'Unconfirmed';
-                document.getElementById('plan-status-badge').className   = 'text-xs font-bold px-3 py-1 rounded-full bg-yellow-100 text-yellow-700';
-                document.getElementById('confirm-feedback').classList.add('hidden');
+                document.getElementById('plan-distance').textContent   = (plan.total_distance_km ?? 0).toFixed(2) + ' km';
+                document.getElementById('plan-price-ref').textContent  = '₱' + Number(plan.price_reference ?? 0).toLocaleString(undefined, {minimumFractionDigits: 2});
 
                 const tbody = document.getElementById('plan-table-body');
                 tbody.innerHTML = '';
 
-                if (!plan.selected_harvests || plan.selected_harvests.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="5" class="py-4 text-center text-gray-400">No farms could fit within truck capacity.</td></tr>';
-                    return;
-                }
-
                 plan.selected_harvests.forEach((h, i) => {
                     tbody.innerHTML += `
                         <tr class="border-b border-gray-100 hover:bg-gray-50">
-                            <td class="py-2 pr-4 text-gray-500 font-mono">#${i + 1}</td>
-                            <td class="py-2 pr-4 font-semibold text-gray-800">${h.farm_name ?? '—'}</td>
-                            <td class="py-2 pr-4 text-gray-500 text-xs">${h.farm_location ?? '—'}</td>
-                            <td class="py-2 pr-4 text-gray-600 text-xs">${h.crop ?? '—'}</td>
-                            <td class="py-2 font-bold text-green-700">${Number(h.quantity_kg).toLocaleString()}</td>
+                            <td class="py-3 font-mono text-gray-500">#${i + 1}</td>
+                            <td class="py-3 font-semibold text-gray-800">${h.farm_name ?? '—'}</td>
+                            <td class="py-3 text-gray-600 text-xs">${h.farm_location ?? '—'}</td>
+                            <td class="py-3 text-gray-600 text-xs">${h.crop ?? '—'}</td>
+                            <td class="py-3 font-bold text-slate-700">${Number(h.quantity_kg).toLocaleString()} kg</td>
+                            <td class="py-3 font-black text-green-700 text-right">
+                                ₱${Number(h.split_cost ?? 0).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                            </td>
                         </tr>
                     `;
                 });
             }
 
-            // ─── Confirm Plan ─────────────────────────────────────────────
             document.getElementById('btn-confirm-plan').addEventListener('click', async function () {
-                if (!currentPlan || !truckSelect.value || !startMarker || !endMarker) return;
-
-                this.disabled = true;
-                this.textContent = '⏳ Saving...';
-
+                this.disabled = true; this.textContent = '⏳ Creating Proposal...';
                 const harvestIds = lastNearbyFarms.flatMap(f => f.data.harvests.map(h => h.id));
 
                 try {
                     const res = await fetch('{{ route("pooling.confirm") }}', {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        },
+                        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
                         body: JSON.stringify({
-                            truck_id:    parseInt(truckSelect.value),
-                            harvest_ids: harvestIds,
-                            total_kg:    currentPlan.total_kg,
-                            start_lat:   startMarker.getLatLng().lat,
-                            start_lng:   startMarker.getLatLng().lng,
-                            end_lat:     endMarker.getLatLng().lat,
-                            end_lng:     endMarker.getLatLng().lng,
-                            radius_km:   parseFloat(document.getElementById('radius-select').value),
-                            notes:       document.getElementById('plan-notes').value,
+                            truck_id:       parseInt(truckSelect.value),
+                            harvest_ids:    harvestIds,
+                            total_kg:       currentPlan.total_kg,
+                            start_lat:      startMarker.getLatLng().lat,
+                            start_lng:      startMarker.getLatLng().lng,
+                            end_lat:        endMarker.getLatLng().lat,
+                            end_lng:        endMarker.getLatLng().lng,
+                            radius_km:      parseFloat(document.getElementById('radius-select').value),
+                            notes:          document.getElementById('plan-notes').value,
+                            route_geometry: currentRouteGeoJSON ? currentRouteGeoJSON.coordinates : [],
                         }),
                     });
 
                     const result = await res.json();
                     const feedback = document.getElementById('confirm-feedback');
+                    feedback.classList.remove('hidden');
 
                     if (res.ok && result.success) {
-                        document.getElementById('plan-status-badge').textContent = 'Confirmed';
-                        document.getElementById('plan-status-badge').className   = 'text-xs font-bold px-3 py-1 rounded-full bg-green-100 text-green-700';
-                        feedback.className   = 'mt-4 p-3 rounded-lg text-sm font-medium bg-green-50 text-green-800 border border-green-200';
-                        feedback.textContent = '✅ ' + result.message + ' Job #' + result.pooling_job_id;
-                        feedback.classList.remove('hidden');
-                        this.disabled    = true;
-                        this.textContent = '✅ Confirmed';
+                        document.getElementById('plan-status-badge').textContent = 'Proposal Created';
+                        feedback.className = 'mt-4 p-3 rounded bg-green-50 text-green-800 border border-green-200';
+                        feedback.textContent = '📩 Proposal pipeline open. Room linked to Job #' + result.pooling_job_id;
+                        this.textContent = '📩 Proposal Sent';
                     } else {
-                        feedback.className   = 'mt-4 p-3 rounded-lg text-sm font-medium bg-red-50 text-red-800 border border-red-200';
-                        feedback.textContent = '❌ ' + (result.error ?? 'Something went wrong.');
-                        feedback.classList.remove('hidden');
-                        this.disabled    = false;
-                        this.textContent = '✅ Confirm & Save Job';
+                        feedback.className = 'mt-4 p-3 rounded bg-red-50 text-red-800 border border-red-200';
+                        feedback.textContent = '❌ ' + result.error;
+                        this.disabled = false; this.textContent = '📩 Create Delivery Proposal';
                     }
-                } catch (err) {
-                    console.error('Confirm error:', err);
-                    this.disabled    = false;
-                    this.textContent = '✅ Confirm & Save Job';
-                }
+                } catch (err) { console.error(err); }
             });
 
-            // ─── Radius dropdown ──────────────────────────────────────────
             document.getElementById('radius-select').addEventListener('change', function () {
-                if (!baseRouteGeoJSON || !startMarker || !endMarker) return;
-
+                if (!baseRouteGeoJSON) return;
                 const nearbyFarms = findFarmsAlongRoute();
-                lastNearbyFarms   = nearbyFarms;
+                lastNearbyFarms = nearbyFarms;
                 renderPickupQueue(nearbyFarms);
-
-                if (nearbyFarms.length > 0) {
-                    generateDetourRoute(startMarker.getLatLng(), nearbyFarms, endMarker.getLatLng());
-                } else {
-                    drawRoute(baseRouteGeoJSON);
-                }
-
-                // Disable generate if no farms in new radius
-                btnGenerate.disabled = !(truckSelect.value && nearbyFarms.length > 0);
+                if (nearbyFarms.length > 0) generateDetourRoute(startMarker.getLatLng(), nearbyFarms, endMarker.getLatLng());
+                else drawRoute(baseRouteGeoJSON);
             });
 
-            // ─── Reset ────────────────────────────────────────────────────
             document.getElementById('reset-map').addEventListener('click', function () {
-                if (startMarker)   map.removeLayer(startMarker);
-                if (endMarker)     map.removeLayer(endMarker);
-                if (routePolyline) map.removeLayer(routePolyline);
-
-                startMarker = null; endMarker = null;
-                currentRouteGeoJSON = null; baseRouteGeoJSON = null;
-                lastNearbyFarms = []; currentPlan = null;
-
+                if (startMarker) map.removeLayer(startMarker); if (endMarker) map.removeLayer(endMarker); if (routePolyline) map.removeLayer(routePolyline);
+                startMarker = null; endMarker = null; currentRouteGeoJSON = null; baseRouteGeoJSON = null; lastNearbyFarms = [];
                 farmMarkers.forEach(item => item.marker.setIcon(defaultIcon));
-
-                document.getElementById('pickup-queue').innerHTML       = '<div class="text-center text-gray-400 mt-10 italic">Awaiting route generation...</div>';
-                document.getElementById('radius-description').innerText = 'Farms within 5km of the selected route will appear here.';
+                document.getElementById('pickup-queue').innerHTML = '<div class="text-center text-gray-400 mt-10 italic">Awaiting route generation...</div>';
                 document.getElementById('plan-panel').classList.add('hidden');
-                btnGenerate.disabled = true;
-                this.classList.add('hidden');
+                btnGenerate.disabled = true; this.classList.add('hidden');
             });
-
-
-            // ─── Real-Time Tracking Coordinator Engine ────────────────────
-            const activeJobs = @json($activeJobIds);
-            const activeTruckMarkers = {};
-
-            const truckIcon = L.icon({
-                iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-orange.png', // Distinct fleet icon
-                iconSize: [25, 41],
-                iconAnchor: [12, 41],
-                popupAnchor: [1, -34],
-            });
-
-            if (activeJobs.length > 0) {
-                pollTruckLocations();
-                setInterval(pollTruckLocations, 10000); // 10-second polling cycle
-            }
-
-            async function pollTruckLocations() {
-                for (const jobId of activeJobs) {
-                    try {
-                        let url = '{{ route("tracking.latest", "JOB_ID_PLACEHOLDER") }}'.replace('JOB_ID_PLACEHOLDER', jobId);
-
-                        const res = await fetch(url, {
-                            headers: { 'Accept': 'application/json' }
-                        });
-                        const response = await res.json();
-
-                        if (response.status === 'success' && response.data) {
-                            const lat = response.data.latitude;
-                            const lng = response.data.longitude;
-                            const postedAt = new Date(response.data.posted_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second:'2-digit' });
-
-                            if (activeTruckMarkers[jobId]) {
-                                // Update existing fleet marker dynamically
-                                activeTruckMarkers[jobId].setLatLng([lat, lng]);
-                                activeTruckMarkers[jobId].getPopup().setContent(`<b>🚛 Active Fleet (Job #${jobId})</b><br><span style="font-size:11px;color:gray;">Last GPS Sync: ${postedAt}</span>`);
-                            } else {
-                                // Plot new fleet marker
-                                const marker = L.marker([lat, lng], { icon: truckIcon })
-                                    .addTo(map)
-                                    .bindPopup(`<b>🚛 Active Fleet (Job #${jobId})</b><br><span style="font-size:11px;color:gray;">Last GPS Sync: ${postedAt}</span>`);
-                                activeTruckMarkers[jobId] = marker;
-                            }
-                        }
-                    } catch (error) {
-                        console.warn(`Polling failed for Job ${jobId}:`, error);
-                    }
-                }
-            }
         });
     </script>
 </x-layout>

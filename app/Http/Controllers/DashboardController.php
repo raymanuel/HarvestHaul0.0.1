@@ -64,8 +64,18 @@ class DashboardController extends Controller
 
         return match($user->role) {
             'farmer' => view('dashboards.farmer-view', [
-                'activeListings' => $user->harvests()->where('status', 'active')->get(),
-                'activeCount'    => $user->harvests()->where('status', 'active')->count(),
+                // 1. Precise count of active B2B crop inventory
+                'activeHarvestsCount' => $user->harvests()->where('status', 'active')->count(),
+
+                // 2. Count of hauls currently in transit for this specific farmer
+                'activeShipmentsCount' => PoolingJob::whereHas('harvests', function($query) use ($user) {
+                    $query->where('user_id', $user->id);
+                })->where('status', 'in_progress')->count(),
+
+                // 3. Count of multi-party negotiation offers targeting this farmer
+                'pendingProposalsCount' => PoolingJob::whereHas('harvests', function($query) use ($user) {
+                    $query->where('user_id', $user->id);
+                })->where('status', 'pending')->count(),
             ]),
 
             'logistics_partner' => view('dashboards.logistics-view', [

@@ -8,13 +8,25 @@ use App\Models\Truck;
 use App\Services\ResourcePoolingService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 
 class PoolingJobController extends Controller
 {
-    public function __construct(protected ResourcePoolingService $poolingService)
+    // Define the property here so it exists for the entire class
+    protected $poolingService;
+
+    // Use constructor injection to assign the service
+    public function __construct(ResourcePoolingService $poolingService)
     {
-        $this->middleware('auth');
+        $this->poolingService = $poolingService;
     }
+
+    // Static middleware definition (Laravel 11+ style)
+    public static function middleware(): array
+    {
+        return ['auth'];
+    }
+
 
     /**
      * Generate a pooling plan (no DB writes).
@@ -22,43 +34,54 @@ class PoolingJobController extends Controller
      */
     public function plan(Request $request)
     {
-        $request->validate([
-            'truck_id'          => 'required|integer|exists:trucks,id',
-            'harvest_ids'       => 'required|array|min:1',
-            'harvest_ids.*'     => 'integer|exists:harvests,id',
-            'start_lat'         => 'required|numeric',
-            'start_lng'         => 'required|numeric',
-            'end_lat'           => 'required|numeric',
-            'end_lng'           => 'required|numeric',
-            'radius_km'         => 'required|numeric|min:1',
-        ]);
+        try {
+            // Use explicit Validator to guarantee JSON error response instead of 302 HTML redirects
+            $validator = Validator::make($request->all(), [
+                'truck_id'      => 'required|integer|exists:trucks,id',
+                'harvest_ids'   => 'required|array|min:1',
+                'harvest_ids.*' => 'integer|exists:harvests,id',
+                'start_lat'     => 'required|numeric',
+                'start_lng'     => 'required|numeric',
+                'end_lat'       => 'required|numeric',
+                'end_lng'       => 'required|numeric',
+                'radius_km'     => 'required|numeric|min:1',
+            ]);
 
-        $logisticsProfile = Auth::user()->logisticsProfile;
+            if ($validator->fails()) {
+                return response()->json(['error' => $validator->errors()->first()], 422);
+            }
 
-        if (!$logisticsProfile) {
-            return response()->json(['error' => 'No logistics profile found.'], 403);
+            $logisticsProfile = Auth::user()->logisticsProfile;
+
+            if (!$logisticsProfile) {
+                return response()->json(['error' => 'No logistics profile found.'], 403);
+            }
+
+            $truck = Truck::where('id', $request->truck_id)
+                ->where('logistics_profile_id', $logisticsProfile->id)
+                ->where('status', 'available')
+                ->first();
+
+            if (!$truck) {
+                return response()->json(['error' => 'Truck not found or currently unavailable.'], 404);
+            }
+
+            $plan = $this->poolingService->plan(
+                truck: $truck,
+                nearbyHarvestIds: $request->harvest_ids,
+                startLat: (float) $request->start_lat,
+                startLng: (float) $request->start_lng,
+                endLat: (float) $request->end_lat,
+                endLng: (float) $request->end_lng,
+                radiusKm: (float) $request->radius_km,
+            );
+
+            return response()->json($plan);
+
+        } catch (\Exception $e) {
+            // Catch any algorithm crashes and return them cleanly to the UI
+            return response()->json(['error' => 'Algorithm Error: ' . $e->getMessage()], 500);
         }
-
-        $truck = Truck::where('id', $request->truck_id)
-            ->where('logistics_profile_id', $logisticsProfile->id)
-            ->where('status', 'available')
-            ->first();
-
-        if (!$truck) {
-            return response()->json(['error' => 'Truck not found or not available.'], 404);
-        }
-
-        $plan = $this->poolingService->plan(
-            truck: $truck,
-            nearbyHarvestIds: $request->harvest_ids,
-            startLat: (float) $request->start_lat,
-            startLng: (float) $request->start_lng,
-            endLat: (float) $request->end_lat,
-            endLng: (float) $request->end_lng,
-            radiusKm: (float) $request->radius_km,
-        );
-
-        return response()->json($plan);
     }
 
     /**
@@ -67,59 +90,71 @@ class PoolingJobController extends Controller
      */
     public function confirm(Request $request)
     {
-        $request->validate([
-            'truck_id'          => 'required|integer|exists:trucks,id',
-            'harvest_ids'       => 'required|array|min:1',
-            'harvest_ids.*'     => 'integer|exists:harvests,id',
-            'total_kg'          => 'required|numeric',
-            'start_lat'         => 'required|numeric',
-            'start_lng'         => 'required|numeric',
-            'end_lat'           => 'required|numeric',
-            'end_lng'           => 'required|numeric',
-            'radius_km'         => 'required|numeric|min:1',
-            'notes'             => 'nullable|string|max:500',
-        ]);
+        try {
+            $validator = Validator::make($request->all(), [
+                'truck_id'       => 'required|integer|exists:trucks,id',
+                'harvest_ids'    => 'required|array|min:1',
+                'harvest_ids.*'  => 'integer|exists:harvests,id',
+                'total_kg'       => 'required|numeric',
+                'start_lat'      => 'required|numeric',
+                'start_lng'      => 'required|numeric',
+                'end_lat'        => 'required|numeric',
+                'end_lng'        => 'required|numeric',
+                'radius_km'      => 'required|numeric|min:1',
+                'notes'          => 'nullable|string|max:500',
+                'route_geometry' => 'required|array', // Enforce geometry presence from the map interface
+            ]);
 
-        $logisticsProfile = Auth::user()->logisticsProfile;
+            if ($validator->fails()) {
+                return response()->json(['error' => $validator->errors()->first()], 422);
+            }
 
-        if (!$logisticsProfile) {
-            return response()->json(['error' => 'No logistics profile found.'], 403);
+            $logisticsProfile = Auth::user()->logisticsProfile;
+
+            if (!$logisticsProfile) {
+                return response()->json(['error' => 'No logistics profile found.'], 403);
+            }
+
+            $truck = Truck::where('id', $request->truck_id)
+                ->where('logistics_profile_id', $logisticsProfile->id)
+                ->where('status', 'available')
+                ->first();
+
+            if (!$truck) {
+                return response()->json(['error' => 'Truck not found or currently unavailable.'], 404);
+            }
+
+            // Re-run plan so confirm() receives a clean baseline plan array
+            $plan = $this->poolingService->plan(
+                truck: $truck,
+                nearbyHarvestIds: $request->harvest_ids,
+                startLat: (float) $request->start_lat,
+                startLng: (float) $request->start_lng,
+                endLat: (float) $request->end_lat,
+                endLng: (float) $request->end_lng,
+                radiusKm: (float) $request->radius_km,
+            );
+
+            if (empty($plan['selected_harvests'])) {
+                return response()->json(['error' => 'No harvests could be selected for this plan.'], 422);
+            }
+
+            // Bind request-driven notes and spatial geometry parameters into the execution array
+            $plan['notes']          = $request->notes ?? null;
+            $plan['route_geometry'] = $request->route_geometry;
+
+            // Execute database persistence model
+            $job = $this->poolingService->confirm($plan, $logisticsProfile->id);
+
+            return response()->json([
+                'success'        => true,
+                'pooling_job_id' => $job->id,
+                'message'        => 'Pooling job confirmed. ' . count($plan['selected_harvests']) . ' farm(s) assigned.',
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Database Error: ' . $e->getMessage()], 500);
         }
-
-        $truck = Truck::where('id', $request->truck_id)
-            ->where('logistics_profile_id', $logisticsProfile->id)
-            ->where('status', 'available')
-            ->first();
-
-        if (!$truck) {
-            return response()->json(['error' => 'Truck not found or not available.'], 404);
-        }
-
-        // Re-run plan so confirm() receives a clean plan array
-        $plan = $this->poolingService->plan(
-            truck: $truck,
-            nearbyHarvestIds: $request->harvest_ids,
-            startLat: (float) $request->start_lat,
-            startLng: (float) $request->start_lng,
-            endLat: (float) $request->end_lat,
-            endLng: (float) $request->end_lng,
-            radiusKm: (float) $request->radius_km,
-        );
-
-        if (empty($plan['selected_harvests'])) {
-            return response()->json(['error' => 'No harvests could be selected for this plan.'], 422);
-        }
-
-        // Merge optional notes into plan before saving
-        $plan['notes'] = $request->notes ?? null;
-
-        $job = $this->poolingService->confirm($plan, $logisticsProfile->id);
-
-        return response()->json([
-            'success'       => true,
-            'pooling_job_id' => $job->id,
-            'message'       => 'Pooling job confirmed. ' . count($plan['selected_harvests']) . ' farm(s) assigned.',
-        ]);
     }
 
     /**
@@ -127,14 +162,16 @@ class PoolingJobController extends Controller
      */
     public function index()
     {
-        $logisticsProfile = Auth::user()->logisticsProfile;
+        $logisticsProfile = auth()->user()->logisticsProfile;
 
-        $jobs = PoolingJob::where('logistics_profile_id', $logisticsProfile->id)
-            ->with(['truck', 'harvests'])
+        // Fetch all pending proposals eager loading truck and harvest counters
+        $proposals = \App\Models\PoolingJob::where('logistics_profile_id', $logisticsProfile->id)
+            ->where('status', 'pending')
+            ->with(['truck', 'harvests.farmer'])
             ->latest()
-            ->paginate(15);
+            ->get();
 
-        return view('pooling.index', compact('jobs'));
+        return view('logistics.proposals-index', compact('proposals'));
     }
 
     /**
@@ -151,5 +188,27 @@ class PoolingJobController extends Controller
         $poolingJob->load(['truck', 'harvests.destination']);
 
         return view('pooling.show', compact('poolingJob'));
+    }
+
+    /**
+     * Display the Negotiation Hub / Proposal Inbox for the Authenticated Farmer.
+     * Fetches pending pooled jobs that include this farmer's inventory crops.
+     */
+    public function farmerProposals()
+    {
+        $user = auth()->user();
+
+        // Query pending jobs containing a harvest entry owned by this farmer
+        $proposals = PoolingJob::where('status', 'pending')
+            ->whereHas('harvests', function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            })
+            ->with(['truck', 'logisticsProfile', 'harvests' => function ($query) use ($user) {
+                $query->where('user_id', $user->id)->with(['crop', 'cropVariety', 'destination']);
+            }])
+            ->latest()
+            ->get();
+
+        return view('farmer.farmer-proposals', compact('proposals'));
     }
 }

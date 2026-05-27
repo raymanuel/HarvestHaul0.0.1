@@ -218,9 +218,32 @@
                 <a href="/dashboard" class="nav-link {{ request()->is('dashboard') ? 'active' : '' }}">🏠 Dashboard</a>
 
                 @if(Auth::check() && Auth::user()->role === 'farmer')
-                    <a href="{{ route('harvests.index') }}" class="nav-link {{ request()->routeIs('harvests.*') ? 'active' : '' }}">🚜 Post Harvest</a>
-                    <a href="{{ route('farmer.documents') }}" class="nav-link {{ request()->routeIs('farmer.documents*') ? 'active' : '' }}">📄 My Documents</a>
-                    <a href="#" class="nav-link">🚚 Track Shipments</a>
+
+
+
+                    {{-- Supply & Inventory Matrix --}}
+                    <a href="{{ route('harvests.index') }}"
+                    class="nav-link {{ request()->routeIs('harvests.*') ? 'active' : '' }}">
+                        🌾 My Active Harvests
+                    </a>
+
+                    {{-- Real-Time Communication Pipeline (Objective 5 Fulfillment) --}}
+                    <a href="{{ route('farmer.proposals') }}"
+                        class="nav-link {{ request()->routeIs('farmer.proposals') ? 'active' : '' }}">
+                            💬 Negotiation Hub
+                    </a>
+
+                    {{-- Telemetry Tracking Surveillance Ledger --}}
+                    <a href="{{ route('tracking.index') }}"
+                    class="nav-link {{ request()->routeIs('tracking.index') ? 'active' : '' }}">
+                        🚚 Track Shipments
+                    </a>
+
+                    {{--  Regulatory Compliance Records --}}
+                    <a href="{{ route('farmer.documents') }}"
+                    class="nav-link {{ request()->routeIs('farmer.documents*') ? 'active' : '' }}">
+                        📄 My Documents
+                    </a>
                 @endif
 
                 @if(Auth::check() && Auth::user()->role === 'admin')
@@ -252,12 +275,36 @@
                 @endif
 
                 @if(Auth::check() && Auth::user()->role === 'logistics_partner')
-                    <a href="#" class="nav-link">🚛 Hauling Trucks</a>
-                    <a href="#" class="nav-link">👥 Driver Accounts</a>
-                    <a href="{{ route('route.optimization') }}" class="nav-link {{ request()->routeIs('route.optimization') ? 'active' : '' }}">📍 Route Optimization</a>
-                    <a href="#" class="nav-link">📝 Assign Tasks</a>
-                    <a href="{{ route('logistics.documents') }}" class="nav-link {{ request()->routeIs('logistics.documents*') ? 'active' : '' }}">📄 My Business Documents</a>
+                    {{-- 1.0 Planning & Operations Core --}}
+                    <a href="{{ route('route.optimization') }}"
+                        class="nav-link {{ request()->routeIs('route.optimization') ? 'active' : '' }}">
+                        📍 Dispatch Console
+                    </a>
 
+                    {{-- 2.0 Negotiation & Pipeline State --}}
+                    <a href="{{ route('pooling.index') }}"
+                        class="nav-link {{ request()->routeIs('pooling.index') ? 'active' : '' }}">
+                        💬 Proposal Inbox
+                    </a>
+
+                    {{-- 3.0 Telemetry Surveillance Ledger (For jobs currently 'in_progress') --}}
+                    <a href="#" class="nav-link">
+                        📦 Active Shipments
+                    </a>
+
+                    {{-- 4.0 Asset Management Matrix --}}
+                    <a href="#" class="nav-link">
+                        Res 🚛 Hauling Trucks
+                    </a>
+                    <a href="#" class="nav-link">
+                        👥 Driver Accounts
+                    </a>
+
+                    {{-- 5.0 Compliance & Legal Security --}}
+                    <a href="{{ route('logistics.documents') }}"
+                    class="nav-link {{ request()->routeIs('logistics.documents*') ? 'active' : '' }}">
+                        Doc 📄 Business Documents
+                    </a>
                 @endif
 
                 @if(Auth::check() && Auth::user()->role === 'driver')

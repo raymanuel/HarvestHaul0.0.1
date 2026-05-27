@@ -21,8 +21,8 @@ return new class extends Migration
             $table->foreignId('driver_id')->constrained('users');
 
             // Geolocation Data (Decimal precision 10,8 is standard for high-accuracy GPS)
-            $table->decimal('latitude', 10, 8);
-            $table->decimal('longitude', 10, 8);
+            $table->decimal('latitude', 11, 8);
+            $table->decimal('longitude', 11, 8);
 
             // The exact timestamp the browser pushed the coordinate
             $table->timestamp('posted_at');

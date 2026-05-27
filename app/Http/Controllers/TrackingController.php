@@ -6,83 +6,87 @@ use App\Models\PoolingJob;
 use App\Models\TrackingRecord;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 
 class TrackingController extends Controller
 {
     /**
-     * DRIVER ENDPOINT (POST)
-     * Receives GPS coordinates every 15 seconds from the driver's browser.
+     * INGRESS ENDPOINT: Drivers stream GPS coordinates to this endpoint every 15 seconds.
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'pooling_job_id' => 'required|exists:pooling_jobs,id',
-            'latitude'       => 'required|numeric',
-            'longitude'      => 'required|numeric',
-            'posted_at'      => 'required|date',
+        $validator = Validator::make($request->all(), [
+            'pooling_job_id' => 'required|integer|exists:pooling_jobs,id',
+            'latitude'       => 'required|numeric|between:-90,90',
+            'longitude'      => 'required|numeric|between:-180,180',
         ]);
 
-        $driverId = Auth::id();
-
-        // Security Gate: Ensure the job belongs to this driver AND is currently active.
-        // If a job is completed, we want the browser loop to stop tracking automatically.
-        $job = PoolingJob::where('id', $request->pooling_job_id)
-            ->where('driver_id', $driverId)
-            ->where('status', 'in_progress')
-            ->first();
-
-        if (!$job) {
-            return response()->json([
-                'status' => 'ignored',
-                'reason' => 'Job not active or unauthorized'
-            ], 403);
+        if ($validator->fails()) {
+            return response()->json(['status' => 'error', 'errors' => $validator->errors()], 422);
         }
 
-        TrackingRecord::create([
+        $job = PoolingJob::findOrFail($request->pooling_job_id);
+
+        // Security Validation: Ensure the authenticated user is the assigned driver for this trip
+        if ($job->driver_id !== Auth::id()) {
+            return response()->json(['status' => 'error', 'message' => 'Unauthorized fleet streaming.'], 403);
+        }
+
+        // Hard limitation check: Only log coordinates if the delivery trip is active
+        if ($job->status !== 'in_progress') {
+            return response()->json(['status' => 'error', 'message' => 'Job is not in transit.'], 422);
+        }
+
+        // Lightweight write to database
+        $record = TrackingRecord::create([
             'pooling_job_id' => $job->id,
-            'driver_id'      => $driverId,
-            'latitude'       => $request->latitude,
-            'longitude'      => $request->longitude,
-            'posted_at'      => $request->posted_at,
+            'driver_id'      => Auth::id(),
+            'latitude'       => (float) $request->latitude,
+            'longitude'      => (float) $request->longitude,
+            'posted_at'      => now(),
         ]);
 
-        return response()->json(['status' => 'success']);
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'Telemetry node registered.',
+            'data'    => [
+                'latitude'  => $record->latitude,
+                'longitude' => $record->longitude,
+            ]
+        ], 201);
     }
 
     /**
-     * COORDINATOR ENDPOINT (GET)
-     * Fetches the latest coordinate every 10 seconds for the Leaflet map.
+     * EGRESS ENDPOINT: The Coordinator layout polls this endpoint every 10 seconds.
      */
-    public function latest(Request $request, PoolingJob $poolingJob)
+    public function latest($jobId)
     {
-        $user = Auth::user();
-
-        // Security Gate: Enforce visibility. Only logistics partners can poll this endpoint.
-        if ($user->role !== 'logistics_partner' || !$user->logisticsProfile) {
-            return response()->json(['error' => 'Unauthorized access.'], 403);
+        // Enforce coordinator access validation
+        $logisticsProfile = Auth::user()->logisticsProfile;
+        if (!$logisticsProfile) {
+            return response()->json(['status' => 'error', 'message' => 'Access denied.'], 403);
         }
 
-        // Security Gate: Ensure the coordinator actually owns this pooling job.
-        // This prevents data leaks if someone manually hits the API endpoint with another company's job ID.
-        if ($poolingJob->logistics_profile_id !== $user->logisticsProfile->id) {
-            return response()->json(['error' => 'Unauthorized access.'], 403);
-        }
-
-        $latestRecord = TrackingRecord::where('pooling_job_id', $poolingJob->id)
-            ->orderBy('posted_at', 'desc')
+        // Fetch absolute newest entry recorded for this fleet tracking route
+        $latestNode = TrackingRecord::where('pooling_job_id', $jobId)
+            ->latest('id') // Indexes directly against autoincrement for fast parsing
             ->first();
 
-        if (!$latestRecord) {
-            return response()->json(['status' => 'no_data']);
+        if (!$latestNode) {
+            return response()->json([
+                'status' => 'empty',
+                'message' => 'No GPS telemetry recorded yet for this active route.'
+            ], 200);
         }
 
+        // Synchronized to match JavaScript payload keys in your route-optimization blade view
         return response()->json([
             'status' => 'success',
-            'data' => [
-                'latitude'  => $latestRecord->latitude,
-                'longitude' => $latestRecord->longitude,
-                'posted_at' => $latestRecord->posted_at->toIso8601String(),
+            'data'   => [
+                'latitude'  => (float) $latestNode->latitude,
+                'longitude' => (float) $latestNode->longitude,
+                'posted_at' => $latestNode->posted_at->toIso8601String(),
             ]
-        ]);
+        ], 200);
     }
 }
