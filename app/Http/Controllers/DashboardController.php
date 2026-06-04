@@ -63,7 +63,7 @@ class DashboardController extends Controller
         }
 
         return match($user->role) {
-            'farmer' => view('dashboards.farmer-view', [
+            'farmer' => view('farmers.farmer-view', [
                 // 1. Precise count of active B2B crop inventory
                 'activeHarvestsCount' => $user->harvests()->where('status', 'active')->count(),
 
@@ -78,13 +78,13 @@ class DashboardController extends Controller
                 })->where('status', 'pending')->count(),
             ]),
 
-            'logistics_partner' => view('dashboards.logistics-view', [
+            'logistics_partner' => view('logistics.logistics-view', [
                 'activeHarvestCount' => $activeHarvestCount,
             ]),
 
             'admin'  => app(AdminController::class)->index(),
 
-            'driver' => view('dashboards.driver-view', [
+            'driver' => view('driver.driver-view', [
                 'jobs'          => $driverJobs,
                 'completedJobs' => $completedJobs,
             ]),

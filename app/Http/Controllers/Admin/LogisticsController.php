@@ -29,6 +29,6 @@ class LogisticsController extends Controller
 
         $activeHarvestCount = Harvest::where('status', 'active')->count();
 
-        return view('dashboards.logistics-view', compact('activeHarvestCount'));
+        return view('logistics.logistics-view', compact('activeHarvestCount'));
     }
 }

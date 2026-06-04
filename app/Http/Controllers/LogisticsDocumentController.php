@@ -8,8 +8,21 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
+/**
+ * Class LogisticsDocumentController
+ * 
+ * Manages verification and compliance documents uploaded by logistics partner users.
+ * 
+ * Flow:
+ * 1. Logistics partner uploads verification docs (e.g. DTI/SEC registration, business permit).
+ * 2. File is saved to storage and logged to database.
+ * 3. Verified by admin. Approved documents confirm logistics profile status.
+ */
 class LogisticsDocumentController extends Controller
 {
+    /**
+     * Helper to verify if user has 'logistics_partner' role.
+     */
     private function authorizeLogistics(): void
     {
         if (Auth::user()->role !== 'logistics_partner') {

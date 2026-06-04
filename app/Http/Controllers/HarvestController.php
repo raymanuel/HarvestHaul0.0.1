@@ -8,6 +8,19 @@ use App\Models\Harvest;
 use App\Models\Crop;
 use App\Models\CropVariety;
 
+/**
+ * Class HarvestController
+ * 
+ * Manages the CRUD lifecycle of crop harvest listings posted by farmer users.
+ * 
+ * System Flow:
+ * 1. Post Listing: Farmers register their upcoming crop volumes, matching crops/varieties,
+ *    and delivery destinations.
+ * 2. Geo-location Binding: The listing automatically inherits the farmer's profile coordinates
+ *    as the pickup location, while matching a pinned address as the destination.
+ * 3. Commercial Check: Independent farmers are warned if no active/verified commercial logistics 
+ *    coordinators are currently on the platform to transport their produce.
+ */
 class HarvestController extends Controller
 {
     private function authorizeFarmer(): void

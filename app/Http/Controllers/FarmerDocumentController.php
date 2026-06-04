@@ -7,8 +7,22 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
+/**
+ * Class FarmerDocumentController
+ * 
+ * Manages verification and compliance documents uploaded by farmer users.
+ * 
+ * Flow:
+ * 1. Farmer uploads a document (e.g. government ID, RSBSA certificate).
+ * 2. File is persisted to storage and reference is stored in the database.
+ * 3. Status starts as 'pending'.
+ * 4. Vetted by admin (either approved or rejected). Approved documents confirm profile status.
+ */
 class FarmerDocumentController extends Controller
 {
+    /**
+     * Helper to verify if user has 'farmer' role.
+     */
     private function authorizeFarmer(): void
     {
         if (Auth::user()->role !== 'farmer') {
@@ -24,7 +38,7 @@ class FarmerDocumentController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        return view('farmer.documents', compact('documents'));
+        return view('farmers.documents', compact('documents'));
     }
 
     public function store(Request $request)

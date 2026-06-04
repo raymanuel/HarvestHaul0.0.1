@@ -7,19 +7,19 @@
 
                 @switch(auth()->user()->role)
                     @case('farmer')
-                        @include('dashboards.farmer-view')
+                        @include('farmers.farmer-view')
                         @break
 
                     @case('logistics_partner')
-                        @include('dashboards.logistics-view')
+                        @include('logistics.logistics-view')
                         @break
 
                     @case('driver')
-                        @include('dashboards.driver-view')
+                        @include('driver.driver-view')
                         @break
 
                     @case('admin')
-                        @include('dashboards.admin-view')
+                        @include('admin.admin-view')
                         @break
 
                     @default

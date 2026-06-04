@@ -1,5 +1,25 @@
 <?php
 
+/**
+ * HarvestHaul Routing Topology
+ * 
+ * This file defines all HTTP routes for the HarvestHaul platform.
+ * Security and access control are structured via nested middleware groups:
+ * 
+ * 1. Public Routes: Accessible to anyone (e.g. landing page, success screens).
+ * 2. Guest Group ('guest'): Registration and login. Restricted to logged-out users.
+ * 3. Base Authenticated Group ('auth', 'EnsureAccountIsActive'):
+ *    - Authenticated users whose accounts are active (not suspended).
+ *    - Includes logout, primary dashboard switcher, and email verification notice/status.
+ * 4. Verified Group ('verified'):
+ *    - Only authenticated, active, and email-verified users can access these.
+ *    - Nested into role-specific sub-groups:
+ *      a) Farmers (EnsureUserIsFarmer): Harvest listings, yield predictor, document uploads.
+ *      b) Logistics Partners (EnsureUserIsLogistics): B2B resource pooling, fleet predictor, driver/vehicle management, cost ledger.
+ *      c) Drivers ('driver'): Mobile PWA views, telemetry/GPS signal streaming.
+ *      d) Admin ('admin' prefix): User/compliance audit, crop hierarchy management, system logs.
+ */
+
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
@@ -21,6 +41,8 @@ use App\Http\Controllers\DriverController;
 use App\Http\Controllers\LogisticsDriverController;
 use App\Http\Controllers\LogisticsVehicleController;
 use App\Http\Controllers\TrackingController;
+use App\Http\Controllers\CostLedgerController;
+use App\Http\Controllers\PredictorController;
 
 // Middleware
 use App\Http\Middleware\EnsureAccountIsActive;
@@ -112,6 +134,10 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
             Route::get('/farmer/proposals', [PoolingJobController::class, 'farmerProposals'])
                 ->name('farmer.proposals');
 
+            // Yield Predictor
+            Route::get('/farmer/predictor', [PredictorController::class, 'farmerPredict'])
+                ->name('farmer.predictor');
+
             // Live tracking list for farmers
             Route::get('/tracking', [TrackingController::class, 'index'])
                 ->name('tracking.index');
@@ -142,11 +168,19 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
                 // The Official Proposal Inbox Handler
                 Route::get('/proposals', [PoolingJobController::class, 'index'])->name('index'); // Maps to: /pooling/proposals (Name: pooling.index)
 
+                // Cost Ledger — index (list all jobs) + per-job detail
+                Route::get('/cost-ledger', [CostLedgerController::class, 'index'])->name('cost-ledger.index');
+                Route::get('/{poolingJob}/cost-ledger', [CostLedgerController::class, 'show'])->name('cost-ledger');
+
                 // Detailed Item Views & Logic Workers
                 Route::get('/{poolingJob}', [PoolingJobController::class, 'show'])->name('show');       // Maps to: /pooling/{poolingJob}
                 Route::post('/plan', [PoolingJobController::class, 'plan'])->name('plan');              // Maps to: /pooling/plan
                 Route::post('/confirm', [PoolingJobController::class, 'confirm'])->name('confirm');    // Maps to: /pooling/confirm
             });
+
+            // Fleet Predictor
+            Route::get('/logistics/predictor', [PredictorController::class, 'logisticsPredict'])
+                ->name('logistics.predictor');
 
             // Fleet Surveillance Query (Egress)
             Route::get('/tracking/{poolingJob}/latest', [TrackingController::class, 'latest'])->name('tracking.latest');

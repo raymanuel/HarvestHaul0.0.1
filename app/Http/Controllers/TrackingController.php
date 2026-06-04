@@ -8,6 +8,17 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
+/**
+ * Class TrackingController
+ * 
+ * Handles real-time GPS telemetry for active jobs.
+ * 
+ * Flow:
+ * 1. Ingress (store): Active driver's mobile client registers periodic location updates
+ *    (latitude, longitude) and sends them here. Works offline via sw.js queue.
+ * 2. Egress (latest): Logistics manager's dashboard checks driver's current coordinates
+ *    to display live updates on the tracking map interface.
+ */
 class TrackingController extends Controller
 {
     /**

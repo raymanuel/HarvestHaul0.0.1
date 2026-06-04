@@ -62,6 +62,7 @@ class DriverSeeder extends Seeder
                 'user_id'    => $driverUser->id,
                 'partner_id' => $partner->id,
                 'license_no' => 'D0' . $partner->id . '-' . rand(100000, 999999),
+                'phone'      => '09' . rand(100000000, 999999999),
             ]);
         }
     }

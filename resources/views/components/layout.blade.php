@@ -467,6 +467,15 @@
                             <span class="nav-label">Proposal Inbox</span>
                         </a>
 
+                        <a href="{{ route('pooling.cost-ledger.index') }}" data-tooltip="Cost Ledger" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->routeIs('pooling.cost-ledger*') ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
+                            <span class="nav-icon shrink-0">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 11h.01M12 11h.01M15 11h.01M4 19h16a2 2 0 002-2V7a2 2 0 00-2-2H4a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                </svg>
+                            </span>
+                            <span class="nav-label">Cost Ledger</span>
+                        </a>
+
                         <a href="{{ route('logistics.documents') }}" data-tooltip="Business License Docs" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->routeIs('logistics.documents*') ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
                             <span class="nav-icon shrink-0">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">

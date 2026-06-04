@@ -24,7 +24,7 @@ class AdminController extends Controller
     {
         $this->adminOnly();
 
-        return view('dashboards.admin-view', [
+        return view('admin.admin-view', [
             'totalUsers'          => User::whereNot('role', 'admin')->count(),
             'totalFarmers'        => User::where('role', 'farmer')->count(),
             'totalLogistics'      => User::where('role', 'logistics_partner')->count(),

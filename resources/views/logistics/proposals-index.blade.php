@@ -1,3 +1,10 @@
+{{--
+    Logistics Proposals List View
+    
+    PURPOSE:
+    This view renders the proposal inbox for logistics partners to track and manage 
+    negotiations for pending multi-farmer pooling runs.
+--}}
 <x-layout>
     <div class="w-full max-w-7xl mx-auto pb-12">
         <header class="pt-8 mb-6 border-b border-slate-200/80 dark:border-slate-700/80 pb-5">
@@ -37,9 +44,18 @@
                             </div>
                         </div>
 
-                        <button class="w-full mt-6 bg-gradient-to-tr from-emerald-600 to-teal-500 dark:from-emerald-500 dark:to-teal-400 text-white dark:text-white text-sm font-bold py-3.5 rounded-xl border border-emerald-600/20 dark:border-emerald-400/25 shadow-md shadow-emerald-600/15 dark:shadow-emerald-900/30 hover:shadow-lg hover:shadow-emerald-600/25 dark:hover:shadow-emerald-400/30 hover:translate-y-[-1px] active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 dark:focus:ring-emerald-400/40 transition-all duration-200" style="background-color: #059669; text-shadow: 0 1px 2px rgba(0,0,0,0.15);">
-                            💬 Open Chat Room Threads
-                        </button>
+                        <div class="mt-6 flex flex-col gap-2.5">
+                            <a href="{{ route('pooling.cost-ledger', $proposal) }}"
+                               class="w-full flex items-center justify-center gap-2 bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-600 text-sm font-bold py-3 rounded-xl hover:border-emerald-500 dark:hover:border-emerald-500 hover:text-emerald-700 dark:hover:text-emerald-400 transition-all duration-200">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 11h.01M12 11h.01M15 11h.01M4 19h16a2 2 0 002-2V7a2 2 0 00-2-2H4a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                                </svg>
+                                View Cost Ledger
+                            </a>
+                            <button class="w-full bg-gradient-to-tr from-emerald-600 to-teal-500 dark:from-emerald-500 dark:to-teal-400 text-white text-sm font-bold py-3.5 rounded-xl border border-emerald-600/20 dark:border-emerald-400/25 shadow-md shadow-emerald-600/15 hover:shadow-lg hover:shadow-emerald-600/25 hover:translate-y-[-1px] active:translate-y-0 transition-all duration-200">
+                                💬 Open Chat Room Threads
+                            </button>
+                        </div>
                     </div>
                 @endforeach
             </div>

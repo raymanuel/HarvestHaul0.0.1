@@ -86,7 +86,7 @@
                                             <div>
                                                 <p class="font-bold text-slate-800 dark:text-slate-200 text-sm">{{ $driver->user->name }}</p>
                                                 <p class="text-xs text-slate-400 dark:text-slate-500 font-medium mt-0.5">{{ $driver->user->email }}</p>
-                                                <p class="text-[10px] text-slate-400 dark:text-slate-550 font-mono mt-0.5">{{ $driver->user->phone }}</p>
+                                                <p class="text-[10px] text-slate-400 dark:text-slate-550 font-mono mt-0.5">{{ $driver->phone }}</p>
                                             </div>
                                         </div>
                                     </td>

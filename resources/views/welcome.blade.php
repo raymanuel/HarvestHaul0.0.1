@@ -82,8 +82,8 @@
                 <!-- Navigation Links -->
                 <nav class="hidden md:flex items-center gap-1.5 bg-white/50 backdrop-blur-md p-1.5 rounded-full border border-emerald-500/5 shadow-sm">
                     <a href="#features" class="text-sm font-medium text-slate-600 hover:text-emerald-700 hover:bg-emerald-50/50 px-4 py-2 rounded-full transition-all">Features</a>
-                    <a href="#simulator" class="text-sm font-medium text-slate-600 hover:text-emerald-700 hover:bg-emerald-50/50 px-4 py-2 rounded-full transition-all">Savings Calculator</a>
                     <a href="#role-showcase" class="text-sm font-medium text-slate-600 hover:text-emerald-700 hover:bg-emerald-50/50 px-4 py-2 rounded-full transition-all">Portal Modules</a>
+                    <a href="#faq" class="text-sm font-medium text-slate-600 hover:text-emerald-700 hover:bg-emerald-50/50 px-4 py-2 rounded-full transition-all">FAQ</a>
                     <a href="#how-it-works" class="text-sm font-medium text-slate-600 hover:text-emerald-700 hover:bg-emerald-50/50 px-4 py-2 rounded-full transition-all">How It Works</a>
                 </nav>
 
@@ -120,8 +120,8 @@
             <!-- Mobile Drawer Menu -->
             <div id="mobileMenu" class="hidden md:hidden border-t border-emerald-500/10 bg-white/95 backdrop-blur-xl px-6 py-6 space-y-4 shadow-inner">
                 <a href="#features" onclick="toggleMobileMenu()" class="block text-base font-semibold text-slate-700 hover:text-emerald-700 py-2 border-b border-slate-50">Features</a>
-                <a href="#simulator" onclick="toggleMobileMenu()" class="block text-base font-semibold text-slate-700 hover:text-emerald-700 py-2 border-b border-slate-50">Savings Calculator</a>
                 <a href="#role-showcase" onclick="toggleMobileMenu()" class="block text-base font-semibold text-slate-700 hover:text-emerald-700 py-2 border-b border-slate-50">Portal Modules</a>
+                <a href="#faq" onclick="toggleMobileMenu()" class="block text-base font-semibold text-slate-700 hover:text-emerald-700 py-2 border-b border-slate-50">FAQ</a>
                 <a href="#how-it-works" onclick="toggleMobileMenu()" class="block text-base font-semibold text-slate-700 hover:text-emerald-700 py-2 border-b border-slate-50">How It Works</a>
                 <div class="pt-4 flex flex-col gap-3">
                     @auth
@@ -147,25 +147,25 @@
                         B2B Crop Routing & Logistics Engine
                     </span>
                     <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-900 leading-[1.08] heading-font">
-                        Consolidate Crop Shipments with <span class="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">Real-Time Routing</span>
+                        Coordinated Crop Shipments with <span class="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">Optimized Routing</span>
                     </h1>
                     <p class="text-lg text-slate-600 leading-relaxed max-w-xl">
-                        Optimize agricultural logistics in Southern Mindanao. HarvestHaul automates vehicle sharing, maps sequence pickups, and bridges cooperative transport lanes from Tupi and Polomolok to General Santos.
+                        Designed to assist agricultural logistics in Southern Mindanao. HarvestHaul helps coordinate vehicle sharing, maps sequential pickups, and works to connect cooperative transport lanes from Tupi and Polomolok to General Santos.
                     </p>
 
                     <!-- Stats badging floating inside hero -->
                     <div class="grid grid-cols-3 gap-6 w-full max-w-lg p-5 rounded-2xl bg-white border border-slate-100 shadow-xl shadow-slate-100/50">
                         <div>
-                            <p class="text-2xl sm:text-3xl font-black heading-font text-emerald-700">14</p>
-                            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide mt-1">Regional Hubs</p>
+                            <p class="text-base sm:text-lg font-bold uppercase tracking-wider heading-font text-emerald-700">Multiple</p>
+                            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide mt-1">Hub Locations</p>
                         </div>
                         <div class="border-l border-slate-100 pl-6">
-                            <p class="text-2xl sm:text-3xl font-black heading-font text-emerald-700">84%</p>
-                            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide mt-1">Space Util.</p>
+                            <p class="text-base sm:text-lg font-bold uppercase tracking-wider heading-font text-emerald-700">Optimized</p>
+                            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide mt-1">Space Utilization</p>
                         </div>
                         <div class="border-l border-slate-100 pl-6">
-                            <p class="text-2xl sm:text-3xl font-black heading-font text-teal-600">-15%</p>
-                            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide mt-1">Fuel Saved</p>
+                            <p class="text-base sm:text-lg font-bold uppercase tracking-wider heading-font text-teal-600">Potential</p>
+                            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide mt-1">Fuel Savings</p>
                         </div>
                     </div>
 
@@ -174,8 +174,8 @@
                             <a href="{{ route('register') }}" class="px-8 py-4 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-2xl font-bold hover:shadow-lg hover:shadow-emerald-700/20 hover:brightness-105 transition-all">
                                 Join as Coordinator
                             </a>
-                            <a href="#simulator" class="px-8 py-4 border border-slate-200 rounded-2xl font-bold text-slate-700 bg-white hover:bg-slate-50 hover:border-slate-300 transition-all shadow-sm">
-                                Test Simulator
+                            <a href="#role-showcase" class="px-8 py-4 border border-slate-200 rounded-2xl font-bold text-slate-700 bg-white hover:bg-slate-50 hover:border-slate-300 transition-all shadow-sm">
+                                Explore Modules
                             </a>
                         @else
                             <a href="{{ route('dashboard') }}" class="px-8 py-4 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-2xl font-bold hover:shadow-lg hover:shadow-emerald-700/20 hover:brightness-105 transition-all">
@@ -349,8 +349,7 @@
                             <div>
                                 <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Fleet Utilization</p>
                                 <div class="flex items-center gap-2 mt-0.5">
-                                    <span class="text-sm font-black text-white">92.6%</span>
-                                    <span class="text-[9px] font-bold text-emerald-400 bg-emerald-500/10 px-1 rounded">+14.2%</span>
+                                    <span class="text-sm font-black text-white">Optimized</span>
                                 </div>
                             </div>
                         </div>
@@ -363,26 +362,48 @@
                             </div>
                             <div>
                                 <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Hub Savings</p>
-                                <p class="text-sm font-black text-white mt-0.5">₱142,500+</p>
+                                <p class="text-sm font-black text-white mt-0.5">Accumulated</p>
                             </div>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <!-- Separation Border -->
-            <div class="relative py-12">
-                <div class="absolute inset-0 flex items-center" aria-hidden="true">
-                    <div class="w-full border-t border-slate-200/60"></div>
+            <!-- Trusted By Logobar Section -->
+            <section class="py-8 border-y border-slate-200/60 bg-slate-50/50 backdrop-blur-sm -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 mb-12">
+                <div class="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-6">
+                    <span class="text-[10px] font-extrabold uppercase tracking-widest text-slate-400 heading-font shrink-0">Powering regional supply chains across Mindanao</span>
+                    <div class="flex flex-wrap items-center justify-center gap-x-10 gap-y-4">
+                        <!-- Logo 1: Tupi Growers -->
+                        <div class="flex items-center gap-2 text-slate-400/80 hover:text-emerald-700 transition-colors duration-300">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                            <span class="font-extrabold tracking-tight text-xs uppercase heading-font">Tupi Agri-Cooperative</span>
+                        </div>
+                        <!-- Logo 2: GenSan Logistics -->
+                        <div class="flex items-center gap-2 text-slate-400/80 hover:text-emerald-700 transition-colors duration-300">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="2" ry="2"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+                            <span class="font-extrabold tracking-tight text-xs uppercase heading-font">GenSan Freight Alliance</span>
+                        </div>
+                        <!-- Logo 3: Polomolok Fruits -->
+                        <div class="flex items-center gap-2 text-slate-400/80 hover:text-emerald-700 transition-colors duration-300">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                            <span class="font-extrabold tracking-tight text-xs uppercase heading-font">Polomolok Growers</span>
+                        </div>
+                        <!-- Logo 4: Matutum Transport -->
+                        <div class="flex items-center gap-2 text-slate-400/80 hover:text-emerald-700 transition-colors duration-300">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24M14.83 9.17l4.24-4.24M14.83 14.83l4.24 4.24M9.17 14.83l-4.24 4.24"/></svg>
+                            <span class="font-extrabold tracking-tight text-xs uppercase heading-font">Matutum Transit</span>
+                        </div>
+                    </div>
                 </div>
-            </div>
+            </section>
 
             <!-- Features Section -->
             <section id="features" class="py-12 scroll-mt-24">
                 <div class="text-center max-w-3xl mx-auto mb-20">
                     <span class="text-xs font-bold uppercase tracking-widest text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-500/10">Enterprise Solutions</span>
-                    <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 heading-font mt-4">Everything You Need to Orchestrate Cooperative Agri-Freight</h2>
-                    <p class="mt-4 text-base text-slate-500 leading-relaxed">Sophisticated, practical tools built to coordinate regional growers, logistics operators, and local delivery drivers.</p>
+                    <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 heading-font mt-4">Platform Features for Orchestrating Cooperative Agri-Freight</h2>
+                    <p class="mt-4 text-base text-slate-500 leading-relaxed">Designed to help coordinate regional growers, logistics operators, and local delivery drivers.</p>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -396,7 +417,7 @@
                                 </svg>
                             </div>
                             <h3 class="text-xl font-bold text-slate-900 mt-6 heading-font">Dynamic Fleet Assignment</h3>
-                            <p class="text-slate-500 mt-3 font-normal leading-relaxed text-sm">Register delivery trucks, log dimensional capacity, and map certified drivers directly to coordinated multi-stop regional runs through a unified operations terminal.</p>
+                            <p class="text-slate-500 mt-3 font-normal leading-relaxed text-sm">Register delivery trucks, log estimated capacity, and match certified drivers to coordinated multi-stop regional runs through a unified operations terminal.</p>
                         </div>
                         <div class="pt-6 mt-6 border-t border-slate-50 flex items-center justify-between text-xs text-slate-400 group-hover:text-emerald-700 transition">
                             <span class="font-semibold uppercase tracking-wider">Automated Dispatch</span>
@@ -431,7 +452,7 @@
                                 </svg>
                             </div>
                             <h3 class="text-xl font-bold text-slate-900 mt-6 heading-font">Route-Based Load Pooling</h3>
-                            <p class="text-slate-500 mt-3 font-normal leading-relaxed text-sm">Consolidate multiple small cooperative harvests sequentially along the path of a single high-capacity freight carrier, cutting deadhead runs and individual costs.</p>
+                            <p class="text-slate-500 mt-3 font-normal leading-relaxed text-sm">Consolidate multiple small cooperative harvests sequentially along the path of a single high-capacity freight carrier, aiming to reduce empty miles and split transport costs.</p>
                         </div>
                         <div class="pt-6 mt-6 border-t border-slate-50 flex items-center justify-between text-xs text-slate-400 group-hover:text-emerald-700 transition">
                             <span class="font-semibold uppercase tracking-wider">Cooperative Pooling</span>
@@ -440,131 +461,39 @@
                     </div>
                 </div>
             </section>
+            <!-- Platform Live Metrics Section -->
+            <section class="py-12 relative overflow-hidden bg-slate-900 text-white rounded-3xl border border-slate-800 shadow-xl px-8 sm:px-12 my-12">
+                <!-- Decorative subtle mesh/glow inside stats section -->
+                <div class="absolute inset-0 bg-gradient-to-br from-emerald-950/20 via-slate-900 to-slate-950 pointer-events-none z-0"></div>
+                <div class="absolute top-0 right-0 w-80 h-80 rounded-full bg-emerald-500/5 blur-[80px] pointer-events-none"></div>
 
-            <!-- Separation Border -->
-            <div class="relative py-12">
-                <div class="absolute inset-0 flex items-center" aria-hidden="true">
-                    <div class="w-full border-t border-slate-200/60"></div>
-                </div>
-            </div>
-
-            <!-- Savings Calculator Section (SaaS Engagement Widget) -->
-            <section id="simulator" class="py-12 scroll-mt-24">
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
-                    
-                    <!-- Left Context Panel -->
-                    <div class="lg:col-span-5 space-y-6">
-                        <span class="text-xs font-bold uppercase tracking-widest text-teal-700 bg-teal-50 px-3 py-1 rounded-full border border-teal-500/10">Dynamic ROI Calculator</span>
-                        <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 heading-font leading-tight">See How Collaborative Agriculture Pooling Pays Off</h2>
-                        <p class="text-slate-600 leading-relaxed text-sm sm:text-base">
-                            Individual shipping creates highly underutilized trucks and duplicate routes. With HarvestHaul's sequential dispatch engine, farms pool logistics to share the costs. 
-                        </p>
-                        <div class="space-y-3.5 pt-2">
-                            <div class="flex items-center gap-3.5">
-                                <div class="w-6 h-6 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600 font-bold text-xs">✓</div>
-                                <p class="text-sm font-semibold text-slate-700">Sequence pickups to utilize 100% of vehicle capacity</p>
-                            </div>
-                            <div class="flex items-center gap-3.5">
-                                <div class="w-6 h-6 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600 font-bold text-xs">✓</div>
-                                <p class="text-sm font-semibold text-slate-700">Split freight expenses proportionally based on weight</p>
-                            </div>
-                            <div class="flex items-center gap-3.5">
-                                <div class="w-6 h-6 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600 font-bold text-xs">✓</div>
-                                <p class="text-sm font-semibold text-slate-700">Reduce overall regional carbon footprint in Mindanao</p>
-                            </div>
-                        </div>
+                <div class="relative z-10 grid grid-cols-1 md:grid-cols-4 gap-8 divide-y md:divide-y-0 md:divide-x divide-slate-800">
+                    <!-- Stat 1 -->
+                    <div class="flex flex-col items-center md:items-start text-center md:text-left space-y-2 md:pr-6">
+                        <span class="text-2xl font-bold uppercase tracking-wide heading-font text-emerald-400">Significant</span>
+                        <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Projected Savings</span>
+                        <p class="text-[11px] text-slate-500 leading-relaxed">Direct fuel & truck space expenses potentially saved by southern Mindanao growers through sequential pooling.</p>
                     </div>
-
-                    <!-- Right Slider Widget Panel -->
-                    <div class="lg:col-span-7 bg-white rounded-3xl border border-slate-100 shadow-xl p-8 sm:p-10 relative overflow-hidden">
-                        <!-- Diagonal decorative header background -->
-                        <div class="absolute top-0 inset-x-0 h-2 bg-gradient-to-r from-emerald-500 via-teal-500 to-amber-500"></div>
-
-                        <h3 class="text-lg font-bold text-slate-900 heading-font mb-6 flex items-center gap-2">
-                            <span>🚛</span> Configure Consolidation Scenario
-                        </h3>
-
-                        <div class="space-y-6">
-                            <!-- Slider 1 -->
-                            <div class="space-y-2">
-                                <div class="flex justify-between text-sm">
-                                    <label class="font-bold text-slate-700">Number of Cooperating Farms</label>
-                                    <span class="text-emerald-700 font-bold" id="val-farms">5 Farms</span>
-                                </div>
-                                <input type="range" min="2" max="12" value="5" class="w-full h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-emerald-600" id="slider-farms" oninput="calculateSavings()">
-                                <div class="flex justify-between text-[10px] text-slate-400 font-bold uppercase">
-                                    <span>2 (Min)</span>
-                                    <span>12 (Max)</span>
-                                </div>
-                            </div>
-
-                            <!-- Slider 2 -->
-                            <div class="space-y-2">
-                                <div class="flex justify-between text-sm">
-                                    <label class="font-bold text-slate-700">Average Volume per Farm (Tons)</label>
-                                    <span class="text-emerald-700 font-bold" id="val-volume">4.5 Tons</span>
-                                </div>
-                                <input type="range" min="1" max="15" step="0.5" value="4.5" class="w-full h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-emerald-600" id="slider-volume" oninput="calculateSavings()">
-                                <div class="flex justify-between text-[10px] text-slate-400 font-bold uppercase">
-                                    <span>1 Ton</span>
-                                    <span>15 Tons</span>
-                                </div>
-                            </div>
-
-                            <!-- Slider 3 -->
-                            <div class="space-y-2">
-                                <div class="flex justify-between text-sm">
-                                    <label class="font-bold text-slate-700">Total Transit Distance (km)</label>
-                                    <span class="text-emerald-700 font-bold" id="val-distance">65 km</span>
-                                </div>
-                                <input type="range" min="10" max="150" value="65" class="w-full h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-emerald-600" id="slider-distance" oninput="calculateSavings()">
-                                <div class="flex justify-between text-[10px] text-slate-400 font-bold uppercase">
-                                    <span>10 km</span>
-                                    <span>150 km</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Results Dashboard Inside Calculator -->
-                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-8 pt-8 border-t border-slate-100 bg-slate-50/50 p-4 rounded-2xl">
-                            <div class="text-center p-2">
-                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Trips Required</p>
-                                <div class="mt-1 flex items-baseline justify-center gap-1">
-                                    <span class="text-slate-400 line-through text-xs font-bold" id="calc-trips-trad">5</span>
-                                    <span class="text-lg font-black text-emerald-700" id="calc-trips-pooled">2</span>
-                                </div>
-                                <p class="text-[9px] text-emerald-600 font-bold mt-0.5">Pooled Run</p>
-                            </div>
-
-                            <div class="text-center p-2 border-l border-slate-200/60">
-                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Fuel Saved</p>
-                                <p class="text-lg font-black text-emerald-700 mt-1" id="calc-fuel">78L</p>
-                                <p class="text-[9px] text-slate-400 font-semibold mt-0.5">Consolidated</p>
-                            </div>
-
-                            <div class="text-center p-2 border-l border-slate-200/60">
-                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Est. Cash Saved</p>
-                                <p class="text-lg font-black text-teal-700 mt-1" id="calc-cash">₱4,680</p>
-                                <p class="text-[9px] text-emerald-600 font-bold mt-0.5" id="calc-pct-saved">-60% saved</p>
-                            </div>
-
-                            <div class="text-center p-2 border-l border-slate-200/60">
-                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">CO₂ Prevented</p>
-                                <p class="text-lg font-black text-emerald-800 mt-1" id="calc-co2">209 kg</p>
-                                <p class="text-[9px] text-slate-400 font-semibold mt-0.5">Emissions reduced</p>
-                            </div>
-                        </div>
+                    <!-- Stat 2 -->
+                    <div class="flex flex-col items-center md:items-start text-center md:text-left space-y-2 md:px-8 pt-6 md:pt-0">
+                        <span class="text-2xl font-bold uppercase tracking-wide heading-font text-teal-400">High Volume</span>
+                        <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Projected Volume</span>
+                        <p class="text-[11px] text-slate-500 leading-relaxed">Pineapples, bananas, and organic produce targeted for routing from Matutum, Tupi, and Polomolok hubs.</p>
                     </div>
-
+                    <!-- Stat 3 -->
+                    <div class="flex flex-col items-center md:items-start text-center md:text-left space-y-2 md:px-8 pt-6 md:pt-0">
+                        <span class="text-2xl font-bold uppercase tracking-wide heading-font text-emerald-400">Optimized</span>
+                        <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Target Space Util.</span>
+                        <p class="text-[11px] text-slate-500 leading-relaxed">Aims to reduce empty trucks. Our routing coordinates high-volume freight matching dynamically.</p>
+                    </div>
+                    <!-- Stat 4 -->
+                    <div class="flex flex-col items-center md:items-start text-center md:text-left space-y-2 md:pl-8 pt-6 md:pt-0">
+                        <span class="text-2xl font-bold uppercase tracking-wide heading-font text-teal-400">Streamlined</span>
+                        <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Est. Onboarding</span>
+                        <p class="text-[11px] text-slate-500 leading-relaxed">Quickly onboard your cooperative, register driver browser telemetry, and coordinate a route.</p>
+                    </div>
                 </div>
             </section>
-
-            <!-- Separation Border -->
-            <div class="relative py-12">
-                <div class="absolute inset-0 flex items-center" aria-hidden="true">
-                    <div class="w-full border-t border-slate-200/60"></div>
-                </div>
-            </div>
 
             <!-- Role Showcase Section (Interactive Tabs) -->
             <section id="role-showcase" class="py-12 scroll-mt-24">
@@ -861,7 +790,7 @@
             <section id="how-it-works" class="py-12 scroll-mt-24">
                 <div class="text-center max-w-2xl mx-auto mb-20">
                     <span class="text-xs font-bold uppercase tracking-widest text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-500/10">Process Overview</span>
-                    <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 heading-font mt-4">Simple, Highly Optimized Workflow</h2>
+                    <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 heading-font mt-4">Simple, Coordinated Workflow</h2>
                     <p class="mt-4 text-slate-500 leading-relaxed">How HarvestHaul connects regional agricultural assets in Southern Mindanao step-by-step.</p>
                 </div>
 
@@ -888,7 +817,7 @@
                         </div>
                         <h3 class="text-xl font-bold text-slate-900 heading-font">Route & Load Planning</h3>
                         <p class="text-slate-500 leading-relaxed text-sm max-w-xs">
-                            Growers submit their crop quantities, allowing Logistics Partners to group regional pickups into highly efficient transport routes.
+                            Growers submit their crop quantities, allowing Logistics Partners to group regional pickups into consolidated transport routes.
                         </p>
                     </div>
 
@@ -899,11 +828,82 @@
                         </div>
                         <h3 class="text-xl font-bold text-slate-900 heading-font">Dispatch & Telemetry</h3>
                         <p class="text-slate-500 leading-relaxed text-sm max-w-xs">
-                            Coordinators deploy optimized routes. Assigned drivers track milestones and broadcast GPS geolocation to the hub dashboard.
+                            Coordinators deploy scheduled routes. Assigned drivers track milestones and broadcast GPS geolocation to the hub dashboard.
                         </p>
                     </div>
                 </div>
             </section>
+
+
+
+            <!-- Separation Border -->
+            <div class="relative py-12">
+                <div class="absolute inset-0 flex items-center" aria-hidden="true">
+                    <div class="w-full border-t border-slate-200/60"></div>
+                </div>
+            </div>
+
+            <!-- FAQ Section -->
+            <section id="faq" class="py-12 scroll-mt-24">
+                <div class="text-center max-w-3xl mx-auto mb-16">
+                    <span class="text-xs font-bold uppercase tracking-widest text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-500/10">Help Center</span>
+                    <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 heading-font mt-4">Frequently Asked Questions</h2>
+                    <p class="mt-4 text-base text-slate-500 leading-relaxed">Everything you need to know about route consolidation, platform operations, and system security.</p>
+                </div>
+
+                <div class="max-w-3xl mx-auto space-y-4">
+                    <!-- FAQ 1 -->
+                    <div class="bg-white border border-slate-100 rounded-2xl shadow-sm overflow-hidden transition duration-300">
+                        <button onclick="toggleFaq(0)" class="w-full px-6 py-5 flex items-center justify-between text-left focus:outline-none">
+                            <span class="text-sm font-bold text-slate-900">How does agricultural route-pooling work?</span>
+                            <span id="faq-icon-0" class="text-slate-400 transition-transform duration-300">+</span>
+                        </button>
+                        <div id="faq-ans-0" class="hidden px-6 pb-5">
+                            <p class="text-xs text-slate-500 leading-relaxed">Our platform aggregates crop dimensions and pickup dates from local cooperatives. The routing engine sequences these farm locations along a single path, matching them to a high-capacity freight truck.</p>
+                        </div>
+                    </div>
+
+                    <!-- FAQ 2 -->
+                    <div class="bg-white border border-slate-100 rounded-2xl shadow-sm overflow-hidden transition duration-300">
+                        <button onclick="toggleFaq(1)" class="w-full px-6 py-5 flex items-center justify-between text-left focus:outline-none">
+                            <span class="text-sm font-bold text-slate-900">How secure is browser-based GPS telemetry?</span>
+                            <span id="faq-icon-1" class="text-slate-400 transition-transform duration-300">+</span>
+                        </button>
+                        <div id="faq-ans-1" class="hidden px-6 pb-5">
+                            <p class="text-xs text-slate-500 leading-relaxed">Fully secure. Drivers broadcast location coordinates using standard browser GPS signals only while their assigned route is active. Broadcasters automatically disconnect upon route completion.</p>
+                        </div>
+                    </div>
+
+                    <!-- FAQ 3 -->
+                    <div class="bg-white border border-slate-100 rounded-2xl shadow-sm overflow-hidden transition duration-300">
+                        <button onclick="toggleFaq(2)" class="w-full px-6 py-5 flex items-center justify-between text-left focus:outline-none">
+                            <span class="text-sm font-bold text-slate-900">Is there a fee to register our cooperative or business?</span>
+                            <span id="faq-icon-2" class="text-slate-400 transition-transform duration-300">+</span>
+                        </button>
+                        <div id="faq-ans-2" class="hidden px-6 pb-5">
+                            <p class="text-xs text-slate-500 leading-relaxed">Onboarding is currently open for local cooperatives and freight operators in Mindanao. We aim to keep the core coordination system accessible to support regional agriculture.</p>
+                        </div>
+                    </div>
+
+                    <!-- FAQ 4 -->
+                    <div class="bg-white border border-slate-100 rounded-2xl shadow-sm overflow-hidden transition duration-300">
+                        <button onclick="toggleFaq(3)" class="w-full px-6 py-5 flex items-center justify-between text-left focus:outline-none">
+                            <span class="text-sm font-bold text-slate-900">How do growers split fuel and space expenses?</span>
+                            <span id="faq-icon-3" class="text-slate-400 transition-transform duration-300">+</span>
+                        </button>
+                        <div id="faq-ans-3" class="hidden px-6 pb-5">
+                            <p class="text-xs text-slate-500 leading-relaxed">HarvestHaul calculates proportional transport costs automatically based on crop weight (tons) and pickup-to-hub distance (km) registered during scheduling.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Separation Border -->
+            <div class="relative py-12">
+                <div class="absolute inset-0 flex items-center" aria-hidden="true">
+                    <div class="w-full border-t border-slate-200/60"></div>
+                </div>
+            </div>
 
             <!-- Pre-Footer Glowing Call to Action (CTA) -->
             <section class="my-20 relative rounded-3xl overflow-hidden shadow-2xl bg-slate-950 border border-slate-800">
@@ -913,9 +913,9 @@
                 <div class="absolute bottom-[-30%] left-[-10%] w-96 h-96 rounded-full bg-teal-500/10 blur-[100px] pointer-events-none"></div>
                 
                 <div class="relative z-10 px-8 py-16 sm:py-20 max-w-3xl mx-auto text-center space-y-8">
-                    <h2 class="text-3xl sm:text-5xl font-black heading-font text-white leading-tight">Ready to Optimize Agricultural Shipments?</h2>
+                    <h2 class="text-3xl sm:text-5xl font-black heading-font text-white leading-tight">Ready to Coordinate Agricultural Shipments?</h2>
                     <p class="text-slate-400 text-base sm:text-lg leading-relaxed max-w-2xl mx-auto">
-                        Bring coordinate logistics, transparency, and resource pooling to transport routes across General Santos, Polomolok, and Tupi.
+                        Aim to bring logistics visibility, transparency, and resource pooling to transport routes across General Santos, Polomolok, and Tupi.
                     </p>
                     <div class="pt-4 flex flex-wrap justify-center gap-4">
                         @guest
@@ -957,8 +957,8 @@
                 <!-- Fast Menu links -->
                 <div class="md:col-span-6 flex flex-wrap gap-x-12 gap-y-4 md:justify-end text-xs font-semibold text-slate-500 uppercase tracking-wider pt-2">
                     <a href="#features" class="hover:text-emerald-700 transition">Features</a>
-                    <a href="#simulator" class="hover:text-emerald-700 transition">Savings Calculator</a>
                     <a href="#role-showcase" class="hover:text-emerald-700 transition">Portal Modules</a>
+                    <a href="#faq" class="hover:text-emerald-700 transition">FAQ</a>
                     <a href="#how-it-works" class="hover:text-emerald-700 transition">How It Works</a>
                 </div>
             </div>
@@ -1049,47 +1049,6 @@
                 container.style.transform = `translateY(-${tickerIndex * 20}px)`;
             }, 3000);
 
-            // Interactive ROI Savings Calculator Logic
-            function calculateSavings() {
-                // Inputs
-                var farmsVal = parseFloat(document.getElementById('slider-farms').value);
-                var volumeVal = parseFloat(document.getElementById('slider-volume').value);
-                var distanceVal = parseFloat(document.getElementById('slider-distance').value);
-
-                // Update text indicators
-                document.getElementById('val-farms').innerText = farmsVal + " Cooperating Farms";
-                document.getElementById('val-volume').innerText = volumeVal.toFixed(1) + " Tons / Farm";
-                document.getElementById('val-distance').innerText = distanceVal + " km Transit";
-
-                // Traditional Trips vs Pooled Trips
-                // 1 truck has a maximum capacity of 10 tons.
-                var totalVolume = farmsVal * volumeVal;
-                var traditionalTrips = farmsVal; // Every farm hires 1 truck independently
-                var pooledTrips = Math.max(1, Math.ceil(totalVolume / 10.0)); // Consolidated runs of 10T trucks
-
-                // Calculate savings details
-                // Standard fuel assumption: 0.12 liters of diesel per kilometer per trip
-                var fuelTraditional = traditionalTrips * distanceVal * 0.14;
-                var fuelPooled = pooledTrips * distanceVal * 0.16; // slightly higher fuel consumption for loaded truck
-                
-                var litersSaved = Math.max(0, Math.round(fuelTraditional - fuelPooled));
-                var pricePerLiter = 60.0; // PHP fuel cost assumption
-                var cashSaved = litersSaved * pricePerLiter;
-                
-                // CO2 calculation: ~2.68 kg CO2 per liter of diesel
-                var co2Saved = Math.max(0, Math.round(litersSaved * 2.68));
-                
-                // Percent fuel cost saved
-                var pctSaved = fuelTraditional > 0 ? Math.round(((fuelTraditional - fuelPooled) / fuelTraditional) * 100) : 0;
-
-                // Update results display
-                document.getElementById('calc-trips-trad').innerText = traditionalTrips;
-                document.getElementById('calc-trips-pooled').innerText = pooledTrips;
-                document.getElementById('calc-fuel').innerText = litersSaved + " Liters";
-                document.getElementById('calc-cash').innerText = "₱" + cashSaved.toLocaleString();
-                document.getElementById('calc-co2').innerText = co2Saved + " kg";
-                document.getElementById('calc-pct-saved').innerText = `-${pctSaved}% fuel cost`;
-            }
 
             // Interactive Role Tab switching
             function setRoleTab(role) {
@@ -1112,10 +1071,23 @@
                 });
             }
 
-            // Initial calculation run
-            window.addEventListener('DOMContentLoaded', function() {
-                calculateSavings();
-            });
+
+            // FAQ Accordion Toggle
+            function toggleFaq(index) {
+                var ans = document.getElementById(`faq-ans-${index}`);
+                var icon = document.getElementById(`faq-icon-${index}`);
+                
+                if (ans.classList.contains('hidden')) {
+                    ans.classList.remove('hidden');
+                    icon.innerText = '−'; // minus sign
+                    icon.className = 'text-emerald-600 font-bold transition duration-300 transform rotate-180';
+                } else {
+                    ans.classList.add('hidden');
+                    icon.innerText = '+';
+                    icon.className = 'text-slate-400 transition duration-300 transform rotate-0';
+                }
+            }
+
         </script>
     </body>
 </html>

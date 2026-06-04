@@ -15,6 +15,7 @@ class DriverProfile extends Model
         'license_no',
         'license_number',
         'vehicle_type',
+        'phone',
         'employment_status',
         'status'
     ];

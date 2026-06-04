@@ -146,6 +146,22 @@ class PoolingJobController extends Controller
             // Execute database persistence model
             $job = $this->poolingService->confirm($plan, $logisticsProfile->id);
 
+            // Compute & store per-farmer cost shares in pivot table
+            $totalKg     = (float) $job->total_kg;
+            $basePrice   = (float) ($job->negotiated_price ?? $job->price_reference ?? 0);
+
+            if ($totalKg > 0 && $basePrice > 0) {
+                foreach ($job->harvests as $harvest) {
+                    $harvestKg  = (float) $harvest->pivot->quantity_kg;
+                    $proportion = $harvestKg / $totalKg;
+                    $costShare  = round($basePrice * $proportion, 2);
+
+                    $job->harvests()->updateExistingPivot($harvest->id, [
+                        'cost_share' => $costShare,
+                    ]);
+                }
+            }
+
             return response()->json([
                 'success'        => true,
                 'pooling_job_id' => $job->id,
@@ -209,6 +225,6 @@ class PoolingJobController extends Controller
             ->latest()
             ->get();
 
-        return view('farmer.farmer-proposals', compact('proposals'));
+        return view('farmers.farmer-proposals', compact('proposals'));
     }
 }

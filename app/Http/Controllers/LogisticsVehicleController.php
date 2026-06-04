@@ -8,8 +8,17 @@ use App\Models\DriverProfile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
+/**
+ * Class LogisticsVehicleController
+ * 
+ * Handles vehicle (truck) onboarding and management for logistics partners.
+ * Logistics partners register trucks, set capacity boundaries, and link drivers.
+ */
 class LogisticsVehicleController extends Controller
 {
+    /**
+     * Helper to verify if user has 'logistics_partner' role and profile is active.
+     */
     private function authorizeLogistics(): void
     {
         if (!Auth::check() || Auth::user()->role !== 'logistics_partner') {

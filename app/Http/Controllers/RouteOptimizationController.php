@@ -99,6 +99,6 @@ class RouteOptimizationController extends Controller
                 'driver'      => $t->driver?->name ?? 'No driver assigned',
             ]);
 
-        return view('dashboards.route-optimization', compact('farmersData', 'trucks'));
+        return view('logistics.route-optimization', compact('farmersData', 'trucks'));
     }
 }

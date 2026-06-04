@@ -8,8 +8,17 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
+/**
+ * Class LogisticsDriverController
+ * 
+ * Handles driver onboarding and profile management for logistics partners.
+ * Logistics partners create driver user accounts and link driver profiles to their company.
+ */
 class LogisticsDriverController extends Controller
 {
+    /**
+     * Helper to verify if user has 'logistics_partner' role and profile is active.
+     */
     private function authorizeLogistics(): void
     {
         if (!Auth::check() || Auth::user()->role !== 'logistics_partner') {
@@ -54,7 +63,6 @@ class LogisticsDriverController extends Controller
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
-            'phone' => $request->phone,
             'password' => Hash::make($request->password),
             'role' => 'driver',
             'status' => 'active',
@@ -68,6 +76,7 @@ class LogisticsDriverController extends Controller
             'partner_id' => Auth::user()->logisticsProfile->id,
             'license_number' => $request->license_number,
             'vehicle_type' => $request->vehicle_type,
+            'phone' => $request->phone,
             'status' => 'active',
         ]);
 

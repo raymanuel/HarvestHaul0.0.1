@@ -25,7 +25,7 @@ class DriverController extends Controller
             ->where('status', 'completed')
             ->count();
 
-        return view('dashboards.driver-view', [
+        return view('driver.driver-view', [
             'jobs'          => $jobs,
             'completedJobs' => $completedJobs,
         ]);
@@ -53,7 +53,7 @@ class DriverController extends Controller
             'logisticsProfile',
         ]);
 
-        return view('dashboards.driver-job-show', [
+        return view('driver.driver-job-show', [
             'job' => $poolingJob,
         ]);
     }
