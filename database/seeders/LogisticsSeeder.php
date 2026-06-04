@@ -36,7 +36,7 @@ class LogisticsSeeder extends Seeder
             $user = User::create([
                 'name'     => $partner['name'],
                 'email'    => $partner['email'],
-                'password' => Hash::make('password123'),
+                'password' => Hash::make('password'),
                 'role'     => 'logistics_partner',
             ]);
 

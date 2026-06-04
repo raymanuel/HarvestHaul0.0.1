@@ -1,39 +1,45 @@
 <x-layout title="My Documents">
 
-    <div style="max-width: 760px; margin: 0 auto;">
+    <div class="w-full max-w-3xl mx-auto">
 
-        <h1 style="font-size:1.6rem; font-weight:800; color:#0f172a; margin-bottom:0.25rem;">My Documents</h1>
-        <p style="color:#64748b; font-size:0.9rem; margin-bottom:2rem;">
-            Submit your government ID and proof of farming activity for verification.
-        </p>
+        <!-- Page Header -->
+        <header class="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+                <h1 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight heading-font">My Documents</h1>
+                <p class="text-sm text-slate-500 dark:text-slate-400 mt-1 font-medium font-semibold">Submit your government ID and proof of farming activity for verification</p>
+            </div>
+            <span class="text-xs font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/20 px-3 py-1.5 rounded-lg border border-emerald-500/10 dark:border-emerald-500/20 self-start">Verifications</span>
+        </header>
 
         {{-- Flash Messages --}}
         @if(session('success'))
-            <div style="background:#f0fdf4; border:1px solid #bbf7d0; color:#166534; padding:0.85rem 1rem; border-radius:0.75rem; margin-bottom:1.5rem; font-size:0.875rem;">
+            <div class="mb-6 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200/50 dark:border-emerald-800 text-emerald-700 dark:text-emerald-400 rounded-xl px-5 py-4 text-sm font-semibold flex items-center gap-2 shadow-sm">
+                <span class="text-xs">✓</span>
                 {{ session('success') }}
             </div>
         @endif
 
         @if(session('error'))
-            <div style="background:#fef2f2; border:1px solid #fecaca; color:#991b1b; padding:0.85rem 1rem; border-radius:0.75rem; margin-bottom:1.5rem; font-size:0.875rem;">
+            <div class="mb-6 bg-red-50 dark:bg-red-950/20 border border-red-200/50 dark:border-red-900/30 text-red-700 dark:text-red-400 rounded-xl px-5 py-4 text-sm font-semibold flex items-center gap-2 shadow-sm">
+                <span class="text-xs">⚠️</span>
                 {{ session('error') }}
             </div>
         @endif
 
         {{-- Upload Form --}}
-        <div style="background:white; border-radius:1.25rem; padding:1.75rem; border:1px solid rgba(0,0,0,0.07); box-shadow:0 2px 8px rgba(0,0,0,0.04); margin-bottom:2rem;">
-            <h2 style="font-size:1rem; font-weight:700; color:#0f172a; margin-bottom:1.25rem;">Upload a Document</h2>
+        <div class="bg-white dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700/80 rounded-2xl shadow-sm p-7 mb-8">
+            <h2 class="text-sm font-extrabold text-slate-800 dark:text-white heading-font mb-4 uppercase tracking-wider">Upload a Document</h2>
 
-            <form method="POST" action="{{ route('farmer.documents.store') }}" enctype="multipart/form-data">
+            <form method="POST" action="{{ route('farmer.documents.store') }}" enctype="multipart/form-data" class="space-y-4">
                 @csrf
 
                 {{-- Document Type --}}
-                <div style="margin-bottom:1.25rem;">
-                    <label style="display:block; font-size:0.8rem; font-weight:600; color:#374151; margin-bottom:0.4rem; text-transform:uppercase; letter-spacing:0.05em;">
-                        Document Type <span style="color:#ef4444;">*</span>
+                <div class="form-group space-y-1.5">
+                    <label class="text-[10px] font-bold text-slate-450 dark:text-slate-500 uppercase tracking-wider block">
+                        Document Type <span class="text-red-500">*</span>
                     </label>
                     <select name="document_type" required
-                        style="width:100%; padding:0.75rem 1rem; border:1px solid #e2e8f0; border-radius:0.75rem; font-size:0.9rem; color:#0f172a; background:white; outline:none;">
+                        class="py-3 px-4 w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition cursor-pointer text-sm text-slate-700 dark:text-slate-200">
                         <option value="" disabled selected>Select document type</option>
                         <optgroup label="Government ID (Primary)">
                             <option value="government_id" {{ old('document_type') === 'government_id' ? 'selected' : '' }}>
@@ -61,46 +67,53 @@
                         </optgroup>
                     </select>
                     @error('document_type')
-                        <p style="color:#ef4444; font-size:0.8rem; margin-top:0.35rem;">{{ $message }}</p>
+                        <p class="text-xs text-red-500 mt-1 font-semibold">{{ $message }}</p>
                     @enderror
                 </div>
 
                 {{-- File Upload --}}
-                <div style="margin-bottom:1.5rem;">
-                    <label style="display:block; font-size:0.8rem; font-weight:600; color:#374151; margin-bottom:0.4rem; text-transform:uppercase; letter-spacing:0.05em;">
-                        File <span style="color:#ef4444;">*</span>
+                <div class="form-group space-y-1.5">
+                    <label class="text-[10px] font-bold text-slate-450 dark:text-slate-500 uppercase tracking-wider block">
+                        File <span class="text-red-500">*</span>
                     </label>
                     <input type="file" name="document_file" required accept=".jpg,.jpeg,.png,.pdf"
-                        style="width:100%; padding:0.75rem 1rem; border:1px solid #e2e8f0; border-radius:0.75rem; font-size:0.875rem; color:#0f172a; background:white; box-sizing:border-box;">
-                    <p style="color:#94a3b8; font-size:0.78rem; margin-top:0.35rem;">
-                        Accepted: JPG, PNG, PDF — max 5MB
+                        class="py-2 px-4 w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition text-sm text-slate-700 dark:text-slate-200 file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-slate-50 dark:file:bg-slate-800 file:text-slate-700 dark:file:text-slate-200 hover:file:bg-slate-100 dark:hover:file:bg-slate-700">
+                    <p class="text-[10px] text-slate-400 mt-1.5 font-medium">
+                        Accepted Formats: JPG, PNG, PDF — Maximum file size: 5MB
                     </p>
                     @error('document_file')
-                        <p style="color:#ef4444; font-size:0.8rem; margin-top:0.35rem;">{{ $message }}</p>
+                        <p class="text-xs text-red-500 mt-1 font-semibold">{{ $message }}</p>
                     @enderror
                 </div>
 
-                <button type="submit"
-                    style="background:#2D8A37; color:white; padding:0.75rem 1.5rem; border:none; border-radius:0.75rem; font-weight:600; font-size:0.9rem; cursor:pointer;">
-                    Upload Document
-                </button>
+                <div class="pt-2">
+                    <button type="submit"
+                        class="py-3 px-6 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs transition cursor-pointer shadow-sm shadow-emerald-500/10">
+                        Upload Document
+                    </button>
+                </div>
             </form>
         </div>
 
         {{-- Submitted Documents --}}
-        <div style="background:white; border-radius:1.25rem; padding:1.75rem; border:1px solid rgba(0,0,0,0.07); box-shadow:0 2px 8px rgba(0,0,0,0.04);">
-            <h2 style="font-size:1rem; font-weight:700; color:#0f172a; margin-bottom:1.25rem;">Submitted Documents</h2>
+        <div class="bg-white dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700/80 rounded-2xl shadow-sm p-7">
+            <h2 class="text-sm font-extrabold text-slate-800 dark:text-white heading-font mb-4 uppercase tracking-wider">Submitted Documents</h2>
 
             @if($documents->isEmpty())
-                <p style="color:#94a3b8; font-size:0.875rem;">No documents submitted yet.</p>
+                <p class="text-sm text-slate-400 dark:text-slate-500 font-semibold text-center py-6">No documents submitted yet.</p>
             @else
-                <div style="display:flex; flex-direction:column; gap:1rem;">
+                <div class="flex flex-col gap-4">
                     @foreach($documents as $doc)
                         @php
-                            $statusColor = match($doc->status) {
-                                'approved' => ['bg'=>'#f0fdf4','border'=>'#bbf7d0','text'=>'#166534'],
-                                'rejected' => ['bg'=>'#fef2f2','border'=>'#fecaca','text'=>'#991b1b'],
-                                default    => ['bg'=>'#f8fafc','border'=>'#e2e8f0','text'=>'#475569'],
+                            $statusStyle = match($doc->status) {
+                                'approved' => 'bg-emerald-50 dark:bg-emerald-950/20 border-emerald-100 dark:border-emerald-900/30 text-emerald-700 dark:text-emerald-400',
+                                'rejected' => 'bg-red-50 dark:bg-red-950/20 border-red-100 dark:border-red-900/30 text-red-600 dark:text-red-400',
+                                default    => 'bg-slate-50 dark:bg-slate-900/40 border-slate-100 dark:border-slate-800/50 text-slate-600 dark:text-slate-400',
+                            };
+                            $badgeStyle = match($doc->status) {
+                                'approved' => 'bg-white dark:bg-slate-900 border-emerald-250/60 dark:border-emerald-800/50 text-emerald-700 dark:text-emerald-400',
+                                'rejected' => 'bg-white dark:bg-slate-900 border-red-250/60 dark:border-red-800/50 text-red-650 dark:text-red-400',
+                                default    => 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400',
                             };
                             $typeLabel = match($doc->document_type) {
                                 'government_id'  => 'Government ID',
@@ -112,20 +125,20 @@
                             };
                         @endphp
 
-                        <div style="border:1px solid {{ $statusColor['border'] }}; background:{{ $statusColor['bg'] }}; border-radius:0.875rem; padding:1rem 1.25rem; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.75rem;">
+                        <div class="border rounded-xl p-4 flex items-center justify-between flex-wrap gap-3 {{ $statusStyle }}">
                             <div>
-                                <p style="font-weight:600; color:#0f172a; font-size:0.9rem; margin:0 0 0.2rem;">{{ $typeLabel }}</p>
-                                <p style="color:#64748b; font-size:0.8rem; margin:0 0 0.2rem;">{{ $doc->original_filename }}</p>
+                                <p class="text-sm font-bold text-slate-800 dark:text-slate-200">{{ $typeLabel }}</p>
+                                <p class="text-xs text-slate-500 dark:text-slate-450 font-medium mt-0.5">{{ $doc->original_filename }}</p>
                                 @if($doc->notes)
-                                    <p style="color:#64748b; font-size:0.78rem; margin:0.3rem 0 0; font-style:italic;">Admin note: {{ $doc->notes }}</p>
+                                    <p class="text-xs text-slate-500 dark:text-slate-450 italic mt-1.5 font-medium">Admin note: {{ $doc->notes }}</p>
                                 @endif
                             </div>
-                            <div style="display:flex; align-items:center; gap:0.75rem;">
-                                <span style="background:{{ $statusColor['bg'] }}; color:{{ $statusColor['text'] }}; border:1px solid {{ $statusColor['border'] }}; padding:0.3rem 0.75rem; border-radius:999px; font-size:0.75rem; font-weight:600; text-transform:uppercase; letter-spacing:0.05em;">
+                            <div class="flex items-center gap-3.5">
+                                <span class="text-[10px] font-bold px-2.5 py-1 rounded-lg uppercase tracking-wide border {{ $badgeStyle }}">
                                     {{ $doc->status }}
                                 </span>
                                 <a href="{{ Storage::url($doc->file_path) }}" target="_blank"
-                                    style="color:#2D8A37; font-size:0.8rem; font-weight:600; text-decoration:none;">
+                                    class="text-violet-600 dark:text-violet-400 hover:text-violet-850 dark:hover:text-violet-300 text-xs font-bold hover:underline transition">
                                     View
                                 </a>
                                 @if($doc->status !== 'approved')
@@ -134,7 +147,7 @@
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit"
-                                            style="background:none; border:none; color:#ef4444; font-size:0.8rem; font-weight:600; cursor:pointer; padding:0;">
+                                            class="text-red-500 hover:text-red-700 dark:hover:text-red-400 text-xs font-bold hover:underline transition cursor-pointer">
                                             Remove
                                         </button>
                                     </form>

@@ -1,162 +1,142 @@
 <x-layout title="Logistics Documents">
+<div class="w-full max-w-5xl mx-auto">
 
-    <div style="max-width:960px; margin:0 auto;">
-
-        <h1 style="font-size:1.6rem; font-weight:800; color:#0f172a; margin-bottom:0.25rem;">Logistics Documents</h1>
-        <p style="color:#64748b; font-size:0.9rem; margin-bottom:2rem;">
-            Review and approve submitted logistics company verification documents.
-        </p>
-
-        @if(session('success'))
-            <div style="background:#f0fdf4; border:1px solid #bbf7d0; color:#166534; padding:0.85rem 1rem; border-radius:0.75rem; margin-bottom:1.5rem; font-size:0.875rem;">
-                {{ session('success') }}
+    <!-- Nice Admin Page Header -->
+    <header class="mb-8">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+                <h1 class="text-2xl font-extrabold text-slate-800 dark:text-white heading-font tracking-tight">Logistics Documents</h1>
+                <p class="text-sm text-slate-400 dark:text-slate-500 mt-1 font-semibold">Review and approve submitted logistics company verification documents</p>
             </div>
-        @endif
+            <span class="text-[10px] font-bold uppercase tracking-widest text-violet-700 dark:text-violet-400 bg-violet-50 dark:bg-violet-950/20 px-3 py-1.5 rounded-lg border border-violet-500/10 dark:border-violet-500/20 self-start">Verification</span>
+        </div>
+    </header>
 
-        @if($documents->isEmpty())
-            <div style="background:white; border-radius:1.25rem; padding:2rem; border:1px solid rgba(0,0,0,0.07); text-align:center;">
-                <p style="color:#94a3b8; font-size:0.9rem;">No documents submitted yet.</p>
-            </div>
-        @else
-            @foreach($documents as $userId => $docs)
-                @php
-                    $partner = $docs->first()->logisticsPartner;
-                    $profile = $partner->logisticsProfile ?? null;
-                    $pendingCount = $docs->where('status', 'pending')->count();
-                @endphp
+    @if(session('success'))
+        <div class="mb-6 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-400 rounded-xl px-5 py-4 text-sm font-semibold flex items-center gap-2">
+            <span>✅</span> {{ session('success') }}
+        </div>
+    @endif
 
-                <div style="background:white; border-radius:1.25rem; padding:1.75rem; border:1px solid {{ $pendingCount > 0 ? 'rgba(234,179,8,0.4)' : 'rgba(0,0,0,0.07)' }}; box-shadow:0 2px 8px rgba(0,0,0,0.04); margin-bottom:1.5rem;">
+    @if($documents->isEmpty())
+        <div class="bg-white dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700/80 rounded-2xl shadow-sm p-12 text-center">
+            <svg class="w-12 h-12 text-slate-200 dark:text-slate-700 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+            <p class="text-slate-400 dark:text-slate-500 text-sm font-semibold">No documents submitted yet</p>
+        </div>
+    @else
+        @foreach($documents as $userId => $docs)
+            @php
+                $partner = $docs->first()->logisticsPartner;
+                $profile = $partner->logisticsProfile ?? null;
+                $pendingCount = $docs->where('status', 'pending')->count();
+            @endphp
 
-                    {{-- Partner Header --}}
-                    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.5rem; margin-bottom:1.25rem; padding-bottom:1rem; border-bottom:1px solid #f1f5f9;">
+            <div class="bg-white dark:bg-slate-800 border rounded-2xl shadow-sm overflow-hidden mb-6 {{ $pendingCount > 0 ? 'border-amber-200/70 dark:border-amber-800/80' : 'border-slate-200/70 dark:border-slate-700/80' }}">
+
+                {{-- Partner Header --}}
+                <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-700/60 bg-slate-50/50 dark:bg-slate-900/40 flex-wrap gap-3">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-lg bg-gradient-to-tr from-violet-100 to-violet-50 dark:from-violet-950/20 dark:to-violet-900/20 border border-violet-200/50 dark:border-violet-800/30 flex items-center justify-center text-[10px] font-extrabold text-violet-700 dark:text-violet-400 uppercase">{{ substr($profile->company_name ?? $partner->name ?? '?', 0, 2) }}</div>
                         <div>
-                            <p style="font-size:1rem; font-weight:700; color:#0f172a; margin:0 0 0.2rem;">
-                                {{ $profile->company_name ?? $partner->name }}
-                            </p>
-                            <p style="font-size:0.8rem; color:#64748b; margin:0 0 0.2rem;">
-                                {{ $partner->email }} &mdash; ID #{{ $userId }}
-                            </p>
+                            <p class="text-sm font-extrabold text-slate-800 dark:text-slate-200">{{ $profile->company_name ?? $partner->name }}</p>
+                            <p class="text-[10px] text-slate-400 dark:text-slate-500 font-semibold">{{ $partner->email }} — ID #{{ $userId }}</p>
                             @if($profile && $profile->business_permit_no)
-                                <p style="font-size:0.78rem; color:#94a3b8; margin:0.2rem 0 0; font-family:monospace;">
-                                    Declared Permit No: {{ $profile->business_permit_no }}
+                                <p class="text-[10px] text-slate-400 dark:text-slate-500 font-mono mt-0.5">
+                                    Permit: {{ $profile->business_permit_no }}
                                     @if($profile->business_permit_verified)
-                                        <span style="background:#f0fdf4; color:#166534; border:1px solid #bbf7d0; padding:0.15rem 0.5rem; border-radius:999px; font-size:0.65rem; font-weight:700; text-transform:uppercase; font-family:sans-serif; margin-left:0.4rem;">Verified</span>
+                                        <span class="bg-emerald-50 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-400 border border-emerald-200/50 dark:border-emerald-500/20 text-[8px] font-bold px-1.5 py-0.5 rounded-md uppercase tracking-wide ml-1">Verified</span>
                                     @else
-                                        <span style="background:#fef9c3; color:#854d0e; border:1px solid #fde68a; padding:0.15rem 0.5rem; border-radius:999px; font-size:0.65rem; font-weight:700; text-transform:uppercase; font-family:sans-serif; margin-left:0.4rem;">Unverified</span>
+                                        <span class="bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-400 border border-amber-200/50 dark:border-amber-500/20 text-[8px] font-bold px-1.5 py-0.5 rounded-md uppercase tracking-wide ml-1">Unverified</span>
                                     @endif
                                 </p>
                             @endif
                         </div>
-                        @if($pendingCount > 0)
-                            <span style="background:#fef9c3; color:#854d0e; border:1px solid #fde68a; padding:0.3rem 0.75rem; border-radius:999px; font-size:0.75rem; font-weight:600; text-transform:uppercase; letter-spacing:0.05em;">
-                                {{ $pendingCount }} Pending
-                            </span>
-                        @else
-                            <span style="background:#f0fdf4; color:#166534; border:1px solid #bbf7d0; padding:0.3rem 0.75rem; border-radius:999px; font-size:0.75rem; font-weight:600; text-transform:uppercase; letter-spacing:0.05em;">
-                                Reviewed
-                            </span>
-                        @endif
                     </div>
-
-                    {{-- Documents --}}
-                    <div style="display:flex; flex-direction:column; gap:1rem;">
-                        @foreach($docs as $doc)
-                            @php
-                                $statusColor = match($doc->status) {
-                                    'approved' => ['bg'=>'#f0fdf4','border'=>'#bbf7d0','text'=>'#166534'],
-                                    'rejected' => ['bg'=>'#fef2f2','border'=>'#fecaca','text'=>'#991b1b'],
-                                    default    => ['bg'=>'#f8fafc','border'=>'#e2e8f0','text'=>'#475569'],
-                                };
-                                $typeLabel = match($doc->document_type) {
-                                    'dti_sec'         => 'DTI / SEC Registration',
-                                    'business_permit' => 'Business Permit',
-                                    'bir_cert'        => 'BIR Certificate of Registration',
-                                    'mayors_permit'   => "Mayor's Permit",
-                                };
-                            @endphp
-
-                            <div style="border:1px solid {{ $statusColor['border'] }}; background:{{ $statusColor['bg'] }}; border-radius:0.875rem; padding:1rem 1.25rem;">
-
-                                {{-- Doc Info --}}
-                                <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.75rem; margin-bottom:{{ $doc->status === 'pending' ? '1rem' : '0' }};">
-                                    <div>
-                                        <p style="font-weight:600; color:#0f172a; font-size:0.9rem; margin:0 0 0.2rem;">{{ $typeLabel }}</p>
-                                        <p style="color:#64748b; font-size:0.8rem; margin:0;">{{ $doc->original_filename }}</p>
-                                        @if($doc->notes)
-                                            <p style="color:#64748b; font-size:0.78rem; margin:0.3rem 0 0; font-style:italic;">
-                                                Note: {{ $doc->notes }}
-                                            </p>
-                                        @endif
-                                        @if($doc->document_type === 'business_permit' && $doc->business_permit_match_confirmed)
-                                            <p style="color:#166534; font-size:0.75rem; margin:0.3rem 0 0; font-weight:600;">
-                                                Permit number match confirmed
-                                            </p>
-                                        @endif
-                                    </div>
-                                    <div style="display:flex; align-items:center; gap:0.75rem;">
-                                        <span style="color:{{ $statusColor['text'] }}; border:1px solid {{ $statusColor['border'] }}; background:white; padding:0.3rem 0.75rem; border-radius:999px; font-size:0.75rem; font-weight:600; text-transform:uppercase; letter-spacing:0.05em;">
-                                            {{ $doc->status }}
-                                        </span>
-                                        <a href="{{ Storage::url($doc->file_path) }}" target="_blank"
-                                            style="color:#2D8A37; font-size:0.8rem; font-weight:600; text-decoration:none;">
-                                            View File
-                                        </a>
-                                    </div>
-                                </div>
-
-                                {{-- Action Forms — pending only --}}
-                                @if($doc->status === 'pending')
-                                    <div style="display:flex; flex-direction:column; gap:0.75rem;">
-
-                                        {{-- Approve --}}
-                                        <form method="POST" action="{{ route('admin.logistics-documents.approve', $doc->id) }}">
-                                            @csrf
-                                            @method('PATCH')
-                                            <div style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
-                                                <input type="text" name="notes" placeholder="Admin note (optional)"
-                                                    style="padding:0.5rem 0.75rem; border:1px solid #e2e8f0; border-radius:0.6rem; font-size:0.8rem; color:#0f172a; width:200px;">
-
-                                                {{-- Business permit match confirmation checkbox --}}
-                                                @if($doc->document_type === 'business_permit')
-                                                    <label style="display:flex; align-items:center; gap:0.4rem; font-size:0.8rem; color:#374151; cursor:pointer;">
-                                                        <input type="checkbox" name="permit_match_confirmed" value="1"
-                                                            style="width:14px; height:14px; accent-color:#2D8A37;">
-                                                        Permit No. matches declared value
-                                                    </label>
-                                                @endif
-
-                                                <button type="submit"
-                                                    style="background:#2D8A37; color:white; border:none; padding:0.5rem 1rem; border-radius:0.6rem; font-size:0.8rem; font-weight:600; cursor:pointer;">
-                                                    Approve
-                                                </button>
-                                            </div>
-                                        </form>
-
-                                        {{-- Reject --}}
-                                        <form method="POST" action="{{ route('admin.logistics-documents.reject', $doc->id) }}">
-                                            @csrf
-                                            @method('PATCH')
-                                            <div style="display:flex; gap:0.5rem; align-items:center;">
-                                                <input type="text" name="notes" placeholder="Reason for rejection (required)"
-                                                    style="padding:0.5rem 0.75rem; border:1px solid #fecaca; border-radius:0.6rem; font-size:0.8rem; color:#0f172a; width:260px;">
-                                                <button type="submit"
-                                                    style="background:#ef4444; color:white; border:none; padding:0.5rem 1rem; border-radius:0.6rem; font-size:0.8rem; font-weight:600; cursor:pointer;">
-                                                    Reject
-                                                </button>
-                                            </div>
-                                        </form>
-
-                                    </div>
-                                @endif
-
-                            </div>
-                        @endforeach
-                    </div>
-
+                    @if($pendingCount > 0)
+                        <span class="bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-400 border border-amber-200/50 dark:border-amber-500/20 text-[10px] font-bold px-3 py-1 rounded-lg uppercase tracking-widest">{{ $pendingCount }} Pending</span>
+                    @else
+                        <span class="bg-emerald-50 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-400 border border-emerald-200/50 dark:border-emerald-500/20 text-[10px] font-bold px-3 py-1 rounded-lg uppercase tracking-widest">Reviewed</span>
+                    @endif
                 </div>
-            @endforeach
-        @endif
 
-    </div>
+                {{-- Documents --}}
+                <div class="p-5 flex flex-col gap-4">
+                    @foreach($docs as $doc)
+                        @php
+                            $statusStyle = match($doc->status) {
+                                'approved' => 'bg-emerald-50 dark:bg-emerald-950/20 border-emerald-100 dark:border-emerald-900/30 text-emerald-700 dark:text-emerald-400',
+                                'rejected' => 'bg-red-50 dark:bg-red-950/20 border-red-100 dark:border-red-900/30 text-red-600 dark:text-red-400',
+                                default    => 'bg-slate-50 dark:bg-slate-900/40 border-slate-100 dark:border-slate-800/50 text-slate-600 dark:text-slate-400',
+                            };
+                            $badgeStyle = match($doc->status) {
+                                'approved' => 'bg-white dark:bg-slate-900 border-emerald-200/65 dark:border-emerald-800/50 text-emerald-700 dark:text-emerald-400',
+                                'rejected' => 'bg-white dark:bg-slate-900 border-red-200/65 dark:border-red-800/50 text-red-600 dark:text-red-400',
+                                default    => 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400',
+                            };
+                            $typeLabel = match($doc->document_type) {
+                                'dti_sec'         => 'DTI / SEC Registration',
+                                'business_permit' => 'Business Permit',
+                                'bir_cert'        => 'BIR Certificate of Registration',
+                                'mayors_permit'   => "Mayor's Permit",
+                            };
+                        @endphp
 
+                        <div class="border rounded-xl p-4 {{ $statusStyle }}">
+                            <div class="flex items-center justify-between flex-wrap gap-3 {{ $doc->status === 'pending' ? 'mb-4' : '' }}">
+                                <div>
+                                    <p class="text-sm font-bold text-slate-800 dark:text-slate-200">{{ $typeLabel }}</p>
+                                    <p class="text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5">{{ $doc->original_filename }}</p>
+                                    @if($doc->notes)
+                                        <p class="text-xs text-slate-400 dark:text-slate-500 italic mt-1">Note: {{ $doc->notes }}</p>
+                                    @endif
+                                    @if($doc->document_type === 'business_permit' && $doc->business_permit_match_confirmed)
+                                        <p class="text-xs text-emerald-600 dark:text-emerald-400 font-bold mt-1">✓ Permit number match confirmed</p>
+                                    @endif
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <span class="text-[10px] font-bold px-2.5 py-1 rounded-lg uppercase tracking-wide border {{ $badgeStyle }}">{{ $doc->status }}</span>
+                                    <a href="{{ Storage::url($doc->file_path) }}" target="_blank"
+                                        class="text-violet-600 dark:text-violet-400 hover:text-violet-800 dark:hover:text-violet-350 text-xs font-bold hover:underline transition">View File</a>
+                                </div>
+                            </div>
+
+                            @if($doc->status === 'pending')
+                                <div class="flex flex-col gap-3">
+                                    {{-- Approve --}}
+                                    <form method="POST" action="{{ route('admin.logistics-documents.approve', $doc->id) }}" class="flex items-center gap-2 flex-wrap">
+                                        @csrf @method('PATCH')
+                                        <input type="text" name="notes" placeholder="Admin note (optional)"
+                                            class="border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-800 dark:text-slate-200 w-48 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 bg-white dark:bg-slate-900 transition">
+                                        @if($doc->document_type === 'business_permit')
+                                            <label class="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-400 font-semibold cursor-pointer">
+                                                <input type="checkbox" name="permit_match_confirmed" value="1"
+                                                    class="w-3.5 h-3.5 accent-emerald-600 rounded">
+                                                Permit No. matches
+                                            </label>
+                                        @endif
+                                        <button type="submit"
+                                            class="bg-emerald-600 text-white text-xs font-bold px-4 py-2 rounded-lg hover:bg-emerald-700 transition shadow-sm">
+                                            Approve
+                                        </button>
+                                    </form>
+                                    {{-- Reject --}}
+                                    <form method="POST" action="{{ route('admin.logistics-documents.reject', $doc->id) }}" class="flex items-center gap-2">
+                                        @csrf @method('PATCH')
+                                        <input type="text" name="notes" placeholder="Reason for rejection (required)"
+                                            class="border border-red-200 dark:border-red-900/30 rounded-lg px-3 py-2 text-xs text-slate-800 dark:text-slate-200 w-56 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 bg-white dark:bg-slate-900 transition">
+                                        <button type="submit"
+                                            class="bg-red-500 text-white text-xs font-bold px-4 py-2 rounded-lg hover:bg-red-600 transition shadow-sm">
+                                            Reject
+                                        </button>
+                                    </form>
+                                </div>
+                            @endif
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        @endforeach
+    @endif
+
+</div>
 </x-layout>

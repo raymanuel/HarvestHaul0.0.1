@@ -11,38 +11,44 @@
     @endphp
 
     <div class="w-full pb-12">
-        <header class="pt-8 mb-6 border-b border-gray-200 pb-4">
-            <h1 class="text-3xl font-bold text-gray-900 mb-2">Route Optimization Engine</h1>
-            <p class="text-gray-500 text-lg">Plan your pickup routes and discover farms nearby.</p>
+        <header class="pt-8 mb-6 border-b border-slate-200/80 dark:border-slate-700/80 pb-5">
+            <span class="text-xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/20 px-3 py-1.5 rounded-lg border border-emerald-500/10 dark:border-emerald-500/20 self-start">Logistics Engine</span>
+            <h1 class="text-3xl font-bold text-slate-900 dark:text-white heading-font mt-2">Route Optimization Engine</h1>
+            <p class="text-slate-500 dark:text-slate-400 mt-1">Plan consolidated multi-stop pickup routes and optimize empty fleet capacities.</p>
         </header>
 
         {{-- ─── Truck Selector + Generate Plan Bar ─── --}}
-        <div class="bg-white border border-gray-200 rounded-xl shadow-sm p-4 mb-6 flex flex-wrap items-end gap-4">
+        <div class="bg-white dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700/80 rounded-2xl shadow-sm p-5 mb-6 flex flex-wrap items-end gap-4">
             <div class="flex-1 min-w-[220px]">
-                <label class="block text-xs font-bold text-gray-600 uppercase tracking-wide mb-1">Select Truck</label>
-                <select id="truck-select" class="w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-green-500 focus:border-green-500">
-                    <option value="">— Choose a truck —</option>
-                    @forelse($trucks as $truck)
-                        <option value="{{ $truck['id'] }}"
-                                data-capacity="{{ $truck['capacity_kg'] }}"
-                                data-driver="{{ $truck['driver'] }}">
-                            {{ $truck['label'] }} ({{ number_format($truck['capacity_kg']) }} kg)
-                        </option>
-                    @empty
-                        <option disabled>No available trucks</option>
-                    @endforelse
-                </select>
+                <label class="block text-xs font-bold text-slate-400 dark:text-slate-550 uppercase tracking-widest mb-2">Select Truck</label>
+                <div class="relative">
+                    <select id="truck-select" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-xl px-4 py-3 text-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition outline-none appearance-none cursor-pointer">
+                        <option value="">— Choose a truck —</option>
+                        @forelse($trucks as $truck)
+                            <option value="{{ $truck['id'] }}"
+                                    data-capacity="{{ $truck['capacity_kg'] }}"
+                                    data-driver="{{ $truck['driver'] }}">
+                                🚛 {{ $truck['label'] }} ({{ number_format($truck['capacity_kg']) }} kg)
+                            </option>
+                        @empty
+                            <option disabled>No available trucks</option>
+                        @endforelse
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400">
+                        <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                    </div>
+                </div>
             </div>
 
-            <div id="truck-info" class="hidden text-sm text-gray-600 bg-gray-50 border border-gray-200 rounded-lg px-4 py-2">
+            <div id="truck-info" class="hidden text-sm border rounded-xl px-5 py-3 transition-all duration-200">
                 <span id="truck-info-driver"></span> &bull;
                 <span id="truck-info-capacity"></span>
             </div>
 
             <button id="btn-generate-plan"
                     disabled
-                    class="bg-green-600 text-white font-bold px-5 py-2 rounded-lg text-sm hover:bg-green-700 transition disabled:opacity-40 disabled:cursor-not-allowed">
-                ⚙️ Generate Route Plan
+                    class="bg-gradient-to-tr from-emerald-600 to-teal-500 text-white font-bold px-6 py-3.5 rounded-xl text-sm hover:shadow-lg hover:shadow-emerald-600/10 hover:translate-y-[-1px] transition-all disabled:opacity-40 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none flex items-center gap-2">
+                <span>⚙️</span> Generate Route Plan
             </button>
         </div>
 
@@ -51,107 +57,116 @@
 
             {{-- Map --}}
             <div class="lg:col-span-2">
-                <div id="routing-map" class="w-full rounded-xl border-2 border-gray-200 relative z-10 shadow-inner" style="height: 600px;"></div>
-                <p class="text-sm text-gray-500 mt-2">💡 <b>Click the map to set a Start point, then click again for the End point.</b></p>
+                <div id="routing-map" class="w-full rounded-2xl border border-slate-200 dark:border-slate-700 relative z-10 shadow-sm" style="height: 600px;"></div>
+                <p class="text-xs text-slate-400 dark:text-slate-500 mt-3 flex items-center gap-1">
+                    <span>💡</span> <b>Click map to plot custom Start (Logistics hub) and End (Drop-off Terminal) points.</b>
+                </p>
             </div>
 
             {{-- Sidebar --}}
-            <div class="bg-slate-50 rounded-xl border border-gray-200 p-5 flex flex-col h-[600px]">
-                <h3 class="text-lg font-bold text-gray-800 mb-2">📍 Route Pickups</h3>
+            <div class="bg-slate-50 dark:bg-slate-900/40 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 p-5 flex flex-col h-[600px]">
+                <h3 class="text-sm font-bold text-slate-800 dark:text-slate-250 heading-font mb-4 flex items-center gap-2">
+                    <span class="text-emerald-600">📍</span> Route Pickups
+                </h3>
 
-                <div class="mb-4 bg-white p-3 rounded-lg border border-gray-200 shadow-sm">
-                    <label for="radius-select" class="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-1">Search Radius</label>
-                    <select id="radius-select" class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm cursor-pointer">
-                        <option value="1">Within 1 km</option>
-                        <option value="3">Within 3 km</option>
-                        <option value="5" selected>Within 5 km</option>
-                        <option value="10">Within 10 km</option>
-                        <option value="20">Within 20 km</option>
-                    </select>
+                <div class="mb-4 bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200/60 dark:border-slate-700/60 shadow-sm">
+                    <label for="radius-select" class="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2">Search Radius</label>
+                    <div class="relative">
+                        <select id="radius-select" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-xl px-3 py-2.5 text-xs focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition outline-none appearance-none cursor-pointer">
+                            <option value="1">Within 1 km</option>
+                            <option value="3">Within 3 km</option>
+                            <option value="5" selected>Within 5 km</option>
+                            <option value="10">Within 10 km</option>
+                            <option value="20">Within 20 km</option>
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">
+                            <svg class="fill-current h-3 w-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                        </div>
+                    </div>
                 </div>
 
-                <p id="radius-description" class="text-xs text-gray-500 mb-4">Farms within 5km of the selected route will appear here.</p>
+                <p id="radius-description" class="text-[11px] text-slate-450 dark:text-slate-500 mb-4 leading-relaxed">Farms within 5km buffer off the planned road segments will auto-detect.</p>
 
-                <div id="pickup-queue" class="flex-1 overflow-y-auto space-y-3 pr-2">
-                    <div class="text-center text-gray-400 mt-10 italic">Awaiting route generation...</div>
+                <div id="pickup-queue" class="flex-1 overflow-y-auto space-y-3 pr-1 custom-scroll">
+                    <div class="text-center text-slate-400 dark:text-slate-500 mt-10 italic text-xs">Awaiting route coordinates...</div>
                 </div>
 
-                <button id="reset-map" class="w-full mt-4 bg-red-50 text-red-600 font-bold py-2 rounded-lg border border-red-200 hover:bg-red-100 transition hidden">
+                <button id="reset-map" class="w-full mt-4 bg-red-55/10 dark:bg-red-950/20 text-red-600 dark:text-red-400 font-bold py-2.5 rounded-xl border border-red-200/50 dark:border-red-900/30 hover:bg-red-100 dark:hover:bg-red-950/40 transition text-xs hidden">
                     Clear Route & Restart
                 </button>
             </div>
         </div>
 
         {{-- ─── Pooling Plan Panel ─── --}}
-        <div id="plan-panel" class="hidden mt-8 bg-white border border-gray-200 rounded-xl shadow-sm p-6">
-            <div class="flex items-center justify-between mb-4">
-                <h2 class="text-xl font-bold text-gray-800">🧮 Pooling Plan Preview</h2>
-                <span id="plan-status-badge" class="text-xs font-bold px-3 py-1 rounded-full bg-yellow-100 text-yellow-700">Unconfirmed</span>
+        <div id="plan-panel" class="hidden mt-8 bg-white dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700/80 rounded-2xl shadow-sm p-6">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-lg font-bold text-slate-800 dark:text-slate-200 heading-font">🧮 Consolidated Pooling Plan</h2>
+                <span id="plan-status-badge" class="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-md bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-400 border border-amber-200/50 dark:border-amber-900/30">Unconfirmed</span>
             </div>
 
             {{-- Summary row --}}
-            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
-                <div class="bg-gray-50 rounded-lg p-3 border border-gray-100 text-center">
-                    <p class="text-xs text-gray-500 uppercase tracking-wide">Farms Selected</p>
-                    <p id="plan-farm-count" class="text-2xl font-bold text-gray-900 mt-1">—</p>
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+                <div class="bg-slate-50 dark:bg-slate-900/50 rounded-xl p-4 border border-slate-100 dark:border-slate-700/40 text-center hover:shadow-sm transition-shadow duration-200">
+                    <p class="text-[10px] text-slate-400 dark:text-slate-550 uppercase tracking-widest font-bold">Farms Selected</p>
+                    <p id="plan-farm-count" class="text-2xl font-black text-slate-800 dark:text-white mt-1">—</p>
                 </div>
-                <div class="bg-gray-50 rounded-lg p-3 border border-gray-100 text-center">
-                    <p class="text-xs text-gray-500 uppercase tracking-wide">Total Load</p>
-                    <p id="plan-total-kg" class="text-2xl font-bold text-green-700 mt-1">—</p>
+                <div class="bg-slate-50 dark:bg-slate-900/50 rounded-xl p-4 border border-slate-100 dark:border-slate-700/40 text-center hover:shadow-sm transition-shadow duration-200">
+                    <p class="text-[10px] text-slate-400 dark:text-slate-550 uppercase tracking-widest font-bold">Total Load</p>
+                    <p id="plan-total-kg" class="text-2xl font-black text-emerald-600 dark:text-emerald-450 mt-1">—</p>
                 </div>
-                <div class="bg-gray-50 rounded-lg p-3 border border-gray-100 text-center">
-                    <p class="text-xs text-gray-500 uppercase tracking-wide">Capacity Used</p>
-                    <p id="plan-load-pct" class="text-2xl font-bold text-blue-700 mt-1">—</p>
+                <div class="bg-slate-50 dark:bg-slate-900/50 rounded-xl p-4 border border-slate-100 dark:border-slate-700/40 text-center hover:shadow-sm transition-shadow duration-200">
+                    <p class="text-[10px] text-slate-400 dark:text-slate-550 uppercase tracking-widest font-bold">Capacity Used</p>
+                    <p id="plan-load-pct" class="text-2xl font-black text-blue-600 dark:text-blue-450 mt-1">—</p>
                 </div>
-                <div class="bg-gray-50 rounded-lg p-3 border border-gray-100 text-center">
-                    <p class="text-xs text-gray-500 uppercase tracking-wide">Est. Distance</p>
-                    <p id="plan-distance" class="text-2xl font-bold text-slate-700 mt-1">—</p>
+                <div class="bg-slate-50 dark:bg-slate-900/50 rounded-xl p-4 border border-slate-100 dark:border-slate-700/40 text-center hover:shadow-sm transition-shadow duration-200">
+                    <p class="text-[10px] text-slate-400 dark:text-slate-550 uppercase tracking-widest font-bold">Est. Distance</p>
+                    <p id="plan-distance" class="text-2xl font-black text-slate-700 dark:text-slate-350 mt-1">—</p>
                 </div>
-                <div class="bg-gray-50 rounded-lg p-3 border border-gray-100 text-center ring-2 ring-green-600/10 bg-green-50/30">
-                    <p class="text-xs text-green-700 font-bold uppercase tracking-wide">Suggested Price</p>
-                    <p id="plan-price-ref" class="text-2xl font-black text-green-700 mt-1">—</p>
+                <div class="bg-emerald-50/50 dark:bg-emerald-950/20 rounded-xl p-4 border border-emerald-100 dark:border-emerald-900/30 text-center ring-2 ring-emerald-500/10 hover:shadow-sm transition-shadow duration-200">
+                    <p class="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold uppercase tracking-widest">Suggested Cost</p>
+                    <p id="plan-price-ref" class="text-2xl font-black text-emerald-700 dark:text-emerald-300 mt-1">—</p>
                 </div>
-                <div class="bg-gray-50 rounded-lg p-3 border border-gray-100 text-center">
-                    <p class="text-xs text-gray-500 uppercase tracking-wide">Assigned Truck</p>
-                    <p id="plan-truck-label" class="text-sm font-bold text-gray-700 mt-1 truncate">—</p>
+                <div class="bg-slate-50 dark:bg-slate-900/50 rounded-xl p-4 border border-slate-100 dark:border-slate-700/40 text-center hover:shadow-sm transition-shadow duration-200">
+                    <p class="text-[10px] text-slate-400 dark:text-slate-550 uppercase tracking-widest font-bold">Assigned Truck</p>
+                    <p id="plan-truck-label" class="text-xs font-bold text-slate-655 dark:text-slate-350 mt-2.5 truncate">—</p>
                 </div>
             </div>
 
             {{-- Farm pickup order table --}}
-            <div class="overflow-x-auto mb-6">
+            <div class="overflow-x-auto border border-slate-200/60 dark:border-slate-700/60 rounded-2xl mb-6">
                 <table class="w-full text-sm text-left border-collapse">
                     <thead>
-                        <tr class="border-b border-gray-200 text-xs text-gray-500 uppercase tracking-wide">
-                            <th class="py-2 pr-4">Order</th>
-                            <th class="py-2 pr-4">Farm</th>
-                            <th class="py-2 pr-4">Location</th>
-                            <th class="py-2 pr-4">Crop(s)</th>
-                            <th class="py-2 pr-4">Load (kg)</th>
-                            <th class="py-2 text-right">Cost Share</th>
+                        <tr class="border-b border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/40 text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-widest font-bold">
+                            <th class="py-3.5 px-4">Order</th>
+                            <th class="py-3 px-4">Farm</th>
+                            <th class="py-3 px-4">Location</th>
+                            <th class="py-3 px-4">Crop(s)</th>
+                            <th class="py-3 px-4">Load</th>
+                            <th class="py-3 px-4 text-right">Cost Share</th>
                         </tr>
                     </thead>
-                    <tbody id="plan-table-body">
-                        <tr><td colspan="6" class="py-4 text-center text-gray-400">No plan generated yet.</td></tr>
+                    <tbody id="plan-table-body" class="divide-y divide-slate-100 dark:divide-slate-700/50">
+                        <tr><td colspan="6" class="py-6 text-center text-slate-400 dark:text-slate-500 italic text-xs">No plan generated yet.</td></tr>
                     </tbody>
                 </table>
             </div>
 
             {{-- Notes + Proposal Submission Trigger --}}
-            <div class="flex flex-wrap items-end gap-4">
+            <div class="flex flex-wrap items-end gap-4 pt-4 border-t border-slate-100 dark:border-slate-700">
                 <div class="flex-1 min-w-[220px]">
-                    <label class="block text-xs font-bold text-gray-600 uppercase tracking-wide mb-1">Notes (optional)</label>
+                    <label class="block text-xs font-bold text-slate-400 dark:text-slate-550 uppercase tracking-widest mb-2">Instructions / Notes (optional)</label>
                     <input id="plan-notes" type="text" maxlength="500"
-                           placeholder="e.g. deliver before noon"
-                           class="w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-green-500 focus:border-green-500">
+                           placeholder="e.g., Deliver to port before 12:00 PM, secure tarpaulin"
+                           class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-xl px-4 py-3 text-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition outline-none">
                 </div>
                 <button id="btn-confirm-plan"
-                        class="bg-green-700 text-white font-bold px-6 py-2 rounded-lg text-sm hover:bg-green-800 transition disabled:opacity-40 disabled:cursor-not-allowed">
-                    📩 Create Delivery Proposal
+                        class="bg-gradient-to-tr from-emerald-600 to-teal-500 text-white font-bold px-6 py-3.5 rounded-xl text-sm hover:shadow-lg hover:shadow-emerald-600/10 hover:translate-y-[-1px] transition-all flex items-center gap-2">
+                    <span>📩</span> Create Delivery Proposal
                 </button>
             </div>
 
             {{-- Confirm feedback --}}
-            <div id="confirm-feedback" class="hidden mt-4 p-3 rounded-lg text-sm font-medium"></div>
+            <div id="confirm-feedback" class="hidden mt-4 p-4 rounded-xl text-sm font-bold animate-pulse"></div>
         </div>
     </div>
 
@@ -195,14 +210,14 @@
 
                 if (!isDriverAssigned) {
                     document.getElementById('truck-info-driver').textContent   = '⚠️ ' + driverValue;
-                    document.getElementById('truck-info-capacity').textContent = 'Cannot route without fleet operator.';
-                    truckInfo.className = 'text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-4 py-2 font-medium';
+                    document.getElementById('truck-info-capacity').textContent = 'Requires driver assignment.';
+                    truckInfo.className = 'text-xs text-amber-705 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/20 border border-amber-250/50 dark:border-amber-900/30 rounded-xl px-4 py-3.5 font-bold flex items-center gap-2';
                     truckInfo.classList.remove('hidden');
                     btnGenerate.disabled = true;
                 } else {
-                    document.getElementById('truck-info-driver').textContent   = '🚗 Driver: ' + driverValue;
-                    document.getElementById('truck-info-capacity').textContent = '⚖️ ' + Number(opt.dataset.capacity).toLocaleString() + ' kg max capacity';
-                    truckInfo.className = 'text-sm text-gray-600 bg-gray-50 border border-gray-200 rounded-lg px-4 py-2';
+                    document.getElementById('truck-info-driver').innerHTML     = '👤 Driver: <b>' + driverValue + '</b>';
+                    document.getElementById('truck-info-capacity').textContent = '⚖️ ' + Number(opt.dataset.capacity).toLocaleString() + ' kg limit';
+                    truckInfo.className = 'text-xs text-slate-650 dark:text-slate-300 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3.5 font-semibold flex items-center gap-2';
                     truckInfo.classList.remove('hidden');
 
                     btnGenerate.disabled = !(baseRouteGeoJSON && startMarker && endMarker);
@@ -216,9 +231,9 @@
             // ─── Map Click Handlers ───────────────────────────────────────
             map.on('click', function (e) {
                 if (!startMarker) {
-                    startMarker = L.marker(e.latlng).addTo(map).bindPopup('<b>Start:</b> Logistics Hub').openPopup();
+                    startMarker = L.marker(e.latlng).addTo(map).bindPopup('<b>Start Point:</b> Hub Depot').openPopup();
                 } else if (!endMarker) {
-                    endMarker = L.marker(e.latlng).addTo(map).bindPopup('<b>End:</b> Drop-off Point').openPopup();
+                    endMarker = L.marker(e.latlng).addTo(map).bindPopup('<b>End Point:</b> Delivery Wholesaler').openPopup();
                     generateBaseRoute(startMarker.getLatLng(), endMarker.getLatLng());
                 }
             });
@@ -316,37 +331,37 @@
                         : '<li class="text-gray-400">No active listings</li>';
 
                     const destinationHtml = farm.destination
-                        ? `<div style="margin-top:8px;padding-top:8px;border-top:1px solid #e5e7eb;">
-                            <b style="font-size:11px">DESTINATION</b>
-                            <p style="margin:4px 0 0;font-size:12px;">📦 ${farm.destination.name}</p>
-                            <p style="margin:2px 0 0;font-size:11px;color:#6b7280;">${farm.destination.address}</p>
+                        ? `<div style="margin-top:8px;padding-top:8px;border-top:1px solid #e2e8f0;">
+                            <b style="font-size:11px;color:#64748b;letter-spacing:0.05em;text-transform:uppercase;">Destination</b>
+                            <p style="margin:4px 0 0;font-size:12px;font-weight:700;color:#1e293b;">📦 ${farm.destination.name}</p>
+                            <p style="margin:2px 0 0;font-size:11px;color:#64748b;">${farm.destination.address}</p>
                            </div>`
                         : farm.destination_address
-                            ? `<div style="margin-top:8px;padding-top:8px;border-top:1px solid #e5e7eb;">
-                                <b style="font-size:11px">DESTINATION</b>
-                                <p style="margin:4px 0 0;font-size:12px;">📍 ${farm.destination_address}</p>
+                            ? `<div style="margin-top:8px;padding-top:8px;border-top:1px solid #e2e8f0;">
+                                <b style="font-size:11px;color:#64748b;letter-spacing:0.05em;text-transform:uppercase;">Destination</b>
+                                <p style="margin:4px 0 0;font-size:12px;font-weight:700;color:#1e293b;">📍 ${farm.destination_address}</p>
                                </div>`
-                            : `<div style="margin-top:8px;padding-top:8px;border-top:1px solid #e5e7eb;">
-                                <p style="font-size:11px;color:#9ca3af;">No destination set.</p>
+                            : `<div style="margin-top:8px;padding-top:8px;border-top:1px solid #e2e8f0;">
+                                <p style="font-size:11px;color:#94a3b8;">No destination set.</p>
                                </div>`;
 
                     const hasDestination = farm.destination_latitude && farm.destination_longitude;
                     const plotButtonHtml = hasDestination
                         ? `<button onclick="plotFarmRoute(${farm.farmer_profile.latitude},${farm.farmer_profile.longitude},${farm.destination_latitude},${farm.destination_longitude})"
-                            style="margin-top:10px;width:100%;background:#2D8A37;color:white;border:none;border-radius:6px;padding:6px 0;font-size:12px;font-weight:700;cursor:pointer;">
-                            🗺️ Plot Route to Destination
+                            style="margin-top:10px;width:100%;background:linear-gradient(to top right, #059669, #14b8a6);color:white;border:none;border-radius:8px;padding:8px 0;font-size:12px;font-weight:700;cursor:pointer;box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
+                            🗺️ Plot Route
                            </button>`
-                        : `<button disabled style="margin-top:10px;width:100%;background:#e5e7eb;color:#9ca3af;border:none;border-radius:6px;padding:6px 0;font-size:12px;font-weight:700;cursor:not-allowed;">
+                        : `<button disabled style="margin-top:10px;width:100%;background:#f1f5f9;color:#94a3b8;border:none;border-radius:8px;padding:8px 0;font-size:12px;font-weight:700;cursor:not-allowed;">
                             No destination set
                            </button>`;
 
                     marker.bindPopup(`
-                        <div style="min-width:200px;">
-                            <b>${farm.name}</b>
-                            <br><span style="color:#6b7280;font-size:12px;">📍 ${farm.farmer_profile.farm_location}</span>
-                            <hr style="margin:6px 0">
-                            <b style="font-size:11px">ACTIVE HARVESTS</b>
-                            <ul style="margin:4px 0 0;padding-left:14px;font-size:12px">${harvestList}</ul>
+                        <div style="min-width:200px;font-family:'Plus Jakarta Sans',sans-serif;">
+                            <b style="font-size:14px;color:#0f172a;">${farm.name}</b>
+                            <br><span style="color:#64748b;font-size:12px;">📍 ${farm.farmer_profile.farm_location}</span>
+                            <hr style="margin:8px 0;border:0;border-top:1px solid #f1f5f9;">
+                            <b style="font-size:11px;color:#64748b;letter-spacing:0.05em;text-transform:uppercase;">Active Harvests</b>
+                            <ul style="margin:4px 0 0;padding-left:14px;font-size:12px;color:#334155;list-style-type:square;">${harvestList}</ul>
                             ${destinationHtml}
                             ${plotButtonHtml}
                         </div>
@@ -360,7 +375,7 @@
 
                         L.marker([farm.destination_latitude, farm.destination_longitude], { icon: destinationMarkerIcon })
                          .addTo(map)
-                         .bindPopup(`<b>📦 Dynamic Drop-off Terminal</b><br><span style="font-size:12px;color:gray;">Linked Cargo: ${farm.name} Wholesaler</span>`);
+                         .bindPopup(`<div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;"><b>📦 Drop-off Terminal</b><br><span style="color:gray;">Cargo Wholesaler: ${farm.name}</span></div>`);
                     }
                 }
             });
@@ -406,19 +421,19 @@
                     const exceedsCapacity = totalKg > truckCapacity;
 
                     const cardClass = exceedsCapacity
-                        ? 'bg-gray-100 p-3 rounded shadow-sm border-l-4 border-red-500 opacity-50 filter grayscale'
-                        : 'bg-white p-3 rounded shadow-sm border-l-4 border-green-500';
+                        ? 'bg-slate-50 dark:bg-slate-905/40 p-4 rounded-xl border border-slate-205 dark:border-slate-800 border-l-4 border-l-rose-500 opacity-60 filter grayscale relative overflow-hidden'
+                        : 'bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-100/70 dark:border-slate-700/80 border-l-4 border-l-emerald-500 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden';
 
                     const capacityBadge = exceedsCapacity
-                        ? `<span class="inline-block mt-1 text-[10px] font-bold bg-red-100 text-red-700 px-2 py-0.5 rounded">⚠️ Exceeds Capacity</span>`
+                        ? `<span class="inline-block mt-2 text-[9px] font-bold uppercase tracking-wider bg-rose-50 dark:bg-rose-950/20 text-rose-600 dark:text-rose-400 border border-rose-250/50 dark:border-rose-900/30 px-2 py-0.5 rounded-md">⚠️ Over Limit</span>`
                         : '';
 
                     queueContainer.innerHTML += `
                         <div class="${cardClass}">
-                            <strong class="${exceedsCapacity ? 'text-gray-500 line-through' : 'text-green-700'}">${item.data.name}</strong>
-                            <p class="text-xs text-gray-600 mt-1">📍 ${item.data.farmer_profile.farm_location}</p>
-                            <p class="text-xs text-gray-500 mt-1">🚗 ${item.distance.toFixed(2)} km off-route</p>
-                            <p class="text-xs ${exceedsCapacity ? 'text-red-600 font-bold' : 'text-gray-500'}">⚖️ ${totalKg.toLocaleString()} kg total</p>
+                            <strong class="text-sm ${exceedsCapacity ? 'text-slate-450 dark:text-slate-550 line-through' : 'text-slate-800 dark:text-slate-200 heading-font'}">${item.data.name}</strong>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1.5 flex items-center gap-1"><span>📍</span> ${item.data.farmer_profile.farm_location}</p>
+                            <p class="text-xs text-slate-404 dark:text-slate-500 mt-1">🚗 ${item.distance.toFixed(2)} km off-route</p>
+                            <p class="text-xs mt-1.5 ${exceedsCapacity ? 'text-rose-600 dark:text-rose-450 font-bold' : 'text-slate-650 dark:text-slate-350 font-semibold'}">⚖️ ${totalKg.toLocaleString()} kg payload</p>
                             ${capacityBadge}
                         </div>
                     `;
@@ -474,13 +489,13 @@
 
                 plan.selected_harvests.forEach((h, i) => {
                     tbody.innerHTML += `
-                        <tr class="border-b border-gray-100 hover:bg-gray-50">
-                            <td class="py-3 font-mono text-gray-500">#${i + 1}</td>
-                            <td class="py-3 font-semibold text-gray-800">${h.farm_name ?? '—'}</td>
-                            <td class="py-3 text-gray-600 text-xs">${h.farm_location ?? '—'}</td>
-                            <td class="py-3 text-gray-600 text-xs">${h.crop ?? '—'}</td>
-                            <td class="py-3 font-bold text-slate-700">${Number(h.quantity_kg).toLocaleString()} kg</td>
-                            <td class="py-3 font-black text-green-700 text-right">
+                        <tr class="border-b border-slate-100 dark:border-slate-700/40 hover:bg-slate-50/50 dark:hover:bg-slate-900/40 transition-colors">
+                            <td class="py-3.5 px-4 font-mono text-xs text-slate-400 dark:text-slate-550">#${i + 1}</td>
+                            <td class="py-3.5 px-4 font-bold text-slate-700 dark:text-slate-300">${h.farm_name ?? '—'}</td>
+                            <td class="py-3.5 px-4 text-slate-500 dark:text-slate-400 text-xs">${h.farm_location ?? '—'}</td>
+                            <td class="py-3.5 px-4 text-slate-500 dark:text-slate-400 text-xs font-semibold">${h.crop ?? '—'}</td>
+                            <td class="py-3.5 px-4 font-bold text-slate-800 dark:text-slate-200">${Number(h.quantity_kg).toLocaleString()} kg</td>
+                            <td class="py-3.5 px-4 font-extrabold text-emerald-600 dark:text-emerald-400 text-right">
                                 ₱${Number(h.split_cost ?? 0).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}
                             </td>
                         </tr>
@@ -516,13 +531,13 @@
 
                     if (res.ok && result.success) {
                         document.getElementById('plan-status-badge').textContent = 'Proposal Created';
-                        feedback.className = 'mt-4 p-3 rounded bg-green-50 text-green-800 border border-green-200';
-                        feedback.textContent = '📩 Proposal pipeline open. Room linked to Job #' + result.pooling_job_id;
-                        this.textContent = '📩 Proposal Sent';
+                        feedback.className = 'mt-4 p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/20 text-emerald-800 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-900/30 font-bold flex items-center gap-2';
+                        feedback.innerHTML = '<span>📩</span> Proposal pipeline open. Room linked to Job #' + result.pooling_job_id;
+                        this.innerHTML = '<span>📩</span> Proposal Sent';
                     } else {
-                        feedback.className = 'mt-4 p-3 rounded bg-red-50 text-red-800 border border-red-200';
-                        feedback.textContent = '❌ ' + result.error;
-                        this.disabled = false; this.textContent = '📩 Create Delivery Proposal';
+                        feedback.className = 'mt-4 p-4 rounded-xl bg-rose-50 dark:bg-rose-950/20 text-rose-800 dark:text-rose-455 border border-rose-200/60 dark:border-rose-900/30 font-bold flex items-center gap-2';
+                        feedback.innerHTML = '<span>❌</span> ' + result.error;
+                        this.disabled = false; this.innerHTML = '<span>📩</span> Create Delivery Proposal';
                     }
                 } catch (err) { console.error(err); }
             });

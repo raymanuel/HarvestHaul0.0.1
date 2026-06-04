@@ -3,143 +3,160 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" content="#16a34a" />
+    <meta name="theme-color" content="#059669" />
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Job #{{ $job->id }} — HarvestHaul</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-</head>
-<body class="bg-gray-100 min-h-screen">
 
-    {{-- Top Bar --}}
-    <header class="bg-green-600 text-white px-4 pt-safe pb-4 sticky top-0 z-10">
-        <div class="flex items-center gap-3 max-w-lg mx-auto">
-            <a href="{{ route('driver.dashboard') }}" class="text-green-100 hover:text-white transition">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #F8FAFC;
+        }
+        .heading-font {
+            font-family: 'Outfit', sans-serif;
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased min-h-screen">
+
+    <!-- Top Header Panel -->
+    <header class="bg-gradient-to-tr from-emerald-600 to-teal-500 text-white px-5 pt-6 pb-5 sticky top-0 z-20 shadow-md">
+        <div class="flex items-center gap-4 max-w-lg mx-auto">
+            <a href="{{ route('driver.dashboard') }}" class="text-white bg-white/10 hover:bg-white/20 p-2 rounded-xl border border-white/10 transition-all">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
                 </svg>
             </a>
             <div>
-                <p class="text-xs text-green-200 font-medium uppercase tracking-wider">Job Details</p>
-                <h1 class="text-lg font-bold leading-tight">Job #{{ $job->id }}</h1>
+                <p class="text-[10px] text-emerald-100 font-bold uppercase tracking-widest">Cargo Details</p>
+                <h1 class="text-xl font-bold leading-tight heading-font mt-0.5">Job #{{ $job->id }}</h1>
             </div>
         </div>
     </header>
 
-    <main class="max-w-lg mx-auto px-4 py-5 space-y-4">
+    <main class="max-w-lg mx-auto px-4 py-6 space-y-5">
 
-        {{-- Flash --}}
+        <!-- Flash Messages -->
         @if(session('success'))
-            <div class="bg-green-50 border border-green-200 text-green-700 text-sm rounded-xl px-4 py-3">
-                {{ session('success') }}
+            <div class="bg-emerald-50 border border-emerald-200/60 text-emerald-800 text-xs font-bold heading-font rounded-xl px-4 py-3">
+                ✅ {{ session('success') }}
             </div>
         @endif
         @if(session('error'))
-            <div class="bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3">
-                {{ session('error') }}
+            <div class="bg-rose-50 border border-rose-200/60 text-rose-800 text-xs font-bold heading-font rounded-xl px-4 py-3">
+                ⚠️ {{ session('error') }}
             </div>
         @endif
 
-        {{-- Job Summary Card --}}
-        <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden">
-            <div class="flex items-start justify-between px-4 py-4 border-b border-gray-100">
+        <!-- Job Summary Card -->
+        <div class="bg-white rounded-2xl border border-slate-200/80 overflow-hidden shadow-sm">
+            <div class="flex items-start justify-between px-5 py-5 border-b border-slate-100 bg-slate-50/30">
                 <div>
-                    <p class="text-sm font-bold text-gray-800">
+                    <p class="text-sm font-black text-slate-800 heading-font">
                         {{ $job->farm_count }} {{ Str::plural('stop', $job->farm_count) }}
-                        &middot; {{ number_format($job->total_kg, 1) }} kg
+                        &middot; {{ number_format($job->total_kg, 1) }} kg payload
                     </p>
-                    <p class="text-xs text-gray-400 mt-0.5">{{ number_format($job->load_percentage, 1) }}% truck load</p>
+                    <p class="text-[11px] text-slate-400 font-semibold mt-1">{{ number_format($job->load_percentage, 1) }}% truck capacity utilized</p>
                 </div>
                 @php
                     $badge = match($job->status) {
-                        'confirmed'   => ['bg-amber-100 text-amber-700',  'Ready'],
-                        'in_progress' => ['bg-blue-100 text-blue-700',    'In Progress'],
-                        'completed'   => ['bg-green-100 text-green-700',  'Completed'],
-                        default       => ['bg-gray-100 text-gray-500',    ucfirst($job->status)],
+                        'confirmed'   => ['bg-amber-50 text-amber-700 border-amber-200/50',  'Ready'],
+                        'in_progress' => ['bg-sky-50 text-sky-700 border-sky-200/50',    'In Transit'],
+                        'completed'   => ['bg-emerald-50 text-emerald-700 border-emerald-200/50',  'Completed'],
+                        default       => ['bg-slate-50 text-slate-500 border-slate-200/50',    ucfirst($job->status)],
                     };
                 @endphp
-                <span class="text-xs font-semibold px-3 py-1 rounded-full {{ $badge[0] }}">
+                <span class="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-md border {{ $badge[0] }}">
                     {{ $badge[1] }}
                 </span>
             </div>
 
-            <div class="px-4 py-3 text-sm text-gray-600">
-                <span class="font-medium text-gray-700">Truck:</span>
-                {{ $job->truck->plate_number ?? '—' }}
+            <div class="px-5 py-4 text-xs text-slate-500 flex items-center gap-1.5 font-semibold">
+                <span class="text-slate-400">🚛 Assigned Fleet:</span>
+                <span class="text-slate-700 font-bold bg-slate-100 px-2 py-0.5 rounded-md">{{ $job->truck->plate_number ?? '—' }}</span>
                 @if($job->truck->vehicle_type ?? false)
-                    &middot; {{ $job->truck->vehicle_type }}
+                    <span class="text-slate-300">&middot;</span>
+                    <span class="text-slate-600">{{ $job->truck->vehicle_type }}</span>
                 @endif
             </div>
         </div>
 
-        {{-- Coordinator Instructions --}}
+        <!-- Coordinator Instructions -->
         @if($job->notes)
-            <div class="bg-amber-50 border border-amber-200 rounded-2xl px-4 py-4">
-                <p class="text-xs font-bold text-amber-600 uppercase tracking-wider mb-1.5">Coordinator Instructions</p>
-                <p class="text-sm text-amber-800 leading-relaxed">{{ $job->notes }}</p>
+            <div class="bg-amber-50/60 border border-amber-200/80 rounded-2xl p-5 shadow-sm">
+                <p class="text-[10px] font-bold text-amber-700 uppercase tracking-widest mb-2 flex items-center gap-1"><span>📝</span> Dispatch Instructions</p>
+                <p class="text-xs text-amber-800 leading-relaxed font-semibold">{{ $job->notes }}</p>
             </div>
         @endif
 
-        {{-- Status Action Button --}}
+        <!-- Status Action Button -->
         @if(in_array($job->status, ['confirmed', 'in_progress']))
             <form method="POST" action="{{ route('driver.jobs.status', $job) }}">
                 @csrf @method('PATCH')
                 <button type="submit" @class([
-                    'w-full py-4 rounded-2xl text-sm font-bold text-white transition active:scale-95',
-                    'bg-blue-600 active:bg-blue-800'   => $job->status === 'confirmed',
-                    'bg-green-600 active:bg-green-800' => $job->status === 'in_progress',
+                    'w-full py-4 rounded-2xl text-xs font-bold text-white transition-all shadow-md active:scale-[0.98]',
+                    'bg-gradient-to-tr from-sky-600 to-blue-500 hover:shadow-sky-600/10' => $job->status === 'confirmed',
+                    'bg-gradient-to-tr from-emerald-600 to-teal-500 hover:shadow-emerald-600/10' => $job->status === 'in_progress',
                 ])>
                     {{ $job->status === 'confirmed' ? '🚛 Start Job — Mark In Transit' : '✅ Complete Job — Mark Delivered' }}
                 </button>
             </form>
         @endif
 
-        {{-- Pickup Sequence --}}
+        <!-- Pickup Sequence -->
         <div>
-            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Pickup Sequence</p>
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 px-1">Pickup Sequence</p>
 
             @foreach($job->harvests as $index => $harvest)
-                <div class="bg-white rounded-2xl border border-gray-200 mb-3 overflow-hidden">
+                <div class="bg-white rounded-2xl border border-slate-200/80 mb-4 overflow-hidden shadow-sm hover:shadow-md transition-all duration-200">
 
-                    {{-- Stop Header --}}
-                    <div class="flex items-center gap-3 px-4 py-3 border-b border-gray-100">
-                        <div class="w-8 h-8 rounded-full bg-green-600 text-white text-sm font-bold flex items-center justify-center flex-shrink-0">
+                    <!-- Stop Header -->
+                    <div class="flex items-center gap-3 px-5 py-4 border-b border-slate-100 bg-slate-50/20">
+                        <div class="w-7 h-7 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white text-xs font-black flex items-center justify-center flex-shrink-0 heading-font">
                             {{ $index + 1 }}
                         </div>
                         <div class="min-w-0">
-                            <p class="text-sm font-bold text-gray-800 truncate">
+                            <p class="text-sm font-bold text-slate-800 truncate heading-font">
                                 {{ $harvest->farmer->name ?? 'Unknown Farmer' }}
                             </p>
-                            <p class="text-xs text-gray-400">
-                                {{ $harvest->farmer->farmerProfile->barangay ?? 'No barangay on record' }}
-                            </p>
-                        </div>
-                    </div>
+                            <p class="text-[11px] text-slate-400 font-semibold mt-0.5">
+                                📍 {{ $harvest->farmer->farmerProfile->barangay ?? 'No barangay on record' }}
+                              </p>
+                          </div>
+                      </div>
 
-                    {{-- Stop Details --}}
-                    <div class="px-4 py-3 space-y-1.5 text-sm text-gray-600">
-                        <div>
-                            <span class="font-medium text-gray-700">Crop:</span>
-                            {{ $harvest->crop->name ?? $harvest->crop_type ?? '—' }}
-                            @if($harvest->variety)
-                                &middot; {{ $harvest->variety }}
-                            @endif
+                    <!-- Stop Details -->
+                    <div class="px-5 py-4 space-y-2 text-xs text-slate-500 font-semibold">
+                        <div class="flex justify-between items-center py-1 border-b border-slate-50">
+                            <span class="text-slate-400">🌾 Crop Type</span>
+                            <span class="text-slate-800 font-bold">
+                                {{ $harvest->crop->name ?? $harvest->crop_type ?? '—' }}
+                                @if($harvest->variety)
+                                    &middot; {{ $harvest->variety }}
+                                @endif
+                            </span>
                         </div>
-                        <div>
-                            <span class="font-medium text-gray-700">Quantity:</span>
-                            {{ number_format($harvest->quantity_kg, 1) }} kg
+                        <div class="flex justify-between items-center py-1 border-b border-slate-50">
+                            <span class="text-slate-400">⚖️ Weight</span>
+                            <span class="text-slate-800 font-bold bg-slate-100 px-2 py-0.5 rounded-md">{{ number_format($harvest->quantity_kg, 1) }} kg</span>
                         </div>
                         @if($harvest->latitude && $harvest->longitude)
-                            <div>
-                                <span class="font-medium text-gray-700">Coordinates:</span>
-                                <span class="font-mono text-xs text-gray-400">
-                                    {{ $harvest->latitude }}, {{ $harvest->longitude }}
-                                </span>
+                            <div class="flex justify-between items-center py-1 border-b border-slate-50">
+                                <span class="text-slate-400">🗺️ Coordinates</span>
+                                <span class="font-mono text-[10px] text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-100">{{ $harvest->latitude }}, {{ $harvest->longitude }}</span>
                             </div>
                         @endif
                         @if($harvest->destination_label !== '—')
-                            <div>
-                                <span class="font-medium text-gray-700">Drop-off:</span>
-                                {{ $harvest->destination_label }}
+                            <div class="flex justify-between items-start py-1">
+                                <span class="text-slate-400">📦 Drop-off Terminal</span>
+                                <span class="text-slate-700 font-bold max-w-[180px] text-right truncate">{{ $harvest->destination_label }}</span>
                             </div>
                         @endif
                     </div>

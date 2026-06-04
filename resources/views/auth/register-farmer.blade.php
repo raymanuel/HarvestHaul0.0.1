@@ -4,43 +4,64 @@
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     @endpush
 
+    <div class="mb-8 text-center">
+        <div class="w-14 h-14 bg-gradient-to-tr from-emerald-600 to-teal-500 text-white rounded-2xl flex items-center justify-center mx-auto mb-3.5 shadow-md shadow-emerald-500/10">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.271.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.271.477-4.5 1.253" />
+            </svg>
+        </div>
+        <h2 class="text-xl font-extrabold text-slate-800 heading-font tracking-tight">Farmer Registration</h2>
+        <p class="text-xs text-slate-500 mt-1.5 font-semibold">Join the marketplace, pool logistics, and coordinate dispatch</p>
+    </div>
+
     @if ($errors->any())
-        <div class="mb-4 p-3 bg-red-500/20 border border-red-500/50 rounded-lg">
-            <ul class="text-xs text-red-400 list-disc list-inside">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
+        <div class="mb-6 p-4 bg-red-50 dark:bg-red-950/20 border border-red-200/50 dark:border-red-900/30 rounded-xl">
+            <div class="flex items-start gap-2.5">
+                <span class="text-red-500 mt-0.5 text-xs">⚠️</span>
+                <ul class="text-xs text-red-600 dark:text-red-400 list-disc list-inside space-y-1 text-left">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
         </div>
     @endif
 
-    <form action="{{ route('register.store') }}" method="POST">
+    <form action="{{ route('register.store') }}" method="POST" class="space-y-4">
         @csrf
         <input type="hidden" name="role" value="farmer">
 
         {{-- NAME --}}
         <div class="form-group">
-            <input type="text" name="name" placeholder="Full Name" required value="{{ old('name') }}">
+            <div class="relative">
+                <input type="text" name="name" placeholder="Full Name" required value="{{ old('name') }}"
+                    class="px-4 py-3 w-full bg-white/80 border border-slate-200/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition">
+            </div>
         </div>
 
         {{-- EMAIL --}}
         <div class="form-group">
-            <input type="email" name="email" placeholder="Email Address" required value="{{ old('email') }}">
+            <div class="relative">
+                <input type="email" name="email" placeholder="Email Address" required value="{{ old('email') }}"
+                    class="px-4 py-3 w-full bg-white/80 border border-slate-200/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition">
+            </div>
         </div>
 
         {{-- PHONE --}}
         <div class="form-group">
-            <input type="text" name="phone" placeholder="Phone Number" required value="{{ old('phone') }}">
+            <div class="relative">
+                <input type="text" name="phone" placeholder="Phone Number" required value="{{ old('phone') }}"
+                    class="px-4 py-3 w-full bg-white/80 border border-slate-200/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition">
+            </div>
         </div>
 
         {{-- PASSWORD --}}
         <div class="form-group">
-            <div style="position: relative;">
+            <div class="relative">
                 <input type="password" id="password" name="password" placeholder="Password" required
-                    style="padding-right: 3rem;">
+                    class="pl-4 pr-12 py-3 w-full bg-white/80 border border-slate-200/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition">
                 <button type="button" onclick="togglePassword('password', 'eye-password')"
-                    style="position:absolute; right:0.85rem; top:50%; transform:translateY(-50%);
-                           background:none; border:none; cursor:pointer; padding:0; color:#6b7280; width:auto;">
+                    class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition focus:outline-none">
                     <svg id="eye-password" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                         stroke-linecap="round" stroke-linejoin="round">
@@ -53,12 +74,11 @@
 
         {{-- CONFIRM PASSWORD --}}
         <div class="form-group">
-            <div style="position: relative;">
-                <input type="password" id="password_confirmation" name="password_confirmation"
-                    placeholder="Confirm Password" required style="padding-right: 3rem;">
+            <div class="relative">
+                <input type="password" id="password_confirmation" name="password_confirmation" placeholder="Confirm Password" required
+                    class="pl-4 pr-12 py-3 w-full bg-white/80 border border-slate-200/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition">
                 <button type="button" onclick="togglePassword('password_confirmation', 'eye-confirm')"
-                    style="position:absolute; right:0.85rem; top:50%; transform:translateY(-50%);
-                           background:none; border:none; cursor:pointer; padding:0; color:#6b7280; width:auto;">
+                    class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition focus:outline-none">
                     <svg id="eye-confirm" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                         stroke-linecap="round" stroke-linejoin="round">
@@ -70,114 +90,106 @@
         </div>
 
         {{-- FARM LOCATION — MAP PIN --}}
-        <div class="form-group">
-            <label style="font-size: 0.8rem; font-weight: 600; color: #374151; display:block; margin-bottom: 0.4rem;">
-                Farm Location
+        <div class="form-group space-y-2">
+            <label class="text-xs font-bold text-slate-600 block">
+                Farm Location <span class="text-red-500">*</span>
             </label>
 
-            {{-- Auto-populated from reverse geocode — editable fallback --}}
-            <input
-                type="text"
-                id="farm_location_display"
-                name="farm_location"
-                placeholder="Pin your farm on the map below"
-                required
-                value="{{ old('farm_location') }}"
-                style="margin-bottom: 0.6rem;"
-            >
+            <div class="relative">
+                <input type="text" id="farm_location_display" name="farm_location" placeholder="Pin your farm on the map below" required value="{{ old('farm_location') }}"
+                    class="px-4 py-3 w-full bg-white/80 border border-slate-200/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition">
+            </div>
 
             {{-- Hidden coordinate inputs --}}
             <input type="hidden" id="latitude" name="latitude" value="{{ old('latitude') }}">
             <input type="hidden" id="longitude" name="longitude" value="{{ old('longitude') }}">
 
             {{-- GPS button --}}
-            <button type="button" id="use-my-location"
-                style="width:100%; padding: 0.6rem; margin-bottom: 0.6rem;
-                       background: rgba(45,138,55,0.08); color: #2D8A37;
-                       border: 1px solid rgba(45,138,55,0.3); border-radius: 0.6rem;
-                       font-size: 0.85rem; font-weight: 600; cursor: pointer;
-                       transition: background 0.2s;">
+            <button type="button" id="use-my-location" class="w-full flex items-center justify-center gap-2 py-2.5 bg-emerald-50 hover:bg-emerald-100/80 text-emerald-700 border border-emerald-200/50 rounded-xl text-xs font-bold transition shadow-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
                 📍 Use My GPS Location
             </button>
 
             {{-- Map container --}}
-            <div id="farm-map" style="width:100%; height:220px; border-radius:0.75rem;
-                 border: 1px solid rgba(0,0,0,0.08); overflow:hidden; z-index:0;"></div>
+            <div id="farm-map" class="w-full h-[200px] rounded-xl border border-slate-200/80 shadow-sm overflow-hidden z-0"></div>
 
-            <p style="font-size: 0.72rem; color: #9ca3af; margin-top: 0.4rem; text-align:center;">
+            <p class="text-[10px] text-slate-400 font-medium text-center mt-1">
                 Drag the pin to your exact farm location.
             </p>
         </div>
 
         {{-- AFFILIATION --}}
-        <div class="form-group">
-            <label style="font-size:0.8rem; font-weight:600; color:#374151; display:block; margin-bottom:0.5rem;">
-                Are you a member of a cooperative? <span style="color:red">*</span>
+        <div class="form-group space-y-2">
+            <label class="text-xs font-bold text-slate-600 block">
+                Are you a member of a cooperative? <span class="text-red-500">*</span>
             </label>
-            @error('affiliation_type')
-                <p style="font-size:0.75rem; color:#ef4444; margin-bottom:0.5rem;">{{ $message }}</p>
-            @enderror
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
-                <label id="label-independent"
-                    style="display:flex; flex-direction:column; align-items:center; justify-content:center;
-                           padding:1rem 0.75rem; border:2px solid #e5e7eb; border-radius:0.75rem;
-                           cursor:pointer; transition:all 0.2s; text-align:center; gap:0.35rem;">
+
+            <div class="grid grid-cols-2 gap-3.5">
+                <!-- Independent Card -->
+                <label id="label-independent" class="flex flex-col items-center justify-center p-4 border-2 border-slate-200/80 rounded-2xl cursor-pointer transition-all duration-200 text-center gap-1 hover:border-amber-300 hover:bg-amber-50/10">
                     <input type="radio" name="affiliation_type" value="independent"
                         {{ old('affiliation_type') === 'independent' ? 'checked' : '' }}
-                        style="display:none;" onchange="handleAffiliation()">
-                    <span style="font-size:1.75rem;">🧑‍🌾</span>
-                    <span style="font-size:0.875rem; font-weight:700; color:#92400e;">Independent</span>
-                    <span style="font-size:0.7rem; color:#6b7280;">No cooperative</span>
+                        class="hidden" onchange="handleAffiliation()">
+                    <span class="text-xs font-bold text-slate-800">Independent</span>
+                    <span class="text-[9px] text-slate-400 font-medium leading-tight">No cooperative</span>
                 </label>
 
-                <label id="label-cooperative"
-                    style="display:flex; flex-direction:column; align-items:center; justify-content:center;
-                           padding:1rem 0.75rem; border:2px solid #e5e7eb; border-radius:0.75rem;
-                           cursor:pointer; transition:all 0.2s; text-align:center; gap:0.35rem;">
+                <!-- Cooperative Card -->
+                <label id="label-cooperative" class="flex flex-col items-center justify-center p-4 border-2 border-slate-200/80 rounded-2xl cursor-pointer transition-all duration-200 text-center gap-1 hover:border-emerald-300 hover:bg-emerald-50/10">
                     <input type="radio" name="affiliation_type" value="cooperative"
                         {{ old('affiliation_type') === 'cooperative' ? 'checked' : '' }}
-                        style="display:none;" onchange="handleAffiliation()">
-                    <span style="font-size:1.75rem;">🤝</span>
-                    <span style="font-size:0.875rem; font-weight:700; color:#166534;">Under a Cooperative</span>
-                    <span style="font-size:0.7rem; color:#6b7280;">I have a coop</span>
+                        class="hidden" onchange="handleAffiliation()">
+                    <span class="text-xs font-bold text-slate-800">Cooperative</span>
+                    <span class="text-[9px] text-slate-400 font-medium leading-tight">Under a cooperative</span>
                 </label>
             </div>
         </div>
 
         {{-- Cooperative dropdown — only shown if under a coop --}}
-        <div id="coop-field" style="display:none;" class="form-group">
-            <label style="font-size:0.8rem; font-weight:600; color:#374151; display:block; margin-bottom:0.4rem;">
-                Select Your Cooperative <span style="color:red">*</span>
+        <div id="coop-field" style="display:none;" class="form-group space-y-1.5">
+            <label class="text-xs font-bold text-slate-600 block">
+                Select Your Cooperative <span class="text-red-500">*</span>
             </label>
-            <select name="cooperative_id" id="cooperative_id"
-                style="width:100%; padding:0.75rem 1rem; border:1px solid #e5e7eb;
-                       border-radius:0.75rem; font-size:0.95rem; color:#111827;
-                       background:white; outline:none; cursor:pointer;
-                       {{ $errors->has('cooperative_id') ? 'border-color:#ef4444;' : '' }}">
-                <option value="">— Select your cooperative —</option>
-                @foreach($cooperatives as $coop)
-                    <option value="{{ $coop->id }}"
-                        {{ old('cooperative_id') == $coop->id ? 'selected' : '' }}>
-                        {{ $coop->company_name }}
-                    </option>
-                @endforeach
-            </select>
+            <div class="relative">
+                <select name="cooperative_id" id="cooperative_id"
+                    class="pl-4 pr-10 py-3 w-full bg-white/80 border border-slate-200/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition appearance-none cursor-pointer text-sm text-slate-700">
+                    <option value="">— Select your cooperative —</option>
+                    @foreach($cooperatives as $coop)
+                        <option value="{{ $coop->id }}"
+                            {{ old('cooperative_id') == $coop->id ? 'selected' : '' }}>
+                            {{ $coop->company_name }}
+                        </option>
+                    @endforeach
+                </select>
+                <span class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </span>
+            </div>
             @error('cooperative_id')
-                <p style="font-size:0.75rem; color:#ef4444; margin-top:0.4rem;">{{ $message }}</p>
+                <p class="text-xs text-red-500 mt-1 font-semibold">{{ $message }}</p>
             @enderror
             @if($cooperatives->isEmpty())
-                <p style="font-size:0.75rem; color:#ef4444; margin-top:0.4rem;">
+                <p class="text-xs text-red-500 mt-1 font-semibold">
                     No verified cooperatives are registered yet. Please sign up as independent for now.
                 </p>
             @endif
         </div>
 
-        <button type="submit" class="primary-btn">Register as Farmer</button>
+        <div class="pt-2">
+            <button type="submit" class="w-full py-3 bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-700 hover:to-teal-600 text-white font-bold rounded-xl text-sm shadow-md shadow-emerald-500/10 hover:shadow-lg transition duration-200 transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer">
+                Register as Farmer
+            </button>
+        </div>
 
-        <div style="margin-top: 1.5rem; font-size: 0.85rem; color: #6b7280;">
+        <div class="mt-6 pt-5 border-t border-slate-100/80 text-center text-xs font-semibold text-slate-400">
             Not a farmer?
             <a href="{{ route('register.role', 'logistics_partner') }}"
-                style="color: #2D8A37; font-weight: 600; text-decoration: none;">
+                class="text-emerald-600 hover:text-emerald-700 transition ml-1 hover:underline">
                 Sign up as Logistics Coordinator
             </a>
         </div>
@@ -218,15 +230,15 @@
             maxZoom: 19,
         }).addTo(map);
 
-        // Custom green marker
+        // Custom green marker matching emerald-600
         const greenIcon = L.divIcon({
             html: `<div style="
-                width: 16px; height: 16px; border-radius: 50%;
-                background: #2D8A37; border: 3px solid white;
-                box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+                width: 18px; height: 18px; border-radius: 50%;
+                background: #059669; border: 3px solid white;
+                box-shadow: 0 3px 8px rgba(5, 150, 105, 0.4);
             "></div>`,
             className: '',
-            iconAnchor: [8, 8],
+            iconAnchor: [9, 9],
         });
 
         // Restore old pin position if validation failed and page reloaded
@@ -251,7 +263,6 @@
                 .then(res => res.json())
                 .then(data => {
                     if (data && data.display_name) {
-                        // Extract readable parts — prioritize suburb/city level
                         const addr = data.address;
                         const parts = [
                             addr.village || addr.suburb || addr.neighbourhood || addr.hamlet,
@@ -263,9 +274,7 @@
                             parts.length ? parts.join(', ') : data.display_name;
                     }
                 })
-                .catch(() => {
-                    // Geocode failed — user can type manually, don't block
-                });
+                .catch(() => {});
         }
 
         // -------------------------------------------------------
@@ -281,7 +290,6 @@
             updateCoords(e.target.getLatLng());
         });
 
-        // Click on map moves the marker
         map.on('click', function (e) {
             marker.setLatLng(e.latlng);
             updateCoords(e.latlng);
@@ -305,11 +313,11 @@
                     marker.setLatLng(latlng);
                     map.setView(latlng, 16);
                     updateCoords(latlng);
-                    btn.textContent = '📍 Use My GPS Location';
+                    btn.innerHTML = `📍 Use My GPS Location`;
                 },
                 function () {
                     alert('Unable to retrieve your location. Please pin manually.');
-                    btn.textContent = '📍 Use My GPS Location';
+                    btn.innerHTML = `📍 Use My GPS Location`;
                 }
             );
         });
@@ -322,10 +330,17 @@
             const labelInd    = document.getElementById('label-independent');
             const labelCoop   = document.getElementById('label-cooperative');
 
-            labelInd.style.borderColor  = independent.checked ? '#d97706' : '#e5e7eb';
-            labelInd.style.background   = independent.checked ? '#fffbeb' : '';
-            labelCoop.style.borderColor = cooperative.checked  ? '#2D8A37' : '#e5e7eb';
-            labelCoop.style.background  = cooperative.checked  ? '#f0fdf4' : '';
+            if (independent.checked) {
+                labelInd.className = "flex flex-col items-center justify-center p-4 border-2 border-amber-500 bg-amber-50/20 rounded-2xl cursor-pointer transition-all duration-200 text-center gap-1 scale-[1.02] shadow-sm";
+            } else {
+                labelInd.className = "flex flex-col items-center justify-center p-4 border-2 border-slate-200/80 rounded-2xl cursor-pointer transition-all duration-200 text-center gap-1 hover:border-amber-300 hover:bg-amber-50/10";
+            }
+
+            if (cooperative.checked) {
+                labelCoop.className = "flex flex-col items-center justify-center p-4 border-2 border-emerald-500 bg-emerald-50/20 rounded-2xl cursor-pointer transition-all duration-200 text-center gap-1 scale-[1.02] shadow-sm";
+            } else {
+                labelCoop.className = "flex flex-col items-center justify-center p-4 border-2 border-slate-200/80 rounded-2xl cursor-pointer transition-all duration-200 text-center gap-1 hover:border-emerald-300 hover:bg-emerald-50/10";
+            }
 
             coopField.style.display = cooperative.checked ? 'block' : 'none';
             const coopSelect = document.getElementById('cooperative_id');

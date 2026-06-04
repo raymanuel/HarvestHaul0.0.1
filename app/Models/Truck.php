@@ -14,6 +14,7 @@ class Truck extends Model
         'driver_id',
         'plate_number',
         'truck_name',
+        'vehicle_type',
         'capacity_kg',
         'status',
         'notes',

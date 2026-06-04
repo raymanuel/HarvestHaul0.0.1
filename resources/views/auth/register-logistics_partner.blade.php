@@ -1,144 +1,161 @@
-<x-register-layout>
-    @if ($errors->any())
-    <div class="mb-4 p-3 bg-red-500/20 border border-red-500/50 rounded-lg">
-        <ul class="text-xs text-red-400 list-disc list-inside">
-            @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
+<x-register-layout maxWidth="480px">
+
+    <div class="mb-8 text-center">
+        <div class="w-14 h-14 bg-gradient-to-tr from-blue-600 to-indigo-500 text-white rounded-2xl flex items-center justify-center mx-auto mb-3.5 shadow-md shadow-blue-500/10">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l2.414 2.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1m-6 0a1 1 0 001-1m9 1a1 1 0 01-1-1m-3 0a1 1 0 001-1m-1 0H8m9-1v-4a1 1 0 00-1-1h-2" />
+            </svg>
+        </div>
+        <h2 class="text-xl font-extrabold text-slate-800 heading-font tracking-tight">Logistics Partner</h2>
+        <p class="text-xs text-slate-500 mt-1.5 font-semibold">Join the network, dispatch trucks, and secure cargo contracts</p>
     </div>
+
+    @if ($errors->any())
+        <div class="mb-6 p-4 bg-red-50 dark:bg-red-950/20 border border-red-200/50 dark:border-red-900/30 rounded-xl">
+            <div class="flex items-start gap-2.5">
+                <span class="text-red-500 mt-0.5 text-xs">⚠️</span>
+                <ul class="text-xs text-red-600 dark:text-red-400 list-disc list-inside space-y-1 text-left">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        </div>
     @endif
 
-    <form action="{{ route('register.store') }}" method="POST">
+    <form action="{{ route('register.store') }}" method="POST" class="space-y-4">
         @csrf
         <input type="hidden" name="role" value="logistics_partner">
 
+        {{-- REPRESENTATIVE NAME --}}
         <div class="form-group">
-            <input type="text" name="name"
-                placeholder="Full Name / Representative Name"
-                required value="{{ old('name') }}">
+            <div class="relative">
+                <input type="text" name="name" placeholder="Full Name / Representative Name" required value="{{ old('name') }}"
+                    class="px-4 py-3 w-full bg-white/80 border border-slate-200/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition">
+            </div>
         </div>
 
+        {{-- EMAIL --}}
         <div class="form-group">
-            <input type="email" name="email"
-                placeholder="Company Email Address"
-                required value="{{ old('email') }}">
+            <div class="relative">
+                <input type="email" name="email" placeholder="Company Email Address" required value="{{ old('email') }}"
+                    class="px-4 py-3 w-full bg-white/80 border border-slate-200/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition">
+            </div>
         </div>
 
+        {{-- PHONE --}}
         <div class="form-group">
-            <input type="text" name="phone"
-                placeholder="Contact Number"
-                required value="{{ old('phone') }}">
+            <div class="relative">
+                <input type="text" name="phone" placeholder="Contact Number" required value="{{ old('phone') }}"
+                    class="px-4 py-3 w-full bg-white/80 border border-slate-200/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition">
+            </div>
         </div>
 
+        {{-- COMPANY NAME --}}
         <div class="form-group">
-            <input type="text" name="company_name"
-                placeholder="Registered Company / Cooperative Name"
-                required value="{{ old('company_name') }}">
+            <div class="relative">
+                <input type="text" name="company_name" placeholder="Registered Company / Cooperative Name" required value="{{ old('company_name') }}"
+                    class="px-4 py-3 w-full bg-white/80 border border-slate-200/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition">
+            </div>
         </div>
 
+        {{-- BUSINESS PERMIT NO --}}
         <div class="form-group">
-            <input type="text" name="business_permit_no"
-                placeholder="Business Permit No."
-                required value="{{ old('business_permit_no') }}"
-                style="{{ $errors->has('business_permit_no') ? 'border-color:#ef4444;' : '' }}">
+            <div class="relative">
+                <input type="text" name="business_permit_no" placeholder="Business Permit No." required value="{{ old('business_permit_no') }}"
+                    class="px-4 py-3 w-full bg-white/80 border border-slate-200/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition">
+            </div>
             @error('business_permit_no')
-                <p style="font-size:0.75rem; color:#ef4444; margin-top:0.4rem;">{{ $message }}</p>
+                <p class="text-xs text-red-500 mt-1 font-semibold">{{ $message }}</p>
             @enderror
         </div>
 
         {{-- Logistics Type Selector --}}
-        <div class="form-group">
-            <label style="font-size:0.8rem; font-weight:600; color:#374151; display:block; margin-bottom:0.5rem;">
-                What type of organization are you? <span style="color:red">*</span>
+        <div class="form-group space-y-2">
+            <label class="text-xs font-bold text-slate-600 block">
+                What type of organization are you? <span class="text-red-500">*</span>
             </label>
             @error('logistics_type')
-                <p style="font-size:0.75rem; color:#ef4444; margin-bottom:0.5rem;">{{ $message }}</p>
+                <p class="text-xs text-red-500 mt-0.5 font-semibold">{{ $message }}</p>
             @enderror
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
-                <label id="label-company"
-                    style="display:flex; flex-direction:column; align-items:center; justify-content:center;
-                           padding:1rem 0.75rem; border:2px solid #e5e7eb; border-radius:0.75rem;
-                           cursor:pointer; transition:all 0.2s; text-align:center; gap:0.35rem;">
+            <div class="grid grid-cols-2 gap-3.5">
+                <!-- Company Card -->
+                <label id="label-company" class="flex flex-col items-center justify-center p-4 border-2 border-slate-200/80 rounded-2xl cursor-pointer transition-all duration-200 text-center gap-1 hover:border-blue-300 hover:bg-blue-50/10">
                     <input type="radio" name="logistics_type" value="company"
                         {{ old('logistics_type') === 'company' ? 'checked' : '' }}
-                        style="display:none;" onchange="handleLogisticsType()">
-                    <span style="font-size:1.75rem;">🚛</span>
-                    <span style="font-size:0.875rem; font-weight:700; color:#1e40af;">Logistics Company</span>
-                    <span style="font-size:0.7rem; color:#6b7280;">Commercial hauling</span>
+                        class="hidden" onchange="handleLogisticsType()">
+                    <span class="text-xs font-bold text-slate-800">Logistics Company</span>
+                    <span class="text-[9px] text-slate-400 font-medium leading-tight">Commercial hauler</span>
                 </label>
 
-                <label id="label-cooperative"
-                    style="display:flex; flex-direction:column; align-items:center; justify-content:center;
-                           padding:1rem 0.75rem; border:2px solid #e5e7eb; border-radius:0.75rem;
-                           cursor:pointer; transition:all 0.2s; text-align:center; gap:0.35rem;">
+                <!-- Cooperative Card -->
+                <label id="label-cooperative" class="flex flex-col items-center justify-center p-4 border-2 border-slate-200/80 rounded-2xl cursor-pointer transition-all duration-200 text-center gap-1 hover:border-emerald-300 hover:bg-emerald-50/10">
                     <input type="radio" name="logistics_type" value="cooperative"
                         {{ old('logistics_type') === 'cooperative' ? 'checked' : '' }}
-                        style="display:none;" onchange="handleLogisticsType()">
-                    <span style="font-size:1.75rem;">🤝</span>
-                    <span style="font-size:0.875rem; font-weight:700; color:#166534;">Cooperative</span>
-                    <span style="font-size:0.7rem; color:#6b7280;">Farmer cooperative</span>
+                        class="hidden" onchange="handleLogisticsType()">
+                    <span class="text-xs font-bold text-slate-800">Cooperative</span>
+                    <span class="text-[9px] text-slate-400 font-medium leading-tight">Agribusiness entity</span>
                 </label>
             </div>
         </div>
 
         {{-- CDA Registration No — only shown for cooperatives --}}
         <div id="cda-field" style="display:none;" class="form-group">
-            <input type="text" name="cda_registration_no"
-                placeholder="CDA Registration No. (Required for Cooperatives)"
-                value="{{ old('cda_registration_no') }}"
-                style="{{ $errors->has('cda_registration_no') ? 'border-color:#ef4444;' : '' }}">
+            <div class="relative">
+                <input type="text" name="cda_registration_no" placeholder="CDA Registration No. (Required for Cooperatives)" value="{{ old('cda_registration_no') }}"
+                    class="px-4 py-3 w-full bg-white/80 border border-slate-200/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition">
+            </div>
             @error('cda_registration_no')
-                <p style="font-size:0.75rem; color:#ef4444; margin-top:0.4rem;">{{ $message }}</p>
+                <p class="text-xs text-red-500 mt-1 font-semibold">{{ $message }}</p>
             @enderror
         </div>
 
-        {{-- Password --}}
-        <div style="position:relative; margin-bottom:1rem;">
-            <input type="password" name="password" id="password"
-                placeholder="Password" required
-                style="width:100%; box-sizing:border-box; padding:0.75rem 2.75rem 0.75rem 1rem;
-                       border:1px solid #e5e7eb; border-radius:0.75rem; font-size:0.95rem;
-                       color:#111827; outline:none;
-                       {{ $errors->has('password') ? 'border-color:#ef4444;' : '' }}">
-            <button type="button" onclick="togglePassword('password', 'eyeIcon1')"
-                style="position:absolute; right:0.75rem; top:50%; transform:translateY(-50%);
-                       background:none; border:none; cursor:pointer; color:#94a3b8; padding:0; line-height:0;">
-                <svg id="eyeIcon1" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
-                    fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                </svg>
-            </button>
+        {{-- PASSWORD --}}
+        <div class="form-group">
+            <div class="relative">
+                <input type="password" name="password" id="password" placeholder="Password" required
+                    class="pl-4 pr-12 py-3 w-full bg-white/80 border border-slate-200/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition">
+                <button type="button" onclick="togglePassword('password', 'eyeIcon1')"
+                    class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition focus:outline-none">
+                    <svg id="eyeIcon1" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                        fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                    </svg>
+                </button>
+            </div>
             @error('password')
-                <p style="font-size:0.75rem; color:#ef4444; margin-top:0.4rem;">{{ $message }}</p>
+                <p class="text-xs text-red-500 mt-1 font-semibold">{{ $message }}</p>
             @enderror
         </div>
 
-        {{-- Confirm Password --}}
-        <div style="position:relative; margin-bottom:1rem;">
-            <input type="password" name="password_confirmation" id="password_confirmation"
-                placeholder="Confirm Password" required
-                style="width:100%; box-sizing:border-box; padding:0.75rem 2.75rem 0.75rem 1rem;
-                       border:1px solid #e5e7eb; border-radius:0.75rem; font-size:0.95rem;
-                       color:#111827; outline:none;">
-            <button type="button" onclick="togglePassword('password_confirmation', 'eyeIcon2')"
-                style="position:absolute; right:0.75rem; top:50%; transform:translateY(-50%);
-                       background:none; border:none; cursor:pointer; color:#94a3b8; padding:0; line-height:0;">
-                <svg id="eyeIcon2" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
-                    fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                </svg>
+        {{-- CONFIRM PASSWORD --}}
+        <div class="form-group">
+            <div class="relative">
+                <input type="password" name="password_confirmation" id="password_confirmation" placeholder="Confirm Password" required
+                    class="pl-4 pr-12 py-3 w-full bg-white/80 border border-slate-200/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition">
+                <button type="button" onclick="togglePassword('password_confirmation', 'eyeIcon2')"
+                    class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition focus:outline-none">
+                    <svg id="eyeIcon2" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                        fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <div class="pt-2">
+            <button type="submit" class="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-500 hover:from-blue-700 hover:to-indigo-600 text-white font-bold rounded-xl text-sm shadow-md shadow-blue-500/10 hover:shadow-lg transition duration-200 transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer">
+                Register as Logistics Coordinator
             </button>
         </div>
 
-        <button type="submit" class="primary-btn">Register as Logistics Coordinator</button>
-
-        <div style="margin-top:1.5rem; font-size:0.85rem; color:#6b7280;">
+        <div class="mt-6 pt-5 border-t border-slate-100/80 text-center text-xs font-semibold text-slate-400">
             Not a logistics coordinator?
             <a href="{{ route('register.role', 'farmer') }}"
-                style="color:#2D8A37; font-weight:600; text-decoration:none;">
+                class="text-blue-600 hover:text-blue-700 transition ml-1 hover:underline">
                 Sign up as Farmer
             </a>
         </div>
@@ -153,10 +170,17 @@
             const labelCo     = document.getElementById('label-company');
             const labelCoop   = document.getElementById('label-cooperative');
 
-            labelCo.style.borderColor   = company.checked     ? '#3b82f6' : '#e5e7eb';
-            labelCo.style.background    = company.checked     ? '#eff6ff' : '';
-            labelCoop.style.borderColor = cooperative.checked ? '#2D8A37' : '#e5e7eb';
-            labelCoop.style.background  = cooperative.checked ? '#f0fdf4' : '';
+            if (company.checked) {
+                labelCo.className = "flex flex-col items-center justify-center p-4 border-2 border-blue-500 bg-blue-50/20 rounded-2xl cursor-pointer transition-all duration-200 text-center gap-1 scale-[1.02] shadow-sm";
+            } else {
+                labelCo.className = "flex flex-col items-center justify-center p-4 border-2 border-slate-200/80 rounded-2xl cursor-pointer transition-all duration-200 text-center gap-1 hover:border-blue-300 hover:bg-blue-50/10";
+            }
+
+            if (cooperative.checked) {
+                labelCoop.className = "flex flex-col items-center justify-center p-4 border-2 border-emerald-500 bg-emerald-50/20 rounded-2xl cursor-pointer transition-all duration-200 text-center gap-1 scale-[1.02] shadow-sm";
+            } else {
+                labelCoop.className = "flex flex-col items-center justify-center p-4 border-2 border-slate-200/80 rounded-2xl cursor-pointer transition-all duration-200 text-center gap-1 hover:border-emerald-300 hover:bg-emerald-50/10";
+            }
 
             cdaField.style.display = cooperative.checked ? 'block' : 'none';
             const cdaInput = cdaField.querySelector('input');
@@ -170,7 +194,6 @@
                 if (radio) { radio.checked = true; handleLogisticsType(); }
             }
 
-            // If validation failed and cda error exists, keep field visible
             @if($errors->has('cda_registration_no'))
                 document.getElementById('cda-field').style.display = 'block';
             @endif

@@ -18,6 +18,8 @@ use App\Http\Controllers\LogisticsDocumentController;
 use App\Http\Controllers\Admin\AdminLogisticsDocumentController;
 use App\Http\Controllers\PoolingJobController;
 use App\Http\Controllers\DriverController;
+use App\Http\Controllers\LogisticsDriverController;
+use App\Http\Controllers\LogisticsVehicleController;
 use App\Http\Controllers\TrackingController;
 
 // Middleware
@@ -148,6 +150,16 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
 
             // Fleet Surveillance Query (Egress)
             Route::get('/tracking/{poolingJob}/latest', [TrackingController::class, 'latest'])->name('tracking.latest');
+
+            // Driver Fleet Control
+            Route::get('/drivers', [LogisticsDriverController::class, 'index'])->name('logistics.drivers.index');
+            Route::get('/drivers/create', [LogisticsDriverController::class, 'create'])->name('logistics.drivers.create');
+            Route::post('/drivers', [LogisticsDriverController::class, 'store'])->name('logistics.drivers.store');
+
+            // Vehicle Fleet Control
+            Route::get('/vehicles', [LogisticsVehicleController::class, 'index'])->name('logistics.vehicles.index');
+            Route::get('/vehicles/create', [LogisticsVehicleController::class, 'create'])->name('logistics.vehicles.create');
+            Route::post('/vehicles', [LogisticsVehicleController::class, 'store'])->name('logistics.vehicles.store');
         });
 
         /*

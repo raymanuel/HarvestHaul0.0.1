@@ -56,7 +56,7 @@ class FarmerSeeder extends Seeder
             $user = User::create([
                 'name'     => $farm['name'] . ' Owner',
                 'email'    => "farmer{$index}@test.com",
-                'password' => Hash::make('password123'),
+                'password' => Hash::make('password'),
                 'role'     => 'farmer',
             ]);
 
