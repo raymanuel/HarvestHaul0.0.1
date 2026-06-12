@@ -162,6 +162,25 @@ class PoolingJobController extends Controller
                 }
             }
 
+            // Create notifications for driver and farmers
+            if ($job->driver_id) {
+                \App\Models\Notification::create([
+                    'user_id' => $job->driver_id,
+                    'title' => 'New Route Assigned',
+                    'message' => "You have been assigned to Route #{$job->id}.",
+                    'link' => route('driver.dashboard'),
+                ]);
+            }
+
+            foreach ($job->harvests as $harvest) {
+                \App\Models\Notification::create([
+                    'user_id' => $harvest->user_id,
+                    'title' => 'New Pooling Proposal',
+                    'message' => "Your harvest '{$harvest->crop->name}' has been pooled into Route #{$job->id}.",
+                    'link' => route('farmer.proposals'),
+                ]);
+            }
+
             return response()->json([
                 'success'        => true,
                 'pooling_job_id' => $job->id,

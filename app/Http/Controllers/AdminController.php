@@ -164,6 +164,13 @@ class AdminController extends Controller
             'notes'       => "Farmer profile approved for {$user->name}.",
         ]);
 
+        \App\Models\Notification::create([
+            'user_id' => $user->id,
+            'title' => 'Profile Verified',
+            'message' => 'Your farmer profile has been verified by the administrator.',
+            'link' => route('dashboard'),
+        ]);
+
         return back()->with('success', "{$user->name} has been verified.");
     }
 
@@ -179,6 +186,13 @@ class AdminController extends Controller
             'target_type' => 'farmer',
             'target_id'   => $user->id,
             'notes'       => "Farmer profile rejected for {$user->name}.",
+        ]);
+
+        \App\Models\Notification::create([
+            'user_id' => $user->id,
+            'title' => 'Profile Verification Rejected',
+            'message' => 'Your farmer profile verification was rejected by the administrator.',
+            'link' => route('dashboard'),
         ]);
 
         return back()->with('success', "{$user->name} has been rejected.");
@@ -211,6 +225,13 @@ class AdminController extends Controller
             'notes'       => "Logistics partner approved for {$user->name}.",
         ]);
 
+        \App\Models\Notification::create([
+            'user_id' => $user->id,
+            'title' => 'Profile Verified',
+            'message' => 'Your logistics partner profile has been verified by the administrator.',
+            'link' => route('dashboard'),
+        ]);
+
         return back()->with('success', "{$user->name} has been verified.");
     }
 
@@ -226,6 +247,13 @@ class AdminController extends Controller
             'target_type' => 'logistics_partner',
             'target_id'   => $user->id,
             'notes'       => "Logistics partner rejected for {$user->name}.",
+        ]);
+
+        \App\Models\Notification::create([
+            'user_id' => $user->id,
+            'title' => 'Profile Verification Rejected',
+            'message' => 'Your logistics partner profile verification was rejected by the administrator.',
+            'link' => route('dashboard'),
         ]);
 
         return back()->with('success', "{$user->name} has been rejected.");

@@ -499,7 +499,7 @@
             <section id="role-showcase" class="py-12 scroll-mt-24">
                 <div class="text-center max-w-2xl mx-auto mb-14">
                     <span class="text-xs font-bold uppercase tracking-widest text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-500/10">Dynamic Workspace Portals</span>
-                    <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 heading-font mt-4">One Integrated Platform, Four Custom Environments</h2>
+                    <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 heading-font mt-4">One Integrated Platform, Three Custom Environments</h2>
                 </div>
 
                 <!-- Tabs header -->
@@ -512,9 +512,6 @@
                     </button>
                     <button onclick="setRoleTab('driver')" id="tab-btn-driver" class="px-5 py-2.5 rounded-xl text-sm font-semibold text-slate-600 hover:text-slate-800 transition">
                         🚛 Drivers
-                    </button>
-                    <button onclick="setRoleTab('admin')" id="tab-btn-admin" class="px-5 py-2.5 rounded-xl text-sm font-semibold text-slate-600 hover:text-slate-800 transition">
-                        🛡️ Admins
                     </button>
                 </div>
 
@@ -718,63 +715,6 @@
                         </div>
                     </div>
 
-                    <!-- ADMIN PORTAL VIEW -->
-                    <div id="role-panel-admin" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-                        <div class="lg:col-span-6 space-y-6">
-                            <h3 class="text-2xl font-bold text-slate-900 heading-font">Maintain System Security, Accounts & Verify Co-op Licenses</h3>
-                            <p class="text-slate-500 leading-relaxed text-sm sm:text-base">
-                                Administrators supervise the entire network. Manage the crop matrix (varieties and categories), review business compliance records uploaded by logistics entities, toggle account access levels, and analyze logs to preserve trust.
-                            </p>
-                            <div class="grid grid-cols-2 gap-4">
-                                <div class="p-4 rounded-xl bg-slate-50 border border-slate-100">
-                                    <span class="text-lg">🛡️</span>
-                                    <h4 class="font-bold text-sm text-slate-900 mt-2">Document Verification</h4>
-                                    <p class="text-xs text-slate-400 mt-0.5">Review licensing and cooperative uploads.</p>
-                                </div>
-                                <div class="p-4 rounded-xl bg-slate-50 border border-slate-100">
-                                    <span class="text-lg">🌿</span>
-                                    <h4 class="font-bold text-sm text-slate-900 mt-2">Crop Matrix Editor</h4>
-                                    <p class="text-xs text-slate-400 mt-0.5">Manage agricultural taxonomies.</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Mockup illustration inside tab -->
-                        <div class="lg:col-span-6 bg-slate-50 p-6 rounded-2xl border border-slate-100 space-y-4">
-                            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm space-y-3.5">
-                                <div class="flex justify-between items-center pb-2 border-b border-slate-100">
-                                    <h4 class="font-bold text-sm text-slate-800">Compliance Processing Queue</h4>
-                                    <span class="px-2 py-0.5 text-[9px] bg-amber-100 text-amber-800 rounded font-bold uppercase">2 Pending Review</span>
-                                </div>
-
-                                <div class="space-y-3">
-                                    <!-- Pending Document Row -->
-                                    <div class="p-3 bg-slate-50 rounded-lg border border-slate-100 flex items-center justify-between text-xs">
-                                        <div>
-                                            <p class="font-bold text-slate-800">General Santos Logistics Inc.</p>
-                                            <p class="text-[10px] text-slate-400 mt-0.5">📄 Freight Operator License (#F-903)</p>
-                                        </div>
-                                        <div class="flex gap-1.5 shrink-0">
-                                            <button class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-1 rounded font-semibold text-[10px] transition">View</button>
-                                            <button class="bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1 rounded font-bold text-[10px] shadow transition">Approve</button>
-                                        </div>
-                                    </div>
-
-                                    <!-- Pending Document Row 2 -->
-                                    <div class="p-3 bg-slate-50 rounded-lg border border-slate-100 flex items-center justify-between text-xs">
-                                        <div>
-                                            <p class="font-bold text-slate-800">Tupi Pineapple Co-op Assoc.</p>
-                                            <p class="text-[10px] text-slate-400 mt-0.5">📄 Certificate of Registration (#R-412)</p>
-                                        </div>
-                                        <div class="flex gap-1.5 shrink-0">
-                                            <button class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-1 rounded font-semibold text-[10px] transition">View</button>
-                                            <button class="bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1 rounded font-bold text-[10px] shadow transition">Approve</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
 
                 </div>
             </section>
@@ -1052,7 +992,7 @@
 
             // Interactive Role Tab switching
             function setRoleTab(role) {
-                var roles = ['farmer', 'logistics', 'driver', 'admin'];
+                var roles = ['farmer', 'logistics', 'driver'];
                 
                 roles.forEach(function(r) {
                     var btn = document.getElementById(`tab-btn-${r}`);

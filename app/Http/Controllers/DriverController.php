@@ -94,6 +94,49 @@ class DriverController extends Controller
 
         $poolingJob->save();
 
+        // Trigger Notifications
+        if ($newStatus === 'in_progress') {
+            // Notify logistics partner
+            if ($poolingJob->logisticsProfile && $poolingJob->logisticsProfile->user_id) {
+                \App\Models\Notification::create([
+                    'user_id' => $poolingJob->logisticsProfile->user_id,
+                    'title' => 'Job In Transit',
+                    'message' => "Driver {$user->name} has started Route #{$poolingJob->id}.",
+                    'link' => route('pooling.show', $poolingJob)
+                ]);
+            }
+            // Notify farmers
+            foreach ($poolingJob->harvests as $harvest) {
+                \App\Models\Notification::create([
+                    'user_id' => $harvest->user_id,
+                    'title' => 'Harvest Shipment In Transit',
+                    'message' => "Your harvest '{$harvest->crop->name}' in Route #{$poolingJob->id} is now in transit.",
+                    'link' => route('tracking.index')
+                ]);
+            }
+        }
+
+        if ($newStatus === 'completed') {
+            // Notify logistics partner
+            if ($poolingJob->logisticsProfile && $poolingJob->logisticsProfile->user_id) {
+                \App\Models\Notification::create([
+                    'user_id' => $poolingJob->logisticsProfile->user_id,
+                    'title' => 'Job Completed',
+                    'message' => "Driver {$user->name} completed Route #{$poolingJob->id}.",
+                    'link' => route('pooling.show', $poolingJob)
+                ]);
+            }
+            // Notify farmers
+            foreach ($poolingJob->harvests as $harvest) {
+                \App\Models\Notification::create([
+                    'user_id' => $harvest->user_id,
+                    'title' => 'Harvest Shipment Delivered',
+                    'message' => "Your harvest '{$harvest->crop->name}' in Route #{$poolingJob->id} has been delivered successfully.",
+                    'link' => route('harvests.index')
+                ]);
+            }
+        }
+
         return back()->with('success', 'Job status updated to ' . ucfirst(str_replace('_', ' ', $newStatus)) . '.');
     }
 }

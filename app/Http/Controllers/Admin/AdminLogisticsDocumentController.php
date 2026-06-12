@@ -64,6 +64,13 @@ class AdminLogisticsDocumentController extends Controller
             "Approved document \"{$document->original_filename}\" (type: {$document->document_type}) for logistics partner ID {$document->user_id}."
         );
 
+        \App\Models\Notification::create([
+            'user_id' => $document->user_id,
+            'title' => 'Document Approved',
+            'message' => "Your uploaded document '{$document->original_filename}' has been approved.",
+            'link' => route('logistics.documents'),
+        ]);
+
         $this->checkAndVerifyLogistics($document->user_id);
 
         return back()->with('success', 'Document approved.');
@@ -86,6 +93,13 @@ class AdminLogisticsDocumentController extends Controller
             $document->user_id,
             "Rejected document \"{$document->original_filename}\" (type: {$document->document_type}) for logistics partner ID {$document->user_id}. Reason: {$request->input('notes')}"
         );
+
+        \App\Models\Notification::create([
+            'user_id' => $document->user_id,
+            'title' => 'Document Rejected',
+            'message' => "Your uploaded document '{$document->original_filename}' was rejected. Reason: {$request->input('notes')}",
+            'link' => route('logistics.documents'),
+        ]);
 
         return back()->with('success', 'Document rejected.');
     }

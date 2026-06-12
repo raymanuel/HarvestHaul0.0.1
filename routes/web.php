@@ -43,6 +43,7 @@ use App\Http\Controllers\LogisticsVehicleController;
 use App\Http\Controllers\TrackingController;
 use App\Http\Controllers\CostLedgerController;
 use App\Http\Controllers\PredictorController;
+use App\Http\Controllers\NotificationController;
 
 // Middleware
 use App\Http\Middleware\EnsureAccountIsActive;
@@ -83,6 +84,11 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
 
     Route::post('logout', [LoginController::class, 'logout'])->name('logout');
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    // Notifications API
+    Route::get('api/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('api/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::post('api/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.read-all');
 
     /*
     | Email Verification Core
