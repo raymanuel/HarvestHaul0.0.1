@@ -78,15 +78,21 @@
                                 @if(!$farmer->farmerProfile?->is_verified)
                                     <form method="POST" action="{{ route('admin.farmers.verify', $farmer->id) }}">
                                         @csrf
-                                        <button type="submit" class="text-emerald-600 hover:text-emerald-800 font-bold text-xs hover:underline transition">Approve</button>
+                                        <button type="button" onclick="swalConfirm(this.closest('form'), {title: 'Approve Farmer?', text: 'Verify {{ addslashes($farmer->name) }} as a registered farmer?', confirmText: 'Yes, approve', icon: 'question', confirmColor: '#10b981'})" class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 dark:bg-emerald-950/20 dark:hover:bg-emerald-950/40 dark:text-emerald-400 transition" title="Approve Farmer">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                                            </svg>
+                                        </button>
                                     </form>
                                 @endif
                                 @if($farmer->farmerProfile?->is_verified)
                                     <form method="POST" action="{{ route('admin.farmers.reject', $farmer->id) }}">
                                         @csrf
-                                        <button type="submit"
-                                            onclick="return confirm('Reject {{ addslashes($farmer->name) }}?')"
-                                            class="text-red-500 hover:text-red-700 font-bold text-xs hover:underline transition">Reject</button>
+                                        <button type="button" onclick="swalConfirm(this.closest('form'), {title: 'Reject Farmer?', text: 'Reject {{ addslashes($farmer->name) }}? Their verification will be revoked.', confirmText: 'Yes, reject', icon: 'warning', confirmColor: '#ef4444'})" class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 dark:bg-rose-950/20 dark:hover:bg-rose-950/40 dark:text-rose-400 transition" title="Reject Farmer">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
+                                        </button>
                                     </form>
                                 @endif
                             </div>

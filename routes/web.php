@@ -231,6 +231,8 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
             // Standard User Security Control
             Route::get('/users', [AdminController::class, 'users'])->name('users');
             Route::post('/users/{user}/status', [AdminController::class, 'toggleStatus'])->name('users.status');
+            Route::post('/users', [AdminController::class, 'storeUser'])->name('users.store');
+            Route::put('/users/{user}', [AdminController::class, 'updateUser'])->name('users.update');
 
             // Verification Modules
             Route::get('/farmers', [AdminController::class, 'farmers'])->name('farmers');

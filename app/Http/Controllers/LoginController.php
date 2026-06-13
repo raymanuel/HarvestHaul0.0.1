@@ -33,6 +33,15 @@ class LoginController extends Controller
             }
 
             $request->session()->regenerate();
+
+            \App\Models\AuditLog::create([
+                'admin_id'    => Auth::id(),
+                'action'      => 'login',
+                'target_type' => Auth::user()->role,
+                'target_id'   => Auth::id(),
+                'notes'       => "User " . Auth::user()->name . " logged in.",
+            ]);
+
             return redirect()->intended('dashboard');
         }
 
@@ -43,6 +52,17 @@ class LoginController extends Controller
 
     public function logout(Request $request): RedirectResponse
     {
+        $user = Auth::user();
+        if ($user) {
+            \App\Models\AuditLog::create([
+                'admin_id'    => $user->id,
+                'action'      => 'logout',
+                'target_type' => $user->role,
+                'target_id'   => $user->id,
+                'notes'       => "User {$user->name} logged out.",
+            ]);
+        }
+
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();

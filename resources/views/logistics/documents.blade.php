@@ -142,11 +142,11 @@
                                     View
                                 </a>
                                 @if($doc->status !== 'approved')
-                                    <form method="POST" action="{{ route('logistics.documents.destroy', $doc->id) }}"
-                                        onsubmit="return confirm('Remove this document?')">
+                                    <form method="POST" action="{{ route('logistics.documents.destroy', $doc->id) }}">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit"
+                                        <button type="button"
+                                            onclick="swalConfirm(this.closest('form'), {title: 'Remove Document?', text: 'This document will be permanently deleted.', confirmText: 'Yes, remove', icon: 'warning', confirmColor: '#ef4444'})"
                                             class="text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300 text-xs font-bold hover:underline transition">
                                             Remove
                                         </button>

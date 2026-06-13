@@ -181,6 +181,14 @@ class PoolingJobController extends Controller
                 ]);
             }
 
+            \App\Models\AuditLog::create([
+                'admin_id'    => Auth::id(),
+                'action'      => 'confirmed_pooling_plan',
+                'target_type' => 'pooling_job',
+                'target_id'   => $job->id,
+                'notes'       => "Logistics Partner " . Auth::user()->name . " confirmed route #{$job->id} (Total weight: {$job->total_kg} kg, Price: ₱" . ($job->negotiated_price ?? $job->price_reference ?? 0) . ").",
+            ]);
+
             return response()->json([
                 'success'        => true,
                 'pooling_job_id' => $job->id,

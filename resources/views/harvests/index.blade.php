@@ -115,8 +115,8 @@
                                     <form method="POST" action="{{ route('harvests.destroy', $harvest->id) }}">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit"
-                                            onclick="return confirm('Remove this listing? You will no longer appear on the logistics map for this crop.')"
+                                        <button type="button"
+                                            onclick="swalConfirm(this.closest('form'), {title: 'Remove Listing?', text: 'You will no longer appear on the logistics map for this crop.', confirmText: 'Yes, remove', icon: 'warning', confirmColor: '#ef4444'})"
                                             class="text-rose-600 dark:text-rose-400 hover:text-rose-750 dark:hover:text-rose-350 hover:underline font-bold text-xs transition">
                                             Remove
                                         </button>

@@ -31,6 +31,8 @@
             darkMode: 'class'
         }
     </script>
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
         body {
@@ -145,7 +147,7 @@
         .sidebar-collapsed .collapse-toggle {
             transform: rotate(180deg);
         }
-        .sidebar-collapsed #cooperative-trust-dropdown,
+        .sidebar-collapsed #trust-verification-dropdown,
         .sidebar-collapsed #agricultural-matrix-dropdown,
         .sidebar-collapsed #governance-dropdown {
             padding-left: 0;
@@ -281,35 +283,35 @@
                     </div>
                 @endif
 
-                <!-- ROLE 2: ADMIN VIEW NODES (Nice Admin Groupings) -->
-                @if(Auth::check() && Auth::user()->role === 'admin')
+                <!-- ROLE 2: ADMIN VIEW NODES (Nice Admin Groupings) --                @if(Auth::check() && Auth::user()->role === 'admin')
                     @php
-                        $isCooperativeTrustActive = request()->routeIs('admin.users*') ||
-                                                    request()->routeIs('admin.farmers*') ||
-                                                    request()->routeIs('admin.farmer-documents*') ||
-                                                    request()->routeIs('admin.logistics*') ||
-                                                    request()->routeIs('admin.logistics-documents*') ||
-                                                    request()->routeIs('admin.drivers*');
+                        $isTrustVerificationActive = request()->routeIs('admin.users*') ||
+                                                     request()->routeIs('admin.farmers*') ||
+                                                     request()->routeIs('admin.farmer-documents*') ||
+                                                     request()->routeIs('admin.logistics') ||
+                                                     request()->routeIs('admin.logistics.*') ||
+                                                     request()->routeIs('admin.logistics-documents*') ||
+                                                     request()->routeIs('admin.drivers*');
                     @endphp
                     <!-- People / Users Sub-Group Dropdown -->
                     <div class="space-y-1.5">
-                        <button onclick="toggleCooperativeTrust()" data-tooltip="Cooperative Trust" class="nav-link w-full flex items-center justify-between gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition text-slate-400 hover:text-white hover:bg-slate-800/60 select-none">
+                        <button onclick="toggleTrustVerification()" data-tooltip="Trust & Verification" class="nav-link w-full flex items-center justify-between gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition text-slate-400 hover:text-white hover:bg-slate-800/60 select-none">
                             <div class="flex items-center gap-3">
                                 <span class="nav-icon shrink-0 text-slate-400">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                                     </svg>
                                 </span>
-                                <span class="nav-label">Cooperative Trust</span>
+                                <span class="nav-label">Trust & Verification</span>
                             </div>
                             <span class="nav-label">
-                                <svg id="cooperative-trust-chevron" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 transform transition-transform {{ $isCooperativeTrustActive ? 'rotate-90' : '' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                <svg id="trust-verification-chevron" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 transform transition-transform {{ $isTrustVerificationActive ? 'rotate-90' : '' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
                                 </svg>
                             </span>
                         </button>
                         
-                        <div id="cooperative-trust-dropdown" class="{{ $isCooperativeTrustActive ? '' : 'hidden' }} mt-1 pl-4 space-y-1.5 transition-all">
+                        <div id="trust-verification-dropdown" class="{{ $isTrustVerificationActive ? '' : 'hidden' }} mt-1 pl-4 space-y-1.5 transition-all">
                             <a href="{{ route('admin.users') }}" data-tooltip="User Management" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->routeIs('admin.users*') ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
                                 <span class="nav-icon shrink-0">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -337,7 +339,7 @@
                                 <span class="nav-label">Farmer Licenses</span>
                             </a>
 
-                            <a href="{{ route('admin.logistics') }}" data-tooltip="Logistics Registry" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->routeIs('admin.logistics*') ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
+                            <a href="{{ route('admin.logistics') }}" data-tooltip="Logistics Registry" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->routeIs('admin.logistics', 'admin.logistics.*') ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
                                 <span class="nav-icon shrink-0">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -681,8 +683,8 @@
             }
         })();
 
-        // Cooperative Trust dropdown toggle
-        function toggleCooperativeTrust() {
+        // Trust & Verification dropdown toggle
+        function toggleTrustVerification() {
             var sidebar = document.getElementById('sidebar-nav');
             var mainWrapper = document.getElementById('main-wrapper');
             var isCollapsed = sidebar.classList.contains('sidebar-collapsed');
@@ -695,8 +697,8 @@
                 localStorage.setItem('sidebar-collapsed', 'false');
             }
 
-            var dropdown = document.getElementById('cooperative-trust-dropdown');
-            var chevron = document.getElementById('cooperative-trust-chevron');
+            var dropdown = document.getElementById('trust-verification-dropdown');
+            var chevron = document.getElementById('trust-verification-chevron');
             var isHidden = dropdown.classList.contains('hidden');
 
             if (isHidden) {
@@ -857,6 +859,83 @@
             fetchNotifications();
             setInterval(fetchNotifications, 15000);
         });
+    </script>
+
+    {{-- SweetAlert Global Flash Handler --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            @if(session('success'))
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success',
+                    text: @json(session('success')),
+                    timer: 3000,
+                    timerProgressBar: true,
+                    showConfirmButton: false,
+                    toast: true,
+                    position: 'top-end',
+                    background: document.documentElement.classList.contains('dark') ? '#1e293b' : '#fff',
+                    color: document.documentElement.classList.contains('dark') ? '#e2e8f0' : '#1e293b',
+                    iconColor: '#10b981',
+                    customClass: { popup: 'rounded-xl shadow-lg border border-emerald-200/30' }
+                });
+            @endif
+            @if(session('error'))
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: @json(session('error')),
+                    timer: 4500,
+                    timerProgressBar: true,
+                    showConfirmButton: true,
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#ef4444',
+                    toast: false,
+                    background: document.documentElement.classList.contains('dark') ? '#1e293b' : '#fff',
+                    color: document.documentElement.classList.contains('dark') ? '#e2e8f0' : '#1e293b',
+                    customClass: { popup: 'rounded-xl shadow-lg' }
+                });
+            @endif
+        });
+
+        /**
+         * Global SweetAlert confirm helper.
+         * Usage: swalConfirm(formEl, { title, text, confirmText, icon })
+         */
+        function swalConfirm(formOrCallback, opts = {}) {
+            const defaults = {
+                title: opts.title || 'Are you sure?',
+                text: opts.text || 'This action cannot be undone.',
+                icon: opts.icon || 'warning',
+                confirmText: opts.confirmText || 'Yes, proceed',
+                cancelText: opts.cancelText || 'Cancel',
+                confirmColor: opts.confirmColor || '#10b981',
+                cancelColor: opts.cancelColor || '#64748b'
+            };
+
+            Swal.fire({
+                title: defaults.title,
+                text: defaults.text,
+                icon: defaults.icon,
+                showCancelButton: true,
+                confirmButtonText: defaults.confirmText,
+                cancelButtonText: defaults.cancelText,
+                confirmButtonColor: defaults.confirmColor,
+                cancelButtonColor: defaults.cancelColor,
+                background: document.documentElement.classList.contains('dark') ? '#1e293b' : '#fff',
+                color: document.documentElement.classList.contains('dark') ? '#e2e8f0' : '#1e293b',
+                customClass: { popup: 'rounded-xl shadow-2xl' },
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    if (typeof formOrCallback === 'function') {
+                        formOrCallback();
+                    } else if (formOrCallback && formOrCallback.submit) {
+                        formOrCallback.submit();
+                    }
+                }
+            });
+        }
     </script>
 
 </body>

@@ -13,11 +13,12 @@ class CropVariety extends Model
         'crop_id',
         'name',
         'description',
-        'is_active',
+        'status',
+        'price_per_kg',
     ];
 
     protected $casts = [
-        'is_active'    => 'boolean',
+        // status is an enum string, no cast needed
     ];
 
     // A variety belongs to one crop
@@ -34,6 +35,6 @@ class CropVariety extends Model
 
     public function scopeActive($query)
     {
-        return $query->where('is_active', true);
+        return $query->where('status', 'active');
     }
 }

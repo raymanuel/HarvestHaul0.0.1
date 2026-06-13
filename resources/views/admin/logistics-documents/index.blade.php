@@ -115,8 +115,11 @@
                                             </label>
                                         @endif
                                         <button type="submit"
-                                            class="bg-emerald-600 text-white text-xs font-bold px-4 py-2 rounded-lg hover:bg-emerald-700 transition shadow-sm">
-                                            Approve
+                                            class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 dark:bg-emerald-950/20 dark:hover:bg-emerald-950/40 dark:text-emerald-400 transition cursor-pointer"
+                                            title="Approve Document">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                                            </svg>
                                         </button>
                                     </form>
                                     {{-- Reject --}}
@@ -125,8 +128,11 @@
                                         <input type="text" name="notes" placeholder="Reason for rejection (required)"
                                             class="border border-red-200 dark:border-red-900/30 rounded-lg px-3 py-2 text-xs text-slate-800 dark:text-slate-200 w-56 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 bg-white dark:bg-slate-900 transition">
                                         <button type="submit"
-                                            class="bg-red-500 text-white text-xs font-bold px-4 py-2 rounded-lg hover:bg-red-600 transition shadow-sm">
-                                            Reject
+                                            class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 dark:bg-rose-950/20 dark:hover:bg-rose-950/40 dark:text-rose-400 transition cursor-pointer"
+                                            title="Reject Document">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
                                         </button>
                                     </form>
                                 </div>

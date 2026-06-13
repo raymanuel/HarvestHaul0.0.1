@@ -54,12 +54,20 @@ class FarmerDocumentController extends Controller
         $originalFilename = $file->getClientOriginalName();
         $path = $file->store('farmer-documents/' . Auth::id(), 'public');
 
-        FarmerDocument::create([
+        $doc = FarmerDocument::create([
             'user_id'           => Auth::id(),
             'document_type'     => $request->document_type,
             'file_path'         => $path,
             'original_filename' => $originalFilename,
             'status'            => 'pending',
+        ]);
+
+        \App\Models\AuditLog::create([
+            'admin_id'    => Auth::id(),
+            'action'      => 'uploaded_farmer_document',
+            'target_type' => 'farmer_document',
+            'target_id'   => $doc->id,
+            'notes'       => "Farmer " . Auth::user()->name . " uploaded document: {$doc->document_type} ({$doc->original_filename}).",
         ]);
 
         return redirect()->route('farmer.documents')->with('success', 'Document uploaded successfully.');
@@ -79,6 +87,14 @@ class FarmerDocumentController extends Controller
 
         Storage::disk('public')->delete($document->file_path);
         $document->delete();
+
+        \App\Models\AuditLog::create([
+            'admin_id'    => Auth::id(),
+            'action'      => 'deleted_farmer_document',
+            'target_type' => 'farmer_document',
+            'target_id'   => $document->id,
+            'notes'       => "Farmer " . Auth::user()->name . " deleted document: {$document->document_type} ({$document->original_filename}).",
+        ]);
 
         return redirect()->route('farmer.documents')->with('success', 'Document removed.');
     }

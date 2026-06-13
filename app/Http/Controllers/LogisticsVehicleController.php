@@ -68,7 +68,7 @@ class LogisticsVehicleController extends Controller
             'notes'        => ['nullable', 'string', 'max:500'],
         ]);
 
-        Truck::create([
+        $truck = Truck::create([
             'logistics_profile_id' => Auth::user()->logisticsProfile->id,
             'driver_id'            => $request->driver_id,
             'truck_name'           => $request->truck_name,
@@ -77,6 +77,14 @@ class LogisticsVehicleController extends Controller
             'capacity_kg'          => $request->capacity_kg,
             'status'               => $request->status,
             'notes'                => $request->notes,
+        ]);
+
+        \App\Models\AuditLog::create([
+            'admin_id'    => Auth::id(),
+            'action'      => 'created_vehicle',
+            'target_type' => 'vehicle',
+            'target_id'   => $truck->id,
+            'notes'       => "Logistics Partner " . Auth::user()->name . " registered vehicle {$truck->truck_name} (Plate: {$truck->plate_number}, Capacity: {$truck->capacity_kg} kg).",
         ]);
 
         return redirect()->route('logistics.vehicles.index')->with('success', 'Vehicle registered successfully in your fleet.');

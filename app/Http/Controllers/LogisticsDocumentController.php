@@ -56,12 +56,20 @@ class LogisticsDocumentController extends Controller
         $originalFilename = $file->getClientOriginalName();
         $path = $file->store('logistics-documents/' . Auth::id(), 'public');
 
-        LogisticsDocument::create([
+        $doc = LogisticsDocument::create([
             'user_id'           => Auth::id(),
             'document_type'     => $request->document_type,
             'file_path'         => $path,
             'original_filename' => $originalFilename,
             'status'            => 'pending',
+        ]);
+
+        \App\Models\AuditLog::create([
+            'admin_id'    => Auth::id(),
+            'action'      => 'uploaded_logistics_document',
+            'target_type' => 'logistics_document',
+            'target_id'   => $doc->id,
+            'notes'       => "Logistics Partner " . Auth::user()->name . " uploaded document: {$doc->document_type} ({$doc->original_filename}).",
         ]);
 
         return redirect()->route('logistics.documents')->with('success', 'Document uploaded successfully.');
@@ -81,6 +89,14 @@ class LogisticsDocumentController extends Controller
 
         Storage::disk('public')->delete($document->file_path);
         $document->delete();
+
+        \App\Models\AuditLog::create([
+            'admin_id'    => Auth::id(),
+            'action'      => 'deleted_logistics_document',
+            'target_type' => 'logistics_document',
+            'target_id'   => $document->id,
+            'notes'       => "Logistics Partner " . Auth::user()->name . " deleted document: {$document->document_type} ({$document->original_filename}).",
+        ]);
 
         return redirect()->route('logistics.documents')->with('success', 'Document removed.');
     }

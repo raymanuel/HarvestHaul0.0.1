@@ -94,6 +94,14 @@ class DriverController extends Controller
 
         $poolingJob->save();
 
+        \App\Models\AuditLog::create([
+            'admin_id'    => Auth::id(),
+            'action'      => 'updated_dispatch_status',
+            'target_type' => 'pooling_job',
+            'target_id'   => $poolingJob->id,
+            'notes'       => "Driver " . Auth::user()->name . " updated route #{$poolingJob->id} status from {$currentStatus} to {$newStatus}.",
+        ]);
+
         // Trigger Notifications
         if ($newStatus === 'in_progress') {
             // Notify logistics partner

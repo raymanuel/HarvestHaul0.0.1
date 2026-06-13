@@ -94,6 +94,15 @@ class RegisterController extends Controller
                 }
 
                 Auth::login($user);
+
+                \App\Models\AuditLog::create([
+                    'admin_id'    => $user->id,
+                    'action'      => 'register',
+                    'target_type' => $user->role,
+                    'target_id'   => $user->id,
+                    'notes'       => "User {$user->name} registered as {$user->role} and logged in.",
+                ]);
+
                 $user->sendEmailVerificationNotification();
                 return redirect()->route('verification.notice');
             });

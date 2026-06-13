@@ -125,8 +125,8 @@
                 </button>
                 <form method="POST" action="{{ route('admin.crops.categories.destroy', $category) }}">
                     @csrf @method('DELETE')
-                    <button type="submit"
-                        onclick="return confirm('Delete this category? This cannot be undone.')"
+                    <button type="button"
+                        onclick="swalConfirm(this.closest('form'), {title: 'Delete Category?', text: 'Delete this category? This cannot be undone.', confirmText: 'Yes, delete', icon: 'warning', confirmColor: '#ef4444'})"
                         class="text-[10px] text-red-500 hover:text-red-700 border border-red-100 rounded-lg px-3 py-1.5 font-bold uppercase tracking-wide transition hover:bg-red-50">
                         Delete
                     </button>
@@ -153,8 +153,8 @@
                     </button>
                     <form method="POST" action="{{ route('admin.crops.destroy', $crop) }}">
                         @csrf @method('DELETE')
-                        <button type="submit"
-                            onclick="return confirm('Delete {{ $crop->name }}?')"
+                        <button type="button"
+                            onclick="swalConfirm(this.closest('form'), {title: 'Delete Crop?', text: 'Delete {{ addslashes($crop->name) }}?', confirmText: 'Yes, delete', icon: 'warning', confirmColor: '#ef4444'})"
                             class="text-[10px] text-red-500 hover:text-red-700 border border-red-100 rounded-lg px-3 py-1 font-bold uppercase tracking-wide transition hover:bg-red-50">
                             Delete
                         </button>
@@ -192,8 +192,8 @@
                                     </button>
                                     <form method="POST" action="{{ route('admin.crops.varieties.destroy', $variety) }}">
                                         @csrf @method('DELETE')
-                                        <button type="submit"
-                                            onclick="return confirm('Delete {{ $variety->name }}?')"
+                                        <button type="button"
+                                            onclick="swalConfirm(this.closest('form'), {title: 'Delete Variety?', text: 'Delete {{ addslashes($variety->name) }}?', confirmText: 'Yes, delete', icon: 'warning', confirmColor: '#ef4444'})"
                                             class="text-[10px] text-red-500 hover:text-red-700 border border-red-100 rounded-lg px-3 py-1 font-bold uppercase tracking-wide transition hover:bg-red-50">
                                             Delete
                                         </button>

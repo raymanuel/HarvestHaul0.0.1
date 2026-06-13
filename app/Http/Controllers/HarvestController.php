@@ -135,7 +135,7 @@ class HarvestController extends Controller
         $cropVariety   = CropVariety::findOrFail($validated['crop_variety_id']);
         $farmerProfile = Auth::user()->farmerProfile;
 
-        Auth::user()->harvests()->create([
+        $harvest = Auth::user()->harvests()->create([
             'crop_id'               => $validated['crop_id'],
             'crop_variety_id'       => $validated['crop_variety_id'],
             'crop_category_id'      => $crop->crop_category_id,
@@ -154,6 +154,14 @@ class HarvestController extends Controller
             'destination_latitude'  => $validated['destination_latitude'],
             'destination_longitude' => $validated['destination_longitude'],
             'status'                => 'active',
+        ]);
+
+        \App\Models\AuditLog::create([
+            'admin_id'    => Auth::id(),
+            'action'      => 'created_harvest',
+            'target_type' => 'harvest',
+            'target_id'   => $harvest->id,
+            'notes'       => "Farmer " . Auth::user()->name . " created harvest listing for {$harvest->crop_type} ({$harvest->quantity_kg} kg).",
         ]);
 
         return redirect()
@@ -236,6 +244,14 @@ class HarvestController extends Controller
             'packaging_type'   => $validated['packaging_type'] ?? null,
         ]);
 
+        \App\Models\AuditLog::create([
+            'admin_id'    => Auth::id(),
+            'action'      => 'updated_harvest',
+            'target_type' => 'harvest',
+            'target_id'   => $harvest->id,
+            'notes'       => "Farmer " . Auth::user()->name . " updated harvest listing for {$harvest->crop_type} ({$harvest->quantity_kg} kg).",
+        ]);
+
         return redirect()
             ->route('harvests.index')
             ->with('success', 'Harvest listing updated successfully.');
@@ -255,6 +271,14 @@ class HarvestController extends Controller
         }
 
         $harvest->delete();
+
+        \App\Models\AuditLog::create([
+            'admin_id'    => Auth::id(),
+            'action'      => 'deleted_harvest',
+            'target_type' => 'harvest',
+            'target_id'   => $harvest->id,
+            'notes'       => "Farmer " . Auth::user()->name . " deleted harvest listing for {$harvest->crop_type} ({$harvest->quantity_kg} kg).",
+        ]);
 
         return back()->with('success', 'Harvest listing removed.');
     }

@@ -52,11 +52,19 @@
                         <td class="px-6 py-4">
                             <form method="POST" action="{{ route('admin.users.status', $driver->id) }}">
                                 @csrf
-                                <button type="submit"
-                                    onclick="return confirm('{{ $driver->status === 'active' ? 'Archive' : 'Reactivate' }} {{ addslashes($driver->name) }}?')"
-                                    class="{{ $driver->status === 'active' ? 'text-red-500 hover:text-red-700' : 'text-emerald-600 hover:text-emerald-800' }} font-bold text-xs hover:underline transition">
-                                    {{ $driver->status === 'active' ? 'Archive' : 'Reactivate' }}
-                                </button>
+                                @if($driver->status === 'active')
+                                    <button type="button" onclick="swalConfirm(this.closest('form'), {title: 'Archive Driver?', text: 'Archive {{ addslashes($driver->name) }}?', confirmText: 'Yes, archive', icon: 'warning', confirmColor: '#f59e0b'})" class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-amber-50 text-amber-600 hover:bg-amber-100 dark:bg-amber-950/20 dark:hover:bg-amber-950/40 dark:text-amber-400 transition" title="Archive Driver">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                                        </svg>
+                                    </button>
+                                @else
+                                    <button type="button" onclick="swalConfirm(this.closest('form'), {title: 'Reactivate Driver?', text: 'Reactivate {{ addslashes($driver->name) }}?', confirmText: 'Yes, reactivate', icon: 'question', confirmColor: '#10b981'})" class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 dark:bg-emerald-950/20 dark:hover:bg-emerald-950/40 dark:text-emerald-400 transition" title="Reactivate Driver">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+                                        </svg>
+                                    </button>
+                                @endif
                             </form>
                         </td>
                     </tr>

@@ -80,6 +80,14 @@ class LogisticsDriverController extends Controller
             'status' => 'active',
         ]);
 
+        \App\Models\AuditLog::create([
+            'admin_id'    => Auth::id(),
+            'action'      => 'created_driver',
+            'target_type' => 'driver',
+            'target_id'   => $user->id,
+            'notes'       => "Logistics Partner " . Auth::user()->name . " created driver account for {$user->name}.",
+        ]);
+
         return redirect()->route('logistics.drivers.index')->with('success', 'Driver account created successfully.');
     }
 }
