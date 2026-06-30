@@ -1,0 +1,3 @@
+@echo off
+echo Opening HarvestHaul database in TablePlus...
+start "" "mysql://root:@127.0.0.1:3306/harvesthaul"

@@ -1,0 +1,130 @@
+<x-layout title="Farmer Documents">
+<div class="w-full max-w-5xl mx-auto">
+
+    <!-- Nice Admin Page Header -->
+    <header class="mb-8">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+                <h1 class="text-2xl font-extrabold text-slate-800 dark:text-white heading-font tracking-tight">Farmer Documents</h1>
+                <p class="text-sm text-slate-400 dark:text-slate-500 mt-1 font-semibold">Review and approve submitted farmer verification documents</p>
+            </div>
+            <span class="text-[10px] font-bold uppercase tracking-widest text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/20 px-3 py-1.5 rounded-lg border border-amber-500/10 dark:border-amber-500/20 self-start">Verification</span>
+        </div>
+    </header>
+
+    {{-- Flash --}}
+    @if(session('success'))
+        <div class="mb-6 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-400 rounded-xl px-5 py-4 text-sm font-semibold flex items-center gap-2">
+            <span>✅</span> {{ session('success') }}
+        </div>
+    @endif
+
+    @if($documents->isEmpty())
+        <div class="bg-white dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700/80 rounded-2xl shadow-sm p-12 text-center">
+            <svg class="w-12 h-12 text-slate-200 dark:text-slate-700 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+            <p class="text-slate-400 dark:text-slate-500 text-sm font-semibold">No documents submitted yet</p>
+        </div>
+    @else
+        @foreach($documents as $userId => $docs)
+            @php
+                $farmer = $docs->first()->farmer;
+                $pendingCount = $docs->where('status', 'pending')->count();
+            @endphp
+
+            <div class="bg-white dark:bg-slate-800 border rounded-2xl shadow-sm overflow-hidden mb-6 {{ $pendingCount > 0 ? 'border-amber-200/70 dark:border-amber-800/80' : 'border-slate-200/70 dark:border-slate-700/80' }}">
+
+                {{-- Farmer Header --}}
+                <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-700/60 bg-slate-50/50 dark:bg-slate-900/40">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-lg bg-gradient-to-tr from-emerald-100 to-emerald-50 dark:from-emerald-950/20 dark:to-emerald-900/20 border border-emerald-200/50 dark:border-emerald-800/30 flex items-center justify-center text-[10px] font-extrabold text-emerald-700 dark:text-emerald-400 uppercase">{{ substr($farmer->name ?? '?', 0, 2) }}</div>
+                        <div>
+                            <p class="text-sm font-extrabold text-slate-800 dark:text-slate-200">{{ $farmer->name ?? 'Farmer #' . $userId }}</p>
+                            <p class="text-[10px] text-slate-400 dark:text-slate-500 font-semibold">{{ $farmer->email ?? '' }} — ID #{{ $userId }}</p>
+                        </div>
+                    </div>
+                    @if($pendingCount > 0)
+                        <span class="bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-400 border border-amber-200/50 dark:border-amber-500/20 text-[10px] font-bold px-3 py-1 rounded-lg uppercase tracking-widest">{{ $pendingCount }} Pending</span>
+                    @else
+                        <span class="bg-emerald-50 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-400 border border-emerald-200/50 dark:border-emerald-500/20 text-[10px] font-bold px-3 py-1 rounded-lg uppercase tracking-widest">Reviewed</span>
+                    @endif
+                </div>
+
+                {{-- Documents --}}
+                <div class="p-5 flex flex-col gap-4">
+                    @foreach($docs as $doc)
+                        @php
+                            $statusStyle = match($doc->status) {
+                                'approved' => 'bg-emerald-50 dark:bg-emerald-950/20 border-emerald-100 dark:border-emerald-900/30 text-emerald-700 dark:text-emerald-400',
+                                'rejected' => 'bg-red-50 dark:bg-red-950/20 border-red-100 dark:border-red-900/30 text-red-600 dark:text-red-400',
+                                default    => 'bg-slate-50 dark:bg-slate-900/40 border-slate-100 dark:border-slate-800 text-slate-600 dark:text-slate-400',
+                            };
+                            $badgeStyle = match($doc->status) {
+                                'approved' => 'bg-white dark:bg-slate-900 border-emerald-200/65 dark:border-emerald-800/50 text-emerald-700 dark:text-emerald-400',
+                                'rejected' => 'bg-white dark:bg-slate-900 border-red-200/65 dark:border-red-800/50 text-red-600 dark:text-red-400',
+                                default    => 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400',
+                            };
+                            $typeLabel = match($doc->document_type) {
+                                'government_id' => 'Government ID',
+                                'rsbsa'         => 'RSBSA Certificate',
+                                'land_title'    => 'Land Title / Tax Declaration',
+                                'barangay_cert' => 'Barangay Certification',
+                                'mao_cert'      => 'MAO Certificate',
+                                default         => 'Other',
+                            };
+                        @endphp
+
+                        <div class="border rounded-xl p-4 {{ $statusStyle }}">
+                            <div class="flex items-center justify-between flex-wrap gap-3 {{ $doc->status === 'pending' ? 'mb-4' : '' }}">
+                                <div>
+                                    <p class="text-sm font-bold text-slate-800 dark:text-slate-200">{{ $typeLabel }}</p>
+                                    <p class="text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5">{{ $doc->original_filename }}</p>
+                                    @if($doc->notes)
+                                        <p class="text-xs text-slate-400 dark:text-slate-500 italic mt-1">Note: {{ $doc->notes }}</p>
+                                    @endif
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <span class="text-[10px] font-bold px-2.5 py-1 rounded-lg uppercase tracking-wide border {{ $badgeStyle }}">{{ $doc->status }}</span>
+                                    <a href="{{ Storage::url($doc->file_path) }}" target="_blank"
+                                        class="text-emerald-600 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-350 text-xs font-bold hover:underline transition">View File</a>
+                                </div>
+                            </div>
+
+                            @if($doc->status === 'pending')
+                                <div class="flex flex-wrap gap-3">
+                                    {{-- Approve --}}
+                                    <form method="POST" action="{{ route('admin.farmer-documents.approve', $doc->id) }}" class="flex items-center gap-2">
+                                        @csrf @method('PATCH')
+                                        <input type="text" name="notes" placeholder="Admin note (optional)"
+                                            class="border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-800 dark:text-slate-200 w-48 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 bg-white dark:bg-slate-900 transition">
+                                        <button type="submit"
+                                            class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 dark:bg-emerald-950/20 dark:hover:bg-emerald-950/40 dark:text-emerald-400 transition cursor-pointer"
+                                            title="Approve Document">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                                            </svg>
+                                        </button>
+                                    </form>
+                                    {{-- Reject --}}
+                                    <form method="POST" action="{{ route('admin.farmer-documents.reject', $doc->id) }}" class="flex items-center gap-2">
+                                        @csrf @method('PATCH')
+                                        <input type="text" name="notes" placeholder="Reason for rejection (required)"
+                                            class="border border-red-200 dark:border-red-900/30 rounded-lg px-3 py-2 text-xs text-slate-800 dark:text-slate-200 w-56 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 bg-white dark:bg-slate-900 transition">
+                                        <button type="submit"
+                                            class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 dark:bg-rose-950/20 dark:hover:bg-rose-950/40 dark:text-rose-400 transition cursor-pointer"
+                                            title="Reject Document">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
+                                        </button>
+                                    </form>
+                                </div>
+                            @endif
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        @endforeach
+    @endif
+
+</div>
+</x-layout>
