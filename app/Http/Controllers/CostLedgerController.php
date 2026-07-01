@@ -71,8 +71,11 @@ class CostLedgerController extends Controller
                 : round($basePrice * $proportion, 2);
 
             return [
+<<<<<<< HEAD
                 'harvest_id'      => $harvest->id,
                 'farmer_id'       => $harvest->user_id,
+=======
+>>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
                 'farmer_name'   => $harvest->farmer->name ?? '—',
                 'crop'          => $harvest->crop->name ?? $harvest->crop_type ?? '—',
                 'variety'       => $harvest->cropVariety->name ?? '—',
@@ -81,8 +84,11 @@ class CostLedgerController extends Controller
                 'cost_share'    => $costShare,
                 'destination'   => $harvest->destination->name ?? $harvest->destination_address ?? '—',
                 'pickup_order'  => $harvest->pivot->pickup_order,
+<<<<<<< HEAD
                 'payment_status'  => $harvest->pivot->payment_status ?? 'unpaid',
                 'receipt_path'    => $harvest->pivot->receipt_path,
+=======
+>>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
             ];
         })->sortBy('pickup_order')->values();
 
@@ -90,6 +96,7 @@ class CostLedgerController extends Controller
         $sumOfShares = $ledgerEntries->sum('cost_share');
 
         return view('logistics.cost-ledger', compact(
+<<<<<<< HEAD
             'poolingJob', 'ledgerEntries', 'totalPrice', 'sumOfShares', 'isOwner', 'isFarmer'
         ));
     }
@@ -265,6 +272,9 @@ class CostLedgerController extends Controller
         return view('logistics.analytics', compact(
             'truckAnalytics', 'fuelLogs', 'totalRefuels', 'totalFuelCost', 
             'totalFuelLiters', 'totalRevenue'
+=======
+            'poolingJob', 'ledgerEntries', 'totalPrice', 'sumOfShares', 'isOwner'
+>>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
         ));
     }
 }

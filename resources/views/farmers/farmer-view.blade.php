@@ -122,6 +122,7 @@
                     </a>
                 </div>
             </div>
+<<<<<<< HEAD
         </div>
 
         {{-- ── LIVE WORKSPACE DATA ── --}}
@@ -528,6 +529,103 @@
                 calculateProfit();
             });
         </script>
+=======
+
+        </div>
+
+        {{-- ── QUICK ACTIONS ── --}}
+        <div class="mb-4 flex items-center justify-between">
+            <h2 class="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">Agricultural Workspace Tools</h2>
+            <span class="w-20 h-px bg-slate-200 dark:bg-slate-700/80"></span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-12">
+
+            @if (Auth::user()->farmerProfile?->is_verified)
+                <a href="{{ route('harvests.create') }}"
+                    class="bg-white dark:bg-slate-800/80 backdrop-blur border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6 hover:border-emerald-500 dark:hover:border-emerald-450 hover:shadow-xl hover:shadow-emerald-500/5 transition-all duration-300 group flex items-center justify-between gap-6">
+                    <div class="space-y-2">
+                        <p class="text-base font-bold text-slate-800 dark:text-slate-200 group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition heading-font">Post New Harvest</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-450 leading-normal">Register yield weight and target drop-offs for highway matching.</p>
+                        <span class="text-[9px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-900 border border-slate-200/60 dark:border-slate-750 px-2 py-0.5 rounded inline-block">Market Ingress</span>
+                    </div>
+                    <div class="w-10 h-10 rounded-full bg-emerald-500/10 border border-emerald-550/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 group-hover:translate-x-1 transition-transform duration-200 shadow-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                        </svg>
+                    </div>
+                </a>
+
+                <a href="{{ route('farmer.proposals') }}"
+                    class="bg-white dark:bg-slate-800/80 backdrop-blur border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6 hover:border-emerald-500 dark:hover:border-emerald-450 hover:shadow-xl hover:shadow-emerald-500/5 transition-all duration-300 group flex items-center justify-between gap-6">
+                    <div class="space-y-2">
+                        <p class="text-base font-bold text-slate-800 dark:text-slate-200 group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition heading-font">Request Route Pooling</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-450 leading-normal">Combine small loads with highway neighbors to slash freight cost.</p>
+                        <span class="text-[9px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-900 border border-slate-200/60 dark:border-slate-750 px-2 py-0.5 rounded inline-block">Coop Logis</span>
+                    </div>
+                    <div class="w-10 h-10 rounded-full bg-emerald-500/10 border border-emerald-550/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 group-hover:translate-x-1 transition-transform duration-200 shadow-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                        </svg>
+                    </div>
+                </a>
+
+                <a href="{{ route('farmer.predictor') }}"
+                    class="bg-white dark:bg-slate-800/80 backdrop-blur border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6 hover:border-violet-500 dark:hover:border-violet-500/50 hover:shadow-xl hover:shadow-violet-500/5 transition-all duration-300 group flex items-center justify-between gap-6">
+                    <div class="space-y-2">
+                        <p class="text-base font-bold text-slate-800 dark:text-slate-200 group-hover:text-violet-750 dark:group-hover:text-violet-400 transition heading-font">Smart Yield Predictor</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-450 leading-normal">Estimate crop maturity timelines and project logistics requirements.</p>
+                        <span class="text-[9px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-900 border border-slate-200/60 dark:border-slate-750 px-2 py-0.5 rounded inline-block">Predictive ML</span>
+                    </div>
+                    <div class="w-10 h-10 rounded-full bg-violet-500/10 border border-violet-550/10 text-violet-650 dark:text-violet-400 flex items-center justify-center shrink-0 group-hover:translate-x-1 transition-transform duration-200 shadow-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                    </div>
+                </a>
+            @else
+                <div class="bg-slate-50 dark:bg-slate-800/40 border border-slate-200/50 dark:border-slate-700/80 rounded-3xl p-6 flex items-center justify-between gap-6 opacity-75 select-none">
+                    <div class="space-y-2">
+                        <p class="text-base font-bold text-slate-400 dark:text-slate-500 heading-font">Post New Harvest</p>
+                        <p class="text-xs text-slate-400 dark:text-slate-500 leading-normal">Register yield weight and target drop-offs for highway matching.</p>
+                        <span class="text-[9px] font-extrabold uppercase tracking-widest text-amber-700 dark:text-amber-400 bg-amber-500/10 border border-amber-500/25 px-2.5 py-0.5 rounded-lg">Verification Pending Approval</span>
+                    </div>
+                    <div class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-900 text-slate-300 dark:text-slate-600 flex items-center justify-center shrink-0 shadow-inner">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="bg-slate-50 dark:bg-slate-800/40 border border-slate-200/50 dark:border-slate-700/80 rounded-3xl p-6 flex items-center justify-between gap-6 opacity-75 select-none">
+                    <div class="space-y-2">
+                        <p class="text-base font-bold text-slate-400 dark:text-slate-500 heading-font">Request Route Pooling</p>
+                        <p class="text-xs text-slate-400 dark:text-slate-500 leading-normal">Combine small loads with highway neighbors to slash freight cost.</p>
+                        <span class="text-[9px] font-extrabold uppercase tracking-widest text-amber-700 dark:text-amber-400 bg-amber-500/10 border border-amber-500/25 px-2.5 py-0.5 rounded-lg">Verification Pending Approval</span>
+                    </div>
+                    <div class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-900 text-slate-300 dark:text-slate-600 flex items-center justify-center shrink-0 shadow-inner">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="bg-slate-50 dark:bg-slate-800/40 border border-slate-200/50 dark:border-slate-700/80 rounded-3xl p-6 flex items-center justify-between gap-6 opacity-75 select-none">
+                    <div class="space-y-2">
+                        <p class="text-base font-bold text-slate-400 dark:text-slate-500 heading-font">Smart Yield Predictor</p>
+                        <p class="text-xs text-slate-400 dark:text-slate-500 leading-normal">Estimate crop maturity timelines and project logistics requirements.</p>
+                        <span class="text-[9px] font-extrabold uppercase tracking-widest text-amber-700 dark:text-amber-400 bg-amber-500/10 border border-amber-500/25 px-2.5 py-0.5 rounded-lg">Verification Pending Approval</span>
+                    </div>
+                    <div class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-900 text-slate-300 dark:text-slate-600 flex items-center justify-center shrink-0 shadow-inner">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                        </svg>
+                    </div>
+                </div>
+            @endif
+
+        </div>
+>>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
     </div>
 </div>
 </x-layout>

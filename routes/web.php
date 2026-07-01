@@ -44,15 +44,21 @@ use App\Http\Controllers\TrackingController;
 use App\Http\Controllers\CostLedgerController;
 use App\Http\Controllers\PredictorController;
 use App\Http\Controllers\NotificationController;
+<<<<<<< HEAD
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\BuyerController;
 use App\Http\Controllers\NegotiationController;
+=======
+>>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
 
 // Middleware
 use App\Http\Middleware\EnsureAccountIsActive;
 use App\Http\Middleware\EnsureUserIsFarmer;
 use App\Http\Middleware\EnsureUserIsLogistics;
+<<<<<<< HEAD
 use App\Http\Middleware\EnsureUserIsBuyer;
+=======
+>>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
 
 /*
 |--------------------------------------------------------------------------
@@ -89,11 +95,14 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
     Route::post('logout', [LoginController::class, 'logout'])->name('logout');
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
+<<<<<<< HEAD
     // Profile Management
     Route::get('profile', [ProfileController::class, 'show'])->name('profile.show');
     Route::put('profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::put('profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
 
+=======
+>>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
     // Notifications API
     Route::get('api/notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::post('api/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
@@ -161,9 +170,12 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
             Route::get('/my-documents', [FarmerDocumentController::class, 'index'])->name('farmer.documents');
             Route::post('/my-documents', [FarmerDocumentController::class, 'store'])->name('farmer.documents.store');
             Route::delete('/my-documents/{document}', [FarmerDocumentController::class, 'destroy'])->name('farmer.documents.destroy');
+<<<<<<< HEAD
 
             // Farmer Negotiations List
             Route::get('/farmer/negotiations', [NegotiationController::class, 'farmerNegotiations'])->name('farmer.negotiations');
+=======
+>>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
         });
 
         /*
@@ -175,7 +187,10 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
 
             // Optimization Hub
             Route::get('/route-optimization', [RouteOptimizationController::class, 'index'])->name('route.optimization');
+<<<<<<< HEAD
             Route::get('/logistics/analytics', [CostLedgerController::class, 'fleetAnalytics'])->name('logistics.analytics');
+=======
+>>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
 
             // Business Compliance Records
             Route::get('/business-documents', [LogisticsDocumentController::class, 'index'])->name('logistics.documents');
@@ -187,8 +202,14 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
                 // The Official Proposal Inbox Handler
                 Route::get('/proposals', [PoolingJobController::class, 'index'])->name('index'); // Maps to: /pooling/proposals (Name: pooling.index)
 
+<<<<<<< HEAD
                 // Cost Ledger — index (list all jobs)
                 Route::get('/cost-ledger', [CostLedgerController::class, 'index'])->name('cost-ledger.index');
+=======
+                // Cost Ledger — index (list all jobs) + per-job detail
+                Route::get('/cost-ledger', [CostLedgerController::class, 'index'])->name('cost-ledger.index');
+                Route::get('/{poolingJob}/cost-ledger', [CostLedgerController::class, 'show'])->name('cost-ledger');
+>>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
 
                 // Detailed Item Views & Logic Workers
                 Route::get('/{poolingJob}', [PoolingJobController::class, 'show'])->name('show');       // Maps to: /pooling/{poolingJob}
@@ -222,14 +243,18 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
             Route::get('/', [DriverController::class, 'index'])->name('dashboard');
             Route::get('/jobs/{poolingJob}', [DriverController::class, 'show'])->name('jobs.show');
             Route::patch('/jobs/{poolingJob}/status', [DriverController::class, 'updateStatus'])->name('jobs.status');
+<<<<<<< HEAD
             Route::patch('/jobs/{poolingJob}/harvests/{harvest}/status', [DriverController::class, 'updateStopStatus'])->name('jobs.stop.status');
             Route::post('/jobs/{poolingJob}/fuel-log', [DriverController::class, 'storeFuelLog'])->name('jobs.fuel-log');
+=======
+>>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
 
             // Live Telemetry Signal Broadcast (Ingress)
             Route::post('/tracking/store', [TrackingController::class, 'store'])->name('tracking.store');
         });
 
         /*
+<<<<<<< HEAD
         |------------------------------------------------------------------
         | 3.5 Buyer Platform Modules
         |------------------------------------------------------------------
@@ -265,6 +290,8 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
         Route::post('/pooling/{poolingJob}/cost-ledger/{harvestId}/mark-paid', [CostLedgerController::class, 'markPaid'])->name('pooling.cost-ledger.mark-paid');
 
         /*
+=======
+>>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
         | 4.0 Telemetry Cross-Domain Endpoint Fallbacks
         |------------------------------------------------------------------
         */
@@ -304,8 +331,11 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
             Route::get('/harvests', [AdminController::class, 'harvests'])->name('harvests');
             Route::get('/drivers', [AdminController::class, 'drivers'])->name('drivers');
             Route::get('/audit-logs', [AdminController::class, 'auditLogs'])->name('audit-logs');
+<<<<<<< HEAD
             Route::get('/analytics', [AdminController::class, 'analytics'])->name('analytics');
             Route::post('/crops/{crop}/baseline-price', [AdminController::class, 'updateBaselinePrice'])->name('baseline-price');
+=======
+>>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
 
             // Crop Matrix Hierarchies (Categories -> Crops -> Varieties)
             Route::prefix('crops')->name('crops.')->group(function () {

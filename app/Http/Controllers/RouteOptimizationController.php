@@ -49,11 +49,19 @@ class RouteOptimizationController extends Controller
                 }
             })
             ->whereHas('harvests', function ($query) {
+<<<<<<< HEAD
                 $query->where('status', 'sold');
             })
             ->with([
                 'farmerProfile',
                 'harvests' => fn($query) => $query->where('status', 'sold')
+=======
+                $query->where('status', 'active');
+            })
+            ->with([
+                'farmerProfile',
+                'harvests' => fn($query) => $query->where('status', 'active')
+>>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
                                                    ->with(['crop', 'cropVariety', 'destination']),
             ])
             ->get();

@@ -34,11 +34,18 @@ class LogisticsSeeder extends Seeder
 
         foreach ($partners as $partner) {
             $user = User::create([
+<<<<<<< HEAD
                 'name'              => $partner['name'],
                 'email'             => $partner['email'],
                 'password'          => Hash::make('password'),
                 'role'              => 'logistics_partner',
                 'email_verified_at' => now(),
+=======
+                'name'     => $partner['name'],
+                'email'    => $partner['email'],
+                'password' => Hash::make('password'),
+                'role'     => 'logistics_partner',
+>>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
             ]);
 
             LogisticsProfile::create([

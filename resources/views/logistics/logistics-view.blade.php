@@ -10,12 +10,16 @@
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                     <span class="text-[10px] font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 dark:bg-emerald-400/10 px-3 py-1 rounded-full border border-emerald-500/20">Logistics Portal</span>
+<<<<<<< HEAD
                     <h1 class="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight heading-font mt-3">
                         Welcome back, {{ Auth::user()->name }}
                         @if(Auth::user()->logisticsProfile?->company_name)
                             <span class="text-lg font-medium text-slate-500 dark:text-slate-400 block sm:inline sm:ml-2">| {{ Auth::user()->logisticsProfile->company_name }}</span>
                         @endif
                     </h1>
+=======
+                    <h1 class="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight heading-font mt-3">Welcome back, {{ Auth::user()->name }}</h1>
+>>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
                     <p class="text-sm text-slate-500 dark:text-slate-400 mt-1 font-medium">Logistics Console — Manage fleet, drivers, and coordinate consolidated haul routes.</p>
                 </div>
                 <div class="flex items-center gap-3">
@@ -148,6 +152,7 @@
                         <span class="text-slate-350 dark:text-slate-650 font-bold text-xs select-none">Dispatch Engine Locked</span>
                     @endif
                 </div>
+<<<<<<< HEAD
             </        {{-- ── LIVE OPERATIONS WORKSPACE ── --}}
         @if (Auth::user()->logisticsProfile?->is_verified)
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
@@ -331,6 +336,124 @@
                 </div>
             </div>
         @endif
+=======
+            </div>
+
+        </div>
+
+        {{-- ── PARTNER ACTIONS ── --}}
+        <div class="mb-4 flex items-center justify-between">
+            <h2 class="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">Operations Panel</h2>
+            <span class="w-20 h-px bg-slate-200 dark:bg-slate-700/80"></span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+            {{-- Action 1: Route Optimization --}}
+            <a href="{{ Auth::user()->logisticsProfile?->is_verified ? route('route.optimization') : '#' }}"
+                class="bg-white dark:bg-slate-800/80 backdrop-blur border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6 {{ Auth::user()->logisticsProfile?->is_verified ? 'hover:border-emerald-500 dark:hover:border-emerald-450 hover:shadow-xl hover:shadow-emerald-500/5 cursor-pointer' : 'cursor-not-allowed opacity-75' }} transition-all duration-350 group flex items-center justify-between gap-6">
+                <div class="space-y-2">
+                    <p class="text-base font-bold text-slate-800 dark:text-slate-200 {{ Auth::user()->logisticsProfile?->is_verified ? 'group-hover:text-emerald-700 dark:group-hover:text-emerald-400' : '' }} transition heading-font">Optimize Highway Routes</p>
+                    @if(Auth::user()->logisticsProfile?->is_verified)
+                        <p class="text-xs text-slate-500 dark:text-slate-450 leading-normal">Solve TSP stops to bundle farmers highway runs.</p>
+                        <span class="text-[9px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-900 border border-slate-200/60 dark:border-slate-750 px-2 py-0.5 rounded inline-block">Dispatch Console</span>
+                    @else
+                        <span class="text-[9px] font-extrabold uppercase tracking-widest text-amber-700 dark:text-amber-400 bg-amber-500/10 px-2.5 py-0.5 rounded border border-amber-500/15">Awaiting Account Approval</span>
+                    @endif
+                </div>
+                <div class="w-10 h-10 rounded-full bg-emerald-500/10 border border-emerald-550/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 group-hover:translate-x-1 transition-transform duration-200 shadow-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    </svg>
+                </div>
+            </a>
+
+            {{-- Action 2: Pooling Proposals --}}
+            <a href="{{ Auth::user()->logisticsProfile?->is_verified ? route('pooling.index') : '#' }}"
+                class="bg-white dark:bg-slate-800/80 backdrop-blur border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6 {{ Auth::user()->logisticsProfile?->is_verified ? 'hover:border-emerald-500 dark:hover:border-emerald-450 hover:shadow-xl hover:shadow-emerald-500/5 cursor-pointer' : 'cursor-not-allowed opacity-75' }} transition-all duration-350 group flex items-center justify-between gap-6">
+                <div class="space-y-2">
+                    <p class="text-base font-bold text-slate-800 dark:text-slate-200 {{ Auth::user()->logisticsProfile?->is_verified ? 'group-hover:text-emerald-700 dark:group-hover:text-emerald-400' : '' }} transition heading-font">Proposal Inbox</p>
+                    @if(Auth::user()->logisticsProfile?->is_verified)
+                        <p class="text-xs text-slate-500 dark:text-slate-450 leading-normal">Review negotiations and accept proposed highway rates.</p>
+                        <span class="text-[9px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-900 border border-slate-200/60 dark:border-slate-750 px-2 py-0.5 rounded inline-block">Consensus Rooms</span>
+                    @else
+                        <span class="text-[9px] font-extrabold uppercase tracking-widest text-amber-700 dark:text-amber-400 bg-amber-500/10 px-2.5 py-0.5 rounded border border-amber-500/15">Awaiting Account Approval</span>
+                    @endif
+                </div>
+                <div class="w-10 h-10 rounded-full bg-emerald-500/10 border border-emerald-550/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 group-hover:translate-x-1 transition-transform duration-200 shadow-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                    </svg>
+                </div>
+            </a>
+
+            {{-- Action 3: Business Compliance Documents --}}
+            <a href="{{ route('logistics.documents') }}"
+                class="bg-white dark:bg-slate-800/80 backdrop-blur border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6 hover:border-emerald-500 dark:hover:border-emerald-450 hover:shadow-xl hover:shadow-emerald-500/5 transition-all duration-300 group flex items-center justify-between gap-6">
+                <div class="space-y-2">
+                    <p class="text-base font-bold text-slate-800 dark:text-slate-200 group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition heading-font">Compliance Permits</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-450 leading-normal">Submit and review official permit credentials and sec records.</p>
+                    <span class="text-[9px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-900 border border-slate-200/60 dark:border-slate-750 px-2 py-0.5 rounded inline-block">SEC / DTI Permits</span>
+                </div>
+                <div class="w-10 h-10 rounded-full bg-emerald-500/10 border border-emerald-550/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 group-hover:translate-x-1 transition-transform duration-200 shadow-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                </div>
+            </a>
+
+            {{-- Action 4: Add New Vehicle --}}
+            <a href="{{ Auth::user()->logisticsProfile?->is_verified ? route('logistics.vehicles.create') : '#' }}"
+                class="bg-white dark:bg-slate-800/80 backdrop-blur border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6 {{ Auth::user()->logisticsProfile?->is_verified ? 'hover:border-emerald-500 dark:hover:border-emerald-450 hover:shadow-xl hover:shadow-emerald-500/5 cursor-pointer' : 'cursor-not-allowed opacity-75' }} transition-all duration-350 group flex items-center justify-between gap-6">
+                <div class="space-y-2">
+                    <p class="text-base font-bold text-slate-800 dark:text-slate-200 {{ Auth::user()->logisticsProfile?->is_verified ? 'group-hover:text-emerald-700 dark:group-hover:text-emerald-400' : '' }} transition heading-font">Add New Truck</p>
+                    @if(Auth::user()->logisticsProfile?->is_verified)
+                        <p class="text-xs text-slate-500 dark:text-slate-450 leading-normal">Register heavy haul containers, load capacity, and metadata.</p>
+                        <span class="text-[9px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-900 border border-slate-200/60 dark:border-slate-750 px-2 py-0.5 rounded inline-block">Fleet Ingress</span>
+                    @else
+                        <span class="text-[9px] font-extrabold uppercase tracking-widest text-amber-700 dark:text-amber-400 bg-amber-500/10 px-2.5 py-0.5 rounded border border-amber-500/15">Awaiting Account Approval</span>
+                    @endif
+                </div>
+                <div class="w-10 h-10 rounded-full bg-emerald-500/10 border border-emerald-550/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 group-hover:translate-x-1 transition-transform duration-200 shadow-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                </div>
+            </a>
+
+            {{-- Action 5: Fleet Predictor --}}
+            @if(Auth::user()->logisticsProfile?->is_verified)
+            <a href="{{ route('logistics.predictor') }}"
+                class="bg-white dark:bg-slate-800/80 backdrop-blur border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6 hover:border-sky-500 dark:hover:border-sky-500 hover:shadow-xl hover:shadow-sky-500/5 transition-all duration-300 group flex items-center justify-between gap-6">
+                <div class="space-y-2">
+                    <p class="text-base font-bold text-slate-800 dark:text-slate-200 group-hover:text-sky-700 dark:group-hover:text-sky-400 transition heading-font">Fleet Predictor</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-450 leading-normal">ML model to forecast transport runs based on historic harvests.</p>
+                    <span class="text-[9px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-900 border border-slate-200/60 dark:border-slate-750 px-2 py-0.5 rounded inline-block">Predictive ML</span>
+                </div>
+                <div class="w-10 h-10 rounded-full bg-sky-500/10 border border-sky-550/10 text-sky-655 dark:text-sky-455 flex items-center justify-center shrink-0 group-hover:translate-x-1 transition-transform duration-200 shadow-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                </div>
+            </a>
+
+            {{-- Action 6: Cost Ledger --}}
+            <a href="{{ route('pooling.cost-ledger.index') }}"
+                class="bg-white dark:bg-slate-800/80 backdrop-blur border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6 hover:border-emerald-500 dark:hover:border-emerald-450 hover:shadow-xl hover:shadow-emerald-500/5 transition-all duration-300 group flex items-center justify-between gap-6">
+                <div class="space-y-2">
+                    <p class="text-base font-bold text-slate-800 dark:text-slate-200 group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition heading-font">Freight Cost Ledger</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-450 leading-normal">Track splits, proportional shares, and payment settlements.</p>
+                    <span class="text-[9px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-900 border border-slate-200/60 dark:border-slate-750 px-2 py-0.5 rounded inline-block">Proportional Splits</span>
+                </div>
+                <div class="w-10 h-10 rounded-full bg-emerald-500/10 border border-emerald-550/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 group-hover:translate-x-1 transition-transform duration-200 shadow-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 11h.01M12 11h.01M15 11h.01M4 19h16a2 2 0 002-2V7a2 2 0 00-2-2H4a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                </div>
+            </a>
+            @endif
+
+        </div>
+>>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
     </div>
 </div>
 </x-layout>

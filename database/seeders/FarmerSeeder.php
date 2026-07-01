@@ -54,11 +54,18 @@ class FarmerSeeder extends Seeder
 
         foreach ($mockFarms as $index => $farm) {
             $user = User::create([
+<<<<<<< HEAD
                 'name'              => $farm['name'] . ' Owner',
                 'email'             => "farmer{$index}@test.com",
                 'password'          => Hash::make('password'),
                 'role'              => 'farmer',
                 'email_verified_at' => now(),
+=======
+                'name'     => $farm['name'] . ' Owner',
+                'email'    => "farmer{$index}@test.com",
+                'password' => Hash::make('password'),
+                'role'     => 'farmer',
+>>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
             ]);
 
             FarmerProfile::create([

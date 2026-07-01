@@ -24,6 +24,7 @@ class AdminController extends Controller
     {
         $this->adminOnly();
 
+<<<<<<< HEAD
         $pendingFarmersList = User::where('role', 'farmer')
             ->whereHas('farmerProfile', fn($q) => $q->where('is_verified', false))
             ->with('farmerProfile')
@@ -60,6 +61,22 @@ class AdminController extends Controller
             'pendingLogisticsList'     => $pendingLogisticsList,
             'pendingFarmerDocsList'    => $pendingFarmerDocsList,
             'pendingLogisticsDocsList' => $pendingLogisticsDocsList,
+=======
+        return view('admin.admin-view', [
+            'totalUsers'          => User::whereNot('role', 'admin')->count(),
+            'totalFarmers'        => User::where('role', 'farmer')->count(),
+            'totalLogistics'      => User::where('role', 'logistics_partner')->count(),
+            'totalDrivers'        => User::where('role', 'driver')->count(),
+            'pendingFarmers'      => User::where('role', 'farmer')
+                                        ->whereHas('farmerProfile', fn($q) => $q->where('is_verified', false))
+                                        ->count(),
+            'pendingLogistics'    => User::where('role', 'logistics_partner')
+                                        ->whereHas('logisticsProfile', fn($q) => $q->where('is_verified', false))
+                                        ->count(),
+            'activeHarvests'      => Harvest::where('status', 'active')->count(),
+            'pendingHarvests'     => Harvest::where('status', 'pending')->count(),
+            'recentLogs'          => AuditLog::with('admin')->latest()->take(5)->get(),
+>>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
         ]);
     }
 
@@ -495,6 +512,7 @@ class AdminController extends Controller
 
         return view('admin.audit-logs', compact('logs'));
     }
+<<<<<<< HEAD
 
     // -------------------------------------------------------
     // Platform Analytics Dashboard
@@ -583,4 +601,6 @@ class AdminController extends Controller
 
         return back()->with('success', "Baseline price for '{$crop->name}' updated to ₱" . number_format($request->baseline_price_per_kg, 2) . "/kg.");
     }
+=======
+>>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
 }
