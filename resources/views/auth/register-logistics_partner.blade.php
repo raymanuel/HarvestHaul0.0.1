@@ -146,7 +146,24 @@
             </div>
         </div>
 
-        <div class="pt-2">
+        {{-- TERMS & CONDITIONS --}}
+        <div class="form-group pt-1">
+            <label class="flex items-start gap-3 cursor-pointer p-3 rounded-xl bg-[#EFF2E9]/40 border border-[#2D6A2F]/10">
+                <input type="checkbox" name="accepted_terms" value="1" {{ old('accepted_terms') ? 'checked' : '' }}
+                    class="mt-0.5 w-4 h-4 rounded border-slate-300 text-[#2D6A2F] focus:ring-[#2D6A2F] cursor-pointer shrink-0">
+                <span class="text-xs text-slate-500 leading-relaxed">
+                    I agree to the
+                    <a href="javascript:void(0)" onclick="openLegalModal('{{ route('legal.terms') }}')" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#2D6A2F]/10 text-[#2D6A2F] font-semibold hover:bg-[#2D6A2F]/20 hover:text-[#1f4d21] transition-all text-[11px]">Terms & Conditions <span style="font-size:10px;">↗</span></a>
+                    and
+                    <a href="javascript:void(0)" onclick="openLegalModal('{{ route('legal.privacy') }}')" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#2D6A2F]/10 text-[#2D6A2F] font-semibold hover:bg-[#2D6A2F]/20 hover:text-[#1f4d21] transition-all text-[11px]">Privacy Policy <span style="font-size:10px;">↗</span></a>.
+                </span>
+            </label>
+            @error('accepted_terms')
+                <p class="text-xs text-red-500 mt-1 font-semibold">{{ $message }}</p>
+            @enderror
+        </div>
+
+        <div class="pt-1">
             <button type="submit" class="w-full py-3 bg-gradient-to-r from-[#2D6A2F] to-[#5A8A3C] hover:brightness-105 text-white font-bold rounded-xl text-sm shadow-md shadow-[#2D6A2F]/10 hover:shadow-lg transition duration-200 transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer">
                 Register as Logistics Coordinator
             </button>
@@ -164,10 +181,51 @@
                 ← Return to Homepage
             </a>
         </div>
+        {{-- LEGAL MODAL --}}
+        <div id="legal-modal-overlay" style="position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);" onclick="if(event.target===this)closeLegalModal()">
+            <div onclick="event.stopPropagation()" style="background:#fff;border-radius:1.5rem;max-width:640px;width:100%;max-height:80vh;overflow-y:auto;position:relative;box-shadow:0 25px 50px -12px rgba(0,0,0,0.3);scrollbar-width:thin;scrollbar-color:#d1d5db transparent;">
+                <div style="position:sticky;top:0;z-index:10;background:linear-gradient(135deg,#2D6A2F,#5A8A3C);border-radius:1.5rem 1.5rem 0 0;padding:1.25rem 2rem 1rem;margin:0;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;">
+                        <div>
+                            <span style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.7);">HarvestHaul</span>
+                            <div id="legal-modal-title" style="font-size:1.1rem;font-weight:700;color:#fff;font-family:'Outfit',sans-serif;margin-top:0.15rem;">Loading...</div>
+                        </div>
+                        <button onclick="closeLegalModal()" style="width:30px;height:30px;display:flex;align-items:center;justify-content:center;border-radius:50%;border:none;background:rgba(255,255,255,0.2);color:#fff;cursor:pointer;font-size:1.1rem;transition:all 0.15s;font-family:inherit;backdrop-filter:blur(4px);" onmouseover="this.style.background='rgba(255,255,255,0.35)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'">&times;</button>
+                    </div>
+                </div>
+                <div style="padding:1.5rem 2rem 2rem;">
+                    <div id="legal-modal-body" style="font-family:'Figtree',sans-serif;font-size:0.9rem;line-height:1.7;color:#374151;text-align:justify;"></div>
+                </div>
+            </div>
+        </div>
     </form>
 
     @push('scripts')
     <script>
+        function openLegalModal(url) {
+            const overlay = document.getElementById('legal-modal-overlay');
+            const body = document.getElementById('legal-modal-body');
+            const title = document.getElementById('legal-modal-title');
+            body.innerHTML = '<div style="text-align:center;padding:3rem 1rem;"><div style="width:32px;height:32px;border:3px solid #e5e7eb;border-top-color:#2D6A2F;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 1rem;"></div><p style="color:#9ca3af;font-size:0.85rem;">Loading...</p></div>';
+            title.textContent = 'HarvestHaul';
+            overlay.style.display = 'flex';
+            fetch(url).then(r => r.text()).then(html => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                body.innerHTML = doc.querySelector('.container').innerHTML;
+                const h1 = body.querySelector('h1');
+                if (h1) title.textContent = h1.textContent;
+            }).catch(() => {
+                body.innerHTML = '<p style="color:#dc2626;padding:2rem;text-align:center;">Failed to load. Please try again.</p>';
+            });
+        }
+        function closeLegalModal() {
+            document.getElementById('legal-modal-overlay').style.display = 'none';
+        }
+        document.addEventListener('click', function(e) {
+            if (e.target.id === 'legal-modal-overlay') closeLegalModal();
+        });
+
         function handleLogisticsType() {
             const company     = document.querySelector('input[name="logistics_type"][value="company"]');
             const cooperative = document.querySelector('input[name="logistics_type"][value="cooperative"]');

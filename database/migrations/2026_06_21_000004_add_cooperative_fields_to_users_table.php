@@ -9,8 +9,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->enum('affiliation_type', ['cooperative', 'independent'])->default('independent')->after('status');
-            $table->foreignId('cooperative_id')->nullable()->after('affiliation_type')->constrained('logistics_profiles')->nullOnDelete();
+            if (!Schema::hasColumn('users', 'affiliation_type')) {
+                $table->enum('affiliation_type', ['cooperative', 'independent'])->default('independent')->after('status');
+            }
+            if (!Schema::hasColumn('users', 'cooperative_id')) {
+                $table->foreignId('cooperative_id')->nullable()->after('affiliation_type')->constrained('logistics_profiles')->nullOnDelete();
+            }
         });
     }
 

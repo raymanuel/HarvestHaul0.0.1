@@ -6,8 +6,9 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     @php
-        $role = Auth::user()->role;
-        $isBuyer = ($role === 'buyer');
+        $user = Auth::user();
+        $role = $user->role;
+        $isBuyer = ($role === 'buyer') || ($role === 'logistics_partner' && $user->logisticsProfile && $user->logisticsProfile->isCooperative());
         $themeColor = $isBuyer ? 'violet' : 'emerald';
         
         $accentText = $isBuyer ? 'text-violet-600 dark:text-violet-400' : 'text-emerald-600 dark:text-emerald-400';

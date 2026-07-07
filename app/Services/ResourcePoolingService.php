@@ -240,7 +240,7 @@ class ResourcePoolingService
             $job->logistics_profile_id = $logisticsProfileId;
             $job->truck_id             = $truck->id;
             $job->driver_id            = $truck->driver_id;  // assigned driver inherits from truck
-            $job->status               = 'confirmed';         // confirmed and dispatched to driver
+            $job->status               = 'pending';           // starts as a pending proposal
             $job->total_kg             = $plan['total_kg'];
             $job->truck_capacity_kg    = $plan['truck_capacity_kg'];
             $job->farm_count           = $plan['farm_count'];
@@ -250,9 +250,9 @@ class ResourcePoolingService
             $job->end_longitude        = $plan['end_lng'];
             $job->radius_km            = $plan['radius_km'];
             $job->price_reference      = $plan['price_reference'] ?? null;
-            $job->negotiated_price     = null;                // will be set after negotiation
+            $job->negotiated_price     = $plan['price_reference'] ?? null; // initial bid is reference price
             $job->notes                = $plan['notes'] ?? null;
-            $job->confirmed_at         = now();
+            $job->confirmed_at         = null;                // will be populated once confirmed
             $job->route_geometry       = $plan['route_geometry'] ?? null; // OSRM route JSON for map display
 
             // Set buyer_id from the first harvest stop's completed negotiation
@@ -274,8 +274,7 @@ class ResourcePoolingService
                 $job->harvests()->attach($stop['harvest_id'], [
                     'pickup_order' => $stop['pickup_order'],
                     'quantity_kg'  => $stop['quantity_kg'],
-                    // Note: cost_share is computed and stored by PoolingJobController@confirm
-                    // AFTER this method returns, using negotiated_price if set.
+                    'status'       => 'pending',          // starts as pending farmer approval
                 ]);
                 // Lock the harvest — remove from active marketplace listing
                 Harvest::where('id', $stop['harvest_id'])->update(['status' => 'assigned']);

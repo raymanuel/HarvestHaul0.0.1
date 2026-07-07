@@ -25,8 +25,12 @@ class NegotiationController extends Controller
         ]);
 
         $buyer = Auth::user();
-        if ($buyer->role !== 'buyer') {
-            abort(403, 'Only commercial buyers can initiate B2B negotiations.');
+        $isCoopLogistics = $buyer->role === 'logistics_partner' 
+            && $buyer->logisticsProfile 
+            && $buyer->logisticsProfile->isCooperative();
+
+        if ($buyer->role !== 'buyer' && !$isCoopLogistics) {
+            abort(403, 'Only commercial buyers or cooperative logistics partners can initiate B2B negotiations.');
         }
 
         $harvest = Harvest::findOrFail($request->harvest_id);

@@ -292,7 +292,7 @@ class AdminController extends Controller
             'name'     => ['required', 'string', 'max:255', 'unique:users,name'],
             'email'    => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'string', 'min:8'],
-            'role'     => ['required', 'in:admin,farmer,logistics_partner,driver'],
+            'role'     => ['required', 'in:admin,farmer,logistics_partner,driver,buyer'],
             'status'   => ['required', 'in:active,inactive'],
         ];
 
@@ -312,17 +312,24 @@ class AdminController extends Controller
             $rules['phone'] = ['required', 'string', 'max:20'];
             $rules['license_number'] = ['required', 'string', 'max:50', 'unique:driver_profiles,license_no'];
             $rules['partner_id'] = ['required', 'exists:logistics_profiles,id'];
+        } elseif ($request->role === 'buyer') {
+            $rules['phone'] = ['required', 'string', 'max:20'];
+            $rules['affiliation_type'] = ['required', 'in:cooperative,independent'];
+            $rules['cooperative_id'] = ['required_if:affiliation_type,cooperative', 'nullable', 'exists:logistics_profiles,id'];
         }
 
         $validated = $request->validate($rules);
 
         return \DB::transaction(function () use ($validated, $request) {
             $user = User::create([
-                'name'     => $validated['name'],
-                'email'    => $validated['email'],
-                'password' => \Hash::make($validated['password']),
-                'role'     => $validated['role'],
-                'status'   => $validated['status'],
+                'name'             => $validated['name'],
+                'email'            => $validated['email'],
+                'password'         => \Hash::make($validated['password']),
+                'role'             => $validated['role'],
+                'status'           => $validated['status'],
+                'phone'            => $validated['phone'] ?? null,
+                'affiliation_type' => $validated['role'] === 'buyer' ? ($validated['affiliation_type'] ?? 'independent') : 'independent',
+                'cooperative_id'   => ($validated['role'] === 'buyer' && ($validated['affiliation_type'] ?? 'independent') === 'cooperative') ? $validated['cooperative_id'] : null,
             ]);
 
             $user->email_verified_at = now();
@@ -378,7 +385,7 @@ class AdminController extends Controller
             'name'     => ['required', 'string', 'max:255', 'unique:users,name,' . $user->id],
             'email'    => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $user->id],
             'password' => ['nullable', 'string', 'min:8'],
-            'role'     => ['required', 'in:admin,farmer,logistics_partner,driver'],
+            'role'     => ['required', 'in:admin,farmer,logistics_partner,driver,buyer'],
             'status'   => ['required', 'in:active,inactive'],
         ];
 
@@ -398,6 +405,10 @@ class AdminController extends Controller
             $rules['phone'] = ['required', 'string', 'max:20'];
             $rules['license_number'] = ['required', 'string', 'max:50', 'unique:driver_profiles,license_no,' . ($user->driverProfile?->id ?? 'NULL')];
             $rules['partner_id'] = ['required', 'exists:logistics_profiles,id'];
+        } elseif ($request->role === 'buyer') {
+            $rules['phone'] = ['required', 'string', 'max:20'];
+            $rules['affiliation_type'] = ['required', 'in:cooperative,independent'];
+            $rules['cooperative_id'] = ['required_if:affiliation_type,cooperative', 'nullable', 'exists:logistics_profiles,id'];
         }
 
         $validated = $request->validate($rules);
@@ -426,10 +437,13 @@ class AdminController extends Controller
 
             // Update user core fields
             $updateData = [
-                'name'  => $validated['name'],
-                'email' => $validated['email'],
-                'role'  => $validated['role'],
-                'status'=> $validated['status'],
+                'name'             => $validated['name'],
+                'email'            => $validated['email'],
+                'role'             => $validated['role'],
+                'status'           => $validated['status'],
+                'phone'            => $validated['phone'] ?? null,
+                'affiliation_type' => $validated['role'] === 'buyer' ? ($validated['affiliation_type'] ?? 'independent') : 'independent',
+                'cooperative_id'   => ($validated['role'] === 'buyer' && ($validated['affiliation_type'] ?? 'cooperative') === 'cooperative') ? $validated['cooperative_id'] : null,
             ];
 
             if (!empty($validated['password'])) {

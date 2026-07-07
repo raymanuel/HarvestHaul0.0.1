@@ -100,6 +100,16 @@
                                         <p class="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">🏢 {{ $user->driverProfile->partner->company_name }}</p>
                                     @endif
                                 </div>
+                            @elseif($user->role === 'buyer')
+                                <div class="space-y-0.5">
+                                    <p>📞 {{ $user->phone ?? 'No Phone' }}</p>
+                                    <p class="text-[9px] bg-slate-50 dark:bg-slate-900 px-1.5 py-0.5 rounded border border-slate-100 dark:border-slate-800 inline-block capitalize font-bold">
+                                        {{ $user->affiliation_type ?? 'Independent' }} 
+                                        @if($user->cooperative)
+                                            ({{ $user->cooperative->company_name }})
+                                        @endif
+                                    </p>
+                                </div>
                             @else
                                 <span class="text-slate-400 text-[10px] italic">—</span>
                             @endif
@@ -120,10 +130,10 @@
                                         'email' => $user->email,
                                         'role' => $user->role,
                                         'status' => $user->status,
-                                        'phone' => $user->farmerProfile?->phone ?? $user->logisticsProfile?->phone ?? $user->driverProfile?->phone ?? '',
+                                        'phone' => $user->phone ?? $user->farmerProfile?->phone ?? $user->logisticsProfile?->phone ?? $user->driverProfile?->phone ?? '',
                                         'farm_location' => $user->farmerProfile?->farm_location ?? '',
-                                        'affiliation_type' => $user->farmerProfile?->affiliation_type ?? '',
-                                        'cooperative_id' => $user->farmerProfile?->cooperative_id ?? '',
+                                        'affiliation_type' => $user->affiliation_type ?? $user->farmerProfile?->affiliation_type ?? '',
+                                        'cooperative_id' => $user->cooperative_id ?? $user->farmerProfile?->cooperative_id ?? '',
                                         'company_name' => $user->logisticsProfile?->company_name ?? '',
                                         'business_permit_no' => $user->logisticsProfile?->business_permit_no ?? '',
                                         'logistics_type' => $user->logisticsProfile?->logistics_type ?? '',
@@ -221,6 +231,7 @@
                         <option value="farmer">Farmer Cooperative Member</option>
                         <option value="logistics_partner">Logistics Freight Partner</option>
                         <option value="driver">Freight Vehicle Driver</option>
+                        <option value="buyer">Commercial Buyer</option>
                     </select>
                 </div>
             </div>
@@ -246,7 +257,7 @@
 
             {{-- DYNAMIC SECTION 1: Farmer Cooperative Details --}}
             <div id="farmer-fields" class="hidden space-y-4">
-                <div>
+                <div id="farm-location-container">
                     <label class="block text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Farm Location (Address) <span class="text-red-400">*</span></label>
                     <input type="text" id="user-farm-location" name="farm_location" placeholder="e.g. Barangay Tupi, South Cotabato"
                         class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition" />
@@ -489,6 +500,11 @@
             document.getElementById('user-logistics-type').value = user.logistics_type;
             handleLogisticsTypeChange(user.logistics_type);
             document.getElementById('user-cda-registration-no').value = user.cda_registration_no;
+        } else if (user.role === 'buyer') {
+            document.getElementById('user-phone').value = user.phone;
+            document.getElementById('user-affiliation-type').value = user.affiliation_type;
+            handleAffiliationChange(user.affiliation_type);
+            document.getElementById('user-cooperative-id').value = user.cooperative_id;
         } else if (user.role === 'driver') {
             document.getElementById('user-phone').value = user.phone;
             document.getElementById('user-license-number').value = user.license_number;
@@ -522,23 +538,37 @@
         const logisticsFields = document.getElementById('logistics-fields');
         const driverFields = document.getElementById('driver-fields');
 
+        const farmLocationContainer = document.getElementById('farm-location-container');
+        
         // Hide all
         phoneContainer.classList.add('hidden');
         farmerFields.classList.add('hidden');
         logisticsFields.classList.add('hidden');
         driverFields.classList.add('hidden');
+        farmLocationContainer.classList.remove('hidden');
 
         // Remove required fields for hidden blocks
         toggleInputsRequired(farmerFields, false);
         toggleInputsRequired(logisticsFields, false);
         toggleInputsRequired(driverFields, false);
         document.getElementById('user-phone').required = false;
+        document.getElementById('user-farm-location').required = false;
 
         if (role === 'farmer') {
             phoneContainer.classList.remove('hidden');
             farmerFields.classList.remove('hidden');
             document.getElementById('user-phone').required = true;
+            document.getElementById('user-farm-location').required = true;
             toggleInputsRequired(farmerFields, true);
+            // Affiliation check
+            handleAffiliationChange(document.getElementById('user-affiliation-type').value);
+        } else if (role === 'buyer') {
+            phoneContainer.classList.remove('hidden');
+            farmerFields.classList.remove('hidden');
+            farmLocationContainer.classList.add('hidden');
+            document.getElementById('user-phone').required = true;
+            toggleInputsRequired(farmerFields, true);
+            document.getElementById('user-farm-location').required = false;
             // Affiliation check
             handleAffiliationChange(document.getElementById('user-affiliation-type').value);
         } else if (role === 'logistics_partner') {

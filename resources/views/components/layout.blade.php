@@ -5,6 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $title ?? 'HarvestHaul Portal — Coordinated Agribusiness' }}</title>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#10b981">
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js').then(function(reg) {
+                    console.log('Global Service Worker registered successfully with scope: ', reg.scope);
+                }).catch(function(err) {
+                    console.error('Global Service Worker registration failed: ', err);
+                });
+            });
+        }
+    </script>
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -71,8 +84,7 @@
         /* Collapsed state: hide text labels */
         .sidebar-collapsed .nav-label,
         .sidebar-collapsed .section-label,
-        .sidebar-collapsed .logo-text,
-        .sidebar-collapsed .logout-text {
+        .sidebar-collapsed .logo-text {
             opacity: 0;
             width: 0;
             overflow: hidden;
@@ -83,8 +95,7 @@
         /* Expanded state: show text labels */
         #sidebar-nav:not(.sidebar-collapsed) .nav-label,
         #sidebar-nav:not(.sidebar-collapsed) .section-label,
-        #sidebar-nav:not(.sidebar-collapsed) .logo-text,
-        #sidebar-nav:not(.sidebar-collapsed) .logout-text {
+        #sidebar-nav:not(.sidebar-collapsed) .logo-text {
             opacity: 1;
             width: auto;
             transition: opacity 0.2s 0.1s, width 0.2s;
@@ -110,12 +121,7 @@
             justify-content: center;
         }
 
-        /* Collapsed logout centering */
-        .sidebar-collapsed .logout-btn {
-            justify-content: center;
-            padding-left: 0.75rem;
-            padding-right: 0.75rem;
-        }
+        
 
         /* Tooltip on hover when collapsed */
         .sidebar-collapsed .nav-link {
@@ -302,7 +308,7 @@
                 @endif
 
                 <!-- ROLE 5: BUYER VIEW NODES -->
-                @if(Auth::check() && Auth::user()->role === 'buyer')
+                @if(Auth::check() && (Auth::user()->role === 'buyer' || (Auth::user()->role === 'logistics_partner' && Auth::user()->logisticsProfile && Auth::user()->logisticsProfile->isCooperative())))
                     <div class="space-y-1.5">
                         <p class="section-label text-[10px] font-bold text-slate-500 uppercase tracking-widest px-4">Buyer Workspace</p>
                         
@@ -624,18 +630,7 @@
 
             </nav>
 
-            <!-- Sidebar User/Logout Panel (Nice Admin Bottom Bar) -->
-            <div class="p-4 border-t border-slate-800 shrink-0 bg-slate-950/30">
-                <form method="POST" action="{{ route('logout') }}" class="w-full">
-                    @csrf
-                    <button type="submit" class="logout-btn w-full flex items-center justify-center gap-2.5 px-4 py-3 bg-red-600/10 text-red-400 hover:bg-red-600 hover:text-white font-bold rounded-xl text-xs border border-red-500/20 transition-all">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                        </svg>
-                        <span class="logout-text">Exit Portal</span>
-                    </button>
-                </form>
-            </div>
+            
 
         </aside>
 
@@ -714,7 +709,7 @@
 
                         <!-- Dropdown Menu -->
                         <div id="profile-dropdown" class="hidden absolute right-0 mt-2 w-56 bg-white dark:bg-slate-800 border border-slate-200/85 dark:border-slate-700 rounded-2xl shadow-xl z-50 overflow-hidden py-1.5 px-1.5 space-y-1">
-                            @if(Auth::check() && (Auth::user()->role === 'farmer' || Auth::user()->role === 'logistics_partner'))
+                            @if(Auth::check() && (Auth::user()->role === 'farmer' || Auth::user()->role === 'logistics_partner' || Auth::user()->role === 'buyer'))
                                 <a href="{{ route('profile.show') }}" class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/40 hover:text-emerald-600 dark:hover:text-emerald-400 transition-all">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-400 dark:text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -722,13 +717,13 @@
                                     Profile Settings
                                 </a>
                             @endif
-                            <form method="POST" action="{{ route('logout') }}" class="w-full">
+                            <form method="POST" action="{{ route('logout') }}" class="w-full" id="logout-form">
                                 @csrf
-                                <button type="submit" class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold text-red-650 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 transition-all text-left">
+                                <button type="button" onclick="swalConfirm(document.getElementById('logout-form'), {title:'Sign Out', text:'Are you sure you want to sign out?', icon:'question', confirmText:'Yes, sign out', cancelText:'Cancel', confirmColor:'#ef4444'})" class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold text-red-650 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 transition-all text-left">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 shrink-0 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                                     </svg>
-                                    Exit Portal
+                                    Sign Out
                                 </button>
                             </form>
                         </div>

@@ -239,6 +239,76 @@
             // Load latest location immediately and poll
             pollLatestGPS(job.id);
             pollingInterval = setInterval(() => pollLatestGPS(job.id), 10000);
+
+            // Connect to WebSocket real-time channel
+            connectWebSocket();
+        }
+
+        let socket = null;
+        function connectWebSocket() {
+            if (socket) {
+                try { socket.close(); } catch (e) {}
+            }
+
+            const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsHost = wsProtocol + '//' + window.location.hostname + ':8080';
+            
+            try {
+                socket = new WebSocket(wsHost);
+
+                socket.onopen = function () {
+                    console.log('Real-time telemetry WebSocket streaming active.');
+                    const statusEl = document.getElementById('map-status');
+                    if (statusEl) {
+                        statusEl.innerHTML = `<span class="text-emerald-600 dark:text-emerald-400 font-bold">● Live Connection Active</span> · Tracking Route #${selectedJobId}`;
+                    }
+                };
+
+                socket.onmessage = function (event) {
+                    try {
+                        const payload = JSON.parse(event.data);
+                        if (payload && payload.pooling_job_id === selectedJobId) {
+                            console.log('Real-time telemetry WebSocket frame received:', payload);
+                            updateTruckMarker(payload.latitude, payload.longitude);
+                        }
+                    } catch (e) {
+                        console.error('WebSocket frame parsing error', e);
+                    }
+                };
+
+                socket.onerror = function (err) {
+                    console.warn('WebSocket connection error. Polling fallback active.', err);
+                };
+
+                socket.onclose = function () {
+                    console.log('WebSocket stream connection closed. Polling remains active.');
+                };
+            } catch (e) {
+                console.warn('Failed to initiate WebSocket connection:', e);
+            }
+        }
+
+        function updateTruckMarker(lat, lng) {
+            const truckIcon = L.divIcon({
+                html: `<div style="display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background: #0EA5E9; border: 3px solid white; box-shadow: 0 4px 10px rgba(14, 165, 233, 0.45); font-size: 16px; color: white">🚚</div>`,
+                className: '', iconSize: [32, 32], iconAnchor: [16, 16]
+            });
+
+            if (truckMarker) {
+                truckMarker.setLatLng([lat, lng]);
+            } else {
+                truckMarker = L.marker([lat, lng], { icon: truckIcon })
+                    .bindPopup(`<b>Live Dispatch Truck</b><br>Coordinates: ${lat}, ${lng}`)
+                    .addTo(map);
+            }
+
+            // Adjust map bounds to include truck
+            const currentBounds = map.getBounds();
+            if (!currentBounds.contains([lat, lng])) {
+                const newBounds = L.latLngBounds(activeMarkers.map(m => m.getLatLng()));
+                newBounds.extend([lat, lng]);
+                map.fitBounds(newBounds, { padding: [50, 50] });
+            }
         }
 
         function pollLatestGPS(jobId) {
@@ -248,29 +318,7 @@
                 .then(res => res.json())
                 .then(res => {
                     if (res.status === 'success' && res.data) {
-                        const lat = res.data.latitude;
-                        const lng = res.data.longitude;
-
-                        const truckIcon = L.divIcon({
-                            html: `<div style="display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background: #0EA5E9; border: 3px solid white; box-shadow: 0 4px 10px rgba(14, 165, 233, 0.45); font-size: 16px; color: white">🚚</div>`,
-                            className: '', iconSize: [32, 32], iconAnchor: [16, 16]
-                        });
-
-                        if (truckMarker) {
-                            truckMarker.setLatLng([lat, lng]);
-                        } else {
-                            truckMarker = L.marker([lat, lng], { icon: truckIcon })
-                                .bindPopup(`<b>Live Dispatch Truck</b><br>Coordinates: ${lat}, ${lng}`)
-                                .addTo(map);
-                        }
-
-                        // Adjust map bounds to include truck
-                        const currentBounds = map.getBounds();
-                        if (!currentBounds.contains([lat, lng])) {
-                            const newBounds = L.latLngBounds(activeMarkers.map(m => m.getLatLng()));
-                            newBounds.extend([lat, lng]);
-                            map.fitBounds(newBounds, { padding: [50, 50] });
-                        }
+                        updateTruckMarker(res.data.latitude, res.data.longitude);
                     }
                 })
                 .catch(err => console.error("Error polling GPS", err));

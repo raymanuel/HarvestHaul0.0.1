@@ -527,13 +527,13 @@
                 <!-- Tabs header -->
                 <div class="flex flex-wrap justify-center gap-2 mb-10 bg-[#EFF2E9] p-1.5 rounded-2xl max-w-2xl mx-auto border border-[#2D6A2F]/10">
                     <button onclick="setRoleTab('farmer')" id="tab-btn-farmer" class="px-5 py-2.5 rounded-xl text-sm font-bold transition bg-[#2D6A2F] text-white shadow-sm">
-                        🌾 Farmers
+                        Farmers
                     </button>
                     <button onclick="setRoleTab('logistics')" id="tab-btn-logistics" class="px-5 py-2.5 rounded-xl text-sm font-semibold text-slate-600 hover:text-slate-800 transition">
-                        🏢 Logistics Partners
+                        Logistics Partners
                     </button>
                     <button onclick="setRoleTab('driver')" id="tab-btn-driver" class="px-5 py-2.5 rounded-xl text-sm font-semibold text-slate-600 hover:text-slate-800 transition">
-                        🚛 Drivers
+                        Drivers
                     </button>
                 </div>
 
@@ -545,16 +545,14 @@
                         <div class="lg:col-span-6 space-y-6">
                             <h3 class="text-2xl font-bold text-slate-900 heading-font">Get Access to Grouped Shipping Without High Minimums</h3>
                             <p class="text-slate-500 leading-relaxed text-sm sm:text-base">
-                                Small farms usually struggle with logistics because shipping companies demand massive minimum volumes. In the Farmer Portal, simply submit your upcoming harvest dimensions. HarvestHaul's engine finds other growers along your highway corridor to build a full load.
+                                Small farms usually struggle with logistics because shipping companies demand massive minimum volumes. In the Farmer Portal, simply submit your upcoming harvest dimensions. HARVEST's engine finds other growers along your highway corridor to build a full load.
                             </p>
                             <div class="grid grid-cols-2 gap-4">
                                 <div class="p-4 rounded-xl bg-[#F8F6F1] border border-[#2D6A2F]/5">
-                                    <span class="text-lg">📈</span>
                                     <h4 class="font-bold text-sm text-slate-900 mt-2">Corridor Matching</h4>
                                     <p class="text-xs text-slate-400 mt-0.5">Autogrouped with local neighbors.</p>
                                 </div>
                                 <div class="p-4 rounded-xl bg-[#F8F6F1] border border-[#2D6A2F]/5">
-                                    <span class="text-lg">⚖️</span>
                                     <h4 class="font-bold text-sm text-slate-900 mt-2">Fair Pricing</h4>
                                     <p class="text-xs text-slate-400 mt-0.5">Pay only for the space you use.</p>
                                 </div>
@@ -598,16 +596,14 @@
                         <div class="lg:col-span-6 space-y-6">
                             <h3 class="text-2xl font-bold text-slate-900 heading-font">Optimize Multi-Stop Pickup Routes in a Single Screen</h3>
                             <p class="text-slate-500 leading-relaxed text-sm sm:text-base">
-                                For freight partners, HarvestHaul acts as a smart dispatch system. View regional grower listings, select compatible harvests, and generate highly optimized sequential route proposals. Track truck load volumes and allocate available drivers instantly.
+                                For freight partners, HARVEST acts as a smart dispatch system. View regional grower listings, select compatible harvests, and generate highly optimized sequential route proposals. Track truck load volumes and allocate available drivers instantly.
                             </p>
                             <div class="grid grid-cols-2 gap-4">
                                 <div class="p-4 rounded-xl bg-[#F8F6F1] border border-[#2D6A2F]/5">
-                                    <span class="text-lg">🗺️</span>
                                     <h4 class="font-bold text-sm text-slate-900 mt-2">Sequential Routing</h4>
                                     <p class="text-xs text-slate-400 mt-0.5">Calculates optimal multi-stop lines.</p>
                                 </div>
                                 <div class="p-4 rounded-xl bg-[#F8F6F1] border border-[#2D6A2F]/5">
-                                    <span class="text-lg">🚛</span>
                                     <h4 class="font-bold text-sm text-slate-900 mt-2">Fleet Monitoring</h4>
                                     <p class="text-xs text-slate-400 mt-0.5">Track truck space and drivers.</p>
                                 </div>
@@ -665,12 +661,10 @@
                             </p>
                             <div class="grid grid-cols-2 gap-4">
                                 <div class="p-4 rounded-xl bg-[#F8F6F1] border border-[#2D6A2F]/5">
-                                    <span class="text-lg">📱</span>
                                     <h4 class="font-bold text-sm text-slate-900 mt-2">Mobile PWA Layout</h4>
                                     <p class="text-xs text-slate-400 mt-0.5">Lightweight, loads in low signal.</p>
                                 </div>
                                 <div class="p-4 rounded-xl bg-[#F8F6F1] border border-[#2D6A2F]/5">
-                                    <span class="text-lg">📡</span>
                                     <h4 class="font-bold text-sm text-slate-900 mt-2">Telemetry Signal</h4>
                                     <p class="text-xs text-slate-400 mt-0.5">Instant geographic updates.</p>
                                 </div>
@@ -751,7 +745,7 @@
                 <div class="text-center max-w-2xl mx-auto mb-20">
                     <span class="text-xs font-bold uppercase tracking-widest text-[#2D6A2F] bg-white/60 px-3 py-1 rounded-full border border-[#2D6A2F]/10">Process Overview</span>
                     <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 heading-font mt-4">Simple, Coordinated Workflow</h2>
-                    <p class="mt-4 text-slate-550 leading-relaxed text-slate-600">How HarvestHaul connects regional agricultural assets in Southern Mindanao step-by-step.</p>
+                    <p class="mt-4 text-slate-550 leading-relaxed text-slate-600">How HARVEST connects regional agricultural assets in Southern Mindanao step-by-step.</p>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-12 relative">
@@ -845,7 +839,7 @@
                             <span id="faq-icon-3" class="text-[#2D6A2F] font-bold transition-transform duration-300">+</span>
                         </button>
                         <div id="faq-ans-3" class="hidden px-6 pb-5">
-                            <p class="text-xs text-slate-500 leading-relaxed">HarvestHaul calculates proportional transport costs automatically based on crop weight (tons) and pickup-to-hub distance (km) registered during scheduling.</p>
+                            <p class="text-xs text-slate-500 leading-relaxed">HARVEST calculates proportional transport costs automatically based on crop weight (tons) and pickup-to-hub distance (km) registered during scheduling.</p>
                         </div>
                     </div>
                 </div>
@@ -913,7 +907,7 @@
 
             <!-- Bottom Copyright row -->
             <div class="max-w-7xl mx-auto border-t border-white/5 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-white/40">
-                <p>&copy; {{ date('Y') }} HarvestHaul System. Engineered for Mindanao Hub Corridors. All rights reserved.</p>
+                <p>&copy; {{ date('Y') }} HARVEST System. Engineered for Mindanao Hub Corridors. All rights reserved.</p>
                 <div class="flex gap-4">
                     <a href="#" class="hover:underline">Privacy Policy</a>
                     <a href="#" class="hover:underline">Terms of Service</a>

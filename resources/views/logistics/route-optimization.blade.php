@@ -282,6 +282,41 @@
             }
 
             async function generateDetourRoute(start, nearbyFarms, end) {
+                const coords = [start, ...nearbyFarms.map(f => ({
+                    lat: f.data.farmer_profile.latitude,
+                    lng: f.data.farmer_profile.longitude,
+                })), end];
+
+                const points = coords.map(p => `${p.lng},${p.lat}`).join(';');
+                const tripUrl = `https://router.project-osrm.org/trip/v1/driving/${points}?source=first&destination=last&roundtrip=false&overview=full&geometries=geojson`;
+
+                try {
+                    const res  = await fetch(tripUrl);
+                    const data = await res.json();
+                    if (!data.trips?.length) {
+                        generateDetourRouteFallback(start, nearbyFarms, end);
+                        return;
+                    }
+
+                    currentRouteGeoJSON = data.trips[0].geometry;
+                    drawRoute(currentRouteGeoJSON);
+
+                    // Sort waypoints by OSRM optimized sequence
+                    const optimizedWps = data.waypoints
+                        .filter(wp => wp.waypoint_index !== 0 && wp.waypoint_index !== coords.length - 1)
+                        .sort((a, b) => a.trips_index - b.trips_index);
+
+                    const optimizedFarms = optimizedWps.map(wp => nearbyFarms[wp.waypoint_index - 1]);
+                    lastNearbyFarms = optimizedFarms;
+
+                    renderPickupQueue(optimizedFarms);
+                } catch (err) {
+                    console.error('Detour OSRM Trip TSP error:', err);
+                    generateDetourRouteFallback(start, nearbyFarms, end);
+                }
+            }
+
+            async function generateDetourRouteFallback(start, nearbyFarms, end) {
                 const waypoints = [start, ...nearbyFarms.map(f => ({
                     lat: f.data.farmer_profile.latitude,
                     lng: f.data.farmer_profile.longitude,
@@ -294,7 +329,7 @@
                     currentRouteGeoJSON = data.routes[0].geometry;
                     drawRoute(currentRouteGeoJSON);
                 } catch (err) {
-                    console.error('Detour routing error:', err);
+                    console.error('Detour routing fallback error:', err);
                 }
             }
 

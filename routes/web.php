@@ -22,7 +22,6 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
-use Illuminate\Foundation\Auth\EmailVerificationRequest;
 
 // Controllers
 use App\Http\Controllers\LoginController;
@@ -60,6 +59,9 @@ use App\Http\Middleware\EnsureUserIsBuyer;
 |--------------------------------------------------------------------------
 */
 Route::view('/', 'welcome')->name('welcome');
+
+Route::view('/legal/terms', 'legal.terms')->name('legal.terms');
+Route::view('/legal/privacy', 'legal.privacy')->name('legal.privacy');
 
 Route::get('/email/verified', function () {
     return view('auth.verified');
@@ -114,15 +116,12 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
         return view('auth.verify-email');
     })->name('verification.notice');
 
-    Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
-        $request->fulfill();
-        return redirect()->route('verification.success');
-    })->middleware('signed')->name('verification.verify');
+    Route::post('/email/verify-otp', [\App\Http\Controllers\Auth\VerifyOtpController::class, 'verify'])
+        ->name('verification.verify-otp');
 
-    Route::post('/email/verification-notification', function (Request $request) {
-        $request->user()->sendEmailVerificationNotification();
-        return back()->with('status', 'verification-link-sent');
-    })->middleware('throttle:6,1')->name('verification.send');
+    Route::post('/email/resend-otp', [\App\Http\Controllers\Auth\VerifyOtpController::class, 'resend'])
+        ->middleware('throttle:3,1')
+        ->name('verification.resend-otp');
 
     /*
     |----------------------------------------------------------------------
@@ -194,6 +193,8 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
                 Route::get('/{poolingJob}', [PoolingJobController::class, 'show'])->name('show');       // Maps to: /pooling/{poolingJob}
                 Route::post('/plan', [PoolingJobController::class, 'plan'])->name('plan');              // Maps to: /pooling/plan
                 Route::post('/confirm', [PoolingJobController::class, 'confirm'])->name('confirm');    // Maps to: /pooling/confirm
+                Route::post('/{poolingJob}/logistics-accept', [PoolingJobController::class, 'logisticsAcceptCounter'])->name('logistics-accept');
+                Route::post('/{poolingJob}/logistics-counter', [PoolingJobController::class, 'logisticsCounter'])->name('logistics-counter');
             });
 
             // Fleet Predictor
@@ -263,6 +264,9 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
         Route::get('/pooling/{poolingJob}/cost-ledger', [CostLedgerController::class, 'show'])->name('pooling.cost-ledger');
         Route::post('/pooling/{poolingJob}/cost-ledger/{harvestId}/upload-receipt', [CostLedgerController::class, 'uploadReceipt'])->name('pooling.cost-ledger.upload-receipt');
         Route::post('/pooling/{poolingJob}/cost-ledger/{harvestId}/mark-paid', [CostLedgerController::class, 'markPaid'])->name('pooling.cost-ledger.mark-paid');
+        Route::post('/pooling/{poolingJob}/accept', [PoolingJobController::class, 'acceptProposal'])->name('pooling.accept');
+        Route::post('/pooling/{poolingJob}/reject', [PoolingJobController::class, 'rejectProposal'])->name('pooling.reject');
+        Route::post('/pooling/{poolingJob}/counter', [PoolingJobController::class, 'counterProposal'])->name('pooling.counter');
 
         /*
         | 4.0 Telemetry Cross-Domain Endpoint Fallbacks

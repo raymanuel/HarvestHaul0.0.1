@@ -147,30 +147,7 @@ class PoolingJobController extends Controller
             $job = $this->poolingService->confirm($plan, $logisticsProfile->id);
 
             // Compute & store per-farmer cost shares in pivot table
-            $totalKg     = (float) $job->total_kg;
-            $basePrice   = (float) ($job->negotiated_price ?? $job->price_reference ?? 0);
-
-            if ($totalKg > 0 && $basePrice > 0) {
-                foreach ($job->harvests as $harvest) {
-                    $harvestKg  = (float) $harvest->pivot->quantity_kg;
-                    $proportion = $harvestKg / $totalKg;
-                    $costShare  = round($basePrice * $proportion, 2);
-
-                    $job->harvests()->updateExistingPivot($harvest->id, [
-                        'cost_share' => $costShare,
-                    ]);
-                }
-            }
-
-            // Create notifications for driver and farmers
-            if ($job->driver_id) {
-                \App\Models\Notification::create([
-                    'user_id' => $job->driver_id,
-                    'title' => 'New Route Assigned',
-                    'message' => "You have been assigned to Route #{$job->id}.",
-                    'link' => route('driver.dashboard'),
-                ]);
-            }
+            $this->recalculateCostShares($job);
 
             foreach ($job->harvests as $harvest) {
                 \App\Models\Notification::create([
@@ -248,5 +225,265 @@ class PoolingJobController extends Controller
             ->get();
 
         return view('farmers.farmer-proposals', compact('proposals'));
+    }
+
+    /**
+     * Recalculate cost shares proportionally for all harvests in a job.
+     */
+    private function recalculateCostShares(PoolingJob $job)
+    {
+        $totalKg     = (float) $job->total_kg;
+        $basePrice   = (float) ($job->negotiated_price ?? $job->price_reference ?? 0);
+
+        if ($totalKg > 0 && $basePrice > 0) {
+            foreach ($job->harvests as $harvest) {
+                $harvestKg  = (float) $harvest->pivot->quantity_kg;
+                $proportion = $harvestKg / $totalKg;
+                $costShare  = round($basePrice * $proportion, 2);
+
+                $job->harvests()->updateExistingPivot($harvest->id, [
+                    'cost_share' => $costShare,
+                ]);
+            }
+        }
+    }
+
+    /**
+     * Farmer accepts a pending pooling proposal.
+     */
+    public function acceptProposal(PoolingJob $poolingJob)
+    {
+        $user = auth()->user();
+
+        // Find the farmer's harvest inside the job
+        $harvest = $poolingJob->harvests()->where('user_id', $user->id)->first();
+        if (!$harvest) {
+            abort(403, 'Unauthorized. Harvest not found in this route.');
+        }
+
+        // Update pivot status
+        $poolingJob->harvests()->updateExistingPivot($harvest->id, [
+            'status' => 'accepted'
+        ]);
+
+        // Eager load harvests to get fresh statuses
+        $poolingJob->load('harvests');
+
+        // Check if all farmers have accepted
+        $allAccepted = true;
+        foreach ($poolingJob->harvests as $h) {
+            if ($h->pivot->status !== 'accepted') {
+                $allAccepted = false;
+                break;
+            }
+        }
+
+        if ($allAccepted) {
+            $poolingJob->status = 'confirmed';
+            $poolingJob->confirmed_at = now();
+            $poolingJob->save();
+
+            // Notify driver
+            if ($poolingJob->driver_id) {
+                \App\Models\Notification::create([
+                    'user_id' => $poolingJob->driver_id,
+                    'title' => 'New Route Confirmed',
+                    'message' => "All farmers accepted. Route #{$poolingJob->id} has been dispatched to you.",
+                    'link' => route('driver.dashboard'),
+                ]);
+            }
+
+            // Notify logistics
+            $logisticsUser = $poolingJob->logisticsProfile->user;
+            if ($logisticsUser) {
+                \App\Models\Notification::create([
+                    'user_id' => $logisticsUser->id,
+                    'title' => 'Proposal Confirmed',
+                    'message' => "All farmers accepted Proposal #{$poolingJob->id}. Route is now confirmed.",
+                    'link' => route('pooling.index'),
+                ]);
+            }
+        }
+
+        return back()->with('success', 'You have accepted the pooling proposal.');
+    }
+
+    /**
+     * Farmer rejects a pending pooling proposal.
+     */
+    public function rejectProposal(PoolingJob $poolingJob)
+    {
+        $user = auth()->user();
+
+        $harvest = $poolingJob->harvests()->where('user_id', $user->id)->first();
+        if (!$harvest) {
+            abort(403, 'Unauthorized.');
+        }
+
+        // Set harvest status back to sold so it can be pooled elsewhere
+        $harvest->status = 'sold';
+        $harvest->save();
+
+        // Detach from the pooling job
+        $poolingJob->harvests()->detach($harvest->id);
+
+        $poolingJob->load('harvests');
+
+        if ($poolingJob->harvests->isEmpty()) {
+            $poolingJob->status = 'cancelled';
+            $poolingJob->save();
+
+            // Free the truck
+            if ($poolingJob->truck) {
+                $poolingJob->truck->update(['status' => 'available']);
+            }
+        } else {
+            // Update job counts and weight
+            $totalKg = $poolingJob->harvests->sum('pivot.quantity_kg');
+            $poolingJob->total_kg = $totalKg;
+            $poolingJob->farm_count = $poolingJob->harvests->count();
+            $poolingJob->save();
+
+            // Recalculate cost shares for the remaining farmers
+            $this->recalculateCostShares($poolingJob);
+        }
+
+        // Notify logistics partner
+        $logisticsUser = $poolingJob->logisticsProfile->user;
+        if ($logisticsUser) {
+            \App\Models\Notification::create([
+                'user_id' => $logisticsUser->id,
+                'title' => 'Farmer Rejected Proposal',
+                'message' => "Farmer {$user->name} rejected the proposal for Route #{$poolingJob->id}.",
+                'link' => route('pooling.index'),
+            ]);
+        }
+
+        return back()->with('success', 'You rejected the proposal. Your crop is back on the haul board.');
+    }
+
+    /**
+     * Farmer submits a counter-proposal price bid.
+     */
+    public function counterProposal(Request $request, PoolingJob $poolingJob)
+    {
+        $user = auth()->user();
+
+        $request->validate([
+            'counter_price' => 'required|numeric|min:1|max:999999'
+        ]);
+
+        $harvest = $poolingJob->harvests()->where('user_id', $user->id)->first();
+        if (!$harvest) {
+            abort(403, 'Unauthorized.');
+        }
+
+        // Set new negotiated price
+        $poolingJob->negotiated_price = $request->counter_price;
+        $poolingJob->save();
+
+        // Reset all other farmers to pending, mark this farmer as accepted
+        foreach ($poolingJob->harvests as $h) {
+            $status = ($h->user_id === $user->id) ? 'accepted' : 'pending';
+            $poolingJob->harvests()->updateExistingPivot($h->id, [
+                'status' => $status
+            ]);
+        }
+
+        // Recalculate cost shares based on new price
+        $this->recalculateCostShares($poolingJob);
+
+        // Notify logistics partner
+        $logisticsUser = $poolingJob->logisticsProfile->user;
+        if ($logisticsUser) {
+            \App\Models\Notification::create([
+                'user_id' => $logisticsUser->id,
+                'title' => 'New Price Counter-Offer',
+                'message' => "Farmer {$user->name} counter-proposed ₱" . number_format($request->counter_price, 2) . " for Route #{$poolingJob->id}.",
+                'link' => route('pooling.index'),
+            ]);
+        }
+
+        return back()->with('success', 'Counter-proposal price submitted successfully.');
+    }
+
+    /**
+     * Logistics accepts the farmer's counter-offer.
+     */
+    public function logisticsAcceptCounter(PoolingJob $poolingJob)
+    {
+        $logisticsProfile = auth()->user()->logisticsProfile;
+        if ($poolingJob->logistics_profile_id !== $logisticsProfile->id) {
+            abort(403);
+        }
+
+        // Recalculate splits to lock it in
+        $this->recalculateCostShares($poolingJob);
+
+        // Check if all farmers are accepted
+        $poolingJob->load('harvests');
+        $allAccepted = true;
+        foreach ($poolingJob->harvests as $h) {
+            if ($h->pivot->status !== 'accepted') {
+                $allAccepted = false;
+                break;
+            }
+        }
+
+        if ($allAccepted) {
+            $poolingJob->status = 'confirmed';
+            $poolingJob->confirmed_at = now();
+            $poolingJob->save();
+
+            // Notify driver
+            if ($poolingJob->driver_id) {
+                \App\Models\Notification::create([
+                    'user_id' => $poolingJob->driver_id,
+                    'title' => 'New Route Confirmed',
+                    'message' => "Route #{$poolingJob->id} counter-proposal accepted and confirmed.",
+                    'link' => route('driver.dashboard'),
+                ]);
+            }
+        }
+
+        return back()->with('success', 'You accepted the farmer\'s price counter-offer.');
+    }
+
+    /**
+     * Logistics submits a new counter-bid to farmers.
+     */
+    public function logisticsCounter(Request $request, PoolingJob $poolingJob)
+    {
+        $logisticsProfile = auth()->user()->logisticsProfile;
+        if ($poolingJob->logistics_profile_id !== $logisticsProfile->id) {
+            abort(403);
+        }
+
+        $request->validate([
+            'negotiated_price' => 'required|numeric|min:1|max:999999'
+        ]);
+
+        $poolingJob->negotiated_price = $request->negotiated_price;
+        $poolingJob->save();
+
+        // Reset all farmers to pending
+        foreach ($poolingJob->harvests as $h) {
+            $poolingJob->harvests()->updateExistingPivot($h->id, [
+                'status' => 'pending'
+            ]);
+
+            // Notify farmer
+            \App\Models\Notification::create([
+                'user_id' => $h->user_id,
+                'title' => 'New Hauling Bid Offered',
+                'message' => "Logistics operator offered a new bid of ₱" . number_format($request->negotiated_price, 2) . " for Route #{$poolingJob->id}.",
+                'link' => route('farmer.proposals'),
+            ]);
+        }
+
+        // Recalculate cost shares
+        $this->recalculateCostShares($poolingJob);
+
+        return back()->with('success', 'New bid price submitted to farmers.');
     }
 }

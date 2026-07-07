@@ -2,11 +2,9 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Models\FarmerProfile;
 use App\Models\LogisticsProfile;
 use App\Models\Harvest;
@@ -27,7 +25,7 @@ use App\Models\Harvest;
  *   Each role gets a separate profile model (FarmerProfile, etc.)
  * ═══════════════════════════════════════════════════════════════
  */
-class User extends Authenticatable implements MustVerifyEmail
+class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
@@ -43,8 +41,11 @@ class User extends Authenticatable implements MustVerifyEmail
         'password',
         'role',
         'status',
+        'phone',
         'affiliation_type',
         'cooperative_id',
+        'email_otp',
+        'email_otp_expires_at',
     ];
 
     /**
@@ -64,6 +65,7 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return [
             'email_verified_at' => 'datetime',
+            'email_otp_expires_at' => 'datetime',
             'password' => 'hashed',
         ];
     }

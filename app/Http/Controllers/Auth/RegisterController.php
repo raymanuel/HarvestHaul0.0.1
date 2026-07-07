@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Mail\SendOtpMail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use App\Models\FarmerProfile;
 use App\Models\LogisticsProfile;
 
@@ -27,7 +29,7 @@ class RegisterController extends Controller
         }
 
         $cooperatives = collect();
-        if ($role === 'farmer' || $role === 'buyer') {
+        if ($role === 'farmer') {
             $cooperatives = LogisticsProfile::where('logistics_type', 'cooperative')
                 ->where('is_verified', true)
                 ->with('user')
@@ -45,11 +47,7 @@ class RegisterController extends Controller
             'phone'               => 'required|string|max:20',
             'password'            => 'required|string|min:8|confirmed',
             'role'                => 'required|in:farmer,logistics_partner,buyer',
-
-            // Buyer fields
-            'company_name'        => 'required_if:role,buyer|nullable|string|max:255',
-            'affiliation_type'    => 'required_if:role,buyer|required_if:role,farmer|nullable|in:cooperative,independent',
-            'cooperative_id'      => 'required_if:affiliation_type,cooperative|nullable|exists:logistics_profiles,id',
+            'accepted_terms'      => 'accepted',
 
             // Farmer fields
             'farm_location'       => 'required_if:role,farmer|nullable|string|max:255',
@@ -68,10 +66,11 @@ class RegisterController extends Controller
                 $user = User::create([
                     'name'             => $request->name,
                     'email'            => $request->email,
+                    'phone'            => $request->phone,
                     'password'         => Hash::make($request->password),
                     'role'             => $request->role,
-                    'affiliation_type' => $request->role === 'buyer' ? ($request->affiliation_type ?? 'independent') : 'independent',
-                    'cooperative_id'   => ($request->role === 'buyer' && $request->affiliation_type === 'cooperative') ? $request->cooperative_id : null,
+                    'affiliation_type' => $request->role === 'buyer' ? null : 'independent',
+                    'cooperative_id'   => null,
                 ]);
 
                 if ($request->role === 'farmer') {
@@ -110,7 +109,14 @@ class RegisterController extends Controller
                     'notes'       => "User {$user->name} registered as {$user->role} and logged in.",
                 ]);
 
-                $user->sendEmailVerificationNotification();
+                $otp = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+                $user->forceFill([
+                    'email_otp' => $otp,
+                    'email_otp_expires_at' => now()->addMinutes(10),
+                ])->save();
+
+                Mail::to($user->email)->send(new SendOtpMail($otp, $user->name));
+
                 return redirect()->route('verification.notice');
             });
         } catch (\Exception $e) {

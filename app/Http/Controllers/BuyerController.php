@@ -174,12 +174,19 @@ class BuyerController extends Controller
     {
         $user = Auth::user();
 
-        if ($user->affiliation_type === 'cooperative' && $user->cooperative_id) {
+        $cooperativeId = null;
+        if ($user->role === 'buyer' && $user->affiliation_type === 'cooperative') {
+            $cooperativeId = $user->cooperative_id;
+        } elseif ($user->role === 'logistics_partner' && $user->logisticsProfile && $user->logisticsProfile->isCooperative()) {
+            $cooperativeId = $user->logisticsProfile->id;
+        }
+
+        if ($cooperativeId) {
             return Harvest::where('status', 'active')
-                ->whereHas('farmer.farmerProfile', function ($q) use ($user) {
+                ->whereHas('farmer.farmerProfile', function ($q) use ($cooperativeId) {
                     $q->where('is_verified', true)
                       ->where('affiliation_type', 'cooperative')
-                      ->where('cooperative_id', $user->cooperative_id);
+                      ->where('cooperative_id', $cooperativeId);
                 });
         }
 

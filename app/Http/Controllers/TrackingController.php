@@ -89,6 +89,23 @@ class TrackingController extends Controller
             'posted_at'      => now(),
         ]);
 
+        // Real-time WebSocket broadcast trigger
+        try {
+            $fp = @fsockopen('127.0.0.1', 8080, $errno, $errstr, 0.5);
+            if ($fp) {
+                $payload = json_encode([
+                    'pooling_job_id' => (int) $job->id,
+                    'latitude'       => (float) $record->latitude,
+                    'longitude'      => (float) $record->longitude,
+                    'posted_at'      => $record->posted_at->toIso8601String(),
+                ]);
+                @fwrite($fp, $payload);
+                @fclose($fp);
+            }
+        } catch (\Exception $e) {
+            // Silence connection failures if websocket server is offline
+        }
+
         return response()->json([
             'status'  => 'success',
             'message' => 'Telemetry node registered.',
