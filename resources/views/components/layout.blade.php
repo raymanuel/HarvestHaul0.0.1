@@ -15,11 +15,7 @@
         (function() {
             var theme = localStorage.getItem('theme');
             var isDark = theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches);
-<<<<<<< HEAD
             @if(Auth::check() && (Auth::user()->role === 'admin' || Auth::user()->role === 'farmer' || Auth::user()->role === 'logistics_partner' || Auth::user()->role === 'buyer'))
-=======
-            @if(Auth::check() && (Auth::user()->role === 'admin' || Auth::user()->role === 'farmer' || Auth::user()->role === 'logistics_partner'))
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
                 if (isDark) {
                     document.documentElement.classList.add('dark');
                 } else {
@@ -233,11 +229,7 @@
                 
                 <!-- Base Dashboard Node -->
                 <div class="space-y-1.5">
-<<<<<<< HEAD
                     <a href="/dashboard" data-tooltip="Dashboard" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->is('dashboard') ? (Auth::check() && Auth::user()->role === 'buyer' ? 'bg-violet-600 text-white shadow-md shadow-violet-600/10' : 'bg-emerald-600 text-white shadow-md shadow-emerald-600/10') : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
-=======
-                    <a href="/dashboard" data-tooltip="Dashboard" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->is('dashboard') ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
                         <span class="nav-icon shrink-0">
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
@@ -261,7 +253,6 @@
                             <span class="nav-label">My Active Harvests</span>
                         </a>
 
-<<<<<<< HEAD
                         <a href="{{ route('farmer.negotiations') }}" data-tooltip="Crop Negotiations" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->routeIs('farmer.negotiations') || request()->routeIs('negotiations.room') ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
                             <span class="nav-icon shrink-0">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -271,8 +262,6 @@
                             <span class="nav-label">Crop Negotiations</span>
                         </a>
 
-=======
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
                         <a href="{{ route('farmer.proposals') }}" data-tooltip="Negotiation Hub" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->routeIs('farmer.proposals') ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
                             <span class="nav-icon shrink-0">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -300,7 +289,6 @@
                             </span>
                             <span class="nav-label">Regulatory Documents</span>
                         </a>
-<<<<<<< HEAD
 
                         <a href="{{ route('profile.show') }}" data-tooltip="My Profile" class="nav-link lg:hidden flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->routeIs('profile.*') ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
                             <span class="nav-icon shrink-0">
@@ -358,12 +346,6 @@
                 @endif
 
                 <!-- ROLE 2: ADMIN VIEW NODES (Nice Admin Groupings) -->                @if(Auth::check() && Auth::user()->role === 'admin')
-=======
-                    </div>
-                @endif
-
-                <!-- ROLE 2: ADMIN VIEW NODES (Nice Admin Groupings) --                @if(Auth::check() && Auth::user()->role === 'admin')
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
                     @php
                         $isTrustVerificationActive = request()->routeIs('admin.users*') ||
                                                      request()->routeIs('admin.farmers*') ||
@@ -492,11 +474,7 @@
                     </div>
 
                     @php
-<<<<<<< HEAD
                         $isGovernanceActive = request()->routeIs('admin.audit-logs*') || request()->routeIs('admin.analytics*');
-=======
-                        $isGovernanceActive = request()->routeIs('admin.audit-logs*');
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
                     @endphp
                     <!-- System Audit Group Dropdown -->
                     <div class="space-y-1.5">
@@ -517,7 +495,6 @@
                         </button>
                         
                         <div id="governance-dropdown" class="{{ $isGovernanceActive ? '' : 'hidden' }} mt-1 pl-4 space-y-1.5 transition-all">
-<<<<<<< HEAD
                             <a href="{{ route('admin.analytics') }}" data-tooltip="Platform Analytics" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->routeIs('admin.analytics*') ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
                                 <span class="nav-icon shrink-0">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -526,8 +503,6 @@
                                 </span>
                                 <span class="nav-label">Platform Analytics</span>
                             </a>
-=======
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
                             <a href="{{ route('admin.audit-logs') }}" data-tooltip="Platform Audit Logs" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->routeIs('admin.audit-logs*') ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
                                 <span class="nav-icon shrink-0">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -573,7 +548,6 @@
                             <span class="nav-label">Cost Ledger</span>
                         </a>
 
-<<<<<<< HEAD
                         <a href="{{ route('logistics.analytics') }}" data-tooltip="Fleet Analytics" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->routeIs('logistics.analytics') ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
                             <span class="nav-icon shrink-0">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -583,8 +557,6 @@
                             <span class="nav-label">Fleet Analytics</span>
                         </a>
 
-=======
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
                         <a href="{{ route('logistics.documents') }}" data-tooltip="Business License Docs" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->routeIs('logistics.documents*') ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
                             <span class="nav-icon shrink-0">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -612,7 +584,6 @@
                             </span>
                             <span class="nav-label">Manage Vehicles</span>
                         </a>
-<<<<<<< HEAD
 
                         <a href="{{ route('profile.show') }}" data-tooltip="My Profile" class="nav-link lg:hidden flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->routeIs('profile.*') ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
                             <span class="nav-icon shrink-0">
@@ -622,8 +593,6 @@
                             </span>
                             <span class="nav-label">My Profile</span>
                         </a>
-=======
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
                     </div>
                 @endif
 
@@ -685,11 +654,7 @@
                     </button>
                     <div>
                         <span class="text-xs font-bold uppercase tracking-wider text-slate-400">HarvestHaul Operations Workspace</span>
-<<<<<<< HEAD
                         <h2 class="text-sm font-bold text-slate-700 mt-0.5">Role Domain: <span class="{{ Auth::user()->role === 'buyer' ? 'text-violet-650 dark:text-violet-400' : 'text-emerald-700' }} uppercase font-black">{{ Auth::user()->role }}</span></h2>
-=======
-                        <h2 class="text-sm font-bold text-slate-700 mt-0.5">Role Domain: <span class="text-emerald-700 uppercase font-black">{{ Auth::user()->role }}</span></h2>
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
                     </div>
                 </div>
 
@@ -716,13 +681,8 @@
                         </div>
                     </div>
 
-<<<<<<< HEAD
                     <!-- Dark Mode Toggle (Admin, Farmer, Logistics & Buyer) -->
                     @if(Auth::check() && (Auth::user()->role === 'admin' || Auth::user()->role === 'farmer' || Auth::user()->role === 'logistics_partner' || Auth::user()->role === 'buyer'))
-=======
-                    <!-- Dark Mode Toggle (Admin, Farmer & Logistics) -->
-                    @if(Auth::check() && (Auth::user()->role === 'admin' || Auth::user()->role === 'farmer' || Auth::user()->role === 'logistics_partner'))
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
                         <button onclick="toggleDarkMode()" class="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-500 hover:text-slate-800 transition cursor-pointer" title="Toggle dark mode">
                             <!-- Moon Icon (shown in light mode) -->
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 block dark:hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -735,7 +695,6 @@
                         </button>
                     @endif
 
-<<<<<<< HEAD
                     <!-- Profile Menu Dropdown -->
                     <div class="relative" id="profile-menu">
                         <button onclick="toggleProfileDropdown()" class="flex items-center gap-3.5 pl-6 border-l border-slate-100 dark:border-slate-700 hover:opacity-90 transition cursor-pointer focus:outline-none text-left">
@@ -772,16 +731,6 @@
                                     Exit Portal
                                 </button>
                             </form>
-=======
-                    <!-- Profile Node -->
-                    <div class="flex items-center gap-3.5 pl-6 border-l border-slate-100">
-                        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-50 to-teal-50 border border-slate-100 flex items-center justify-center text-slate-600 font-extrabold uppercase text-sm select-none">
-                            {{ substr(Auth::user()->name, 0, 2) }}
-                        </div>
-                        <div>
-                            <p class="text-sm font-bold text-slate-800 leading-none">{{ Auth::user()->name }}</p>
-                            <p class="text-[10px] text-slate-400 font-semibold mt-1">{{ Auth::user()->email }}</p>
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
                         </div>
                     </div>
                 </div>
@@ -943,7 +892,6 @@
             dropdown.classList.toggle('hidden');
         }
 
-<<<<<<< HEAD
         // Profile Dropdown Toggle
         function toggleProfileDropdown() {
             var dropdown = document.getElementById('profile-dropdown');
@@ -962,14 +910,6 @@
             var profileMenu = document.getElementById('profile-menu');
             if (profileDropdown && profileMenu && !profileMenu.contains(e.target)) {
                 profileDropdown.classList.add('hidden');
-=======
-        // Close dropdown when clicking outside
-        window.addEventListener('click', function(e) {
-            var dropdown = document.getElementById('notifications-dropdown');
-            var menu = document.getElementById('notifications-menu');
-            if (dropdown && menu && !menu.contains(e.target)) {
-                dropdown.classList.add('hidden');
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
             }
         });
 

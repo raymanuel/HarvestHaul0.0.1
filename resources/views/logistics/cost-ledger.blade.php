@@ -91,19 +91,11 @@
                             <tr class="bg-slate-50 dark:bg-slate-900/30 border-b border-slate-100 dark:border-slate-700/60">
                                 <th class="px-5 py-3 text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider">#</th>
                                 <th class="px-5 py-3 text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider">Farmer</th>
-<<<<<<< HEAD
                                 <th class="px-5 py-3 text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider">Crop & Destination</th>
                                 <th class="px-5 py-3 text-right text-[10px] font-bold text-slate-400 uppercase tracking-wider">Weight Share</th>
                                 <th class="px-5 py-3 text-right text-[10px] font-bold text-slate-400 uppercase tracking-wider">Cost Share</th>
                                 <th class="px-5 py-3 text-center text-[10px] font-bold text-slate-400 uppercase tracking-wider">Payment Status</th>
                                 <th class="px-5 py-3 text-right text-[10px] font-bold text-slate-400 uppercase tracking-wider">Action</th>
-=======
-                                <th class="px-5 py-3 text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider">Crop</th>
-                                <th class="px-5 py-3 text-right text-[10px] font-bold text-slate-400 uppercase tracking-wider">Weight (kg)</th>
-                                <th class="px-5 py-3 text-right text-[10px] font-bold text-slate-400 uppercase tracking-wider">Share %</th>
-                                <th class="px-5 py-3 text-right text-[10px] font-bold text-slate-400 uppercase tracking-wider">Cost Share</th>
-                                <th class="px-5 py-3 text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider">Destination</th>
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100 dark:divide-slate-700/60">
@@ -118,7 +110,6 @@
                                         @if($entry['variety'] !== '—')
                                             <p class="text-[10px] text-slate-400 mt-0.5">{{ $entry['variety'] }}</p>
                                         @endif
-<<<<<<< HEAD
                                         <p class="text-[10px] text-slate-500 mt-1 italic max-w-[200px] truncate" title="{{ $entry['destination'] }}">
                                             📍 {{ $entry['destination'] }}
                                         </p>
@@ -126,20 +117,6 @@
                                     <td class="px-5 py-4 text-right">
                                         <span class="font-bold text-slate-800 dark:text-slate-200">{{ number_format($entry['quantity_kg'], 1) }} kg</span>
                                         <p class="text-[10px] text-slate-400 font-semibold mt-0.5">{{ $entry['proportion'] }}% share</p>
-=======
-                                    </td>
-                                    <td class="px-5 py-4 text-right font-bold text-slate-800 dark:text-slate-200">
-                                        {{ number_format($entry['quantity_kg'], 1) }}
-                                    </td>
-                                    <td class="px-5 py-4 text-right">
-                                        {{-- Weight proportion bar --}}
-                                        <div class="flex items-center justify-end gap-2">
-                                            <div class="w-16 bg-slate-100 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden">
-                                                <div class="bg-emerald-500 h-1.5 rounded-full transition-all" style="width: {{ $entry['proportion'] }}%"></div>
-                                            </div>
-                                            <span class="text-xs font-bold text-slate-600 dark:text-slate-400 w-10 text-right">{{ $entry['proportion'] }}%</span>
-                                        </div>
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
                                     </td>
                                     <td class="px-5 py-4 text-right">
                                         @if($totalPrice > 0)
@@ -148,7 +125,6 @@
                                             <span class="text-xs text-slate-400 italic">TBD</span>
                                         @endif
                                     </td>
-<<<<<<< HEAD
                                     <td class="px-5 py-4 text-center">
                                         @php
                                             $status = $entry['payment_status'] ?? 'unpaid';
@@ -218,10 +194,6 @@
                                         @else
                                             <span class="text-slate-400 text-xs">—</span>
                                         @endif
-=======
-                                    <td class="px-5 py-4 text-xs text-slate-500 dark:text-slate-400 font-semibold max-w-[160px] truncate">
-                                        {{ $entry['destination'] }}
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
                                     </td>
                                 </tr>
                             @endforeach
@@ -231,23 +203,14 @@
                             <tr class="bg-emerald-50/50 dark:bg-emerald-950/10 border-t-2 border-emerald-200/60 dark:border-emerald-800/30">
                                 <td colspan="3" class="px-5 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total</td>
                                 <td class="px-5 py-4 text-right font-bold text-slate-800 dark:text-slate-200">
-<<<<<<< HEAD
                                     {{ number_format($poolingJob->total_kg, 1) }} kg
                                     <p class="text-[10px] text-slate-400 font-semibold mt-0.5">100% share</p>
                                 </td>
-=======
-                                    {{ number_format($poolingJob->total_kg, 1) }}
-                                </td>
-                                <td class="px-5 py-4 text-right font-bold text-emerald-700 dark:text-emerald-400">100%</td>
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
                                 <td class="px-5 py-4 text-right font-extrabold text-emerald-700 dark:text-emerald-400">
                                     ₱{{ number_format($sumOfShares, 2) }}
                                 </td>
                                 <td></td>
-<<<<<<< HEAD
                                 <td></td>
-=======
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
                             </tr>
                         </tfoot>
                         @endif

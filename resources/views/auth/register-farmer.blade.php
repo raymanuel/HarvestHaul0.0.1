@@ -5,33 +5,21 @@
     @endpush
 
     <div class="mb-8 text-center">
-<<<<<<< HEAD
         <div class="w-14 h-14 bg-gradient-to-tr from-[#2D6A2F] to-[#5A8A3C] text-white rounded-2xl flex items-center justify-center mx-auto mb-3.5 shadow-md shadow-[#2D6A2F]/10">
-=======
-        <div class="w-14 h-14 bg-gradient-to-tr from-emerald-600 to-teal-500 text-white rounded-2xl flex items-center justify-center mx-auto mb-3.5 shadow-md shadow-emerald-500/10">
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
             <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.271.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.271.477-4.5 1.253" />
             </svg>
         </div>
         <h2 class="text-xl font-extrabold text-slate-800 heading-font tracking-tight">Farmer Registration</h2>
-<<<<<<< HEAD
         <p class="text-xs text-slate-505 mt-1.5 font-semibold">Join the marketplace, pool logistics, and coordinate dispatch</p>
-=======
-        <p class="text-xs text-slate-500 mt-1.5 font-semibold">Join the marketplace, pool logistics, and coordinate dispatch</p>
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
     </div>
 
     @if ($errors->any())
         <div class="mb-6 p-4 bg-red-50 dark:bg-red-950/20 border border-red-200/50 dark:border-red-900/30 rounded-xl">
             <div class="flex items-start gap-2.5">
-<<<<<<< HEAD
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-red-500 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                 </svg>
-=======
-                <span class="text-red-500 mt-0.5 text-xs">⚠️</span>
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
                 <ul class="text-xs text-red-600 dark:text-red-400 list-disc list-inside space-y-1 text-left">
                     @foreach ($errors->all() as $error)
                         <li>{{ $error }}</li>
@@ -49,11 +37,7 @@
         <div class="form-group">
             <div class="relative">
                 <input type="text" name="name" placeholder="Full Name" required value="{{ old('name') }}"
-<<<<<<< HEAD
                     class="px-4 py-3 w-full bg-white/80 border border-[#2D6A2F]/15 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2D6A2F]/10 focus:border-[#2D6A2F] transition">
-=======
-                    class="px-4 py-3 w-full bg-white/80 border border-slate-200/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition">
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
             </div>
         </div>
 
@@ -61,11 +45,7 @@
         <div class="form-group">
             <div class="relative">
                 <input type="email" name="email" placeholder="Email Address" required value="{{ old('email') }}"
-<<<<<<< HEAD
                     class="px-4 py-3 w-full bg-white/80 border border-[#2D6A2F]/15 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2D6A2F]/10 focus:border-[#2D6A2F] transition">
-=======
-                    class="px-4 py-3 w-full bg-white/80 border border-slate-200/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition">
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
             </div>
         </div>
 
@@ -73,11 +53,7 @@
         <div class="form-group">
             <div class="relative">
                 <input type="text" name="phone" placeholder="Phone Number" required value="{{ old('phone') }}"
-<<<<<<< HEAD
                     class="px-4 py-3 w-full bg-white/80 border border-[#2D6A2F]/15 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2D6A2F]/10 focus:border-[#2D6A2F] transition">
-=======
-                    class="px-4 py-3 w-full bg-white/80 border border-slate-200/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition">
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
             </div>
         </div>
 
@@ -85,15 +61,9 @@
         <div class="form-group">
             <div class="relative">
                 <input type="password" id="password" name="password" placeholder="Password" required
-<<<<<<< HEAD
                     class="pl-4 pr-12 py-3 w-full bg-white/80 border border-[#2D6A2F]/15 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2D6A2F]/10 focus:border-[#2D6A2F] transition">
                 <button type="button" onclick="togglePassword('password', 'eye-password')"
                     class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#2D6A2F] transition focus:outline-none">
-=======
-                    class="pl-4 pr-12 py-3 w-full bg-white/80 border border-slate-200/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition">
-                <button type="button" onclick="togglePassword('password', 'eye-password')"
-                    class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition focus:outline-none">
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
                     <svg id="eye-password" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                         stroke-linecap="round" stroke-linejoin="round">
@@ -108,15 +78,9 @@
         <div class="form-group">
             <div class="relative">
                 <input type="password" id="password_confirmation" name="password_confirmation" placeholder="Confirm Password" required
-<<<<<<< HEAD
                     class="pl-4 pr-12 py-3 w-full bg-white/80 border border-[#2D6A2F]/15 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2D6A2F]/10 focus:border-[#2D6A2F] transition">
                 <button type="button" onclick="togglePassword('password_confirmation', 'eye-confirm')"
                     class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#2D6A2F] transition focus:outline-none">
-=======
-                    class="pl-4 pr-12 py-3 w-full bg-white/80 border border-slate-200/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition">
-                <button type="button" onclick="togglePassword('password_confirmation', 'eye-confirm')"
-                    class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition focus:outline-none">
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
                     <svg id="eye-confirm" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                         stroke-linecap="round" stroke-linejoin="round">
@@ -129,7 +93,6 @@
 
         {{-- FARM LOCATION — MAP PIN --}}
         <div class="form-group space-y-2">
-<<<<<<< HEAD
             <label class="text-xs font-bold text-slate-650 block">
                 Farm Location <span class="text-red-505">*</span>
             </label>
@@ -137,15 +100,6 @@
             <div class="relative">
                 <input type="text" id="farm_location_display" name="farm_location" placeholder="Pin your farm on the map below" required readonly value="{{ old('farm_location') }}"
                     class="px-4 py-3 w-full bg-slate-50 border border-[#2D6A2F]/15 rounded-xl focus:outline-none cursor-default text-slate-600 font-medium">
-=======
-            <label class="text-xs font-bold text-slate-600 block">
-                Farm Location <span class="text-red-500">*</span>
-            </label>
-
-            <div class="relative">
-                <input type="text" id="farm_location_display" name="farm_location" placeholder="Pin your farm on the map below" required value="{{ old('farm_location') }}"
-                    class="px-4 py-3 w-full bg-white/80 border border-slate-200/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition">
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
             </div>
 
             {{-- Hidden coordinate inputs --}}
@@ -153,28 +107,16 @@
             <input type="hidden" id="longitude" name="longitude" value="{{ old('longitude') }}">
 
             {{-- GPS button --}}
-<<<<<<< HEAD
             <button type="button" id="use-my-location" class="w-full flex items-center justify-center gap-2 py-2.5 bg-[#EFF2E9] hover:bg-[#EFF2E9]/80 text-[#2D6A2F] border border-[#2D6A2F]/20 rounded-xl text-xs font-bold transition shadow-sm">
-=======
-            <button type="button" id="use-my-location" class="w-full flex items-center justify-center gap-2 py-2.5 bg-emerald-50 hover:bg-emerald-100/80 text-emerald-700 border border-emerald-200/50 rounded-xl text-xs font-bold transition shadow-sm">
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                     <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
-<<<<<<< HEAD
                 Use My GPS Location
             </button>
 
             {{-- Map container --}}
             <div id="farm-map" class="w-full h-[200px] rounded-xl border border-[#2D6A2F]/15 shadow-sm overflow-hidden z-0"></div>
-=======
-                📍 Use My GPS Location
-            </button>
-
-            {{-- Map container --}}
-            <div id="farm-map" class="w-full h-[200px] rounded-xl border border-slate-200/80 shadow-sm overflow-hidden z-0"></div>
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
 
             <p class="text-[10px] text-slate-400 font-medium text-center mt-1">
                 Drag the pin to your exact farm location.
@@ -183,13 +125,8 @@
 
         {{-- AFFILIATION --}}
         <div class="form-group space-y-2">
-<<<<<<< HEAD
             <label class="text-xs font-bold text-slate-655 block">
                 Are you a member of a cooperative? <span class="text-red-505">*</span>
-=======
-            <label class="text-xs font-bold text-slate-600 block">
-                Are you a member of a cooperative? <span class="text-red-500">*</span>
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
             </label>
 
             <div class="grid grid-cols-2 gap-3.5">
@@ -203,11 +140,7 @@
                 </label>
 
                 <!-- Cooperative Card -->
-<<<<<<< HEAD
                 <label id="label-cooperative" class="flex flex-col items-center justify-center p-4 border-2 border-slate-200/80 rounded-2xl cursor-pointer transition-all duration-200 text-center gap-1 hover:border-[#2D6A2F]/30 hover:bg-[#EFF2E9]/10">
-=======
-                <label id="label-cooperative" class="flex flex-col items-center justify-center p-4 border-2 border-slate-200/80 rounded-2xl cursor-pointer transition-all duration-200 text-center gap-1 hover:border-emerald-300 hover:bg-emerald-50/10">
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
                     <input type="radio" name="affiliation_type" value="cooperative"
                         {{ old('affiliation_type') === 'cooperative' ? 'checked' : '' }}
                         class="hidden" onchange="handleAffiliation()">
@@ -219,21 +152,12 @@
 
         {{-- Cooperative dropdown — only shown if under a coop --}}
         <div id="coop-field" style="display:none;" class="form-group space-y-1.5">
-<<<<<<< HEAD
             <label class="text-xs font-bold text-slate-650 block">
                 Select Your Cooperative <span class="text-slate-400 font-normal">(Optional)</span>
             </label>
             <div class="relative">
                 <select name="cooperative_id" id="cooperative_id"
                     class="pl-4 pr-10 py-3 w-full bg-white/80 border border-[#2D6A2F]/15 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2D6A2F]/10 focus:border-[#2D6A2F] transition appearance-none cursor-pointer text-sm text-slate-700">
-=======
-            <label class="text-xs font-bold text-slate-600 block">
-                Select Your Cooperative <span class="text-red-500">*</span>
-            </label>
-            <div class="relative">
-                <select name="cooperative_id" id="cooperative_id"
-                    class="pl-4 pr-10 py-3 w-full bg-white/80 border border-slate-200/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition appearance-none cursor-pointer text-sm text-slate-700">
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
                     <option value="">— Select your cooperative —</option>
                     @foreach($cooperatives as $coop)
                         <option value="{{ $coop->id }}"
@@ -248,38 +172,25 @@
                     </svg>
                 </span>
             </div>
-<<<<<<< HEAD
             <p class="text-[10px] text-slate-400 leading-normal mt-1">
                 You can skip this and join a cooperative later from your dashboard profile settings.
             </p>
-=======
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
             @error('cooperative_id')
                 <p class="text-xs text-red-500 mt-1 font-semibold">{{ $message }}</p>
             @enderror
             @if($cooperatives->isEmpty())
-<<<<<<< HEAD
                 <p class="text-xs text-slate-500 mt-1 font-medium bg-slate-50 p-2.5 rounded-lg border border-slate-200/50">
                     No verified cooperatives are registered yet. You can sign up as independent and link to a cooperative later.
-=======
-                <p class="text-xs text-red-500 mt-1 font-semibold">
-                    No verified cooperatives are registered yet. Please sign up as independent for now.
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
                 </p>
             @endif
         </div>
 
         <div class="pt-2">
-<<<<<<< HEAD
             <button type="submit" class="w-full py-3 bg-gradient-to-r from-[#2D6A2F] to-[#5A8A3C] hover:brightness-105 text-white font-bold rounded-xl text-sm shadow-md shadow-[#2D6A2F]/10 hover:shadow-lg transition duration-200 transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer">
-=======
-            <button type="submit" class="w-full py-3 bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-700 hover:to-teal-600 text-white font-bold rounded-xl text-sm shadow-md shadow-emerald-500/10 hover:shadow-lg transition duration-200 transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer">
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
                 Register as Farmer
             </button>
         </div>
 
-<<<<<<< HEAD
         <div class="mt-6 pt-5 border-t border-slate-100/80 text-center text-xs font-semibold text-slate-450">
             Not a farmer?
             <a href="{{ route('register.role', 'logistics_partner') }}"
@@ -292,27 +203,12 @@
                 ← Return to Homepage
             </a>
         </div>
-=======
-        <div class="mt-6 pt-5 border-t border-slate-100/80 text-center text-xs font-semibold text-slate-400">
-            Not a farmer?
-            <a href="{{ route('register.role', 'logistics_partner') }}"
-                class="text-emerald-600 hover:text-emerald-700 transition ml-1 hover:underline">
-                Sign up as Logistics Coordinator
-            </a>
-        </div>
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
     </form>
 
     @push('scripts')
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-<<<<<<< HEAD
         // PASSWORD TOGGLE
-=======
-        // -------------------------------------------------------
-        // PASSWORD TOGGLE
-        // -------------------------------------------------------
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
         function togglePassword(fieldId, iconId) {
             const field = document.getElementById(fieldId);
             const icon  = document.getElementById(iconId);
@@ -320,10 +216,6 @@
 
             field.type = isHidden ? 'text' : 'password';
 
-<<<<<<< HEAD
-=======
-            // Swap icon: open eye vs slashed eye
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
             icon.innerHTML = isHidden
                 ? `<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
                    <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
@@ -332,13 +224,7 @@
                    <circle cx="12" cy="12" r="3"/>`;
         }
 
-<<<<<<< HEAD
         // LEAFLET MAP — General Santos City default center
-=======
-        // -------------------------------------------------------
-        // LEAFLET MAP — General Santos City default center
-        // -------------------------------------------------------
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
         const GENSAN = [6.1164, 125.1716];
 
         const map = L.map('farm-map', { zoomControl: true }).setView(GENSAN, 13);
@@ -349,21 +235,12 @@
             maxZoom: 19,
         }).addTo(map);
 
-<<<<<<< HEAD
         // Custom green marker matching #2D6A2F
         const greenIcon = L.divIcon({
             html: `<div style="
                 width: 18px; height: 18px; border-radius: 50%;
                 background: #2D6A2F; border: 3px solid white;
                 box-shadow: 0 3px 8px rgba(45, 106, 47, 0.4);
-=======
-        // Custom green marker matching emerald-600
-        const greenIcon = L.divIcon({
-            html: `<div style="
-                width: 18px; height: 18px; border-radius: 50%;
-                background: #059669; border: 3px solid white;
-                box-shadow: 0 3px 8px rgba(5, 150, 105, 0.4);
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
             "></div>`,
             className: '',
             iconAnchor: [9, 9],
@@ -383,13 +260,7 @@
             map.setView(initPos, 15);
         }
 
-<<<<<<< HEAD
         // REVERSE GEOCODE via Nominatim
-=======
-        // -------------------------------------------------------
-        // REVERSE GEOCODE via Nominatim
-        // -------------------------------------------------------
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
         function reverseGeocode(lat, lng) {
             fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`)
                 .then(res => res.json())
@@ -409,13 +280,7 @@
                 .catch(() => {});
         }
 
-<<<<<<< HEAD
         // UPDATE HIDDEN INPUTS ON MARKER MOVE
-=======
-        // -------------------------------------------------------
-        // UPDATE HIDDEN INPUTS ON MARKER MOVE
-        // -------------------------------------------------------
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
         function updateCoords(latlng) {
             document.getElementById('latitude').value  = latlng.lat.toFixed(8);
             document.getElementById('longitude').value = latlng.lng.toFixed(8);
@@ -431,13 +296,7 @@
             updateCoords(e.latlng);
         });
 
-<<<<<<< HEAD
         // GPS BUTTON
-=======
-        // -------------------------------------------------------
-        // GPS BUTTON
-        // -------------------------------------------------------
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
         document.getElementById('use-my-location').addEventListener('click', function () {
             if (!navigator.geolocation) {
                 alert('Geolocation is not supported by your browser.');
@@ -453,7 +312,6 @@
                     marker.setLatLng(latlng);
                     map.setView(latlng, 16);
                     updateCoords(latlng);
-<<<<<<< HEAD
                     btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -467,22 +325,11 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                         </svg>
                         Use My GPS Location`;
-=======
-                    btn.innerHTML = `📍 Use My GPS Location`;
-                },
-                function () {
-                    alert('Unable to retrieve your location. Please pin manually.');
-                    btn.innerHTML = `📍 Use My GPS Location`;
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
                 }
             );
         });
 
-<<<<<<< HEAD
         // AFFILIATION TOGGLE
-=======
-        // ── AFFILIATION TOGGLE ──────────────────────────────────
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
         function handleAffiliation() {
             const independent = document.querySelector('input[name="affiliation_type"][value="independent"]');
             const cooperative = document.querySelector('input[name="affiliation_type"][value="cooperative"]');
@@ -497,7 +344,6 @@
             }
 
             if (cooperative.checked) {
-<<<<<<< HEAD
                 labelCoop.className = "flex flex-col items-center justify-center p-4 border-2 border-[#2D6A2F] bg-[#EFF2E9]/30 rounded-2xl cursor-pointer transition-all duration-200 text-center gap-1 scale-[1.02] shadow-sm";
             } else {
                 labelCoop.className = "flex flex-col items-center justify-center p-4 border-2 border-slate-200/80 rounded-2xl cursor-pointer transition-all duration-200 text-center gap-1 hover:border-[#2D6A2F]/30 hover:bg-[#EFF2E9]/10";
@@ -506,19 +352,6 @@
             coopField.style.display = cooperative.checked ? 'block' : 'none';
         }
 
-=======
-                labelCoop.className = "flex flex-col items-center justify-center p-4 border-2 border-emerald-500 bg-emerald-50/20 rounded-2xl cursor-pointer transition-all duration-200 text-center gap-1 scale-[1.02] shadow-sm";
-            } else {
-                labelCoop.className = "flex flex-col items-center justify-center p-4 border-2 border-slate-200/80 rounded-2xl cursor-pointer transition-all duration-200 text-center gap-1 hover:border-emerald-300 hover:bg-emerald-50/10";
-            }
-
-            coopField.style.display = cooperative.checked ? 'block' : 'none';
-            const coopSelect = document.getElementById('cooperative_id');
-            coopSelect.required = cooperative.checked;
-        }
-
-        // Restore affiliation state on validation failure
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
         document.addEventListener('DOMContentLoaded', function () {
             const oldAffiliation = "{{ old('affiliation_type') }}";
             if (oldAffiliation) {

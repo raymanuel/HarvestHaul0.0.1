@@ -60,28 +60,17 @@ class ResourcePoolingService
         float $endLng,
         float $radiusKm
     ): array {
-<<<<<<< HEAD
         // STEP 1: Fetch only SOLD harvests with GPS coords and full relationships.
         // Inactive/assigned harvests are excluded — prevents double-booking.
         $harvests = Harvest::whereIn('id', $nearbyHarvestIds)
             ->where('status', 'sold')
-=======
-        // STEP 1: Fetch only ACTIVE harvests with GPS coords and full relationships.
-        // Inactive/assigned harvests are excluded — prevents double-booking.
-        $harvests = Harvest::whereIn('id', $nearbyHarvestIds)
-            ->where('status', 'active')
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
             ->whereNotNull('latitude')
             ->whereNotNull('longitude')
             ->with(['crop', 'cropVariety', 'farmer.farmerProfile', 'destination'])
             ->get();
 
         if ($harvests->isEmpty()) {
-<<<<<<< HEAD
             return $this->emptyPlan('No sold harvests found for the selected farms.');
-=======
-            return $this->emptyPlan('No active harvests found for the selected farms.');
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
         }
 
         // STEP 2: Knapsack selection — pick harvests that fit within truck capacity.
@@ -251,11 +240,7 @@ class ResourcePoolingService
             $job->logistics_profile_id = $logisticsProfileId;
             $job->truck_id             = $truck->id;
             $job->driver_id            = $truck->driver_id;  // assigned driver inherits from truck
-<<<<<<< HEAD
             $job->status               = 'confirmed';         // confirmed and dispatched to driver
-=======
-            $job->status               = 'pending';           // pending until driver accepts
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
             $job->total_kg             = $plan['total_kg'];
             $job->truck_capacity_kg    = $plan['truck_capacity_kg'];
             $job->farm_count           = $plan['farm_count'];
@@ -269,7 +254,6 @@ class ResourcePoolingService
             $job->notes                = $plan['notes'] ?? null;
             $job->confirmed_at         = now();
             $job->route_geometry       = $plan['route_geometry'] ?? null; // OSRM route JSON for map display
-<<<<<<< HEAD
 
             // Set buyer_id from the first harvest stop's completed negotiation
             $firstStop = $plan['stops'][0] ?? null;
@@ -282,8 +266,6 @@ class ResourcePoolingService
                 }
             }
 
-=======
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
             $job->save();
 
             // Attach each harvest to the job via the pivot table.

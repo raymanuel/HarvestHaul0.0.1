@@ -116,7 +116,6 @@
                     <a href="{{ route('admin.logistics') }}" class="text-violet-650 dark:text-violet-400 font-bold text-xs hover:underline transition inline-flex items-center gap-1">Logistics <span>→</span></a>
                 </div>
             </div>
-<<<<<<< HEAD
         </div>
 
         {{-- ── ACTION QUEUES ── --}}
@@ -289,85 +288,6 @@
                     @endif
                 </div>
             </div>
-=======
-
-        </div>
-
-        {{-- ── PENDING DOCUMENT REVIEWS BANNER ── --}}
-        @php
-            $pendingFarmerDocs = \App\Models\FarmerDocument::where('status', 'pending')->count();
-            $pendingLogisticsDocs = \App\Models\LogisticsDocument::where('status', 'pending')->count();
-            $totalPendingDocs = $pendingFarmerDocs + $pendingLogisticsDocs;
-        @endphp
-
-        @if($totalPendingDocs > 0)
-        <div class="bg-gradient-to-r from-amber-500/10 via-amber-600/5 to-transparent border border-amber-500/20 rounded-3xl p-6 shadow-sm flex items-center justify-between flex-wrap gap-4 mb-8">
-            <div class="flex items-start gap-4">
-                <div class="w-12 h-12 rounded-2xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0 text-xl shadow-inner select-none">📄</div>
-                <div>
-                    <h3 class="text-base font-bold text-amber-900 dark:text-amber-300 heading-font">
-                        {{ $totalPendingDocs }} Document{{ $totalPendingDocs > 1 ? 's' : '' }} Awaiting Verification Review
-                    </h3>
-                    <p class="text-xs text-amber-700 dark:text-amber-400 font-semibold mt-1">
-                        {{ $pendingFarmerDocs }} farmer {{ Str::plural('document', $pendingFarmerDocs) }}
-                        &nbsp;·&nbsp;
-                        {{ $pendingLogisticsDocs }} logistics {{ Str::plural('document', $pendingLogisticsDocs) }}
-                    </p>
-                </div>
-            </div>
-            <div class="flex gap-3">
-                @if($pendingFarmerDocs > 0)
-                    <a href="{{ route('admin.farmer-documents') }}"
-                        class="bg-emerald-650 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition shadow-sm inline-flex items-center">
-                        Verify Farmer Docs
-                    </a>
-                @endif
-                @if($pendingLogisticsDocs > 0)
-                    <a href="{{ route('admin.logistics-documents') }}"
-                        class="bg-slate-900 hover:bg-slate-800 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition shadow-sm inline-flex items-center border border-slate-700">
-                        Verify Logistics Docs
-                    </a>
-                @endif
-            </div>
-        </div>
-        @endif
-
-        {{-- ── QUICK ACTIONS ── --}}
-        <div class="mb-4 flex items-center justify-between">
-            <h2 class="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">Quick Actions</h2>
-            <span class="w-20 h-px bg-slate-200 dark:bg-slate-700/80"></span>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-
-            @php
-                $quickActions = [
-                    ['route' => 'admin.farmer-documents', 'label' => 'Farmer Documents', 'badge' => $pendingFarmerDocs > 0 ? $pendingFarmerDocs . ' pending' : 'All clear', 'badgeType' => $pendingFarmerDocs > 0 ? 'amber' : 'slate'],
-                    ['route' => 'admin.logistics-documents', 'label' => 'Logistics Documents', 'badge' => $pendingLogisticsDocs > 0 ? $pendingLogisticsDocs . ' pending' : 'All clear', 'badgeType' => $pendingLogisticsDocs > 0 ? 'amber' : 'slate'],
-                    ['route' => 'admin.farmers', 'label' => 'Farmer Verification', 'badge' => $pendingFarmers > 0 ? $pendingFarmers . ' pending' : 'All verified', 'badgeType' => $pendingFarmers > 0 ? 'amber' : 'slate'],
-                    ['route' => 'admin.logistics', 'label' => 'Logistics Verification', 'badge' => $pendingLogistics > 0 ? $pendingLogistics . ' pending' : 'All verified', 'badgeType' => $pendingLogistics > 0 ? 'amber' : 'slate'],
-                    ['route' => 'admin.harvests', 'label' => 'Harvest Oversight', 'badge' => $activeHarvests . ' active', 'badgeType' => 'slate'],
-                    ['route' => 'admin.crops.index', 'label' => 'Crop registry Manager', 'badge' => 'Admin tools', 'badgeType' => 'slate'],
-                    ['route' => 'admin.drivers', 'label' => 'Driver Accounts', 'badge' => $totalDrivers . ' registered', 'badgeType' => 'slate'],
-                    ['route' => 'admin.audit-logs', 'label' => 'Governance Logs', 'badge' => 'Security logs', 'badgeType' => 'slate'],
-                ];
-            @endphp
-
-            @foreach($quickActions as $action)
-                <a href="{{ route($action['route']) }}"
-                    class="bg-white dark:bg-slate-800/80 backdrop-blur border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-5 hover:border-emerald-500 dark:hover:border-emerald-450 hover:shadow-xl hover:shadow-emerald-500/5 transition-all duration-300 group flex items-center justify-between gap-4">
-                    <div>
-                        <p class="text-sm font-bold text-slate-800 dark:text-slate-200 group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition heading-font">{{ $action['label'] }}</p>
-                        <p class="text-[10px] font-semibold mt-1.5 {{ $action['badgeType'] === 'amber' ? 'text-amber-700 dark:text-amber-400 bg-amber-500/10 border border-amber-500/25 px-2 py-0.5 rounded-lg' : 'text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700/80 px-2 py-0.5 rounded-lg' }}">{{ $action['badge'] }}</p>
-                    </div>
-                    <div class="w-8 h-8 rounded-full bg-slate-50 dark:bg-slate-900 text-slate-350 group-hover:text-emerald-600 transition shrink-0 flex items-center justify-center border border-slate-100 dark:border-slate-750">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 transform group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
-                        </svg>
-                    </div>
-                </a>
-            @endforeach
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
 
         </div>
 

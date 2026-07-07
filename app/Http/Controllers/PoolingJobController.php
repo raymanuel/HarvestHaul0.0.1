@@ -217,12 +217,6 @@ class PoolingJobController extends Controller
         return view('logistics.proposals-index', compact('proposals'));
     }
 
-<<<<<<< HEAD
-=======
-    /**
-     * Show a single pooling job detail.
-     */
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
     public function show(PoolingJob $poolingJob)
     {
         $logisticsProfile = Auth::user()->logisticsProfile;
@@ -231,13 +225,7 @@ class PoolingJobController extends Controller
             abort(403);
         }
 
-<<<<<<< HEAD
         return redirect()->route('pooling.cost-ledger', $poolingJob);
-=======
-        $poolingJob->load(['truck', 'harvests.destination']);
-
-        return view('pooling.show', compact('poolingJob'));
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
     }
 
     /**

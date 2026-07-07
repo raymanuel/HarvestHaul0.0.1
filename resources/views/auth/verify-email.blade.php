@@ -41,7 +41,6 @@
 
                 if (data.verified) {
                     clearInterval(interval);
-<<<<<<< HEAD
                     document.getElementById('waiting-msg').textContent = '✓ Verified! Closing window...';
                     window.close();
                     
@@ -49,10 +48,6 @@
                     setTimeout(() => {
                         window.location.href = "{{ route('dashboard') }}";
                     }, 1500);
-=======
-                    document.getElementById('waiting-msg').textContent = '✓ Verified! Redirecting...';
-                    window.location.href = "{{ route('dashboard') }}";
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
                 }
             } catch (e) {
                 // silent fail — keep polling

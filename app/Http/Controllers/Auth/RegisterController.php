@@ -20,22 +20,14 @@ class RegisterController extends Controller
 
     public function create($role)
     {
-<<<<<<< HEAD
         $validRoles = ['farmer', 'logistics_partner', 'buyer'];
-=======
-        $validRoles = ['farmer', 'logistics_partner'];
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
 
         if (!in_array($role, $validRoles)) {
             abort(404);
         }
 
         $cooperatives = collect();
-<<<<<<< HEAD
         if ($role === 'farmer' || $role === 'buyer') {
-=======
-        if ($role === 'farmer') {
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
             $cooperatives = LogisticsProfile::where('logistics_type', 'cooperative')
                 ->where('is_verified', true)
                 ->with('user')
@@ -52,26 +44,17 @@ class RegisterController extends Controller
             'email'               => 'required|string|email|max:255|unique:users',
             'phone'               => 'required|string|max:20',
             'password'            => 'required|string|min:8|confirmed',
-<<<<<<< HEAD
             'role'                => 'required|in:farmer,logistics_partner,buyer',
 
             // Buyer fields
             'company_name'        => 'required_if:role,buyer|nullable|string|max:255',
             'affiliation_type'    => 'required_if:role,buyer|required_if:role,farmer|nullable|in:cooperative,independent',
             'cooperative_id'      => 'required_if:affiliation_type,cooperative|nullable|exists:logistics_profiles,id',
-=======
-            'role'                => 'required|in:farmer,logistics_partner',
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
 
             // Farmer fields
             'farm_location'       => 'required_if:role,farmer|nullable|string|max:255',
             'latitude'            => 'required_if:role,farmer|nullable|numeric|between:-90,90',
             'longitude'           => 'required_if:role,farmer|nullable|numeric|between:-180,180',
-<<<<<<< HEAD
-=======
-            'affiliation_type'    => 'required_if:role,farmer|nullable|in:cooperative,independent',
-            'cooperative_id'      => 'required_if:affiliation_type,cooperative|nullable|exists:logistics_profiles,id',
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
 
             // Logistics fields
             'company_name'        => 'required_if:role,logistics_partner|nullable|string|max:255',
@@ -83,19 +66,12 @@ class RegisterController extends Controller
         try {
             return DB::transaction(function () use ($request) {
                 $user = User::create([
-<<<<<<< HEAD
                     'name'             => $request->name,
                     'email'            => $request->email,
                     'password'         => Hash::make($request->password),
                     'role'             => $request->role,
                     'affiliation_type' => $request->role === 'buyer' ? ($request->affiliation_type ?? 'independent') : 'independent',
                     'cooperative_id'   => ($request->role === 'buyer' && $request->affiliation_type === 'cooperative') ? $request->cooperative_id : null,
-=======
-                    'name'     => $request->name,
-                    'email'    => $request->email,
-                    'password' => Hash::make($request->password),
-                    'role'     => $request->role,
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
                 ]);
 
                 if ($request->role === 'farmer') {
@@ -121,11 +97,8 @@ class RegisterController extends Controller
                                                     : null,
                     ]);
                 }
-<<<<<<< HEAD
                 // Buyer: no extended profile needed, just store phone on user
                 // company_name stored in audit log for reference
-=======
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
 
                 Auth::login($user);
 

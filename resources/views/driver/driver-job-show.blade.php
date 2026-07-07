@@ -96,7 +96,6 @@
             </div>
         @endif
 
-<<<<<<< HEAD
         <!-- Quick Fuel Log Form -->
         @if($job->status === 'in_progress')
             <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm">
@@ -157,19 +156,6 @@
                         </button>
                     @endif
                 @endif
-=======
-        <!-- Status Action Button -->
-        @if(in_array($job->status, ['confirmed', 'in_progress']))
-            <form method="POST" action="{{ route('driver.jobs.status', $job) }}">
-                @csrf @method('PATCH')
-                <button type="submit" @class([
-                    'w-full py-4 rounded-2xl text-xs font-bold text-white transition-all shadow-md active:scale-[0.98]',
-                    'bg-gradient-to-tr from-sky-600 to-blue-500 hover:shadow-sky-600/10' => $job->status === 'confirmed',
-                    'bg-gradient-to-tr from-emerald-600 to-teal-500 hover:shadow-emerald-600/10' => $job->status === 'in_progress',
-                ])>
-                    {{ $job->status === 'confirmed' ? '🚛 Start Job — Mark In Transit' : '✅ Complete Job — Mark Delivered' }}
-                </button>
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
             </form>
         @endif
 
@@ -207,11 +193,7 @@
                             </span>
                         </div>
                         <div class="flex justify-between items-center py-1 border-b border-slate-50">
-<<<<<<< HEAD
                             <span class="text-slate-400">⚖️ Est. Weight</span>
-=======
-                            <span class="text-slate-400">⚖️ Weight</span>
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
                             <span class="text-slate-800 font-bold bg-slate-100 px-2 py-0.5 rounded-md">{{ number_format($harvest->quantity_kg, 1) }} kg</span>
                         </div>
                         @if($harvest->latitude && $harvest->longitude)
@@ -228,7 +210,6 @@
                         @endif
                     </div>
 
-<<<<<<< HEAD
                     <!-- Stop Status & Actions -->
                     <div class="px-5 py-4 border-t border-slate-100 bg-slate-50/10">
                         <div class="flex items-center justify-between mb-3">
@@ -311,8 +292,6 @@
                         @endif
                     </div>
 
-=======
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
                 </div>
             @endforeach
         </div>
@@ -425,7 +404,6 @@
         });
 
         // ─────────────────────────────────────────
-<<<<<<< HEAD
         // Wake Lock API Integration
         // ─────────────────────────────────────────
         let wakeLock = null;
@@ -471,22 +449,6 @@
                     pooling_job_id: jobId,
                     latitude:  latitude,
                     longitude: longitude,
-=======
-        // GPS telemetry loop (only when in_progress)
-        // ─────────────────────────────────────────
-        if (jobStatus === 'in_progress') {
-            setInterval(async () => {
-                if (currentIndex >= routePoints.length) {
-                    console.log('[HH] Driver reached destination.');
-                    return;
-                }
-
-                const point   = routePoints[currentIndex];
-                const payload = {
-                    pooling_job_id: jobId,
-                    latitude:  point[1], // OSRM GeoJSON is [lng, lat]
-                    longitude: point[0],
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
                     posted_at: new Date().toISOString(),
                 };
 
@@ -502,7 +464,6 @@
                     });
 
                     if (res.ok || res.status === 202) {
-<<<<<<< HEAD
                         const data = await res.json().catch(() => ({}));
                         if (data.status === 'queued') {
                             showBadge('offline');
@@ -563,23 +524,6 @@
                     currentIndex++;
                 }, SEND_INTERVAL_MS);
             }
-=======
-                        currentIndex++;
-                        const data = await res.json().catch(() => ({}));
-                        if (data.status === 'queued') {
-                            showBadge('offline');
-                        } else {
-                            // Successful direct sync
-                            if (!navigator.onLine) showBadge('offline');
-                        }
-                    }
-                } catch (err) {
-                    // Fetch itself threw — SW intercept should have handled it
-                    showBadge('offline');
-                    console.warn('[HH] Fetch error (likely offline):', err.message);
-                }
-            }, 3000);
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
         }
     })();
     </script>

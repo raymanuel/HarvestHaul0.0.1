@@ -22,7 +22,6 @@ use Illuminate\Support\Facades\Validator;
 class TrackingController extends Controller
 {
     /**
-<<<<<<< HEAD
      * Unified tracking dashboard view for farmers, logistics partners, and buyers.
      */
     public function index()
@@ -55,8 +54,6 @@ class TrackingController extends Controller
     }
 
     /**
-=======
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
      * INGRESS ENDPOINT: Drivers stream GPS coordinates to this endpoint every 15 seconds.
      */
     public function store(Request $request)
@@ -103,7 +100,6 @@ class TrackingController extends Controller
     }
 
     /**
-<<<<<<< HEAD
      * EGRESS ENDPOINT: The dashboards poll this endpoint every 10 seconds.
      */
     public function latest($jobId)
@@ -128,15 +124,6 @@ class TrackingController extends Controller
         }
         
         if (!$authorized) {
-=======
-     * EGRESS ENDPOINT: The Coordinator layout polls this endpoint every 10 seconds.
-     */
-    public function latest($jobId)
-    {
-        // Enforce coordinator access validation
-        $logisticsProfile = Auth::user()->logisticsProfile;
-        if (!$logisticsProfile) {
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
             return response()->json(['status' => 'error', 'message' => 'Access denied.'], 403);
         }
 

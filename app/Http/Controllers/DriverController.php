@@ -71,11 +71,7 @@ class DriverController extends Controller
 
         $allowedTransitions = [
             'confirmed'   => 'in_progress',
-<<<<<<< HEAD
             'in_progress' => 'awaiting_confirmation',
-=======
-            'in_progress' => 'completed',
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
         ];
 
         $currentStatus = $poolingJob->status;
@@ -86,7 +82,6 @@ class DriverController extends Controller
 
         $newStatus = $allowedTransitions[$currentStatus];
 
-<<<<<<< HEAD
         if ($newStatus === 'awaiting_confirmation') {
             // Check if all stop statuses are delivered
             $poolingJob->load('harvests');
@@ -105,21 +100,12 @@ class DriverController extends Controller
             $poolingJob->completed_at = now();
         }
 
-=======
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
         $poolingJob->status = $newStatus;
 
         if ($newStatus === 'in_progress') {
             $poolingJob->confirmed_at = now();
         }
 
-<<<<<<< HEAD
-=======
-        if ($newStatus === 'completed') {
-            $poolingJob->completed_at = now();
-        }
-
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
         $poolingJob->save();
 
         \App\Models\AuditLog::create([
@@ -152,22 +138,13 @@ class DriverController extends Controller
             }
         }
 
-<<<<<<< HEAD
         if ($newStatus === 'awaiting_confirmation') {
-=======
-        if ($newStatus === 'completed') {
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
             // Notify logistics partner
             if ($poolingJob->logisticsProfile && $poolingJob->logisticsProfile->user_id) {
                 \App\Models\Notification::create([
                     'user_id' => $poolingJob->logisticsProfile->user_id,
-<<<<<<< HEAD
                     'title' => 'Job Awaiting Buyer Confirmation',
                     'message' => "Driver {$user->name} finalized Route #{$poolingJob->id}. Awaiting buyer receipt confirmation.",
-=======
-                    'title' => 'Job Completed',
-                    'message' => "Driver {$user->name} completed Route #{$poolingJob->id}.",
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
                     'link' => route('pooling.show', $poolingJob)
                 ]);
             }
@@ -176,7 +153,6 @@ class DriverController extends Controller
                 \App\Models\Notification::create([
                     'user_id' => $harvest->user_id,
                     'title' => 'Harvest Shipment Delivered',
-<<<<<<< HEAD
                     'message' => "Your harvest '{$harvest->crop->name}' in Route #{$poolingJob->id} has been delivered. Awaiting buyer confirmation.",
                     'link' => route('harvests.index')
                 ]);
@@ -190,17 +166,10 @@ class DriverController extends Controller
                     'link' => route('buyer.tracking')
                 ]);
             }
-=======
-                    'message' => "Your harvest '{$harvest->crop->name}' in Route #{$poolingJob->id} has been delivered successfully.",
-                    'link' => route('harvests.index')
-                ]);
-            }
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
         }
 
         return back()->with('success', 'Job status updated to ' . ucfirst(str_replace('_', ' ', $newStatus)) . '.');
     }
-<<<<<<< HEAD
 
     /**
      * Update status of an individual harvest stop along the route.
@@ -357,6 +326,4 @@ class DriverController extends Controller
 
         return back()->with('success', 'Fuel purchase logged successfully.');
     }
-=======
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
 }

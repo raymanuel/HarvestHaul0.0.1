@@ -7,10 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Models\Harvest;
 use App\Models\PoolingJob;
-<<<<<<< HEAD
 use App\Http\Controllers\BuyerController;
-=======
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
 
 class DashboardController extends Controller
 {
@@ -21,17 +18,10 @@ class DashboardController extends Controller
         // Initialize default counter fallback metrics
         $activeHarvestCount = 0;
 
-<<<<<<< HEAD
         $availableHarvests = collect();
         $activeDispatchRuns = collect();
         $latestProposals = collect();
 
-=======
-        /**
-         * Safely isolate metrics for verified logistics coordinators.
-         * Utilizes direct column tracking arrays to bypass missing model inverse relationships.
-         */
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
         if ($user->role === 'logistics_partner' && $logisticsProfile = $user->logisticsProfile) {
 
             // Collect the exact primary key IDs of scoped farmers matching visibility criteria
@@ -49,7 +39,6 @@ class DashboardController extends Controller
                 ->pluck('id');
 
             // Count active harvests using native column mapping constraints directly
-<<<<<<< HEAD
             $activeHarvestCount = Harvest::where('status', 'sold')
                 ->whereIn('user_id', $farmerIds)
                 ->count();
@@ -74,11 +63,6 @@ class DashboardController extends Controller
                 ->latest()
                 ->take(3)
                 ->get();
-=======
-            $activeHarvestCount = Harvest::where('status', 'active')
-                ->whereIn('user_id', $farmerIds)
-                ->count();
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
         }
 
         /**
@@ -114,7 +98,6 @@ class DashboardController extends Controller
                 'pendingProposalsCount' => PoolingJob::whereHas('harvests', function($query) use ($user) {
                     $query->where('user_id', $user->id);
                 })->where('status', 'pending')->count(),
-<<<<<<< HEAD
 
                 // Live lists
                 'activeHarvests' => $user->harvests()->where('status', 'active')->with(['crop', 'cropVariety', 'destination'])->latest()->take(3)->get(),
@@ -146,18 +129,13 @@ class DashboardController extends Controller
                             ['name' => 'Cabbage', 'broker' => 28.0, 'b2b' => 42.0, 'trend' => 'High Demand', 'trend_color' => 'emerald'],
                         ]);
                     }),
-=======
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
             ]),
 
             'logistics_partner' => view('logistics.logistics-view', [
                 'activeHarvestCount' => $activeHarvestCount,
-<<<<<<< HEAD
                 'availableHarvests'  => $availableHarvests,
                 'activeDispatchRuns' => $activeDispatchRuns,
                 'latestProposals'    => $latestProposals,
-=======
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
             ]),
 
             'admin'  => app(AdminController::class)->index(),
@@ -167,11 +145,8 @@ class DashboardController extends Controller
                 'completedJobs' => $completedJobs,
             ]),
 
-<<<<<<< HEAD
             'buyer' => app(BuyerController::class)->dashboard(),
 
-=======
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
             default => abort(403),
         };
     }

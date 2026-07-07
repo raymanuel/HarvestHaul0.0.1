@@ -27,11 +27,7 @@ use App\Models\Harvest;
  *   Each role gets a separate profile model (FarmerProfile, etc.)
  * ═══════════════════════════════════════════════════════════════
  */
-<<<<<<< HEAD
 class User extends Authenticatable implements MustVerifyEmail
-=======
-class User extends Authenticatable
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
@@ -47,11 +43,8 @@ class User extends Authenticatable
         'password',
         'role',
         'status',
-<<<<<<< HEAD
         'affiliation_type',
         'cooperative_id',
-=======
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
     ];
 
     /**
@@ -82,7 +75,6 @@ class User extends Authenticatable
     // ─────────────────────────────────────────────────────────
 
     /**
-<<<<<<< HEAD
      * Cooperative that this user belongs to.
      */
     public function cooperative()
@@ -91,8 +83,6 @@ class User extends Authenticatable
     }
 
     /**
-=======
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
      * Audit trail: admin actions recorded against target users.
      * Used by the admin audit log panel.
      */
@@ -157,7 +147,6 @@ class User extends Authenticatable
     {
         return $this->hasMany(LogisticsDocument::class, 'user_id');
     }
-<<<<<<< HEAD
 
     public function isBuyer()
     {
@@ -178,6 +167,4 @@ class User extends Authenticatable
     {
         return $this->hasMany(FuelLog::class, 'driver_id');
     }
-=======
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
 }

@@ -1,22 +1,14 @@
 <x-register-layout maxWidth="480px">
 
     <div class="mb-8 text-center">
-<<<<<<< HEAD
         <div class="w-14 h-14 bg-gradient-to-tr from-[#2D6A2F] to-[#5A8A3C] text-white rounded-2xl flex items-center justify-center mx-auto mb-3.5 shadow-md shadow-[#2D6A2F]/10">
-=======
-        <div class="w-14 h-14 bg-gradient-to-tr from-blue-600 to-indigo-500 text-white rounded-2xl flex items-center justify-center mx-auto mb-3.5 shadow-md shadow-blue-500/10">
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
             <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M8 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" />
                 <path stroke-linecap="round" stroke-linejoin="round" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l2.414 2.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1m-6 0a1 1 0 001-1m9 1a1 1 0 01-1-1m-3 0a1 1 0 001-1m-1 0H8m9-1v-4a1 1 0 00-1-1h-2" />
             </svg>
         </div>
         <h2 class="text-xl font-extrabold text-slate-800 heading-font tracking-tight">Logistics Partner</h2>
-<<<<<<< HEAD
         <p class="text-xs text-slate-505 mt-1.5 font-semibold">Join the network, dispatch trucks, and secure cargo contracts</p>
-=======
-        <p class="text-xs text-slate-500 mt-1.5 font-semibold">Join the network, dispatch trucks, and secure cargo contracts</p>
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
     </div>
 
     @if ($errors->any())
@@ -40,11 +32,7 @@
         <div class="form-group">
             <div class="relative">
                 <input type="text" name="name" placeholder="Full Name / Representative Name" required value="{{ old('name') }}"
-<<<<<<< HEAD
                     class="px-4 py-3 w-full bg-white/80 border border-[#2D6A2F]/15 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2D6A2F]/10 focus:border-[#2D6A2F] transition">
-=======
-                    class="px-4 py-3 w-full bg-white/80 border border-slate-200/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition">
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
             </div>
         </div>
 
@@ -52,11 +40,7 @@
         <div class="form-group">
             <div class="relative">
                 <input type="email" name="email" placeholder="Company Email Address" required value="{{ old('email') }}"
-<<<<<<< HEAD
                     class="px-4 py-3 w-full bg-white/80 border border-[#2D6A2F]/15 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2D6A2F]/10 focus:border-[#2D6A2F] transition">
-=======
-                    class="px-4 py-3 w-full bg-white/80 border border-slate-200/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition">
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
             </div>
         </div>
 
@@ -64,11 +48,7 @@
         <div class="form-group">
             <div class="relative">
                 <input type="text" name="phone" placeholder="Contact Number" required value="{{ old('phone') }}"
-<<<<<<< HEAD
                     class="px-4 py-3 w-full bg-white/80 border border-[#2D6A2F]/15 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2D6A2F]/10 focus:border-[#2D6A2F] transition">
-=======
-                    class="px-4 py-3 w-full bg-white/80 border border-slate-200/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition">
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
             </div>
         </div>
 
@@ -76,24 +56,15 @@
         <div class="form-group">
             <div class="relative">
                 <input type="text" name="company_name" placeholder="Registered Company / Cooperative Name" required value="{{ old('company_name') }}"
-<<<<<<< HEAD
                     class="px-4 py-3 w-full bg-white/80 border border-[#2D6A2F]/15 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2D6A2F]/10 focus:border-[#2D6A2F] transition">
-=======
-                    class="px-4 py-3 w-full bg-white/80 border border-slate-200/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition">
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
             </div>
         </div>
 
         {{-- BUSINESS PERMIT NO --}}
         <div class="form-group">
             <div class="relative">
-<<<<<<< HEAD
                 <input type="text" name="business_permit_no" placeholder="Business Permit No. (Optional)" value="{{ old('business_permit_no') }}"
                     class="px-4 py-3 w-full bg-white/80 border border-[#2D6A2F]/15 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2D6A2F]/10 focus:border-[#2D6A2F] transition">
-=======
-                <input type="text" name="business_permit_no" placeholder="Business Permit No." required value="{{ old('business_permit_no') }}"
-                    class="px-4 py-3 w-full bg-white/80 border border-slate-200/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition">
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
             </div>
             @error('business_permit_no')
                 <p class="text-xs text-red-500 mt-1 font-semibold">{{ $message }}</p>
@@ -102,24 +73,15 @@
 
         {{-- Logistics Type Selector --}}
         <div class="form-group space-y-2">
-<<<<<<< HEAD
             <label class="text-xs font-bold text-slate-650 block">
                 What type of organization are you? <span class="text-red-505">*</span>
-=======
-            <label class="text-xs font-bold text-slate-600 block">
-                What type of organization are you? <span class="text-red-500">*</span>
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
             </label>
             @error('logistics_type')
                 <p class="text-xs text-red-500 mt-0.5 font-semibold">{{ $message }}</p>
             @enderror
             <div class="grid grid-cols-2 gap-3.5">
                 <!-- Company Card -->
-<<<<<<< HEAD
                 <label id="label-company" class="flex flex-col items-center justify-center p-4 border-2 border-slate-200/80 rounded-2xl cursor-pointer transition-all duration-200 text-center gap-1 hover:border-[#2D6A2F]/30 hover:bg-[#EFF2E9]/10">
-=======
-                <label id="label-company" class="flex flex-col items-center justify-center p-4 border-2 border-slate-200/80 rounded-2xl cursor-pointer transition-all duration-200 text-center gap-1 hover:border-blue-300 hover:bg-blue-50/10">
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
                     <input type="radio" name="logistics_type" value="company"
                         {{ old('logistics_type') === 'company' ? 'checked' : '' }}
                         class="hidden" onchange="handleLogisticsType()">
@@ -128,11 +90,7 @@
                 </label>
 
                 <!-- Cooperative Card -->
-<<<<<<< HEAD
                 <label id="label-cooperative" class="flex flex-col items-center justify-center p-4 border-2 border-slate-200/80 rounded-2xl cursor-pointer transition-all duration-200 text-center gap-1 hover:border-[#2D6A2F]/30 hover:bg-[#EFF2E9]/10">
-=======
-                <label id="label-cooperative" class="flex flex-col items-center justify-center p-4 border-2 border-slate-200/80 rounded-2xl cursor-pointer transition-all duration-200 text-center gap-1 hover:border-emerald-300 hover:bg-emerald-50/10">
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
                     <input type="radio" name="logistics_type" value="cooperative"
                         {{ old('logistics_type') === 'cooperative' ? 'checked' : '' }}
                         class="hidden" onchange="handleLogisticsType()">
@@ -145,13 +103,8 @@
         {{-- CDA Registration No — only shown for cooperatives --}}
         <div id="cda-field" style="display:none;" class="form-group">
             <div class="relative">
-<<<<<<< HEAD
                 <input type="text" name="cda_registration_no" placeholder="CDA Registration No. (Optional)" value="{{ old('cda_registration_no') }}"
                     class="px-4 py-3 w-full bg-white/80 border border-[#2D6A2F]/15 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2D6A2F]/10 focus:border-[#2D6A2F] transition">
-=======
-                <input type="text" name="cda_registration_no" placeholder="CDA Registration No. (Required for Cooperatives)" value="{{ old('cda_registration_no') }}"
-                    class="px-4 py-3 w-full bg-white/80 border border-slate-200/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition">
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
             </div>
             @error('cda_registration_no')
                 <p class="text-xs text-red-500 mt-1 font-semibold">{{ $message }}</p>
@@ -162,15 +115,9 @@
         <div class="form-group">
             <div class="relative">
                 <input type="password" name="password" id="password" placeholder="Password" required
-<<<<<<< HEAD
                     class="pl-4 pr-12 py-3 w-full bg-white/80 border border-[#2D6A2F]/15 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2D6A2F]/10 focus:border-[#2D6A2F] transition">
                 <button type="button" onclick="togglePassword('password', 'eyeIcon1')"
                     class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#2D6A2F] transition focus:outline-none">
-=======
-                    class="pl-4 pr-12 py-3 w-full bg-white/80 border border-slate-200/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition">
-                <button type="button" onclick="togglePassword('password', 'eyeIcon1')"
-                    class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition focus:outline-none">
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
                     <svg id="eyeIcon1" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
                         fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -187,15 +134,9 @@
         <div class="form-group">
             <div class="relative">
                 <input type="password" name="password_confirmation" id="password_confirmation" placeholder="Confirm Password" required
-<<<<<<< HEAD
                     class="pl-4 pr-12 py-3 w-full bg-white/80 border border-[#2D6A2F]/15 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2D6A2F]/10 focus:border-[#2D6A2F] transition">
                 <button type="button" onclick="togglePassword('password_confirmation', 'eyeIcon2')"
                     class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#2D6A2F] transition focus:outline-none">
-=======
-                    class="pl-4 pr-12 py-3 w-full bg-white/80 border border-slate-200/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition">
-                <button type="button" onclick="togglePassword('password_confirmation', 'eyeIcon2')"
-                    class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition focus:outline-none">
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
                     <svg id="eyeIcon2" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
                         fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -206,16 +147,11 @@
         </div>
 
         <div class="pt-2">
-<<<<<<< HEAD
             <button type="submit" class="w-full py-3 bg-gradient-to-r from-[#2D6A2F] to-[#5A8A3C] hover:brightness-105 text-white font-bold rounded-xl text-sm shadow-md shadow-[#2D6A2F]/10 hover:shadow-lg transition duration-200 transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer">
-=======
-            <button type="submit" class="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-500 hover:from-blue-700 hover:to-indigo-600 text-white font-bold rounded-xl text-sm shadow-md shadow-blue-500/10 hover:shadow-lg transition duration-200 transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer">
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
                 Register as Logistics Coordinator
             </button>
         </div>
 
-<<<<<<< HEAD
         <div class="mt-6 pt-5 border-t border-slate-100/80 text-center text-xs font-semibold text-slate-455">
             Not a logistics coordinator?
             <a href="{{ route('register.role', 'farmer') }}"
@@ -228,15 +164,6 @@
                 ← Return to Homepage
             </a>
         </div>
-=======
-        <div class="mt-6 pt-5 border-t border-slate-100/80 text-center text-xs font-semibold text-slate-400">
-            Not a logistics coordinator?
-            <a href="{{ route('register.role', 'farmer') }}"
-                class="text-blue-600 hover:text-blue-700 transition ml-1 hover:underline">
-                Sign up as Farmer
-            </a>
-        </div>
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
     </form>
 
     @push('scripts')
@@ -249,7 +176,6 @@
             const labelCoop   = document.getElementById('label-cooperative');
 
             if (company.checked) {
-<<<<<<< HEAD
                 labelCo.className = "flex flex-col items-center justify-center p-4 border-2 border-[#2D6A2F] bg-[#EFF2E9]/30 rounded-2xl cursor-pointer transition-all duration-200 text-center gap-1 scale-[1.02] shadow-sm";
             } else {
                 labelCo.className = "flex flex-col items-center justify-center p-4 border-2 border-slate-200/80 rounded-2xl cursor-pointer transition-all duration-200 text-center gap-1 hover:border-[#2D6A2F]/30 hover:bg-[#EFF2E9]/10";
@@ -262,22 +188,6 @@
             }
 
             cdaField.style.display = cooperative.checked ? 'block' : 'none';
-=======
-                labelCo.className = "flex flex-col items-center justify-center p-4 border-2 border-blue-500 bg-blue-50/20 rounded-2xl cursor-pointer transition-all duration-200 text-center gap-1 scale-[1.02] shadow-sm";
-            } else {
-                labelCo.className = "flex flex-col items-center justify-center p-4 border-2 border-slate-200/80 rounded-2xl cursor-pointer transition-all duration-200 text-center gap-1 hover:border-blue-300 hover:bg-blue-50/10";
-            }
-
-            if (cooperative.checked) {
-                labelCoop.className = "flex flex-col items-center justify-center p-4 border-2 border-emerald-500 bg-emerald-50/20 rounded-2xl cursor-pointer transition-all duration-200 text-center gap-1 scale-[1.02] shadow-sm";
-            } else {
-                labelCoop.className = "flex flex-col items-center justify-center p-4 border-2 border-slate-200/80 rounded-2xl cursor-pointer transition-all duration-200 text-center gap-1 hover:border-emerald-300 hover:bg-emerald-50/10";
-            }
-
-            cdaField.style.display = cooperative.checked ? 'block' : 'none';
-            const cdaInput = cdaField.querySelector('input');
-            cdaInput.required = cooperative.checked;
->>>>>>> be7d58fa19d745d3bea8e9af8673ef92cd3ef641
         }
 
         document.addEventListener('DOMContentLoaded', function () {
