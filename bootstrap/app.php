@@ -10,18 +10,14 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
-    ->withMiddleware(function (Middleware $middleware): void {
-        //
-    })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
     })
-
     ->withMiddleware(function (Middleware $middleware) {
-    $middleware->alias([
-        'role' => \App\Http\Middleware\CheckRole::class,
-        'driver' => \App\Http\Middleware\EnsureUserIsDriver::class,
-    ]);
-
+        $middleware->alias([
+            'driver' => \App\Http\Middleware\EnsureUserIsDriver::class,
+            'admin' => \App\Http\Middleware\EnsureUserIsAdmin::class,
+            'role' => \App\Http\Middleware\CheckRole::class,
+        ]);
     })->create();
 

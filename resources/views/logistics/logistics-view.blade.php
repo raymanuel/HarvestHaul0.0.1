@@ -1,15 +1,15 @@
-<x-layout>
+﻿<x-layout>
 <div class="w-full max-w-7xl mx-auto pb-12">
     <!-- Ambient glow decoration -->
-    <div class="absolute top-0 right-1/4 w-96 h-96 rounded-full bg-emerald-500/5 blur-[120px] pointer-events-none z-0"></div>
-    <div class="absolute top-1/3 left-1/3 w-[500px] h-[500px] rounded-full bg-sky-500/5 blur-[150px] pointer-events-none z-0"></div>
+    <div class="absolute top-0 right-1/4 w-96 h-96 rounded-full bg-[#3A7D44]/5 blur-[120px] pointer-events-none z-0"></div>
+    <div class="absolute top-1/3 left-1/3 w-[500px] h-[500px] rounded-full bg-[#1F4D25]/5 blur-[150px] pointer-events-none z-0"></div>
 
     <div class="relative z-10">
         <!-- Page Header -->
         <header class="mb-8 pt-6">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <span class="text-[10px] font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 dark:bg-emerald-400/10 px-3 py-1 rounded-full border border-emerald-500/20">Logistics Portal</span>
+                    <span class="text-[10px] font-bold uppercase tracking-widest text-[#3A7D44] dark:text-[#3A7D44] bg-[#3A7D44]/10 dark:bg-[#3A7D44]/10 px-3 py-1 rounded-full border border-[#3A7D44]/20">Logistics Portal</span>
                     <h1 class="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight heading-font mt-3">
                         Welcome back, {{ Auth::user()->name }}
                         @if(Auth::user()->logisticsProfile?->company_name)
@@ -41,8 +41,8 @@
 
         {{-- Flash Messages --}}
         @if (session('success'))
-            <div class="mb-6 bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-400 rounded-2xl p-5 text-sm font-semibold flex items-center gap-3 shadow-sm">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-emerald-600 dark:text-emerald-450 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <div class="mb-6 bg-[#3A7D44]/10 border border-[#3A7D44]/20 text-[#3A7D44] dark:text-[#3A7D44] rounded-2xl p-5 text-sm font-semibold flex items-center gap-3 shadow-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-[#3A7D44] dark:text-[#3A7D44] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 {{ session('success') }}
@@ -65,17 +65,17 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
 
             {{-- Card 1: Active Trucks --}}
-            <div class="bg-white dark:bg-slate-800/80 backdrop-blur border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6 hover:-translate-y-1 hover:shadow-xl hover:shadow-sky-500/5 hover:border-sky-500/30 dark:hover:border-sky-500/30 transition-all duration-300 group flex flex-col justify-between h-52 relative overflow-hidden">
-                <div class="absolute -right-6 -bottom-6 w-24 h-24 bg-sky-500/5 rounded-full group-hover:scale-150 transition-all duration-500"></div>
+            <div class="bg-white dark:bg-slate-800/80 backdrop-blur border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6 hover:-translate-y-1 hover:shadow-xl hover:shadow-[#1F4D25]/5 hover:border-[#1F4D25]/20 dark:hover:border-[#1F4D25]/20 transition-all duration-300 group flex flex-col justify-between h-52 relative overflow-hidden">
+                <div class="absolute -right-6 -bottom-6 w-24 h-24 bg-[#1F4D25]/5 rounded-full group-hover:scale-150 transition-all duration-500"></div>
                 <div>
                     <div class="flex items-start justify-between mb-4">
-                        <div class="w-12 h-12 rounded-2xl bg-sky-500/10 border border-sky-500/15 flex items-center justify-center text-sky-600 dark:text-sky-400 shrink-0 shadow-sm">
+                        <div class="w-12 h-12 rounded-2xl bg-[#1F4D25]/10 border border-[#1F4D25]/15 flex items-center justify-center text-[#1F4D25] dark:text-[#1F4D25] shrink-0 shadow-sm">
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" />
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10M13 16h6m-6 0H6m13 0a2 2 0 002-2v-4a1 1 0 00-1-1h-6.18c-.09-.27-.27-.49-.52-.61l-2.6-1.3a1 1 0 00-1.12.18l-1.6 1.6" />
                             </svg>
                         </div>
-                        <span class="text-[9px] font-extrabold uppercase tracking-widest text-sky-600 dark:text-sky-400 bg-sky-500/10 px-2 py-0.5 rounded border border-sky-500/10">Fleet size</span>
+                        <span class="text-[9px] font-extrabold uppercase tracking-widest text-[#1F4D25] dark:text-[#1F4D25] bg-[#1F4D25]/10 px-2 py-0.5 rounded border border-[#1F4D25]/10">Fleet size</span>
                     </div>
                     <h3 class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest leading-none">Registered Trucks</h3>
                     <p class="text-3xl font-extrabold text-slate-800 dark:text-white tracking-tight heading-font mt-2.5">
@@ -84,7 +84,7 @@
                 </div>
                 <div class="pt-4 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between">
                     @if (Auth::user()->logisticsProfile?->is_verified)
-                        <a href="{{ route('logistics.vehicles.index') }}" class="text-emerald-600 dark:text-emerald-400 font-bold text-xs hover:underline transition inline-flex items-center gap-1.5 group-hover:translate-x-1 duration-200">
+                        <a href="{{ route('logistics.vehicles.index') }}" class="text-[#3A7D44] dark:text-[#3A7D44] font-bold text-xs hover:underline transition inline-flex items-center gap-1.5 group-hover:translate-x-1 duration-200">
                             Manage Fleet <span>→</span>
                         </a>
                     @else
@@ -112,7 +112,7 @@
                 </div>
                 <div class="pt-4 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between">
                     @if (Auth::user()->logisticsProfile?->is_verified)
-                        <a href="{{ route('logistics.drivers.index') }}" class="text-emerald-600 dark:text-emerald-400 font-bold text-xs hover:underline transition inline-flex items-center gap-1.5 group-hover:translate-x-1 duration-200">
+                        <a href="{{ route('logistics.drivers.index') }}" class="text-[#3A7D44] dark:text-[#3A7D44] font-bold text-xs hover:underline transition inline-flex items-center gap-1.5 group-hover:translate-x-1 duration-200">
                             Manage Drivers <span>→</span>
                         </a>
                     @else
@@ -122,17 +122,17 @@
             </div>
 
             {{-- Card 3: Active Haul Requests --}}
-            <div class="bg-white dark:bg-slate-800/80 backdrop-blur border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6 hover:-translate-y-1 hover:shadow-xl hover:shadow-emerald-500/5 hover:border-emerald-500/30 dark:hover:border-emerald-500/30 transition-all duration-300 group flex flex-col justify-between h-52 relative overflow-hidden">
-                <div class="absolute -right-6 -bottom-6 w-24 h-24 bg-emerald-500/5 rounded-full group-hover:scale-150 transition-all duration-500"></div>
+            <div class="bg-white dark:bg-slate-800/80 backdrop-blur border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6 hover:-translate-y-1 hover:shadow-xl hover:shadow-[#3A7D44]/5 hover:border-[#3A7D44]/30 dark:hover:border-[#3A7D44]/30 transition-all duration-300 group flex flex-col justify-between h-52 relative overflow-hidden">
+                <div class="absolute -right-6 -bottom-6 w-24 h-24 bg-[#3A7D44]/5 rounded-full group-hover:scale-150 transition-all duration-500"></div>
                 <div>
                     <div class="flex items-start justify-between mb-4">
-                        <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/15 flex items-center justify-center text-emerald-600 dark:text-emerald-450 shrink-0 shadow-sm">
+                        <div class="w-12 h-12 rounded-2xl bg-[#3A7D44]/10 border border-[#3A7D44]/15 flex items-center justify-center text-[#3A7D44] dark:text-[#3A7D44] shrink-0 shadow-sm">
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                             </svg>
                         </div>
-                        <span class="text-[9px] font-extrabold uppercase tracking-widest text-emerald-700 dark:text-emerald-450 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/10">Marketplace</span>
+                        <span class="text-[9px] font-extrabold uppercase tracking-widest text-[#3A7D44] dark:text-[#3A7D44] bg-[#3A7D44]/10 px-2 py-0.5 rounded border border-[#3A7D44]/10">Marketplace</span>
                     </div>
                     <h3 class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest leading-none">Active Harvest Lots</h3>
                     <p class="text-3xl font-extrabold text-slate-800 dark:text-white tracking-tight heading-font mt-2.5">
@@ -141,14 +141,17 @@
                 </div>
                 <div class="pt-4 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between">
                     @if (Auth::user()->logisticsProfile?->is_verified)
-                        <a href="{{ route('route.optimization') }}" class="text-emerald-600 dark:text-emerald-400 font-bold text-xs hover:underline transition inline-flex items-center gap-1.5 group-hover:translate-x-1 duration-200">
+                        <a href="{{ route('route.optimization') }}" class="text-[#3A7D44] dark:text-[#3A7D44] font-bold text-xs hover:underline transition inline-flex items-center gap-1.5 group-hover:translate-x-1 duration-200">
                             Launch Dispatch Board <span>→</span>
                         </a>
                     @else
                         <span class="text-slate-350 dark:text-slate-650 font-bold text-xs select-none">Dispatch Engine Locked</span>
                     @endif
                 </div>
-            </        {{-- ── LIVE OPERATIONS WORKSPACE ── --}}
+            </div>
+        </div>
+
+        {{-- ── LIVE OPERATIONS WORKSPACE ── --}}
         @if (Auth::user()->logisticsProfile?->is_verified)
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
 
@@ -162,14 +165,14 @@
                                 <h3 class="text-lg font-bold text-slate-800 dark:text-white heading-font">Marketplace Opportunities</h3>
                                 <p class="text-xs text-slate-500 dark:text-slate-400">Available unassigned harvest lots matching your logistical scope.</p>
                             </div>
-                            <a href="{{ route('route.optimization') }}" class="bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition duration-200 shadow-sm flex items-center gap-1.5">
+                            <a href="{{ route('route.optimization') }}" class="bg-[#3A7D44] hover:bg-[#2E6336] dark:bg-[#3A7D44]/100 dark:hover:bg-[#3A7D44] text-white text-xs font-bold px-4 py-2.5 rounded-xl transition duration-200 shadow-sm flex items-center gap-1.5">
                                 Launch Dispatch Board <span>→</span>
                             </a>
                         </div>
 
                         @if($availableHarvests->isEmpty())
                             <div class="p-8 text-center border border-dashed border-slate-200 dark:border-slate-700 rounded-2xl">
-                                <div class="w-12 h-12 rounded-full bg-slate-50 dark:bg-slate-900 flex items-center justify-center mx-auto mb-3 text-slate-400">🌾</div>
+                                
                                 <p class="text-slate-455 dark:text-slate-400 text-sm font-semibold">No unassigned harvests available</p>
                                 <p class="text-[10px] text-slate-400 dark:text-slate-500 mt-1">Check back later when farmers list new crop lots in your operational region.</p>
                             </div>
@@ -179,9 +182,9 @@
                                     <thead>
                                         <tr class="border-b border-slate-150 dark:border-slate-700/50">
                                             <th class="pb-3 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Farmer</th>
-                                            <th class="pb-3 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Crop Lot</th>
+                                            <th class="pb-3 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Crop</th>
                                             <th class="pb-3 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest text-right">Quantity</th>
-                                            <th class="pb-3 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Destination</th>
+                                            <th class="pb-3 pl-4 md:pl-6 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Destination</th>
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-slate-100/50 dark:divide-slate-700/30">
@@ -194,7 +197,7 @@
                                                     </div>
                                                 </td>
                                                 <td class="py-3.5 pr-4 whitespace-nowrap">
-                                                    <div class="font-semibold text-slate-750 dark:text-slate-300 text-xs">{{ $harvest->crop->name ?? $harvest->crop_type }}</div>
+                                                    <div class="font-semibold text-slate-700 dark:text-slate-300 text-xs">{{ $harvest->crop->name ?? $harvest->crop_type }}</div>
                                                     <div class="text-[10px] text-slate-400 dark:text-slate-500">{{ $harvest->cropVariety->name ?? $harvest->variety ?? 'Standard' }}</div>
                                                 </td>
                                                 <td class="py-3.5 pr-4 text-right font-mono font-extrabold text-slate-700 dark:text-slate-350 text-xs">
@@ -218,7 +221,7 @@
 
                         @if($activeDispatchRuns->isEmpty())
                             <div class="p-8 text-center border border-dashed border-slate-200 dark:border-slate-700 rounded-2xl">
-                                <div class="w-12 h-12 rounded-full bg-slate-50 dark:bg-slate-900 flex items-center justify-center mx-auto mb-3 text-slate-400">🚚</div>
+                                <div class="w-12 h-12 rounded-full bg-slate-50 dark:bg-slate-900 flex items-center justify-center mx-auto mb-3 text-slate-400"><svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l2.414 2.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a2 2 0 11-4 0 2 2 0 014 0zm10 0a2 2 0 11-4 0 2 2 0 014 0z" /></svg></div>
                                 <p class="text-slate-455 dark:text-slate-400 text-sm font-semibold">No active runs dispatching</p>
                                 <p class="text-[10px] text-slate-400 dark:text-slate-500 mt-1">Group available crops into pooling routes to start dispatching fleet.</p>
                             </div>
@@ -245,7 +248,7 @@
                                                 <td class="py-3.5 pr-4 whitespace-nowrap">
                                                     <div class="flex items-center gap-2">
                                                         <div class="w-20 bg-slate-200 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden">
-                                                            <div class="bg-emerald-500 h-full" style="width: {{ min(100, $run->load_percentage) }}%"></div>
+                                                            <div class="bg-[#3A7D44]/100 h-full" style="width: {{ min(100, $run->load_percentage) }}%"></div>
                                                         </div>
                                                         <span class="text-[10px] font-bold text-slate-550 dark:text-slate-400">{{ $run->load_percentage }}%</span>
                                                     </div>
@@ -254,7 +257,7 @@
                                                     {{ number_format($run->total_kg) }} kg
                                                 </td>
                                                 <td class="py-3.5 text-center whitespace-nowrap">
-                                                    <span class="text-[9px] font-extrabold uppercase tracking-widest px-2.5 py-1 rounded-lg border {{ $run->status === 'in_progress' ? 'text-sky-605 dark:text-sky-400 bg-sky-500/10 border-sky-500/15 animate-pulse' : 'text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 border-emerald-500/15' }}">
+                                                    <span class="text-[9px] font-extrabold uppercase tracking-widest px-2.5 py-1 rounded-lg border {{ $run->status === 'in_progress' ? 'text-[#1F4D25] dark:text-[#1F4D25] bg-[#1F4D25]/10 border-[#1F4D25]/15 animate-pulse' : 'text-[#3A7D44] dark:text-[#3A7D44] bg-[#3A7D44]/10 border-[#3A7D44]/15' }}">
                                                         {{ $run->status === 'in_progress' ? 'En Route' : 'Confirmed' }}
                                                     </span>
                                                 </td>
@@ -277,14 +280,14 @@
 
                             @if($latestProposals->isEmpty())
                                 <div class="p-8 text-center border border-dashed border-slate-200 dark:border-slate-700 rounded-2xl my-auto">
-                                    <div class="w-12 h-12 rounded-full bg-slate-50 dark:bg-slate-900 flex items-center justify-center mx-auto mb-3 text-slate-400">📩</div>
+                                    <div class="w-12 h-12 rounded-full bg-slate-50 dark:bg-slate-900 flex items-center justify-center mx-auto mb-3 text-slate-400"><svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg></div>
                                     <p class="text-slate-455 dark:text-slate-400 text-sm font-semibold">No pending proposals</p>
                                     <p class="text-[10px] text-slate-400 dark:text-slate-550 mt-1">Proposals await farmer cost consensus before route confirmation.</p>
                                 </div>
                             @else
-                                <div class="space-y-4 my-auto">
+                                <div class="space-y-4">
                                     @foreach($latestProposals as $proposal)
-                                        <div class="bg-slate-50/50 dark:bg-slate-900/40 border border-slate-200/50 dark:border-slate-750 rounded-2xl p-5 hover:border-amber-500/30 dark:hover:border-amber-500/20 transition-all duration-300">
+                                        <div class="bg-slate-50/50 dark:bg-slate-900/40 border border-slate-200/50 dark:border-slate-700 rounded-2xl p-5 hover:border-amber-500/30 dark:hover:border-amber-500/20 transition-all duration-300">
                                             <div class="flex items-center justify-between mb-3">
                                                 <span class="text-[9px] font-extrabold uppercase tracking-widest text-amber-700 dark:text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/10">Awaiting Consensus</span>
                                                 <a href="{{ route('pooling.index') }}" class="text-[10px] font-bold text-amber-650 hover:underline">
@@ -325,7 +328,7 @@
                     Interactive fleet tracking, routing, dispatch optimization, and cost negotiations will fully unlock once verification is approved.
                 </p>
                 <div class="mt-8">
-                    <a href="{{ route('logistics.documents') }}" class="bg-emerald-605 hover:bg-emerald-700 text-white text-sm font-bold px-6 py-3 rounded-xl transition shadow-md">
+                    <a href="{{ route('logistics.documents') }}" class="bg-[#3A7D44] hover:bg-[#2E6336] text-white text-sm font-bold px-6 py-3 rounded-xl transition shadow-md">
                         Review Compliance Documents
                     </a>
                 </div>

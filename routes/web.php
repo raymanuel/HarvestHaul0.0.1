@@ -14,7 +14,7 @@
  * 4. Verified Group ('verified'):
  *    - Only authenticated, active, and email-verified users can access these.
  *    - Nested into role-specific sub-groups:
- *      a) Farmers (EnsureUserIsFarmer): Harvest listings, yield predictor, document uploads.
+ *      a) Farmers (EnsureUserIsFarmer): Harvest posts, yield predictor, document uploads.
  *      b) Logistics Partners (EnsureUserIsLogistics): B2B resource pooling, fleet predictor, driver/vehicle management, cost ledger.
  *      c) Drivers ('driver'): Mobile PWA views, telemetry/GPS signal streaming.
  *      d) Admin ('admin' prefix): User/compliance audit, crop hierarchy management, system logs.
@@ -46,6 +46,8 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\BuyerController;
 use App\Http\Controllers\NegotiationController;
+use App\Http\Controllers\Auth\ForgotPasswordController;
+use App\Http\Controllers\Auth\ResetPasswordController;
 
 // Middleware
 use App\Http\Middleware\EnsureAccountIsActive;
@@ -74,11 +76,17 @@ Route::get('/email/verified', function () {
 */
 Route::middleware('guest')->group(function () {
     Route::get('login', [LoginController::class, 'showLoginForm'])->name('login');
-    Route::post('login', [LoginController::class, 'authenticate'])->name('login.attempt');
+    Route::post('login', [LoginController::class, 'authenticate'])->middleware('throttle:5,1')->name('login.attempt');
 
     Route::get('register', [RegisterController::class, 'index'])->name('register');
     Route::get('/register/{role}', [RegisterController::class, 'create'])->name('register.role');
     Route::post('/register', [RegisterController::class, 'store'])->name('register.store');
+
+    // Password Reset
+    Route::get('forgot-password', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
+    Route::post('forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
+    Route::get('reset-password/{token}', [ResetPasswordController::class, 'showResetForm'])->name('password.reset');
+    Route::post('reset-password', [ResetPasswordController::class, 'reset'])->name('password.update');
 });
 
 /*
@@ -117,6 +125,7 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
     })->name('verification.notice');
 
     Route::post('/email/verify-otp', [\App\Http\Controllers\Auth\VerifyOtpController::class, 'verify'])
+        ->middleware('throttle:5,1')
         ->name('verification.verify-otp');
 
     Route::post('/email/resend-otp', [\App\Http\Controllers\Auth\VerifyOtpController::class, 'resend'])
@@ -136,7 +145,7 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
         |------------------------------------------------------------------
         */
         Route::middleware(EnsureUserIsFarmer::class)->group(function () {
-            // Harvest Listings Management
+            // Harvest Posts Management
             Route::get('/harvests', [HarvestController::class, 'index'])->name('harvests.index');
             Route::get('/harvests/create', [HarvestController::class, 'create'])->name('harvests.create');
             Route::post('/harvests', [HarvestController::class, 'store'])->name('harvests.store');
@@ -204,6 +213,12 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
             // Fleet Surveillance Query (Egress)
             Route::get('/tracking/{poolingJob}/latest', [TrackingController::class, 'latest'])->name('tracking.latest');
 
+            // ETA endpoint
+            Route::get('/tracking/{poolingJob}/eta', [TrackingController::class, 'eta'])->name('tracking.eta');
+
+            // Auto-assign nearest available driver
+            Route::post('/route-optimization/auto-assign-driver', [RouteOptimizationController::class, 'autoAssignDriver'])->name('route.auto-assign-driver');
+
             // Driver Fleet Control
             Route::get('/drivers', [LogisticsDriverController::class, 'index'])->name('logistics.drivers.index');
             Route::get('/drivers/create', [LogisticsDriverController::class, 'create'])->name('logistics.drivers.create');
@@ -225,9 +240,11 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
             Route::patch('/jobs/{poolingJob}/status', [DriverController::class, 'updateStatus'])->name('jobs.status');
             Route::patch('/jobs/{poolingJob}/harvests/{harvest}/status', [DriverController::class, 'updateStopStatus'])->name('jobs.stop.status');
             Route::post('/jobs/{poolingJob}/fuel-log', [DriverController::class, 'storeFuelLog'])->name('jobs.fuel-log');
+            Route::post('/jobs/{poolingJob}/accept', [DriverController::class, 'acceptJob'])->name('jobs.accept');
+            Route::post('/identity-upload', [DriverController::class, 'uploadIdentity'])->name('identity.upload');
 
-            // Live Telemetry Signal Broadcast (Ingress)
-            Route::post('/tracking/store', [TrackingController::class, 'store'])->name('tracking.store');
+            // Live Telemetry Signal Broadcast (Ingress) — rate limited to 12 req/min per driver
+            Route::post('/tracking/store', [TrackingController::class, 'store'])->name('tracking.store')->middleware('throttle:12,1');
         });
 
         /*
@@ -237,6 +254,7 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
         */
         Route::middleware(EnsureUserIsBuyer::class)->prefix('buyer')->name('buyer.')->group(function () {
             Route::get('/crop-board', [BuyerController::class, 'cropBoard'])->name('crop-board');
+            Route::get('/crop-board/{harvest}', [BuyerController::class, 'showCropDetail'])->name('crop-board.show');
             Route::get('/negotiations', [BuyerController::class, 'negotiations'])->name('negotiations');
             Route::get('/tracking', [BuyerController::class, 'tracking'])->name('tracking');
             Route::post('/deliveries/{poolingJob}/confirm', [BuyerController::class, 'confirmReceipt'])->name('confirm-receipt');
@@ -247,13 +265,16 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
         | 3.6 Crop Negotiation shared routes (Farmer <-> Buyer)
         |------------------------------------------------------------------
         */
-        Route::prefix('negotiations')->name('negotiations.')->group(function () {
+        Route::prefix('negotiations')->name('negotiations.')->middleware(['role:farmer,buyer,logistics_partner'])->group(function () {
             Route::post('/start', [NegotiationController::class, 'start'])->name('start');
+            Route::get('/list', [NegotiationController::class, 'listJson'])->name('list');
             Route::get('/{negotiation}', [NegotiationController::class, 'room'])->name('room');
-            Route::post('/{negotiation}/message', [NegotiationController::class, 'sendMessage'])->name('message');
-            Route::post('/{negotiation}/propose', [NegotiationController::class, 'proposeTerms'])->name('propose');
-            Route::post('/{negotiation}/agree', [NegotiationController::class, 'agreeTerms'])->name('agree');
+            Route::post('/{negotiation}/message', [NegotiationController::class, 'sendMessage'])->name('message')->middleware('throttle:15,1');
+            Route::post('/{negotiation}/propose', [NegotiationController::class, 'proposeTerms'])->name('propose')->middleware('throttle:10,1');
+            Route::post('/{negotiation}/agree', [NegotiationController::class, 'agreeTerms'])->name('agree')->middleware('throttle:10,1');
             Route::post('/{negotiation}/finalize', [NegotiationController::class, 'finalizeDeal'])->name('finalize');
+            Route::post('/{negotiation}/cancel', [NegotiationController::class, 'cancelDeal'])->name('cancel');
+            Route::get('/{negotiation}/messages', [NegotiationController::class, 'getMessages'])->name('messages');
         });
 
         /*
@@ -261,54 +282,68 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
         | 3.7 Cost Ledger shared routes (Farmer <-> Logistics)
         |------------------------------------------------------------------
         */
-        Route::get('/pooling/{poolingJob}/cost-ledger', [CostLedgerController::class, 'show'])->name('pooling.cost-ledger');
-        Route::post('/pooling/{poolingJob}/cost-ledger/{harvestId}/upload-receipt', [CostLedgerController::class, 'uploadReceipt'])->name('pooling.cost-ledger.upload-receipt');
-        Route::post('/pooling/{poolingJob}/cost-ledger/{harvestId}/mark-paid', [CostLedgerController::class, 'markPaid'])->name('pooling.cost-ledger.mark-paid');
-        Route::post('/pooling/{poolingJob}/accept', [PoolingJobController::class, 'acceptProposal'])->name('pooling.accept');
-        Route::post('/pooling/{poolingJob}/reject', [PoolingJobController::class, 'rejectProposal'])->name('pooling.reject');
-        Route::post('/pooling/{poolingJob}/counter', [PoolingJobController::class, 'counterProposal'])->name('pooling.counter');
+        Route::middleware(['role:farmer,logistics_partner'])->group(function () {
+            Route::get('/pooling/{poolingJob}/cost-ledger', [CostLedgerController::class, 'show'])->name('pooling.cost-ledger');
+            Route::post('/pooling/{poolingJob}/cost-ledger/{harvestId}/upload-receipt', [CostLedgerController::class, 'uploadReceipt'])->name('pooling.cost-ledger.upload-receipt');
+            Route::post('/pooling/{poolingJob}/cost-ledger/{harvestId}/mark-paid', [CostLedgerController::class, 'markPaid'])->name('pooling.cost-ledger.mark-paid');
+            Route::post('/pooling/{poolingJob}/cost-ledger/{harvestId}/confirm-quantity', [CostLedgerController::class, 'confirmQuantity'])->name('pooling.cost-ledger.confirm-quantity');
+        });
+
+        Route::middleware(['role:farmer,logistics_partner'])->group(function () {
+            Route::post('/pooling/{poolingJob}/accept', [PoolingJobController::class, 'acceptProposal'])->name('pooling.accept')->middleware('throttle:30,1');
+            Route::post('/pooling/{poolingJob}/reject', [PoolingJobController::class, 'rejectProposal'])->name('pooling.reject')->middleware('throttle:30,1');
+            Route::post('/pooling/{poolingJob}/counter', [PoolingJobController::class, 'counterProposal'])->name('pooling.counter')->middleware('throttle:30,1');
+        });
 
         /*
         | 4.0 Telemetry Cross-Domain Endpoint Fallbacks
         |------------------------------------------------------------------
         */
-        Route::post('/tracking/stream', [TrackingController::class, 'store'])->name('tracking.stream');
+        Route::post('/tracking/stream', [TrackingController::class, 'store'])->name('tracking.stream')->middleware('throttle:12,1');
 
         /*
         | 5.0 Administration Console Hub
         |------------------------------------------------------------------
         | Core authentication validation handled directly inside Admin controllers.
         */
-        Route::prefix('admin')->name('admin.')->group(function () {
+        Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
 
             // Standard User Security Control
             Route::get('/users', [AdminController::class, 'users'])->name('users');
-            Route::post('/users/{user}/status', [AdminController::class, 'toggleStatus'])->name('users.status');
-            Route::post('/users', [AdminController::class, 'storeUser'])->name('users.store');
-            Route::put('/users/{user}', [AdminController::class, 'updateUser'])->name('users.update');
+            Route::post('/users/{user}/status', [AdminController::class, 'toggleStatus'])->name('users.status')->middleware('throttle:30,1');
+            Route::post('/users', [AdminController::class, 'storeUser'])->name('users.store')->middleware('throttle:10,1');
+            Route::put('/users/{user}', [AdminController::class, 'updateUser'])->name('users.update')->middleware('throttle:30,1');
 
             // Verification Modules
             Route::get('/farmers', [AdminController::class, 'farmers'])->name('farmers');
-            Route::post('/farmers/{user}/verify', [AdminController::class, 'verifyFarmer'])->name('farmers.verify');
-            Route::post('/farmers/{user}/reject', [AdminController::class, 'rejectFarmer'])->name('farmers.reject');
+            Route::post('/farmers/{user}/verify', [AdminController::class, 'verifyFarmer'])->name('farmers.verify')->middleware('throttle:30,1');
+            Route::post('/farmers/{user}/reject', [AdminController::class, 'rejectFarmer'])->name('farmers.reject')->middleware('throttle:30,1');
 
             Route::get('/farmer-documents', [AdminFarmerDocumentController::class, 'index'])->name('farmer-documents');
             Route::patch('/farmer-documents/{document}/approve', [AdminFarmerDocumentController::class, 'approve'])->name('farmer-documents.approve');
             Route::patch('/farmer-documents/{document}/reject', [AdminFarmerDocumentController::class, 'reject'])->name('farmer-documents.reject');
 
             Route::get('/logistics', [AdminController::class, 'logistics'])->name('logistics');
-            Route::post('/logistics/{user}/verify', [AdminController::class, 'verifyLogistics'])->name('logistics.verify');
-            Route::post('/logistics/{user}/reject', [AdminController::class, 'rejectLogistics'])->name('logistics.reject');
+            Route::post('/logistics/{user}/verify', [AdminController::class, 'verifyLogistics'])->name('logistics.verify')->middleware('throttle:30,1');
+            Route::post('/logistics/{user}/reject', [AdminController::class, 'rejectLogistics'])->name('logistics.reject')->middleware('throttle:30,1');
 
             Route::get('/logistics-documents', [AdminLogisticsDocumentController::class, 'index'])->name('logistics-documents');
             Route::patch('/logistics-documents/{document}/approve', [AdminLogisticsDocumentController::class, 'approve'])->name('logistics-documents.approve');
             Route::patch('/logistics-documents/{document}/reject', [AdminLogisticsDocumentController::class, 'reject'])->name('logistics-documents.reject');
 
+            Route::get('/buyers', [AdminController::class, 'buyers'])->name('buyers');
+            Route::post('/buyers/{user}/verify', [AdminController::class, 'verifyBuyer'])->name('buyers.verify')->middleware('throttle:30,1');
+            Route::post('/buyers/{user}/reject', [AdminController::class, 'rejectBuyer'])->name('buyers.reject')->middleware('throttle:30,1');
+
             // Global Oversight Logs & Metrics
             Route::get('/harvests', [AdminController::class, 'harvests'])->name('harvests');
             Route::get('/drivers', [AdminController::class, 'drivers'])->name('drivers');
+            Route::post('/drivers/{user}/verify-identity', [AdminController::class, 'verifyDriverIdentity'])->name('drivers.verify-identity');
+            Route::post('/drivers/{user}/reject-identity', [AdminController::class, 'rejectDriverIdentity'])->name('drivers.reject-identity');
             Route::get('/audit-logs', [AdminController::class, 'auditLogs'])->name('audit-logs');
             Route::get('/analytics', [AdminController::class, 'analytics'])->name('analytics');
+            Route::get('/export/users', [AdminController::class, 'exportUsers'])->name('export.users');
+            Route::get('/export/harvests', [AdminController::class, 'exportHarvests'])->name('export.harvests');
             Route::post('/crops/{crop}/baseline-price', [AdminController::class, 'updateBaselinePrice'])->name('baseline-price');
 
             // Crop Matrix Hierarchies (Categories -> Crops -> Varieties)

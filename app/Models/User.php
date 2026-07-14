@@ -49,11 +49,13 @@ class User extends Authenticatable
     ];
 
     /**
-     * Hidden from JSON serialization — never expose password or remember token to API responses.
+     * Hidden from JSON serialization — never expose password, remember token, or OTP to API responses.
      */
     protected $hidden = [
         'password',
         'remember_token',
+        'email_otp',
+        'email_otp_expires_at',
     ];
 
     /**
@@ -148,6 +150,11 @@ class User extends Authenticatable
     public function logisticsDocuments()
     {
         return $this->hasMany(LogisticsDocument::class, 'user_id');
+    }
+
+    public function buyerProfile()
+    {
+        return $this->hasOne(BuyerProfile::class);
     }
 
     public function isBuyer()

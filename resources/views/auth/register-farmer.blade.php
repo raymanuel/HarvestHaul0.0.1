@@ -5,7 +5,7 @@
     @endpush
 
     <div class="mb-8 text-center">
-        <div class="w-14 h-14 bg-gradient-to-tr from-[#2D6A2F] to-[#5A8A3C] text-white rounded-2xl flex items-center justify-center mx-auto mb-3.5 shadow-md shadow-[#2D6A2F]/10">
+        <div class="w-14 h-14 bg-gradient-to-tr from-[#3A7D44] to-[#2E6336] text-white rounded-2xl flex items-center justify-center mx-auto mb-3.5 shadow-md shadow-[#3A7D44]/10">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.271.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.271.477-4.5 1.253" />
             </svg>
@@ -36,34 +36,34 @@
         {{-- NAME --}}
         <div class="form-group">
             <div class="relative">
-                <input type="text" name="name" placeholder="Full Name" required value="{{ old('name') }}"
-                    class="px-4 py-3 w-full bg-white/80 border border-[#2D6A2F]/15 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2D6A2F]/10 focus:border-[#2D6A2F] transition">
+                <input type="text" name="name" placeholder="Full Name" required value="{{ old('name') }}" autocomplete="name"
+                    class="px-4 py-3 w-full bg-white/80 border border-[#3A7D44]/15 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/10 focus:border-[#3A7D44] transition">
             </div>
         </div>
 
         {{-- EMAIL --}}
         <div class="form-group">
             <div class="relative">
-                <input type="email" name="email" placeholder="Email Address" required value="{{ old('email') }}"
-                    class="px-4 py-3 w-full bg-white/80 border border-[#2D6A2F]/15 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2D6A2F]/10 focus:border-[#2D6A2F] transition">
+                <input type="email" name="email" placeholder="Email Address" required value="{{ old('email') }}" autocomplete="email"
+                    class="px-4 py-3 w-full bg-white/80 border border-[#3A7D44]/15 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/10 focus:border-[#3A7D44] transition">
             </div>
         </div>
 
         {{-- PHONE --}}
         <div class="form-group">
             <div class="relative">
-                <input type="text" name="phone" placeholder="Phone Number" required value="{{ old('phone') }}"
-                    class="px-4 py-3 w-full bg-white/80 border border-[#2D6A2F]/15 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2D6A2F]/10 focus:border-[#2D6A2F] transition">
+                <input type="text" name="phone" placeholder="Phone Number" required value="{{ old('phone') }}" autocomplete="tel"
+                    class="px-4 py-3 w-full bg-white/80 border border-[#3A7D44]/15 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/10 focus:border-[#3A7D44] transition">
             </div>
         </div>
 
         {{-- PASSWORD --}}
         <div class="form-group">
             <div class="relative">
-                <input type="password" id="password" name="password" placeholder="Password" required
-                    class="pl-4 pr-12 py-3 w-full bg-white/80 border border-[#2D6A2F]/15 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2D6A2F]/10 focus:border-[#2D6A2F] transition">
+                <input type="password" id="password" name="password" placeholder="Password" required autocomplete="new-password"
+                    class="pl-4 pr-12 py-3 w-full bg-white/80 border border-[#3A7D44]/15 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/10 focus:border-[#3A7D44] transition">
                 <button type="button" onclick="togglePassword('password', 'eye-password')"
-                    class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#2D6A2F] transition focus:outline-none">
+                    class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#3A7D44] transition focus:outline-none">
                     <svg id="eye-password" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                         stroke-linecap="round" stroke-linejoin="round">
@@ -72,15 +72,24 @@
                     </svg>
                 </button>
             </div>
+            <div id="pw-strength" style="display:none; margin-top:8px;">
+                <div style="display:flex; gap:4px; margin-bottom:4px;">
+                    <div id="pw-bar-1" style="flex:1; height:3px; border-radius:2px; background:#e5e7eb; transition:background 0.3s;"></div>
+                    <div id="pw-bar-2" style="flex:1; height:3px; border-radius:2px; background:#e5e7eb; transition:background 0.3s;"></div>
+                    <div id="pw-bar-3" style="flex:1; height:3px; border-radius:2px; background:#e5e7eb; transition:background 0.3s;"></div>
+                    <div id="pw-bar-4" style="flex:1; height:3px; border-radius:2px; background:#e5e7eb; transition:background 0.3s;"></div>
+                </div>
+                <p id="pw-label" style="font-size:11px; font-weight:600; color:#9ca3af; margin:0;"></p>
+            </div>
         </div>
 
         {{-- CONFIRM PASSWORD --}}
         <div class="form-group">
             <div class="relative">
-                <input type="password" id="password_confirmation" name="password_confirmation" placeholder="Confirm Password" required
-                    class="pl-4 pr-12 py-3 w-full bg-white/80 border border-[#2D6A2F]/15 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2D6A2F]/10 focus:border-[#2D6A2F] transition">
+                <input type="password" id="password_confirmation" name="password_confirmation" placeholder="Confirm Password" required autocomplete="new-password"
+                    class="pl-4 pr-12 py-3 w-full bg-white/80 border border-[#3A7D44]/15 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/10 focus:border-[#3A7D44] transition">
                 <button type="button" onclick="togglePassword('password_confirmation', 'eye-confirm')"
-                    class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#2D6A2F] transition focus:outline-none">
+                    class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#3A7D44] transition focus:outline-none">
                     <svg id="eye-confirm" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                         stroke-linecap="round" stroke-linejoin="round">
@@ -99,7 +108,7 @@
 
             <div class="relative">
                 <input type="text" id="farm_location_display" name="farm_location" placeholder="Pin your farm on the map below" required readonly value="{{ old('farm_location') }}"
-                    class="px-4 py-3 w-full bg-slate-50 border border-[#2D6A2F]/15 rounded-xl focus:outline-none cursor-default text-slate-600 font-medium">
+                    class="px-4 py-3 w-full bg-slate-50 border border-[#3A7D44]/15 rounded-xl focus:outline-none cursor-default text-slate-600 font-medium">
             </div>
 
             {{-- Hidden coordinate inputs --}}
@@ -107,7 +116,7 @@
             <input type="hidden" id="longitude" name="longitude" value="{{ old('longitude') }}">
 
             {{-- GPS button --}}
-            <button type="button" id="use-my-location" class="w-full flex items-center justify-center gap-2 py-2.5 bg-[#EFF2E9] hover:bg-[#EFF2E9]/80 text-[#2D6A2F] border border-[#2D6A2F]/20 rounded-xl text-xs font-bold transition shadow-sm">
+            <button type="button" id="use-my-location" class="w-full flex items-center justify-center gap-2 py-2.5 bg-[#EFF2E9] hover:bg-[#EFF2E9]/80 text-[#3A7D44] border border-[#3A7D44]/20 rounded-xl text-xs font-bold transition shadow-sm">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                     <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -116,7 +125,13 @@
             </button>
 
             {{-- Map container --}}
-            <div id="farm-map" class="w-full h-[200px] rounded-xl border border-[#2D6A2F]/15 shadow-sm overflow-hidden z-0"></div>
+            <div id="farm-map-wrapper" class="w-full h-[200px] rounded-xl border border-[#3A7D44]/15 shadow-sm overflow-hidden z-0" style="position:relative;">
+                <div id="map-skeleton" style="position:absolute;inset:0;z-index:400;background:linear-gradient(135deg,#f0f7f0,#e8f5e9);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;transition:opacity 0.3s;">
+                    <div style="width:28px;height:28px;border:3px solid #e5e7eb;border-top-color:#3A7D44;border-radius:50%;animation:spin 0.8s linear infinite;"></div>
+                    <p style="font-size:11px;color:#9ca3af;font-weight:500;margin:0;">Loading map...</p>
+                </div>
+                <div id="farm-map" class="w-full h-full"></div>
+            </div>
 
             <p class="text-[10px] text-slate-400 font-medium text-center mt-1">
                 Drag the pin to your exact farm location.
@@ -140,7 +155,7 @@
                 </label>
 
                 <!-- Cooperative Card -->
-                <label id="label-cooperative" class="flex flex-col items-center justify-center p-4 border-2 border-slate-200/80 rounded-2xl cursor-pointer transition-all duration-200 text-center gap-1 hover:border-[#2D6A2F]/30 hover:bg-[#EFF2E9]/10">
+                <label id="label-cooperative" class="flex flex-col items-center justify-center p-4 border-2 border-slate-200/80 rounded-2xl cursor-pointer transition-all duration-200 text-center gap-1 hover:border-[#3A7D44]/30 hover:bg-[#EFF2E9]/10">
                     <input type="radio" name="affiliation_type" value="cooperative"
                         {{ old('affiliation_type') === 'cooperative' ? 'checked' : '' }}
                         class="hidden" onchange="handleAffiliation()">
@@ -157,7 +172,7 @@
             </label>
             <div class="relative">
                 <select name="cooperative_id" id="cooperative_id"
-                    class="pl-4 pr-10 py-3 w-full bg-white/80 border border-[#2D6A2F]/15 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2D6A2F]/10 focus:border-[#2D6A2F] transition appearance-none cursor-pointer text-sm text-slate-700">
+                    class="pl-4 pr-10 py-3 w-full bg-white/80 border border-[#3A7D44]/15 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/10 focus:border-[#3A7D44] transition appearance-none cursor-pointer text-sm text-slate-700">
                     <option value="">— Select your cooperative —</option>
                     @foreach($cooperatives as $coop)
                         <option value="{{ $coop->id }}"
@@ -187,14 +202,14 @@
 
         {{-- TERMS & CONDITIONS --}}
         <div class="form-group pt-1">
-            <label class="flex items-start gap-3 cursor-pointer p-3 rounded-xl bg-[#EFF2E9]/40 border border-[#2D6A2F]/10">
+            <label class="flex items-start gap-3 cursor-pointer p-3 rounded-xl bg-[#EFF2E9]/40 border border-[#3A7D44]/10">
                 <input type="checkbox" name="accepted_terms" value="1" {{ old('accepted_terms') ? 'checked' : '' }}
-                    class="mt-0.5 w-4 h-4 rounded border-slate-300 text-[#2D6A2F] focus:ring-[#2D6A2F] cursor-pointer shrink-0">
+                    class="mt-0.5 w-4 h-4 rounded border-slate-300 text-[#3A7D44] focus:ring-[#3A7D44] cursor-pointer shrink-0">
                 <span class="text-xs text-slate-500 leading-relaxed">
                     I agree to the
-                    <a href="javascript:void(0)" onclick="openLegalModal('{{ route('legal.terms') }}')" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#2D6A2F]/10 text-[#2D6A2F] font-semibold hover:bg-[#2D6A2F]/20 hover:text-[#1f4d21] transition-all text-[11px]">Terms & Conditions <span style="font-size:10px;">↗</span></a>
+                    <a href="javascript:void(0)" onclick="openLegalModal('{{ route('legal.terms') }}')" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#3A7D44]/10 text-[#3A7D44] font-semibold hover:bg-[#3A7D44]/20 hover:text-[#1f4d21] transition-all text-[11px]">Terms & Conditions <span style="font-size:10px;">↗</span></a>
                     and
-                    <a href="javascript:void(0)" onclick="openLegalModal('{{ route('legal.privacy') }}')" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#2D6A2F]/10 text-[#2D6A2F] font-semibold hover:bg-[#2D6A2F]/20 hover:text-[#1f4d21] transition-all text-[11px]">Privacy Policy <span style="font-size:10px;">↗</span></a>.
+                    <a href="javascript:void(0)" onclick="openLegalModal('{{ route('legal.privacy') }}')" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#3A7D44]/10 text-[#3A7D44] font-semibold hover:bg-[#3A7D44]/20 hover:text-[#1f4d21] transition-all text-[11px]">Privacy Policy <span style="font-size:10px;">↗</span></a>.
                 </span>
             </label>
             @error('accepted_terms')
@@ -203,7 +218,7 @@
         </div>
 
         <div class="pt-1">
-            <button type="submit" class="w-full py-3 bg-gradient-to-r from-[#2D6A2F] to-[#5A8A3C] hover:brightness-105 text-white font-bold rounded-xl text-sm shadow-md shadow-[#2D6A2F]/10 hover:shadow-lg transition duration-200 transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer">
+            <button type="submit" class="w-full py-3 bg-gradient-to-r from-[#3A7D44] to-[#2E6336] hover:brightness-105 text-white font-bold rounded-xl text-sm shadow-md shadow-[#3A7D44]/10 hover:shadow-lg transition duration-200 transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer">
                 Register as Farmer
             </button>
         </div>
@@ -211,19 +226,19 @@
         <div class="mt-6 pt-5 border-t border-slate-100/80 text-center text-xs font-semibold text-slate-450">
             Not a farmer?
             <a href="{{ route('register.role', 'logistics_partner') }}"
-                class="text-[#2D6A2F] hover:text-[#2D6A2F]/80 transition ml-1 hover:underline">
+                class="text-[#3A7D44] hover:text-[#3A7D44]/80 transition ml-1 hover:underline">
                 Sign up as Logistics Coordinator
             </a>
         </div>
         <div class="mt-3 text-center">
-            <a href="/" class="text-slate-400 hover:text-[#2D6A2F] text-xs font-bold flex items-center justify-center gap-1">
+            <a href="/" class="text-slate-400 hover:text-[#3A7D44] text-xs font-bold flex items-center justify-center gap-1">
                 ← Return to Homepage
             </a>
         </div>
         {{-- LEGAL MODAL --}}
         <div id="legal-modal-overlay" style="position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);" onclick="if(event.target===this)closeLegalModal()">
             <div onclick="event.stopPropagation()" style="background:#fff;border-radius:1.5rem;max-width:640px;width:100%;max-height:80vh;overflow-y:auto;position:relative;box-shadow:0 25px 50px -12px rgba(0,0,0,0.3);scrollbar-width:thin;scrollbar-color:#d1d5db transparent;">
-                <div style="position:sticky;top:0;z-index:10;background:linear-gradient(135deg,#2D6A2F,#5A8A3C);border-radius:1.5rem 1.5rem 0 0;padding:1.25rem 2rem 1rem;margin:0;">
+                <div style="position:sticky;top:0;z-index:10;background:linear-gradient(135deg,#3A7D44,#2E6336);border-radius:1.5rem 1.5rem 0 0;padding:1.25rem 2rem 1rem;margin:0;">
                     <div style="display:flex;align-items:center;justify-content:space-between;">
                         <div>
                             <span style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.7);">HarvestHaul</span>
@@ -233,7 +248,7 @@
                     </div>
                 </div>
                 <div style="padding:1.5rem 2rem 2rem;">
-                    <div id="legal-modal-body" style="font-family:'Figtree',sans-serif;font-size:0.9rem;line-height:1.7;color:#374151;text-align:justify;"></div>
+                    <div id="legal-modal-body" style="font-family:'Source Sans 3',sans-serif;font-size:0.9rem;line-height:1.7;color:#374151;text-align:justify;"></div>
                 </div>
             </div>
         </div>
@@ -241,19 +256,53 @@
 
     @push('scripts')
     <script>
+        // PASSWORD STRENGTH
+        function checkPasswordStrength(pw) {
+            let score = 0;
+            if (pw.length >= 8) score++;
+            if (/[a-z]/.test(pw) && /[A-Z]/.test(pw)) score++;
+            if (/\d/.test(pw)) score++;
+            if (/[^a-zA-Z0-9]/.test(pw)) score++;
+            return score;
+        }
+        function updateStrengthUI(score) {
+            const container = document.getElementById('pw-strength');
+            const bars = [1,2,3,4].map(i => document.getElementById('pw-bar-'+i));
+            const label = document.getElementById('pw-label');
+            const colors = ['#ef4444','#f59e0b','#eab308','#3A7D44'];
+            const labels = ['Weak','Fair','Good','Strong'];
+            const pw = document.getElementById('password').value;
+            if (!pw) { container.style.display='none'; return; }
+            container.style.display='block';
+            bars.forEach((bar,i) => { bar.style.background = i < score ? colors[score-1] : '#e5e7eb'; });
+            label.textContent = score > 0 ? labels[score-1] : 'Too short';
+            label.style.color = score > 0 ? colors[score-1] : '#9ca3af';
+        }
+        document.getElementById('password').addEventListener('input', function() {
+            updateStrengthUI(checkPasswordStrength(this.value));
+        });
+
+        const legalCache = {};
         function openLegalModal(url) {
             const overlay = document.getElementById('legal-modal-overlay');
             const body = document.getElementById('legal-modal-body');
             const title = document.getElementById('legal-modal-title');
-            body.innerHTML = '<div style="text-align:center;padding:3rem 1rem;"><div style="width:32px;height:32px;border:3px solid #e5e7eb;border-top-color:#2D6A2F;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 1rem;"></div><p style="color:#9ca3af;font-size:0.85rem;">Loading...</p></div>';
             title.textContent = 'HarvestHaul';
             overlay.style.display = 'flex';
+            if (legalCache[url]) {
+                body.innerHTML = legalCache[url];
+                const h1 = body.querySelector('h1');
+                if (h1) title.textContent = h1.textContent;
+                return;
+            }
+            body.innerHTML = '<div style="text-align:center;padding:3rem 1rem;"><div style="width:32px;height:32px;border:3px solid #e5e7eb;border-top-color:#3A7D44;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 1rem;"></div><p style="color:#9ca3af;font-size:0.85rem;">Loading...</p></div>';
             fetch(url).then(r => r.text()).then(html => {
                 const parser = new DOMParser();
                 const doc = parser.parseFromString(html, 'text/html');
                 body.innerHTML = doc.querySelector('.container').innerHTML;
                 const h1 = body.querySelector('h1');
                 if (h1) title.textContent = h1.textContent;
+                legalCache[url] = body.innerHTML;
             }).catch(() => {
                 body.innerHTML = '<p style="color:#dc2626;padding:2rem;text-align:center;">Failed to load. Please try again.</p>';
             });
@@ -288,17 +337,22 @@
 
         const map = L.map('farm-map', { zoomControl: true }).setView(GENSAN, 13);
 
+        map.whenReady(function() {
+            const skeleton = document.getElementById('map-skeleton');
+            if (skeleton) { skeleton.style.opacity = '0'; setTimeout(() => skeleton.style.display = 'none', 300); }
+        });
+
         L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
             attribution: '© OpenStreetMap contributors © CARTO',
             subdomains: 'abcd',
             maxZoom: 19,
         }).addTo(map);
 
-        // Custom green marker matching #2D6A2F
+        // Custom green marker matching #3A7D44
         const greenIcon = L.divIcon({
             html: `<div style="
                 width: 18px; height: 18px; border-radius: 50%;
-                background: #2D6A2F; border: 3px solid white;
+                background: #3A7D44; border: 3px solid white;
                 box-shadow: 0 3px 8px rgba(45, 106, 47, 0.4);
             "></div>`,
             className: '',
@@ -403,9 +457,9 @@
             }
 
             if (cooperative.checked) {
-                labelCoop.className = "flex flex-col items-center justify-center p-4 border-2 border-[#2D6A2F] bg-[#EFF2E9]/30 rounded-2xl cursor-pointer transition-all duration-200 text-center gap-1 scale-[1.02] shadow-sm";
+                labelCoop.className = "flex flex-col items-center justify-center p-4 border-2 border-[#3A7D44] bg-[#EFF2E9]/30 rounded-2xl cursor-pointer transition-all duration-200 text-center gap-1 scale-[1.02] shadow-sm";
             } else {
-                labelCoop.className = "flex flex-col items-center justify-center p-4 border-2 border-slate-200/80 rounded-2xl cursor-pointer transition-all duration-200 text-center gap-1 hover:border-[#2D6A2F]/30 hover:bg-[#EFF2E9]/10";
+                labelCoop.className = "flex flex-col items-center justify-center p-4 border-2 border-slate-200/80 rounded-2xl cursor-pointer transition-all duration-200 text-center gap-1 hover:border-[#3A7D44]/30 hover:bg-[#EFF2E9]/10";
             }
 
             coopField.style.display = cooperative.checked ? 'block' : 'none';

@@ -88,9 +88,10 @@ class CostLedgerController extends Controller
 
         $totalPrice  = (float) ($poolingJob->negotiated_price ?? $poolingJob->price_reference ?? 0);
         $sumOfShares = $ledgerEntries->sum('cost_share');
+        $costMismatch = $totalPrice > 0 && $sumOfShares > 0 && abs($totalPrice - $sumOfShares) > 0.01;
 
         return view('logistics.cost-ledger', compact(
-            'poolingJob', 'ledgerEntries', 'totalPrice', 'sumOfShares', 'isOwner', 'isFarmer'
+            'poolingJob', 'ledgerEntries', 'totalPrice', 'sumOfShares', 'isOwner', 'isFarmer', 'costMismatch'
         ));
     }
 
@@ -102,18 +103,35 @@ class CostLedgerController extends Controller
         $user = Auth::user();
 
         // Check if the user is the farmer for this harvest stop
-        $harvest = $poolingJob->harvests()->findOrFail($harvestId);
+        $harvest = $poolingJob->harvests()->with('crop')->findOrFail($harvestId);
 
         if ($harvest->user_id !== $user->id) {
             abort(403, 'Only the participating farmer can upload payment receipt.');
         }
 
+        // Verify job is in an appropriate status for receipt upload
+        $allowedStatuses = ['confirmed', 'in_progress', 'awaiting_confirmation'];
+        if (!in_array($poolingJob->status, $allowedStatuses)) {
+            return back()->with('error', 'Cannot upload receipt. Job must be confirmed, in progress, or awaiting confirmation.');
+        }
+
         $request->validate([
-            'payment_receipt' => 'required|image|max:10240', // 10MB limit
+            'payment_receipt' => 'required|image|max:10240|mimes:jpg,jpeg,png,pdf', // 10MB, image or PDF only
         ]);
 
         if ($request->hasFile('payment_receipt')) {
             $file = $request->file('payment_receipt');
+
+            // Validate minimum file size (1KB) to prevent empty files
+            if ($file->getSize() < 1024) {
+                return back()->with('error', 'Receipt file is too small. Please upload a valid receipt image.');
+            }
+
+            // Basic image validation: ensure it's a valid image (not a renamed .exe)
+            if (!in_array($file->getMimeType(), ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf'])) {
+                return back()->with('error', 'Invalid file type. Please upload a valid receipt (JPG, PNG, or PDF).');
+            }
+
             $path = $file->store('payment-receipts/' . $poolingJob->id, 'public');
 
             $poolingJob->harvests()->updateExistingPivot($harvest->id, [
@@ -161,7 +179,17 @@ class CostLedgerController extends Controller
             abort(403, 'Only the logistics partner can mark this invoice as paid.');
         }
 
-        $harvest = $poolingJob->harvests()->findOrFail($harvestId);
+        $harvest = $poolingJob->harvests()->with('crop')->findOrFail($harvestId);
+
+        // Prevent marking as paid if already paid
+        if ($harvest->pivot->payment_status === 'paid') {
+            return back()->with('error', 'Payment is already marked as paid. No changes made.');
+        }
+
+        // Verify receipt was uploaded before marking as paid
+        if (!$harvest->pivot->receipt_path) {
+            return back()->with('error', 'Cannot mark as paid. Farmer has not uploaded a payment receipt yet.');
+        }
 
         $poolingJob->harvests()->updateExistingPivot($harvest->id, [
             'payment_status' => 'paid',
@@ -187,6 +215,60 @@ class CostLedgerController extends Controller
     }
 
     /**
+     * Farmer confirms the actual loaded quantity for their harvest.
+     */
+    public function confirmQuantity(Request $request, PoolingJob $poolingJob, $harvestId)
+    {
+        $user = Auth::user();
+
+        $harvest = $poolingJob->harvests()->findOrFail($harvestId);
+
+        if ($harvest->user_id !== $user->id) {
+            abort(403, 'Only the farmer who owns this harvest can confirm quantity.');
+        }
+
+        // Idempotency guard — prevent progressive quantity reduction
+        if ($harvest->pivot->farmer_qty_confirmed) {
+            return back()->with('error', 'Quantity already confirmed for this harvest. Cannot confirm again.');
+        }
+
+        // Use pivot quantity_kg (original posted amount) as the max, not the harvest record
+        $originalQuantity = (float) ($harvest->pivot->quantity_kg ?: $harvest->quantity_kg);
+
+        $request->validate([
+            'actual_quantity_kg' => 'required|numeric|min:0.01|max:' . $originalQuantity,
+        ]);
+
+        if ((float) $request->actual_quantity_kg > $originalQuantity) {
+            return back()->with('error', 'Confirmed quantity cannot exceed the posted harvest quantity of ' . $originalQuantity . ' kg.');
+        }
+
+        $poolingJob->harvests()->updateExistingPivot($harvest->id, [
+            'actual_quantity_kg'   => $request->actual_quantity_kg,
+            'farmer_qty_confirmed' => true,
+        ]);
+
+        \App\Models\AuditLog::create([
+            'admin_id'    => $user->id,
+            'action'      => 'farmer_confirmed_quantity',
+            'target_type' => 'pooling_job_harvests',
+            'target_id'   => $poolingJob->id,
+            'notes'       => "Farmer {$user->name} confirmed actual quantity {$request->actual_quantity_kg} kg for Harvest #{$harvest->id} on Route #{$poolingJob->id}.",
+        ]);
+
+        if ($poolingJob->logisticsProfile && $poolingJob->logisticsProfile->user_id) {
+            \App\Models\Notification::create([
+                'user_id' => $poolingJob->logisticsProfile->user_id,
+                'title'   => 'Actual Quantity Confirmed',
+                'message' => "Farmer {$user->name} confirmed actual quantity of {$request->actual_quantity_kg} kg for Route #{$poolingJob->id}.",
+                'link'    => route('pooling.cost-ledger', $poolingJob),
+            ]);
+        }
+
+        return back()->with('success', 'Actual quantity confirmed successfully.');
+    }
+
+    /**
      * Show fleet fuel tracking ledger and revenue per vehicle analytics.
      */
     public function fleetAnalytics()
@@ -208,12 +290,16 @@ class CostLedgerController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
+        // Eager-load completed jobs per truck to avoid N+1 inside map()
+        $completedJobsByTruck = PoolingJob::whereIn('truck_id', $truckIds)
+            ->where('status', 'completed')
+            ->get()
+            ->groupBy('truck_id');
+
         // Calculate metrics per truck
-        $truckAnalytics = $trucks->map(function ($truck) {
-            // Fuel logs for this truck
-            $logs = \App\Models\FuelLog::where('truck_id', $truck->id)
-                ->orderBy('odometer_reading', 'asc')
-                ->get();
+        $truckAnalytics = $trucks->map(function ($truck) use ($fuelLogs, $completedJobsByTruck) {
+            // Fuel logs for this truck (filter from already-loaded collection)
+            $logs = $fuelLogs->where('truck_id', $truck->id);
 
             $totalFuelLiters = (float) $logs->sum('fuel_liters');
             $totalFuelCost   = (float) $logs->sum('cost');
@@ -221,18 +307,16 @@ class CostLedgerController extends Controller
             // Calculate KPL (Kilometers per Liter)
             $kpl = 0;
             if ($logs->count() > 1) {
-                $minOdo = (float) $logs->first()->odometer_reading;
-                $maxOdo = (float) $logs->last()->odometer_reading;
+                $minOdo = (float) $logs->last()->odometer_reading;
+                $maxOdo = (float) $logs->first()->odometer_reading;
                 $distance = $maxOdo - $minOdo;
                 if ($totalFuelLiters > 0) {
                     $kpl = $distance / $totalFuelLiters;
                 }
             }
 
-            // Completed jobs and revenue for this truck
-            $completedJobs = PoolingJob::where('truck_id', $truck->id)
-                ->where('status', 'completed')
-                ->get();
+            // Completed jobs and revenue for this truck (from pre-grouped collection)
+            $completedJobs = $completedJobsByTruck->get($truck->id, collect());
 
             $totalRevenue = (float) $completedJobs->sum(function ($job) {
                 return (float) ($job->negotiated_price ?? $job->price_reference ?? 0);
@@ -258,9 +342,9 @@ class CostLedgerController extends Controller
         $totalFuelCost    = $fuelLogs->sum('cost');
         $totalFuelLiters  = $fuelLogs->sum('fuel_liters');
         
-        $totalRevenue = (float) PoolingJob::whereIn('truck_id', $truckIds)
-            ->where('status', 'completed')
-            ->sum('negotiated_price');
+        $totalRevenue = (float) $completedJobsByTruck->flatten()->sum(function ($job) {
+            return (float) ($job->negotiated_price ?? $job->price_reference ?? 0);
+        });
 
         return view('logistics.analytics', compact(
             'truckAnalytics', 'fuelLogs', 'totalRefuels', 'totalFuelCost', 

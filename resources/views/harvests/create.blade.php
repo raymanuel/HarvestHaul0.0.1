@@ -1,4 +1,4 @@
-<x-layout>
+﻿<x-layout>
 
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -17,7 +17,7 @@
         <div class="mb-6 bg-amber-50 border border-amber-200 dark:bg-amber-955/20 dark:border-amber-500/20 rounded-xl px-5 py-4 flex gap-3 items-start">
             <span class="text-lg">⚠️</span>
             <p class="text-sm text-amber-700 dark:text-amber-400 font-medium">
-                Your farm location is not set. Your listing will not appear on the logistics map.
+                Your farm location is not set. Your post will not appear on the logistics map.
                 Update your profile to add a GPS pin.
             </p>
         </div>
@@ -50,7 +50,7 @@
     @endif
 
     <div class="bg-white dark:bg-slate-800/80 rounded-2xl border border-gray-200 dark:border-slate-700/60 shadow-sm p-8">
-        <form method="POST" action="{{ route('harvests.store') }}">
+            <form method="POST" action="{{ route('harvests.store') }}" enctype="multipart/form-data">
             @csrf
 
             {{-- Crop --}}
@@ -180,6 +180,25 @@
                 @enderror
             </div>
 
+            {{-- Crop Photos --}}
+            <div class="mb-6">
+                <label class="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-2">
+                    Crop Photos <span class="text-gray-400 dark:text-slate-500 font-normal">(optional, max 5)</span>
+                </label>
+                <input
+                    type="file"
+                    name="crop_photos[]"
+                    id="crop_photos"
+                    multiple
+                    accept="image/*"
+                    class="w-full border border-gray-300 dark:border-slate-700 rounded-xl px-4 py-3 text-sm bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-200 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[#2D8A37] file:text-white hover:file:bg-opacity-90 transition"
+                />
+                <p class="mt-1 text-xs text-gray-400 dark:text-slate-500 font-medium">Upload photos of your crop to attract buyers. Max 5 images, 5MB each.</p>
+                @error('crop_photos.*')
+                    <p class="mt-2 text-xs text-red-500">{{ $message }}</p>
+                @enderror
+            </div>
+
             {{-- Notes --}}
             <div class="mb-8">
                 <label class="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-2">
@@ -243,11 +262,11 @@
             <input type="hidden" name="destination_longitude" id="destination_longitude" value="{{ old('destination_longitude') }}">
 
             {{-- Info Banner --}}
-            <div class="mb-6 bg-green-50 border border-green-200 dark:bg-emerald-950/20 dark:border-emerald-500/20 rounded-xl px-4 py-3 flex gap-3 items-start">
+            <div class="mb-6 bg-green-50 border border-green-200 dark:bg-[#3A7D44]/10 dark:border-[#3A7D44]/20 rounded-xl px-4 py-3 flex gap-3 items-start">
                 <span class="text-lg">📍</span>
-                <p class="text-sm text-green-700 dark:text-emerald-450 font-medium">
+                <p class="text-sm text-green-700 dark:text-[#3A7D44] font-medium">
                     Once posted, your farm location will be <strong>visible on the logistics map</strong> for pickup coordination.
-                    You can remove the listing anytime from your dashboard.
+                    You can remove the post anytime from your dashboard.
                 </p>
             </div>
 
@@ -255,7 +274,7 @@
             <div class="flex gap-3">
                 <button type="submit"
                     class="flex-1 bg-[#2D8A37] text-white font-bold py-3 rounded-xl hover:bg-opacity-90 transition shadow-md cursor-pointer">
-                    Post Listing
+                    Post Harvest
                 </button>
                 <a href="{{ route('dashboard') }}"
                     class="flex-1 text-center bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-250 font-bold py-3 rounded-xl transition">

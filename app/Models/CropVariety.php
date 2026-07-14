@@ -27,7 +27,7 @@ class CropVariety extends Model
         return $this->belongsTo(Crop::class);
     }
 
-    // A variety has many harvest listings
+    // A variety has many harvest posts
     public function harvests()
     {
         return $this->hasMany(Harvest::class);

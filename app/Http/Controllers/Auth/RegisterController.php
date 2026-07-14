@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Validation\Rule;
 use App\Models\FarmerProfile;
 use App\Models\LogisticsProfile;
 
@@ -49,17 +50,30 @@ class RegisterController extends Controller
             'role'                => 'required|in:farmer,logistics_partner,buyer',
             'accepted_terms'      => 'accepted',
 
-            // Farmer fields
-            'farm_location'       => 'required_if:role,farmer|nullable|string|max:255',
-            'latitude'            => 'required_if:role,farmer|nullable|numeric|between:-90,90',
-            'longitude'           => 'required_if:role,farmer|nullable|numeric|between:-180,180',
+            // Farmer fields (nullable — can be completed later in profile)
+            'farm_location'       => 'nullable|string|max:255',
+            'latitude'            => 'nullable|numeric|between:-90,90',
+            'longitude'           => 'nullable|numeric|between:-180,180',
+            'affiliation_type'    => 'nullable|in:independent,cooperative',
+            'cooperative_id'      => 'nullable|exists:logistics_profiles,id',
 
-            // Logistics fields
-            'company_name'        => 'required_if:role,logistics_partner|nullable|string|max:255',
-            'business_permit_no'  => 'required_if:role,logistics_partner|nullable|string|max:255',
-            'logistics_type'      => 'required_if:role,logistics_partner|nullable|in:cooperative,company',
-            'cda_registration_no' => 'required_if:logistics_type,cooperative|nullable|string|max:255',
+            // Logistics fields (nullable — can be completed later in profile)
+            'company_name'        => 'nullable|string|max:255',
+            'business_permit_no'  => 'nullable|string|max:255',
+            'logistics_type'      => 'nullable|in:cooperative,company',
+            'cda_registration_no' => 'nullable|string|max:255',
         ]);
+
+        // Validate cooperative_id belongs to a cooperative
+        if ($request->affiliation_type === 'cooperative' && $request->cooperative_id) {
+            $isValidCooperative = \App\Models\LogisticsProfile::where('id', $request->cooperative_id)
+                ->where('logistics_type', 'cooperative')
+                ->exists();
+
+            if (!$isValidCooperative) {
+                return back()->withErrors(['cooperative_id' => 'The selected cooperative is not valid.'])->withInput();
+            }
+        }
 
         try {
             return DB::transaction(function () use ($request) {
@@ -69,18 +83,25 @@ class RegisterController extends Controller
                     'phone'            => $request->phone,
                     'password'         => Hash::make($request->password),
                     'role'             => $request->role,
-                    'affiliation_type' => $request->role === 'buyer' ? null : 'independent',
-                    'cooperative_id'   => null,
+                    'affiliation_type' => match ($request->role) {
+                        'farmer'             => $request->affiliation_type ?? 'independent',
+                        'logistics_partner'  => $request->logistics_type === 'cooperative' ? 'cooperative' : 'independent',
+                        'buyer'              => 'independent',
+                        default              => 'independent',
+                    },
+                    'cooperative_id'   => ($request->role === 'farmer' && ($request->affiliation_type ?? 'independent') === 'cooperative')
+                                            ? $request->cooperative_id
+                                            : null,
                 ]);
 
                 if ($request->role === 'farmer') {
                     $user->farmerProfile()->create([
                         'phone'            => $request->phone,
-                        'farm_location'    => $request->farm_location,
+                        'farm_location'    => $request->farm_location ?? 'Set your farm location in profile',
                         'latitude'         => $request->latitude,
                         'longitude'        => $request->longitude,
                         'is_verified'      => false,
-                        'affiliation_type' => $request->affiliation_type,
+                        'affiliation_type' => $request->affiliation_type ?? 'independent',
                         'cooperative_id'   => $request->affiliation_type === 'cooperative'
                                                 ? $request->cooperative_id
                                                 : null,
@@ -88,15 +109,20 @@ class RegisterController extends Controller
                 } elseif ($request->role === 'logistics_partner') {
                     $user->logisticsProfile()->create([
                         'phone'               => $request->phone,
-                        'company_name'        => $request->company_name,
+                        'company_name'        => $request->company_name ?? $request->name,
                         'business_permit_no'  => $request->business_permit_no,
-                        'logistics_type'      => $request->logistics_type,
+                        'logistics_type'      => $request->logistics_type ?? 'company',
                         'cda_registration_no' => $request->logistics_type === 'cooperative'
                                                     ? $request->cda_registration_no
                                                     : null,
                     ]);
+                } elseif ($request->role === 'buyer') {
+                    $user->buyerProfile()->create([
+                        'phone'       => $request->phone,
+                        'is_verified' => false,
+                    ]);
                 }
-                // Buyer: no extended profile needed, just store phone on user
+                // Buyer: profile now stored in buyer_profiles table
                 // company_name stored in audit log for reference
 
                 Auth::login($user);

@@ -2,11 +2,16 @@
 
 namespace App\Services;
 
+use App\Models\DriverProfile;
+use App\Models\FuelLog;
 use App\Models\Harvest;
+use App\Models\HarvestStatus;
 use App\Models\PoolingJob;
 use App\Models\Truck;
+use App\Traits\GeometryHelper;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 /**
  * ═══════════════════════════════════════════════════════════════
@@ -37,6 +42,8 @@ use Illuminate\Support\Facades\DB;
  */
 class ResourcePoolingService
 {
+    use GeometryHelper;
+
     // ─────────────────────────────────────────────────────────
     // MAIN ENTRY POINT
     // ─────────────────────────────────────────────────────────
@@ -60,21 +67,74 @@ class ResourcePoolingService
         float $endLng,
         float $radiusKm
     ): array {
-        // STEP 1: Fetch only SOLD harvests with GPS coords and full relationships.
+        // STEP 1: Fetch only SOLD/PARTIALLY_SOLD harvests with GPS coords and full relationships.
         // Inactive/assigned harvests are excluded — prevents double-booking.
         $harvests = Harvest::whereIn('id', $nearbyHarvestIds)
-            ->where('status', 'sold')
+            ->whereIn('status', HarvestStatus::LOGISTICS_VISIBLE)
             ->whereNotNull('latitude')
             ->whereNotNull('longitude')
-            ->with(['crop', 'cropVariety', 'farmer.farmerProfile', 'destination'])
+            ->with(['crop', 'cropVariety', 'farmer.farmerProfile', 'destination', 'negotiations' => fn($q) => $q->where('status', 'COMPLETED')])
             ->get();
+
+        // Validate all selected harvests are within radius from start point
+        foreach ($harvests as $h) {
+            $dist = $this->haversine($startLat, $startLng, (float) $h->latitude, (float) $h->longitude);
+            if ($dist > $radiusKm) {
+                return $this->emptyPlan("Harvest #{$h->id} ({$h->crop_type}) is {$dist}km away — exceeds {$radiusKm}km radius.");
+            }
+        }
+
+        // Check all harvests belong to the same buyer (or no buyer conflict)
+        $harvestIds = $harvests->pluck('id');
+        $completedNegotiations = \App\Models\Negotiation::whereIn('harvest_id', $harvestIds)
+            ->where('status', 'COMPLETED')
+            ->get()
+            ->keyBy('harvest_id');
+        $buyerIds = $harvests->map(fn($h) => $completedNegotiations->get($h->id)?->buyer_id)
+            ->unique()->filter();
+        if ($buyerIds->count() > 1) {
+            return $this->emptyPlan('Selected harvests have different buyers. Multi-buyer pooling is not yet supported.');
+        }
+
+        // Check no harvest is already in another pending pooling job
+        $conflictingIds = \App\Models\PoolingJob::where('status', 'pending')
+            ->whereHas('harvests', fn($q) => $q->whereIn('harvest_id', $nearbyHarvestIds))
+            ->pluck('id');
+        if ($conflictingIds->isNotEmpty()) {
+            return $this->emptyPlan('Some harvests are already in another pending pooling job (#' . $conflictingIds->implode(', #') . ').');
+        }
 
         if ($harvests->isEmpty()) {
             return $this->emptyPlan('No sold harvests found for the selected farms.');
         }
 
+        // Fuel Sufficiency Check: soft warning if no recent fuel logs
+        $latestFuelLog = FuelLog::where('truck_id', $truck->id)->latest()->first();
+        $fuelWarning = null;
+        if (!$latestFuelLog) {
+            $fuelWarning = 'Truck has no recent fuel logs. Recommend refueling before dispatch.';
+        }
+
         // STEP 2: Knapsack selection — pick harvests that fit within truck capacity.
-        // Sorted heaviest-first to maximize load utilization. Stops at 95% fill.
+        // Use negotiated volume from completed negotiation, not raw quantity_kg.
+        // Guard: skip harvests without completed negotiations.
+        $harvests = $harvests->filter(function ($harvest) {
+            $completedNegotiation = $harvest->negotiations->first();
+            if (!$completedNegotiation) {
+                Log::warning("Harvest #{$harvest->id} reached pooling service without completed negotiation. Skipping.");
+                return false;
+            }
+            return true;
+        });
+
+        // Update quantity_kg in-memory to negotiated_volume for knapsack
+        foreach ($harvests as $h) {
+            $negotiation = $h->negotiations->first();
+            if ($negotiation && $negotiation->negotiated_volume) {
+                $h->quantity_kg = $negotiation->negotiated_volume;
+            }
+        }
+
         $selected = $this->knapsack($harvests, (float) $truck->capacity_kg);
 
         if ($selected->isEmpty()) {
@@ -183,7 +243,7 @@ class ResourcePoolingService
         // This same array is passed back to confirm() for persistence.
         return [
             'success'           => true,
-            'message'           => null,
+            'message'           => $fuelWarning,
             'truck_id'          => $truck->id,
             'truck_name'        => $truck->truck_name ?? $truck->plate_number,
             'truck_capacity_kg' => (float) $truck->capacity_kg,
@@ -233,7 +293,42 @@ class ResourcePoolingService
     public function confirm(array $plan, int $logisticsProfileId): PoolingJob
     {
         return DB::transaction(function () use ($plan, $logisticsProfileId) {
-            $truck = Truck::findOrFail($plan['truck_id']);
+            // Check route_geometry is valid JSON with valid coordinates
+            if (isset($plan['route_geometry'])) {
+                $geom = $plan['route_geometry'];
+                if (!is_array($geom)) {
+                    throw new \InvalidArgumentException('route_geometry must be an array');
+                }
+            }
+
+            // Use pessimistic locking on the truck
+            $truck = Truck::where('id', $plan['truck_id'])
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            // Re-verify truck is still available (race condition guard)
+            if ($truck->status !== 'available') {
+                throw new \RuntimeException('Truck is no longer available.');
+            }
+
+            // If driver assigned, verify driver is still active
+            if ($truck->driver_id) {
+                $driver = \App\Models\User::where('id', $truck->driver_id)
+                    ->whereHas('driverProfile', fn($q) => $q->where('employment_status', 'active'))
+                    ->exists();
+                if (!$driver) {
+                    throw new \RuntimeException('Assigned driver is no longer active.');
+                }
+            }
+
+            // Re-verify harvests still have sold/partially_sold status (could have changed since plan preview)
+            $soldCount = Harvest::whereIn('id', collect($plan['selected_harvests'])->pluck('harvest_id'))
+                ->whereIn('status', HarvestStatus::LOGISTICS_VISIBLE)
+                ->count();
+            $expectedCount = count($plan['selected_harvests']);
+            if ($soldCount !== $expectedCount) {
+                throw new \RuntimeException('Some harvests are no longer available (status changed since plan preview).');
+            }
 
             // Build and save the PoolingJob record.
             $job = new PoolingJob();
@@ -249,9 +344,11 @@ class ResourcePoolingService
             $job->end_latitude         = $plan['end_lat'];
             $job->end_longitude        = $plan['end_lng'];
             $job->radius_km            = $plan['radius_km'];
+            $job->planned_distance_km  = $plan['total_distance_km'] ?? null;
             $job->price_reference      = $plan['price_reference'] ?? null;
             $job->negotiated_price     = $plan['price_reference'] ?? null; // initial bid is reference price
             $job->notes                = $plan['notes'] ?? null;
+            $job->proposal_expires_at  = $plan['proposal_expires_at'] ?? now()->addHours(48);
             $job->confirmed_at         = null;                // will be populated once confirmed
             $job->route_geometry       = $plan['route_geometry'] ?? null; // OSRM route JSON for map display
 
@@ -276,12 +373,18 @@ class ResourcePoolingService
                     'quantity_kg'  => $stop['quantity_kg'],
                     'status'       => 'pending',          // starts as pending farmer approval
                 ]);
-                // Lock the harvest — remove from active marketplace listing
+                // Lock the harvest — remove from active marketplace
                 Harvest::where('id', $stop['harvest_id'])->update(['status' => 'assigned']);
             }
 
             // Mark truck as reserved — prevents it from appearing in new routing sessions
             $truck->update(['status' => 'reserved']);
+
+            // Update driver's last_assigned_at for load balancing in future auto-assignment
+            if ($truck->driver_id) {
+                DriverProfile::where('user_id', $truck->driver_id)
+                    ->update(['last_assigned_at' => now()]);
+            }
 
             return $job->load(['harvests', 'truck', 'driver']);
         });
@@ -292,16 +395,72 @@ class ResourcePoolingService
     // ─────────────────────────────────────────────────────────
 
     /**
-     * Greedy Knapsack — Select harvests that fit in the truck.
+     * Optimal 0/1 Knapsack — Select harvests that fit in the truck.
      *
-     * STRATEGY: Sort by heaviest harvest first (maximize kg loaded),
-     * then greedily add each item if it fits in remaining capacity.
-     * Stops early when 95% full (avoid leaving 1 tiny harvest unfilled).
+     * STRATEGY:
+     *   For n ≤ 20: brute-force over all 2ⁿ subsets picks the exact best fit.
+     *   For n > 20: falls back to greedy (heaviest-first) as approximation.
      *
-     * WHY NOT EXACT KNAPSACK: True 0/1 knapsack is O(n×W) DP.
-     * For typical 5–20 harvests in PH rural context, greedy is fast enough.
+     * WHY OPTIMAL: Greedy can leave 10–20% capacity unused when smaller
+     * harvests could fill the gaps. For n ≤ 20 the brute force is fast
+     * (~1M iterations × 20 items ≈ 20M ops — well within PHP's limits).
      */
     private function knapsack(Collection $harvests, float $capacity): Collection
+    {
+        $items = $harvests->values();
+        $n = $items->count();
+
+        if ($n === 0) return collect();
+        if ($n === 1) {
+            return (float) $items[0]->quantity_kg <= $capacity ? collect([$items[0]]) : collect();
+        }
+
+        // For large n, fall back to greedy (fast approximation)
+        if ($n > 20) {
+            return $this->greedyKnapsack($harvests, $capacity);
+        }
+
+        // Brute force: enumerate all subsets, pick the one that maximizes
+        // total weight without exceeding capacity. Breaks ties by item count
+        // (more farmers served is preferred).
+        $bestWeight = 0.0;
+        $bestMask = 0;
+        $bestCount = 0;
+
+        for ($mask = 1; $mask < (1 << $n); $mask++) {
+            $weight = 0.0;
+            $count = 0;
+
+            for ($i = 0; $i < $n; $i++) {
+                if ($mask & (1 << $i)) {
+                    $weight += (float) $items[$i]->quantity_kg;
+                    $count++;
+                    if ($weight > $capacity) break;
+                }
+            }
+
+            if ($weight <= $capacity && ($weight > $bestWeight || ($weight === $bestWeight && $count > $bestCount))) {
+                $bestWeight = $weight;
+                $bestMask = $mask;
+                $bestCount = $count;
+            }
+        }
+
+        if ($bestMask === 0) return collect();
+
+        $selected = collect();
+        for ($i = 0; $i < $n; $i++) {
+            if ($bestMask & (1 << $i)) {
+                $selected->push($items[$i]);
+            }
+        }
+        return $selected;
+    }
+
+    /**
+     * Greedy fallback — heaviest-first, used when n > 20.
+     */
+    private function greedyKnapsack(Collection $harvests, float $capacity): Collection
     {
         $sorted   = $harvests->sortByDesc('quantity_kg')->values();
         $selected = collect();
@@ -313,7 +472,6 @@ class ResourcePoolingService
                 $selected->push($harvest);
                 $used += $qty;
             }
-            // Early exit: truck is 95% full — good enough, stop trying to squeeze more in
             if ($used >= $capacity * 0.95) break;
         }
         return $selected;
@@ -412,14 +570,6 @@ class ResourcePoolingService
      * @param float $lat2/$lng2  Destination point
      * @return float             Distance in km
      */
-    private function haversine(float $lat1, float $lng1, float $lat2, float $lng2): float
-    {
-        $earthRadius = 6371; // km
-        $dLat = deg2rad($lat2 - $lat1);
-        $dLng = deg2rad($lng2 - $lng1);
-        $a = sin($dLat / 2) ** 2 + cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * sin($dLng / 2) ** 2;
-        return $earthRadius * 2 * atan2(sqrt($a), sqrt(1 - $a));
-    }
 
     /**
      * Returns a standardized empty/failure plan response.

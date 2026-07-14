@@ -16,6 +16,20 @@ class Negotiation extends Model
         'negotiated_price',
         'negotiated_volume',
         'status',
+        'destination_address',
+        'destination_latitude',
+        'destination_longitude',
+        'last_activity_at',
+        'buyer_last_read_at',
+        'farmer_last_read_at',
+    ];
+
+    protected $casts = [
+        'last_activity_at' => 'datetime',
+        'buyer_last_read_at' => 'datetime',
+        'farmer_last_read_at' => 'datetime',
+        'destination_latitude' => 'decimal:8',
+        'destination_longitude' => 'decimal:8',
     ];
 
     public function buyer()

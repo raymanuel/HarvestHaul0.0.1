@@ -1,4 +1,4 @@
-<x-layout title="Farmer Documents">
+﻿<x-layout title="Farmer Documents">
 <div class="w-full max-w-5xl mx-auto">
 
     <!-- Nice Admin Page Header -->
@@ -14,7 +14,7 @@
 
     {{-- Flash --}}
     @if(session('success'))
-        <div class="mb-6 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-400 rounded-xl px-5 py-4 text-sm font-semibold flex items-center gap-2">
+        <div class="mb-6 bg-[#3A7D44]/10 dark:bg-[#3A7D44]/10 border border-[#3A7D44]/20 dark:border-[#3A7D44]/20 text-[#3A7D44] dark:text-[#3A7D44] rounded-xl px-5 py-4 text-sm font-semibold flex items-center gap-2">
             <span>✅</span> {{ session('success') }}
         </div>
     @endif
@@ -36,7 +36,7 @@
                 {{-- Farmer Header --}}
                 <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-700/60 bg-slate-50/50 dark:bg-slate-900/40">
                     <div class="flex items-center gap-3">
-                        <div class="w-9 h-9 rounded-lg bg-gradient-to-tr from-emerald-100 to-emerald-50 dark:from-emerald-950/20 dark:to-emerald-900/20 border border-emerald-200/50 dark:border-emerald-800/30 flex items-center justify-center text-[10px] font-extrabold text-emerald-700 dark:text-emerald-400 uppercase">{{ substr($farmer->name ?? '?', 0, 2) }}</div>
+                        <div class="w-9 h-9 rounded-lg bg-gradient-to-tr from-[#3A7D44]/15 to-[#3A7D44]/10 dark:from-[#3A7D44]/10 dark:to-[#3A7D44]/5 border border-[#3A7D44]/20 dark:border-[#3A7D44]/15 flex items-center justify-center text-[10px] font-extrabold text-[#3A7D44] dark:text-[#3A7D44] uppercase">{{ substr($farmer->name ?? '?', 0, 2) }}</div>
                         <div>
                             <p class="text-sm font-extrabold text-slate-800 dark:text-slate-200">{{ $farmer->name ?? 'Farmer #' . $userId }}</p>
                             <p class="text-[10px] text-slate-400 dark:text-slate-500 font-semibold">{{ $farmer->email ?? '' }} — ID #{{ $userId }}</p>
@@ -45,7 +45,7 @@
                     @if($pendingCount > 0)
                         <span class="bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-400 border border-amber-200/50 dark:border-amber-500/20 text-[10px] font-bold px-3 py-1 rounded-lg uppercase tracking-widest">{{ $pendingCount }} Pending</span>
                     @else
-                        <span class="bg-emerald-50 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-400 border border-emerald-200/50 dark:border-emerald-500/20 text-[10px] font-bold px-3 py-1 rounded-lg uppercase tracking-widest">Reviewed</span>
+                        <span class="bg-[#3A7D44]/10 dark:bg-[#3A7D44]/10 text-[#3A7D44] dark:text-[#3A7D44] border border-[#3A7D44]/20 dark:border-[#3A7D44]/20 text-[10px] font-bold px-3 py-1 rounded-lg uppercase tracking-widest">Reviewed</span>
                     @endif
                 </div>
 
@@ -54,13 +54,13 @@
                     @foreach($docs as $doc)
                         @php
                             $statusStyle = match($doc->status) {
-                                'approved' => 'bg-emerald-50 dark:bg-emerald-950/20 border-emerald-100 dark:border-emerald-900/30 text-emerald-700 dark:text-emerald-400',
+                                'approved' => 'bg-[#3A7D44]/10 dark:bg-[#3A7D44]/10 border-[#3A7D44]/20 dark:border-[#3A7D44]/15 text-[#3A7D44] dark:text-[#3A7D44]',
                                 'rejected' => 'bg-red-50 dark:bg-red-950/20 border-red-100 dark:border-red-900/30 text-red-600 dark:text-red-400',
                                 default    => 'bg-slate-50 dark:bg-slate-900/40 border-slate-100 dark:border-slate-800 text-slate-600 dark:text-slate-400',
                             };
                             $badgeStyle = match($doc->status) {
-                                'approved' => 'bg-white dark:bg-slate-900 border-emerald-200/65 dark:border-emerald-800/50 text-emerald-700 dark:text-emerald-400',
-                                'rejected' => 'bg-white dark:bg-slate-900 border-red-200/65 dark:border-red-800/50 text-red-600 dark:text-red-400',
+                                'approved' => 'bg-white dark:bg-slate-900 border-[#3A7D44]/20 dark:border-[#3A7D44]/20 text-[#3A7D44] dark:text-[#3A7D44]',
+                                'rejected' => 'bg-white dark:bg-slate-900 border-red-200/20 dark:border-red-800/50 text-red-600 dark:text-red-400',
                                 default    => 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400',
                             };
                             $typeLabel = match($doc->document_type) {
@@ -85,7 +85,7 @@
                                 <div class="flex items-center gap-3">
                                     <span class="text-[10px] font-bold px-2.5 py-1 rounded-lg uppercase tracking-wide border {{ $badgeStyle }}">{{ $doc->status }}</span>
                                     <a href="{{ Storage::url($doc->file_path) }}" target="_blank"
-                                        class="text-emerald-600 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-350 text-xs font-bold hover:underline transition">View File</a>
+                                        class="text-[#3A7D44] dark:text-[#3A7D44] hover:text-[#1A2E1A] dark:hover:text-[#3A7D44] text-xs font-bold hover:underline transition">View File</a>
                                 </div>
                             </div>
 
@@ -95,9 +95,9 @@
                                     <form method="POST" action="{{ route('admin.farmer-documents.approve', $doc->id) }}" class="flex items-center gap-2">
                                         @csrf @method('PATCH')
                                         <input type="text" name="notes" placeholder="Admin note (optional)"
-                                            class="border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-800 dark:text-slate-200 w-48 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 bg-white dark:bg-slate-900 transition">
+                                            class="border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-800 dark:text-slate-200 w-48 focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/20 focus:border-[#3A7D44] bg-white dark:bg-slate-900 transition">
                                         <button type="submit"
-                                            class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 dark:bg-emerald-950/20 dark:hover:bg-emerald-950/40 dark:text-emerald-400 transition cursor-pointer"
+                                            class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-[#3A7D44]/10 text-[#3A7D44] hover:bg-[#3A7D44]/15 dark:bg-[#3A7D44]/10 dark:hover:bg-[#3A7D44]/15 dark:text-[#3A7D44] transition cursor-pointer"
                                             title="Approve Document">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />

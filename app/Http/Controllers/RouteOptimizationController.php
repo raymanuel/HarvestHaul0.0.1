@@ -4,6 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\HarvestStatus;
+use App\Models\PoolingJob;
+use App\Models\Truck;
+use App\Services\DriverAssignmentService;
 use Illuminate\Support\Facades\Auth;
 
 class RouteOptimizationController extends Controller
@@ -30,7 +34,7 @@ class RouteOptimizationController extends Controller
                 // Base geographic coordinates validation requirement
                 $query->whereNotNull('latitude')
                       ->whereNotNull('longitude')
-                      ->where('is_verified', true); // Protect system against unvetted listings
+                      ->where('is_verified', true); // Protect system against unvetted posts
 
                 /**
                  * Visibility Scoping Condition 1: Cooperative Scoping
@@ -49,11 +53,11 @@ class RouteOptimizationController extends Controller
                 }
             })
             ->whereHas('harvests', function ($query) {
-                $query->where('status', 'sold');
+                $query->whereIn('status', HarvestStatus::LOGISTICS_VISIBLE);
             })
             ->with([
                 'farmerProfile',
-                'harvests' => fn($query) => $query->where('status', 'sold')
+                'harvests' => fn($query) => $query->whereIn('status', HarvestStatus::LOGISTICS_VISIBLE)
                                                    ->with(['crop', 'cropVariety', 'destination']),
             ])
             ->get();
@@ -75,6 +79,13 @@ class RouteOptimizationController extends Controller
                         'variety'  => $h->cropVariety->name ?? $h->variety ?? '—',
                         'quantity' => $h->quantity_kg,
                         'status'   => $h->status,
+                        'destination'           => $h->destination ? [
+                            'name'    => $h->destination->name,
+                            'address' => $h->destination->address,
+                        ] : null,
+                        'destination_address'   => $h->destination_address,
+                        'destination_latitude'  => $h->destination_latitude,
+                        'destination_longitude' => $h->destination_longitude,
                     ];
                 })->values(),
                 'destination'           => $firstHarvest?->destination ? [
@@ -88,17 +99,107 @@ class RouteOptimizationController extends Controller
         });
 
         // Query available fleet assets managed by this logistics coordinator
-        $trucks = $logisticsProfile->trucks()
+        $allTrucks = $logisticsProfile->trucks()
             ->where('status', 'available')
-            ->with('driver')
-            ->get()
-            ->map(fn($t) => [
-                'id'          => $t->id,
-                'label'       => $t->truck_name . ' — ' . $t->plate_number,
-                'capacity_kg' => $t->capacity_kg,
-                'driver'      => $t->driver?->name ?? 'No driver assigned',
-            ]);
+            ->with('driver.driverProfile')
+            ->get();
 
-        return view('logistics.route-optimization', compact('farmersData', 'trucks'));
+        $trucks = $allTrucks->map(fn($t) => [
+            'id'          => $t->id,
+            'label'       => $t->truck_name . ' — ' . $t->plate_number,
+            'capacity_kg' => $t->capacity_kg,
+            'driver'      => $t->driver?->name ?? 'No driver assigned',
+        ]);
+
+        // ─── Auto-suggest the best available driver+truck combo ───
+        $suggestedTruckId = null;
+
+        // Preload active job counts for all drivers in one query
+        $driverIds = $allTrucks->pluck('driver_id')->filter()->unique();
+        $activeJobCounts = PoolingJob::whereIn('driver_id', $driverIds)
+            ->whereIn('status', ['confirmed', 'in_progress'])
+            ->groupBy('driver_id')
+            ->selectRaw('driver_id, COUNT(*) as total')
+            ->pluck('total', 'driver_id');
+
+        $availableTrucks = $allTrucks
+            ->filter(function ($truck) {
+                return $truck->driver && $truck->driver->driverProfile
+                    && $truck->driver->driverProfile->employment_status === 'active';
+            })
+            ->sortBy(function ($truck) use ($activeJobCounts) {
+                $activeJobs = $activeJobCounts->get($truck->driver_id, 0);
+                $lastAssigned = $truck->driver->driverProfile->last_assigned_at;
+                return [$activeJobs, $lastAssigned ?? '0000-00-00'];
+            });
+
+        $suggestedTruck = $availableTrucks->first();
+        if ($suggestedTruck) {
+            $suggestedTruckId = $suggestedTruck->id;
+        }
+
+        // Nearest available driver auto-suggestion
+        $nearestDriver = null;
+        $firstFarmer = $farmers->first();
+        if ($firstFarmer && $firstFarmer->farmerProfile) {
+            $assignmentService = app(DriverAssignmentService::class);
+            $nearestDriver = $assignmentService->findNearestAvailableDriver(
+                (float) $firstFarmer->farmerProfile->latitude,
+                (float) $firstFarmer->farmerProfile->longitude,
+                $logisticsProfile->id
+            );
+        }
+
+        return view('logistics.route-optimization', compact(
+            'farmersData', 'trucks', 'suggestedTruckId', 'nearestDriver'
+        ));
+    }
+
+    /**
+     * Auto-assign the nearest available driver to a truck.
+     */
+    public function autoAssignDriver(Request $request)
+    {
+        if (Auth::user()->role !== 'logistics_partner') {
+            abort(403);
+        }
+
+        $logisticsProfile = Auth::user()->logisticsProfile;
+
+        $request->validate([
+            'truck_id' => 'required|integer|exists:trucks,id',
+            'pickup_lat' => 'required|numeric',
+            'pickup_lng' => 'required|numeric',
+        ]);
+
+        $truck = Truck::where('id', $request->truck_id)
+            ->where('logistics_profile_id', $logisticsProfile->id)
+            ->firstOrFail();
+
+        $assignmentService = app(DriverAssignmentService::class);
+        $result = $assignmentService->findNearestAvailableDriver(
+            (float) $request->pickup_lat,
+            (float) $request->pickup_lng,
+            $logisticsProfile->id
+        );
+
+        if (!$result) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No available drivers found within range.',
+            ]);
+        }
+
+        $assignmentService->assignDriver($truck, $result['driver']->id);
+
+        return response()->json([
+            'success' => true,
+            'message' => "Driver {$result['driver']->name} auto-assigned (distance: {$result['distance_km']} km).",
+            'driver' => [
+                'id' => $result['driver']->id,
+                'name' => $result['driver']->name,
+                'distance_km' => $result['distance_km'],
+            ],
+        ]);
     }
 }

@@ -1,4 +1,4 @@
-{{--
+﻿{{--
     Logistics Fleet Predictor View
     
     PURPOSE:
@@ -23,7 +23,7 @@
                         Forecast how many trucks you'll need based on active harvest load and historical job data
                     </p>
                 </div>
-                <span class="text-xs font-semibold uppercase tracking-wider text-sky-700 dark:text-sky-400 bg-sky-50 dark:bg-sky-950/20 px-3 py-1.5 rounded-lg border border-sky-500/10 dark:border-sky-500/20 self-start">
+                <span class="text-xs font-semibold uppercase tracking-wider text-[#1F4D25] dark:text-[#1F4D25] bg-[#1F4D25]/10 dark:bg-[#1F4D25]/10 px-3 py-1.5 rounded-lg border border-[#1F4D25]/10 dark:border-[#1F4D25]/20 self-start">
                     Fleet Predictor
                 </span>
             </div>
@@ -32,7 +32,7 @@
         {{-- Forecast Hero --}}
         @php
             $surplusColor = match(true) {
-                $surplusShortage > 0  => 'text-emerald-600 dark:text-emerald-400',
+                $surplusShortage > 0  => 'text-[#3A7D44] dark:text-[#3A7D44]',
                 $surplusShortage == 0 => 'text-amber-600 dark:text-amber-400',
                 default               => 'text-rose-600 dark:text-rose-400',
             };
@@ -133,8 +133,8 @@
                 @foreach($recentJobs as $job)
                     @php
                         $statusColor = match($job['status']) {
-                            'completed'   => 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/20',
-                            'in_progress' => 'text-sky-600 dark:text-sky-400 bg-sky-50 dark:bg-sky-950/20',
+                            'completed'   => 'text-[#3A7D44] dark:text-[#3A7D44] bg-[#3A7D44]/10 dark:bg-[#3A7D44]/10',
+                            'in_progress' => 'text-[#1F4D25] dark:text-[#1F4D25] bg-[#1F4D25]/10 dark:bg-[#1F4D25]/10',
                             'confirmed'   => 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/20',
                             default       => 'text-slate-500 bg-slate-50 dark:bg-slate-900/30',
                         };

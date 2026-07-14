@@ -67,7 +67,7 @@ class PredictorController extends Controller
             })
             ->values();
 
-        // Active listings
+        // Active posts
         $activeCount    = Harvest::where('user_id', $user->id)->where('status', 'active')->count();
         $completedCount = Harvest::where('user_id', $user->id)->where('status', 'completed')->count();
 

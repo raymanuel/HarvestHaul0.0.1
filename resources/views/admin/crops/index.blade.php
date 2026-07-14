@@ -1,4 +1,4 @@
-<x-layout>
+﻿<x-layout>
     <div class="w-full max-w-7xl mx-auto">
 
         {{-- ============================================================
@@ -9,10 +9,10 @@
                 <div>
                     <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-550 mb-1">Admin / Platform settings</p>
                     <h1 class="text-2xl font-extrabold text-slate-800 dark:text-white heading-font tracking-tight">Crop Registry</h1>
-                    <p class="text-sm text-slate-400 dark:text-slate-500 mt-1 font-semibold">Manage crop categories, crop names, and variety pricing. Updates reflect immediately on farmer harvest listings.</p>
+                    <p class="text-sm text-slate-400 dark:text-slate-500 mt-1 font-semibold">Manage crop categories, crop names, and variety pricing. Updates reflect immediately on farmer harvest posts.</p>
                 </div>
                 <button onclick="openCreateEntityModal()"
-                    class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-md shadow-emerald-600/10 hover:shadow-lg transition-all flex items-center gap-1.5 cursor-pointer self-start">
+                    class="bg-[#3A7D44] hover:bg-[#2E6336] text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-md shadow-[#3A7D44]/10 hover:shadow-lg transition-all flex items-center gap-1.5 cursor-pointer self-start">
                     <span>➕</span> Add Registry Entity
                 </button>
             </div>
@@ -22,7 +22,7 @@
              FLASH MESSAGES
         ============================================================ --}}
         @if (session('success'))
-            <div class="mb-6 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-400 rounded-xl px-5 py-4 text-sm font-semibold flex items-center gap-2">
+            <div class="mb-6 bg-[#3A7D44]/10 dark:bg-[#3A7D44]/10 border border-[#3A7D44]/20 dark:border-[#3A7D44]/20 text-[#3A7D44] dark:text-[#3A7D44] rounded-xl px-5 py-4 text-sm font-semibold flex items-center gap-2">
                 <span>✓</span> {{ session('success') }}
             </div>
         @endif
@@ -70,18 +70,18 @@
             <div class="relative w-full md:w-96">
                 <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-550 text-xs">🔍</span>
                 <input type="text" id="cropSearchInput" onkeyup="filterRegistry()" placeholder="Search categories, crops or varieties..."
-                    class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-xs rounded-xl pl-9 pr-4 py-2.5 focus:outline-none focus:border-emerald-500 transition" />
+                    class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-xs rounded-xl pl-9 pr-4 py-2.5 focus:outline-none focus:border-[#3A7D44] transition" />
             </div>
             <div class="flex items-center gap-3 w-full md:w-auto self-end md:self-auto justify-end">
                 <select id="cropCategoryFilter" onchange="filterRegistry()"
-                    class="bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-xs rounded-xl px-4 py-2.5 focus:outline-none focus:border-emerald-500 transition cursor-pointer">
+                    class="bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-xs rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#3A7D44] transition cursor-pointer">
                     <option value="">All Categories</option>
                     @foreach($categories as $cat)
                         <option value="{{ $cat->id }}">{{ $cat->name }}</option>
                     @endforeach
                 </select>
                 <select id="cropStatusFilter" onchange="filterRegistry()"
-                    class="bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-xs rounded-xl px-4 py-2.5 focus:outline-none focus:border-emerald-500 transition cursor-pointer">
+                    class="bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-xs rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#3A7D44] transition cursor-pointer">
                     <option value="">All Statuses</option>
                     <option value="active">Active Only</option>
                     <option value="inactive">Inactive Only</option>
@@ -101,13 +101,13 @@
                     {{-- Collapsible Category Row --}}
                     <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-700/60 bg-slate-50/50 dark:bg-slate-900/40 select-none">
                         <div class="flex items-center gap-3 cursor-pointer" onclick="toggleCategoryCollapse({{ $category->id }})">
-                            <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-emerald-100 to-emerald-50 dark:from-emerald-950/30 dark:to-emerald-900/20 border border-emerald-200/50 dark:border-emerald-800/30 flex items-center justify-center text-[10px] font-extrabold text-emerald-700 dark:text-emerald-400 uppercase shrink-0">
+                            <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-[#3A7D44]/15 to-[#3A7D44]/10 dark:from-[#3A7D44]/10 dark:to-[#3A7D44]/5 border border-[#3A7D44]/20 dark:border-[#3A7D44]/15 flex items-center justify-center text-[10px] font-extrabold text-[#3A7D44] dark:text-[#3A7D44] uppercase shrink-0">
                                 {{ substr($category->name, 0, 2) }}
                             </div>
                             <div>
                                 <div class="flex items-center gap-2">
                                     <p class="text-sm font-extrabold text-slate-800 dark:text-slate-200">{{ $category->name }}</p>
-                                    <span class="text-slate-300 dark:text-slate-750">
+                                    <span class="text-slate-300 dark:text-slate-700">
                                         <svg id="chevron-cat-{{ $category->id }}" xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 transform transition-transform duration-200 rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
                                         </svg>
@@ -119,11 +119,11 @@
                             </div>
                         </div>
                         <div class="flex items-center gap-3">
-                            <span class="text-[9px] font-bold px-2 py-0.5 rounded-lg uppercase tracking-wide {{ $category->status === 'active' ? 'bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-400' : 'bg-slate-100 dark:bg-slate-900/50 text-slate-450 dark:text-slate-500' }}">{{ $category->status }}</span>
+                            <span class="text-[9px] font-bold px-2 py-0.5 rounded-lg uppercase tracking-wide {{ $category->status === 'active' ? 'bg-[#3A7D44]/10 dark:bg-[#3A7D44]/10 text-[#3A7D44] dark:text-[#3A7D44]' : 'bg-slate-100 dark:bg-slate-900/50 text-slate-450 dark:text-slate-500' }}">{{ $category->status }}</span>
                             <span class="text-[10px] text-slate-400 dark:text-slate-550 font-bold uppercase tracking-wider">{{ $category->crops->count() }} Crops</span>
                             <button
                                 onclick="openEditCategory({{ $category->id }}, '{{ addslashes($category->name) }}', '{{ addslashes($category->description ?? '') }}', '{{ $category->status }}')"
-                                class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 dark:bg-emerald-950/20 dark:hover:bg-emerald-950/40 dark:text-emerald-400 transition cursor-pointer"
+                                class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-[#3A7D44]/10 text-[#3A7D44] hover:bg-[#3A7D44]/15 dark:bg-[#3A7D44]/10 dark:hover:bg-[#3A7D44]/15 dark:text-[#3A7D44] transition cursor-pointer"
                                 title="Edit Category">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
@@ -158,11 +158,11 @@
                                         </div>
                                     </div>
                                     <div class="flex items-center gap-3">
-                                        <span class="text-[9px] font-bold px-2 py-0.5 rounded-lg uppercase tracking-wide {{ $crop->status === 'active' ? 'bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-400' : 'bg-slate-100 dark:bg-slate-900/50 text-slate-450 dark:text-slate-500' }}">{{ $crop->status }}</span>
+                                        <span class="text-[9px] font-bold px-2 py-0.5 rounded-lg uppercase tracking-wide {{ $crop->status === 'active' ? 'bg-[#3A7D44]/10 dark:bg-[#3A7D44]/10 text-[#3A7D44] dark:text-[#3A7D44]' : 'bg-slate-100 dark:bg-slate-900/50 text-slate-450 dark:text-slate-500' }}">{{ $crop->status }}</span>
                                         <span class="text-[10px] text-slate-400 dark:text-slate-550 font-bold uppercase tracking-wider">{{ $crop->varieties->count() }} Var.</span>
                                         <button
                                             onclick="openEditCrop({{ $crop->id }}, {{ $crop->crop_category_id }}, '{{ addslashes($crop->name) }}', '{{ addslashes($crop->description ?? '') }}', '{{ $crop->status }}')"
-                                            class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 dark:bg-emerald-950/20 dark:hover:bg-emerald-950/40 dark:text-emerald-400 transition cursor-pointer"
+                                            class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-[#3A7D44]/10 text-[#3A7D44] hover:bg-[#3A7D44]/15 dark:bg-[#3A7D44]/10 dark:hover:bg-[#3A7D44]/15 dark:text-[#3A7D44] transition cursor-pointer"
                                             title="Edit Crop">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
@@ -185,7 +185,7 @@
                                         <div class="variety-row paginate-item flex items-center justify-between px-6 py-2.5 pl-20 bg-slate-50/20 dark:bg-slate-900/10 border-t border-slate-50 dark:border-slate-700/30 hover:bg-slate-50 dark:hover:bg-slate-900/20 transition"
                                              data-variety-id="{{ $variety->id }}" data-variety-name="{{ strtolower($variety->name) }}" data-variety-status="{{ $variety->status }}">
                                             <div class="flex items-center gap-2.5">
-                                                <span class="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-750 flex-shrink-0"></span>
+                                                <span class="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-700 flex-shrink-0"></span>
                                                 <div>
                                                     <p class="text-xs text-slate-650 dark:text-slate-350 font-bold">{{ $variety->name }}</p>
                                                     @if ($variety->description)
@@ -195,10 +195,10 @@
                                             </div>
                                             <div class="flex items-center gap-4">
                                                 <span class="text-xs font-mono font-black text-slate-700 dark:text-slate-350 bg-slate-100/60 dark:bg-slate-900/50 px-2 py-0.5 rounded border border-slate-200/20">₱{{ number_format($variety->price_per_kg, 2) }}/kg</span>
-                                                <span class="text-[9px] font-bold px-2 py-0.5 rounded-lg uppercase tracking-wide {{ $variety->status === 'active' ? 'bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-400' : 'bg-slate-100 dark:bg-slate-900/50 text-slate-450 dark:text-slate-500' }}">{{ $variety->status }}</span>
+                                                <span class="text-[9px] font-bold px-2 py-0.5 rounded-lg uppercase tracking-wide {{ $variety->status === 'active' ? 'bg-[#3A7D44]/10 dark:bg-[#3A7D44]/10 text-[#3A7D44] dark:text-[#3A7D44]' : 'bg-slate-100 dark:bg-slate-900/50 text-slate-450 dark:text-slate-500' }}">{{ $variety->status }}</span>
                                                 <button
                                                     onclick="openEditVariety({{ $variety->id }}, {{ $variety->crop_id }}, '{{ addslashes($variety->name) }}', '{{ addslashes($variety->description ?? '') }}', '{{ $variety->price_per_kg }}', '{{ $variety->status }}')"
-                                                    class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 dark:bg-emerald-950/20 dark:hover:bg-emerald-950/40 dark:text-emerald-400 transition cursor-pointer"
+                                                    class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-[#3A7D44]/10 text-[#3A7D44] hover:bg-[#3A7D44]/15 dark:bg-[#3A7D44]/10 dark:hover:bg-[#3A7D44]/15 dark:text-[#3A7D44] transition cursor-pointer"
                                                     title="Edit Variety">
                                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                                         <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
@@ -272,7 +272,7 @@
             
             {{-- Tabs --}}
             <div class="flex border-b border-slate-100 dark:border-slate-700 mb-5 text-xs font-bold text-slate-400">
-                <button onclick="switchTab('tab-category')" id="btn-tab-category" class="flex-1 pb-2.5 border-b-2 border-emerald-600 text-emerald-600 select-none cursor-pointer">Category</button>
+                <button onclick="switchTab('tab-category')" id="btn-tab-category" class="flex-1 pb-2.5 border-b-2 border-[#3A7D44] text-[#3A7D44] select-none cursor-pointer">Category</button>
                 <button onclick="switchTab('tab-crop')" id="btn-tab-crop" class="flex-1 pb-2.5 border-b-2 border-transparent hover:text-slate-700 dark:hover:text-slate-200 select-none cursor-pointer">Crop</button>
                 <button onclick="switchTab('tab-variety')" id="btn-tab-variety" class="flex-1 pb-2.5 border-b-2 border-transparent hover:text-slate-700 dark:hover:text-slate-200 select-none cursor-pointer">Variety</button>
             </div>
@@ -283,12 +283,12 @@
                 <div>
                     <label class="block text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Category Name <span class="text-red-400">*</span></label>
                     <input type="text" name="name" required placeholder="e.g. Root Crops"
-                        class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition" />
+                        class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#3A7D44] focus:ring-2 focus:ring-[#3A7D44]/20 transition" />
                 </div>
                 <div>
                     <label class="block text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Description</label>
                     <textarea name="description" rows="2" placeholder="Optional notes"
-                        class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition resize-none"></textarea>
+                        class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#3A7D44] focus:ring-2 focus:ring-[#3A7D44]/20 transition resize-none"></textarea>
                 </div>
                 <button type="submit" class="w-full bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold py-2.5 rounded-xl transition shadow-sm cursor-pointer">Save Category</button>
             </form>
@@ -299,7 +299,7 @@
                 <div>
                     <label class="block text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Parent Category <span class="text-red-400">*</span></label>
                     <select name="crop_category_id" required
-                        class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-850 dark:text-slate-250 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-emerald-500 transition">
+                        class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-850 dark:text-slate-250 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#3A7D44] transition">
                         <option value="">— Select Category —</option>
                         @foreach ($categories as $cat)
                             <option value="{{ $cat->id }}">{{ $cat->name }}</option>
@@ -309,12 +309,12 @@
                 <div>
                     <label class="block text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Crop Name <span class="text-red-400">*</span></label>
                     <input type="text" name="name" required placeholder="e.g. Potato"
-                        class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition" />
+                        class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#3A7D44] focus:ring-2 focus:ring-[#3A7D44]/20 transition" />
                 </div>
                 <div>
                     <label class="block text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Description</label>
                     <textarea name="description" rows="2" placeholder="Optional handling guidelines"
-                        class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition resize-none"></textarea>
+                        class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#3A7D44] focus:ring-2 focus:ring-[#3A7D44]/20 transition resize-none"></textarea>
                 </div>
                 <button type="submit" class="w-full bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold py-2.5 rounded-xl transition shadow-sm cursor-pointer">Save Crop</button>
             </form>
@@ -325,7 +325,7 @@
                 <div>
                     <label class="block text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Parent Crop <span class="text-red-400">*</span></label>
                     <select name="crop_id" required
-                        class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-850 dark:text-slate-250 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-emerald-500 transition">
+                        class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-850 dark:text-slate-250 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#3A7D44] transition">
                         <option value="">— Select Crop —</option>
                         @foreach ($categories as $cat)
                             @if ($cat->crops->count())
@@ -342,21 +342,21 @@
                     <div>
                         <label class="block text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Variety Name <span class="text-red-400">*</span></label>
                         <input type="text" name="name" required placeholder="e.g. Yukon Gold"
-                            class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-emerald-500 transition" />
+                            class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#3A7D44] transition" />
                     </div>
                     <div>
                         <label class="block text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Price / kg <span class="text-red-400">*</span></label>
                         <div class="relative">
                             <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-450 dark:text-slate-500 text-sm font-bold">₱</span>
                             <input type="number" name="price_per_kg" required step="0.01" min="0" placeholder="0.00"
-                                class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-850 dark:text-slate-250 text-sm rounded-xl pl-8 pr-4 py-2.5 focus:outline-none focus:border-emerald-500 transition" />
+                                class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-850 dark:text-slate-250 text-sm rounded-xl pl-8 pr-4 py-2.5 focus:outline-none focus:border-[#3A7D44] transition" />
                         </div>
                     </div>
                 </div>
                 <div>
                     <label class="block text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Description</label>
                     <textarea name="description" rows="2" placeholder="Optional notes"
-                        class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition resize-none"></textarea>
+                        class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#3A7D44] focus:ring-2 focus:ring-[#3A7D44]/20 transition resize-none"></textarea>
                 </div>
                 <button type="submit" class="w-full bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold py-2.5 rounded-xl transition shadow-sm cursor-pointer">Save Variety</button>
             </form>
@@ -377,17 +377,17 @@
                 <div>
                     <label class="block text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Name <span class="text-red-400">*</span></label>
                     <input type="text" id="edit-category-name" name="name" required
-                        class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-emerald-500 transition" />
+                        class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#3A7D44] transition" />
                 </div>
                 <div>
                     <label class="block text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Description</label>
                     <textarea id="edit-category-description" name="description" rows="2"
-                        class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-emerald-500 transition resize-none"></textarea>
+                        class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#3A7D44] transition resize-none"></textarea>
                 </div>
                 <div>
                     <label class="block text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Status <span class="text-red-400">*</span></label>
                     <select id="edit-category-status" name="status" required
-                        class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-emerald-500 transition">
+                        class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#3A7D44] transition">
                         <option value="active">Active</option>
                         <option value="inactive">Inactive</option>
                     </select>
@@ -414,7 +414,7 @@
                 <div>
                     <label class="block text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Category <span class="text-red-400">*</span></label>
                     <select id="edit-crop-category" name="crop_category_id" required
-                        class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-850 dark:text-slate-250 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-emerald-500 transition">
+                        class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-850 dark:text-slate-250 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#3A7D44] transition">
                         @foreach ($categories as $cat)
                             <option value="{{ $cat->id }}">{{ $cat->name }}</option>
                         @endforeach
@@ -423,17 +423,17 @@
                 <div>
                     <label class="block text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Crop Name <span class="text-red-400">*</span></label>
                     <input type="text" id="edit-crop-name" name="name" required
-                        class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-emerald-500 transition" />
+                        class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#3A7D44] transition" />
                 </div>
                 <div>
                     <label class="block text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Description</label>
                     <textarea id="edit-crop-description" name="description" rows="2"
-                        class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-emerald-500 transition resize-none"></textarea>
+                        class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#3A7D44] transition resize-none"></textarea>
                 </div>
                 <div>
                     <label class="block text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Status <span class="text-red-400">*</span></label>
                     <select id="edit-crop-status" name="status" required
-                        class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-emerald-500 transition">
+                        class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#3A7D44] transition">
                         <option value="active">Active</option>
                         <option value="inactive">Inactive</option>
                     </select>
@@ -460,25 +460,25 @@
                 <div>
                     <label class="block text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Variety Name <span class="text-red-400">*</span></label>
                     <input type="text" id="edit-variety-name" name="name" required
-                        class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-emerald-500 transition" />
+                        class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#3A7D44] transition" />
                 </div>
                 <div>
                     <label class="block text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Price / kg <span class="text-red-400">*</span></label>
                     <div class="relative">
                         <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-450 dark:text-slate-500 text-sm font-bold">₱</span>
                         <input type="number" id="edit-variety-price" name="price_per_kg" required step="0.01" min="0"
-                            class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-850 dark:text-slate-250 text-sm rounded-xl pl-8 pr-4 py-2.5 focus:outline-none focus:border-emerald-500 transition" />
+                            class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-850 dark:text-slate-250 text-sm rounded-xl pl-8 pr-4 py-2.5 focus:outline-none focus:border-[#3A7D44] transition" />
                     </div>
                 </div>
                 <div>
                     <label class="block text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Description</label>
                     <textarea id="edit-variety-description" name="description" rows="2"
-                        class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-emerald-500 transition resize-none"></textarea>
+                        class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#3A7D44] transition resize-none"></textarea>
                 </div>
                 <div>
                     <label class="block text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Status <span class="text-red-400">*</span></label>
                     <select id="edit-variety-status" name="status" required
-                        class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-emerald-500 transition">
+                        class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#3A7D44] transition">
                         <option value="active">Active</option>
                         <option value="inactive">Inactive</option>
                     </select>
@@ -564,11 +564,11 @@
                 const btn = document.getElementById(`btn-${t}`);
                 if (t === tabId) {
                     el.classList.remove('hidden');
-                    btn.classList.add('border-emerald-600', 'text-emerald-600');
+                    btn.classList.add('border-[#3A7D44]', 'text-[#3A7D44]');
                     btn.classList.remove('border-transparent');
                 } else {
                     el.classList.add('hidden');
-                    btn.classList.remove('border-emerald-600', 'text-emerald-600');
+                    btn.classList.remove('border-[#3A7D44]', 'text-[#3A7D44]');
                     btn.classList.add('border-transparent');
                 }
             });
@@ -625,7 +625,7 @@
         // --- DELETE VARIETY ---
         function confirmDeleteVariety(id, name) {
             document.getElementById('delete-confirm-message').textContent =
-                `Delete variety "${name}"? This will fail if active harvest listings reference it.`;
+                `Delete variety "${name}"? This will fail if active harvest posts reference it.`;
             document.getElementById('form-delete').action = `/admin/crops/varieties/${id}`;
             openModal('modal-delete-confirm');
         }

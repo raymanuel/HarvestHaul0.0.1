@@ -1,4 +1,4 @@
-{{--
+﻿{{--
     Farmer Yield Predictor View
     
     PURPOSE:
@@ -32,8 +32,8 @@
         {{-- Overview Cards --}}
         <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-8">
             <div class="bg-white dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700/80 rounded-2xl p-5 shadow-sm">
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Active Listings</p>
-                <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{{ $activeCount }}</p>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Active Posts</p>
+                <p class="text-2xl font-bold text-[#3A7D44] dark:text-[#3A7D44]">{{ $activeCount }}</p>
             </div>
             <div class="bg-white dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700/80 rounded-2xl p-5 shadow-sm">
                 <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Completed Hauls</p>
@@ -58,7 +58,7 @@
                     Predictions improve as you log more harvest dates. Post at least 2 harvests per crop type to generate cycle estimates.
                 </p>
                 <a href="{{ route('harvests.create') }}"
-                   class="mt-5 inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition shadow-sm">
+                   class="mt-5 inline-flex items-center gap-2 bg-[#3A7D44] hover:bg-[#2E6336] text-white text-xs font-bold px-4 py-2.5 rounded-xl transition shadow-sm">
                     <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
                     </svg>
@@ -75,7 +75,7 @@
                         $urgency = match(true) {
                             $pred['days_until'] !== null && $pred['days_until'] <= 7  => ['border-rose-300 dark:border-rose-700/50 bg-rose-50/30 dark:bg-rose-950/10', 'text-rose-600 dark:text-rose-400', '🔴 Harvest Soon'],
                             $pred['days_until'] !== null && $pred['days_until'] <= 21 => ['border-amber-300 dark:border-amber-700/50 bg-amber-50/30 dark:bg-amber-950/10', 'text-amber-600 dark:text-amber-400', '🟡 Coming Up'],
-                            $pred['days_until'] !== null && $pred['days_until'] > 21  => ['border-slate-200/70 dark:border-slate-700/80 bg-white dark:bg-slate-800', 'text-emerald-600 dark:text-emerald-400', '🟢 On Track'],
+                            $pred['days_until'] !== null && $pred['days_until'] > 21  => ['border-slate-200/70 dark:border-slate-700/80 bg-white dark:bg-slate-800', 'text-[#3A7D44] dark:text-[#3A7D44]', '🟢 On Track'],
                             default => ['border-slate-200/70 dark:border-slate-700/80 bg-white dark:bg-slate-800', 'text-slate-400', '⚪ Estimating...'],
                         };
                     @endphp

@@ -8,20 +8,34 @@ use Illuminate\Support\Facades\Auth;
 
 class NotificationController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $notifications = Notification::where('user_id', Auth::id())
-            ->latest()
-            ->take(10)
-            ->get();
+        $userId = Auth::id();
+        
+        $query = Notification::where('user_id', $userId);
 
-        $unreadCount = Notification::where('user_id', Auth::id())
+        // Optional type/category filtering
+        if ($request->filled('type')) {
+            $query->where('type', $request->type);
+        }
+        if ($request->filled('category')) {
+            $query->where('category', $request->category);
+        }
+
+        $perPage = min((int) $request->input('per_page', 10), 50);
+        $notifications = $query->latest()->paginate($perPage);
+
+        $unreadCount = Notification::where('user_id', $userId)
             ->whereNull('read_at')
             ->count();
 
         return response()->json([
-            'notifications' => $notifications,
-            'unread_count' => $unreadCount
+            'notifications' => $notifications->items(),
+            'unread_count' => $unreadCount,
+            'total' => $notifications->total(),
+            'per_page' => $notifications->perPage(),
+            'current_page' => $notifications->currentPage(),
+            'last_page' => $notifications->lastPage(),
         ]);
     }
 

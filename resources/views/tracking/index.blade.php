@@ -1,4 +1,4 @@
-<x-layout>
+﻿<x-layout>
     <div class="w-full max-w-7xl mx-auto pb-12">
 
         {{-- Header --}}
@@ -13,7 +13,7 @@
                     </p>
                 </div>
                 <div class="flex items-center gap-3">
-                    <span class="text-xs font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-450 bg-emerald-50 dark:bg-emerald-950/20 px-3 py-1.5 rounded-lg border border-emerald-500/10 dark:border-emerald-500/20">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-[#3A7D44] dark:text-[#3A7D44] bg-[#3A7D44]/10 dark:bg-[#3A7D44]/10 px-3 py-1.5 rounded-lg border border-[#3A7D44]/10 dark:border-[#3A7D44]/20">
                         GPS Active
                     </span>
                 </div>
@@ -22,9 +22,6 @@
 
         @if($activeJobs->isEmpty())
             <div class="bg-white dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-16 text-center shadow-sm">
-                <div class="w-16 h-16 bg-slate-100 dark:bg-slate-900/50 rounded-2xl flex items-center justify-center mx-auto mb-4 text-2xl">
-                    🛰️
-                </div>
                 <h3 class="text-base font-bold text-slate-800 dark:text-white heading-font">No Active Shipments</h3>
                 <p class="text-xs text-slate-500 dark:text-slate-400 mt-1.5 max-w-md mx-auto leading-relaxed">
                     There are no shipments currently in transit. Once a logistics partner dispatches an assigned pooling job, real-time GPS telemetry will display here.
@@ -58,7 +55,7 @@
                                     })
                                 ]) }})"
                                 id="btn-job-{{ $job->id }}"
-                                class="w-full text-left bg-white dark:bg-slate-805 border-2 border-slate-200/60 dark:border-slate-700/60 hover:border-emerald-500/40 dark:hover:border-emerald-500/40 rounded-2xl p-5 transition-all shadow-sm focus:outline-none flex flex-col justify-between gap-4 group">
+                                class="w-full text-left bg-white dark:bg-slate-805 border-2 border-slate-200/60 dark:border-slate-700/60 hover:border-[#3A7D44]/40 dark:hover:border-[#3A7D44]/40 rounded-2xl p-5 transition-all shadow-sm focus:outline-none flex flex-col justify-between gap-4 group">
                             
                             <div class="flex items-start justify-between w-full">
                                 <div>
@@ -69,7 +66,7 @@
                                         🚛 {{ $job->truck->plate_number ?? '—' }} · Driver: {{ $job->driver->name ?? '—' }}
                                     </p>
                                 </div>
-                                <span class="text-[9px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded {{ $job->status === 'in_progress' ? 'bg-sky-50 dark:bg-sky-950/30 text-sky-700 dark:text-sky-400 border border-sky-200/30' : 'bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400 border border-amber-200/30' }}">
+                                <span class="text-[9px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded {{ $job->status === 'in_progress' ? 'bg-[#1F4D25]/10 dark:bg-[#1F4D25]/10 text-[#1F4D25] dark:text-[#1F4D25] border border-[#1F4D25]/20' : 'bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400 border border-amber-200/30' }}">
                                     {{ $job->status === 'in_progress' ? 'In Transit' : 'Awaiting confirmation' }}
                                 </span>
                             </div>
@@ -85,7 +82,7 @@
 
                             @if($job->latestTracking)
                                 <div class="text-[10px] text-slate-400 dark:text-slate-500 font-medium flex items-center gap-1">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                    <span class="w-1.5 h-1.5 rounded-full bg-[#3A7D44]/100 animate-pulse"></span>
                                     Last signal: {{ $job->latestTracking->posted_at->diffForHumans() }}
                                 </div>
                             @else
@@ -102,16 +99,21 @@
                         <div class="bg-slate-50 dark:bg-slate-900/30 px-6 py-4 border-t border-slate-100 dark:border-slate-700/50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs">
                             <div class="flex items-center gap-4 text-slate-500 dark:text-slate-450 font-bold uppercase tracking-wider text-[10px]">
                                 <span class="flex items-center gap-1.5">
-                                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Pickup (Farmer)
+                                    <span class="w-2.5 h-2.5 rounded-full bg-[#3A7D44]/100"></span> Pickup (Farmer)
                                 </span>
                                 <span class="flex items-center gap-1.5">
                                     <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span> Drop-off (Buyer)
                                 </span>
                                 <span class="flex items-center gap-1.5">
-                                    <span class="w-2.5 h-2.5 rounded-full bg-sky-500"></span> Truck GPS
+                                    <span class="w-2.5 h-2.5 rounded-full bg-[#1F4D25]/100"></span> Truck GPS
                                 </span>
                             </div>
                             <div id="map-status" class="text-slate-400 font-medium">Select a shipment to begin tracking</div>
+                            <div class="flex items-center gap-4 text-[10px]">
+                                <span class="text-slate-500 font-bold">Speed: <span id="speed-display" class="text-slate-600">—</span></span>
+                                <span class="text-slate-500 font-bold">ETA: <span id="eta-display" class="text-slate-600">—</span></span>
+                                <span class="text-slate-500 font-bold">Dist: <span id="distance-display" class="text-slate-600">—</span></span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -160,11 +162,11 @@
         function selectJob(job) {
             // Highlight button
             document.querySelectorAll('[id^="btn-job-"]').forEach(btn => {
-                btn.classList.remove('border-emerald-500', 'ring-2', 'ring-emerald-500/20');
+                btn.classList.remove('border-[#3A7D44]', 'ring-2', 'ring-[#3A7D44]/20');
             });
             const selectedBtn = document.getElementById(`btn-job-${job.id}`);
             if (selectedBtn) {
-                selectedBtn.classList.add('border-emerald-500', 'ring-2', 'ring-emerald-500/20');
+                selectedBtn.classList.add('border-[#3A7D44]', 'ring-2', 'ring-[#3A7D44]/20');
             }
 
             selectedJobId = job.id;
@@ -190,7 +192,7 @@
 
             // Custom markers
             const farmerIcon = L.divIcon({
-                html: `<div style="width: 20px; height: 20px; border-radius: 50%; background: #10B981; border: 3px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.3)"></div>`,
+                html: `<div style="width: 20px; height: 20px; border-radius: 50%; background: #3A7D44; border: 3px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.3)"></div>`,
                 className: '', iconSize: [20, 20], iconAnchor: [10, 10]
             });
             const buyerIcon = L.divIcon({
@@ -260,7 +262,7 @@
                     console.log('Real-time telemetry WebSocket streaming active.');
                     const statusEl = document.getElementById('map-status');
                     if (statusEl) {
-                        statusEl.innerHTML = `<span class="text-emerald-600 dark:text-emerald-400 font-bold">● Live Connection Active</span> · Tracking Route #${selectedJobId}`;
+                        statusEl.innerHTML = `<span class="text-[#3A7D44] dark:text-[#3A7D44] font-bold">● Live Connection Active</span> · Tracking Route #${selectedJobId}`;
                     }
                 };
 
@@ -319,9 +321,41 @@
                 .then(res => {
                     if (res.status === 'success' && res.data) {
                         updateTruckMarker(res.data.latitude, res.data.longitude);
+                        updateSpeedDisplay(res.data.speed_kmh);
                     }
                 })
                 .catch(err => console.error("Error polling GPS", err));
+
+            // Poll ETA
+            fetch(`/tracking/${jobId}/eta`)
+                .then(res => res.json())
+                .then(res => {
+                    if (res.status === 'success' && res.data) {
+                        updateETADisplay(res.data);
+                    }
+                })
+                .catch(err => console.error("Error polling ETA", err));
+        }
+
+        function updateSpeedDisplay(speedKmh) {
+            const speedEl = document.getElementById('speed-display');
+            if (speedEl) {
+                speedEl.textContent = speedKmh > 0 ? `${speedKmh.toFixed(1)} km/h` : 'Stopped';
+                speedEl.className = speedKmh > 0
+                    ? 'text-[#3A7D44] dark:text-[#3A7D44] font-bold'
+                    : 'text-amber-600 dark:text-amber-400 font-bold';
+            }
+        }
+
+        function updateETADisplay(eta) {
+            const etaEl = document.getElementById('eta-display');
+            const distEl = document.getElementById('distance-display');
+            if (etaEl) {
+                etaEl.textContent = eta.eta_formatted;
+            }
+            if (distEl) {
+                distEl.textContent = `${eta.remaining_distance_km} km`;
+            }
         }
     </script>
     @endpush

@@ -1,4 +1,4 @@
-<x-layout title="Manage Fleet Vehicles">
+﻿<x-layout title="Manage Fleet Vehicles">
 
     <div class="w-full max-w-4xl mx-auto pb-12">
 
@@ -8,13 +8,13 @@
             </a>
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <span class="text-xs font-bold uppercase tracking-wider text-sky-750 dark:text-sky-400 bg-sky-50 dark:bg-sky-950/20 px-3 py-1.5 rounded-lg border border-sky-500/10 dark:border-sky-500/20 inline-block mb-2">Fleet Management</span>
+                    <span class="text-xs font-bold uppercase tracking-wider text-[#1F4D25] dark:text-[#1F4D25] bg-[#1F4D25]/10 dark:bg-[#1F4D25]/10 px-3 py-1.5 rounded-lg border border-[#1F4D25]/10 dark:border-[#1F4D25]/20 inline-block mb-2">Fleet Management</span>
                     <h1 class="text-3xl font-bold text-slate-900 dark:text-white tracking-tight heading-font">Fleet Vehicles</h1>
                     <p class="text-slate-500 dark:text-slate-400 mt-1 font-medium">Add, assign, and oversee vehicle configurations within your transport network.</p>
                 </div>
                 <div>
                     <a href="{{ route('logistics.vehicles.create') }}" 
-                        class="inline-flex items-center gap-2 bg-gradient-to-tr from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white text-sm font-bold px-5 py-3 rounded-xl shadow-md shadow-emerald-600/15 dark:shadow-emerald-900/30 hover:shadow-lg transition duration-200">
+                        class="inline-flex items-center gap-2 bg-gradient-to-tr from-[#3A7D44] to-[#2E6336] hover:from-[#3A7D44] hover:to-[#2E6336] text-white text-sm font-bold px-5 py-3 rounded-xl shadow-md shadow-[#3A7D44]/15 dark:shadow-[#3A7D44]/30 hover:shadow-lg transition duration-200">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
                         </svg>
@@ -26,8 +26,8 @@
 
         {{-- Flash Messages --}}
         @if(session('success'))
-            <div class="mb-6 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-400 rounded-xl px-5 py-4 text-sm font-medium flex items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <div class="mb-6 bg-[#3A7D44]/10 dark:bg-[#3A7D44]/10 border border-[#3A7D44]/20 dark:border-[#3A7D44]/20 text-[#3A7D44] dark:text-[#3A7D44] rounded-xl px-5 py-4 text-sm font-medium flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-[#3A7D44] dark:text-[#3A7D44] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 {{ session('success') }}
@@ -45,7 +45,7 @@
                     <p class="text-slate-400 dark:text-slate-500 font-medium text-xs max-w-sm mx-auto">
                         Register a new truck, wing van, or utility vehicle to calculate optimized multi-party cargo routes.
                     </p>
-                    <a href="{{ route('logistics.vehicles.create') }}" class="mt-5 inline-block text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:underline transition">
+                    <a href="{{ route('logistics.vehicles.create') }}" class="mt-5 inline-block text-xs font-bold text-[#3A7D44] dark:text-[#3A7D44] hover:underline transition">
                         Add first vehicle <span>→</span>
                     </a>
                 </div>
@@ -65,7 +65,7 @@
                             @foreach($vehicles as $vehicle)
                                 @php
                                     $statusColor = match($vehicle->status) {
-                                        'available' => 'text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/20 border-emerald-500/10 dark:border-emerald-500/20',
+                                        'available' => 'text-[#3A7D44] dark:text-[#3A7D44] bg-[#3A7D44]/10 dark:bg-[#3A7D44]/10 border-[#3A7D44]/10 dark:border-[#3A7D44]/20',
                                         'in_transit' => 'text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/20 border-blue-500/10 dark:border-blue-500/20',
                                         'maintenance' => 'text-red-750 dark:text-red-400 bg-red-50 dark:bg-red-950/20 border-red-500/10 dark:border-red-500/20',
                                         default => 'text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700',
@@ -74,7 +74,7 @@
                                 <tr>
                                     <td class="py-4 pr-3">
                                         <div class="flex items-center gap-3">
-                                            <div class="w-10 h-10 rounded-xl bg-sky-50 dark:bg-sky-950/20 border border-sky-100/50 dark:border-sky-800/30 flex items-center justify-center text-sky-600 dark:text-sky-400 font-extrabold uppercase text-sm select-none">
+                                            <div class="w-10 h-10 rounded-xl bg-[#1F4D25]/10 dark:bg-[#1F4D25]/10 border border-[#1F4D25]/15 dark:border-[#1F4D25]/15 flex items-center justify-center text-[#1F4D25] dark:text-[#1F4D25] font-extrabold uppercase text-sm select-none">
                                                 🚛
                                             </div>
                                             <div>

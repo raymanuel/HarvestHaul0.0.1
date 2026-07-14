@@ -325,7 +325,7 @@ class CropManagerController extends Controller
         $activeHarvests = $variety->harvests()->whereIn('status', ['active', 'pending'])->count();
 
         if ($activeHarvests > 0) {
-            return back()->with('error', 'Cannot delete a variety that has active harvest listings referencing it.');
+            return back()->with('error', 'Cannot delete a variety that has active harvest posts referencing it.');
         }
 
         $name = $variety->name;

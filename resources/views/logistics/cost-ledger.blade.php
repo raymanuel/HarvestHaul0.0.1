@@ -1,4 +1,4 @@
-{{--
+﻿{{--
     Logistics Cost Ledger View
     
     PURPOSE:
@@ -17,7 +17,7 @@
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                     <div class="flex items-center gap-2 mb-1">
-                        <a href="{{ url()->previous() }}" class="text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition">
+                        <a href="{{ url()->previous() }}" class="text-slate-400 hover:text-[#3A7D44] dark:hover:text-[#3A7D44] transition">
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
                             </svg>
@@ -31,7 +31,7 @@
                         Proportional freight cost breakdown per farmer based on cargo weight share
                     </p>
                 </div>
-                <span class="text-xs font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/20 px-3 py-1.5 rounded-lg border border-emerald-500/10 dark:border-emerald-500/20 self-start">
+                <span class="text-xs font-semibold uppercase tracking-wider text-[#3A7D44] dark:text-[#3A7D44] bg-[#3A7D44]/10 dark:bg-[#3A7D44]/10 px-3 py-1.5 rounded-lg border border-[#3A7D44]/10 dark:border-[#3A7D44]/20 self-start">
                     Cost Ledger
                 </span>
             </div>
@@ -45,7 +45,7 @@
             </div>
             <div class="bg-white dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700/80 rounded-2xl p-5 shadow-sm">
                 <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Total Cost</p>
-                <p class="text-xl font-bold text-emerald-600 dark:text-emerald-400">₱{{ number_format($totalPrice, 2) }}</p>
+                <p class="text-xl font-bold text-[#3A7D44] dark:text-[#3A7D44]">₱{{ number_format($totalPrice, 2) }}</p>
             </div>
             <div class="bg-white dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700/80 rounded-2xl p-5 shadow-sm">
                 <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Farms Included</p>
@@ -56,8 +56,8 @@
                 @php
                     $statusColor = match($poolingJob->status) {
                         'confirmed'   => 'text-amber-600 dark:text-amber-400',
-                        'in_progress' => 'text-sky-600 dark:text-sky-400',
-                        'completed'   => 'text-emerald-600 dark:text-emerald-400',
+                        'in_progress' => 'text-[#1F4D25] dark:text-[#1F4D25]',
+                        'completed'   => 'text-[#3A7D44] dark:text-[#3A7D44]',
                         default       => 'text-slate-500',
                     };
                 @endphp
@@ -120,7 +120,7 @@
                                     </td>
                                     <td class="px-5 py-4 text-right">
                                         @if($totalPrice > 0)
-                                            <span class="text-sm font-extrabold text-emerald-600 dark:text-emerald-400">₱{{ number_format($entry['cost_share'], 2) }}</span>
+                                            <span class="text-sm font-extrabold text-[#3A7D44] dark:text-[#3A7D44]">₱{{ number_format($entry['cost_share'], 2) }}</span>
                                         @else
                                             <span class="text-xs text-slate-400 italic">TBD</span>
                                         @endif
@@ -129,7 +129,7 @@
                                         @php
                                             $status = $entry['payment_status'] ?? 'unpaid';
                                             $badgeClasses = match($status) {
-                                                'paid' => 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 border border-emerald-200/50 dark:border-emerald-800/30',
+                                                'paid' => 'bg-[#3A7D44]/10 text-[#3A7D44] dark:bg-[#3A7D44]/10 dark:text-[#3A7D44] border border-[#3A7D44]/20 dark:border-[#3A7D44]/15',
                                                 'submitted' => 'bg-amber-50 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400 border border-amber-200/50 dark:border-amber-800/30',
                                                 default => 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-400 border border-slate-200 dark:border-slate-700',
                                             };
@@ -163,7 +163,7 @@
                                                     </label>
                                                 </form>
                                             @else
-                                                <span class="text-xs text-emerald-600 dark:text-emerald-400 font-bold inline-flex items-center gap-1">
+                                                <span class="text-xs text-[#3A7D44] dark:text-[#3A7D44] font-bold inline-flex items-center gap-1">
                                                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                                                         <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
                                                     </svg>
@@ -174,7 +174,7 @@
                                             @if($entry['payment_status'] === 'submitted')
                                                 <form action="{{ route('pooling.cost-ledger.mark-paid', [$poolingJob->id, $entry['harvest_id']]) }}" method="POST" class="inline">
                                                     @csrf
-                                                    <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg px-3 py-1.5 text-xs font-bold shadow-sm transition hover:shadow-md inline-flex items-center gap-1">
+                                                    <button type="submit" class="bg-[#3A7D44] hover:bg-[#2E6336] text-white rounded-lg px-3 py-1.5 text-xs font-bold shadow-sm transition hover:shadow-md inline-flex items-center gap-1">
                                                         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                                         </svg>
@@ -182,7 +182,7 @@
                                                     </button>
                                                 </form>
                                             @elseif($entry['payment_status'] === 'paid')
-                                                <span class="text-xs text-emerald-600 dark:text-emerald-400 font-bold inline-flex items-center gap-1">
+                                                <span class="text-xs text-[#3A7D44] dark:text-[#3A7D44] font-bold inline-flex items-center gap-1">
                                                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                                                         <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
                                                     </svg>
@@ -200,13 +200,13 @@
                         </tbody>
                         @if($totalPrice > 0)
                         <tfoot>
-                            <tr class="bg-emerald-50/50 dark:bg-emerald-950/10 border-t-2 border-emerald-200/60 dark:border-emerald-800/30">
+                            <tr class="bg-[#3A7D44]/10/50 dark:bg-[#3A7D44]/5 border-t-2 border-[#3A7D44]/20 dark:border-[#3A7D44]/15">
                                 <td colspan="3" class="px-5 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total</td>
                                 <td class="px-5 py-4 text-right font-bold text-slate-800 dark:text-slate-200">
                                     {{ number_format($poolingJob->total_kg, 1) }} kg
                                     <p class="text-[10px] text-slate-400 font-semibold mt-0.5">100% share</p>
                                 </td>
-                                <td class="px-5 py-4 text-right font-extrabold text-emerald-700 dark:text-emerald-400">
+                                <td class="px-5 py-4 text-right font-extrabold text-[#3A7D44] dark:text-[#3A7D44]">
                                     ₱{{ number_format($sumOfShares, 2) }}
                                 </td>
                                 <td></td>
@@ -245,7 +245,7 @@
                 </div>
                 <div>
                     <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Negotiated Price</p>
-                    <p class="font-extrabold text-emerald-600 dark:text-emerald-400 mt-0.5">
+                    <p class="font-extrabold text-[#3A7D44] dark:text-[#3A7D44] mt-0.5">
                         {{ $poolingJob->negotiated_price ? '₱' . number_format($poolingJob->negotiated_price, 2) : 'Pending' }}
                     </p>
                 </div>

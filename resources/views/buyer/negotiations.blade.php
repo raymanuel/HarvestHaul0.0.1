@@ -1,4 +1,4 @@
-<x-layout>
+﻿<x-layout>
 <div class="w-full max-w-7xl mx-auto pb-12">
 
     <!-- Ambient glow decoration -->
@@ -25,7 +25,7 @@
         <!-- Negotiations List -->
         @if($negotiations->isEmpty())
             <div class="bg-white dark:bg-slate-800/80 backdrop-blur border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-12 text-center">
-                <div class="w-16 h-16 rounded-full bg-slate-50 dark:bg-slate-900 flex items-center justify-center mx-auto mb-4 text-slate-400 text-2xl">🤝</div>
+                
                 <h3 class="text-lg font-bold text-slate-800 dark:text-white heading-font">No Negotiations Found</h3>
                 <p class="text-sm text-slate-500 dark:text-slate-400 mt-2 max-w-md mx-auto">You have not started any crop purchase deals yet. Head to the Crop Board to find fresh harvests.</p>
                 <div class="mt-6">
@@ -56,7 +56,7 @@
                                             {{ $negotiation->harvest->crop->name ?? $negotiation->harvest->crop_type ?? 'Unknown Crop' }}
                                         </div>
                                         <div class="text-[10px] text-slate-400 dark:text-slate-505 mt-0.5">
-                                            Lot #{{ $negotiation->harvest_id }} • {{ $negotiation->harvest->cropVariety->name ?? $negotiation->harvest->variety ?? 'Standard' }}
+                                            Product #{{ $negotiation->harvest_id }} • {{ $negotiation->harvest->cropVariety->name ?? $negotiation->harvest->variety ?? 'Standard' }}
                                         </div>
                                     </td>
                                     <td class="p-5 text-slate-700 dark:text-slate-350 text-xs font-bold">
@@ -71,8 +71,8 @@
                                     <td class="p-5 text-center whitespace-nowrap">
                                         <span class="text-[9px] font-extrabold uppercase tracking-widest px-2.5 py-1 rounded border
                                             @if($negotiation->status === 'OPEN') text-violet-750 bg-violet-500/10 border-violet-500/10
-                                            @elseif($negotiation->status === 'AGREED') text-emerald-700 bg-emerald-500/10 border-emerald-500/10
-                                            @elseif($negotiation->status === 'COMPLETED') text-sky-700 bg-sky-500/10 border-sky-500/10
+                                            @elseif($negotiation->status === 'AGREED') text-[#3A7D44] bg-[#3A7D44]/10 border-[#3A7D44]/10
+                                            @elseif($negotiation->status === 'COMPLETED') text-[#1F4D25] bg-[#1F4D25]/10 border-[#1F4D25]/10
                                             @else text-slate-500 bg-slate-500/10 border-slate-500/10 @endif">
                                             {{ $negotiation->status }}
                                         </span>

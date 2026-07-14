@@ -1,16 +1,16 @@
-<x-layout>
+﻿<x-layout>
     <div class="w-full max-w-7xl mx-auto pb-12">
 
         <!-- Ambient glow decoration -->
-        <div class="absolute top-0 right-1/4 w-96 h-96 rounded-full bg-emerald-500/5 blur-[120px] pointer-events-none z-0"></div>
-        <div class="absolute top-1/3 left-1/3 w-[500px] h-[500px] rounded-full bg-sky-500/5 blur-[150px] pointer-events-none z-0"></div>
+        <div class="absolute top-0 right-1/4 w-96 h-96 rounded-full bg-[#3A7D44]/5 blur-[120px] pointer-events-none z-0"></div>
+        <div class="absolute top-1/3 left-1/3 w-[500px] h-[500px] rounded-full bg-[#1F4D25]/5 blur-[150px] pointer-events-none z-0"></div>
 
         <div class="relative z-10">
             <!-- Page Header -->
             <header class="mb-8 pt-6">
                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div>
-                        <span class="text-[10px] font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 dark:bg-emerald-400/10 px-3 py-1 rounded-full border border-emerald-500/20">Logistics Portal</span>
+                        <span class="text-[10px] font-bold uppercase tracking-widest text-[#3A7D44] dark:text-[#3A7D44] bg-[#3A7D44]/10 dark:bg-[#3A7D44]/10 px-3 py-1 rounded-full border border-[#3A7D44]/20">Logistics Portal</span>
                         <h1 class="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight heading-font mt-3">
                             Fleet Analytics Hub
                         </h1>
@@ -18,7 +18,7 @@
                             Real-time tracking of fuel efficiency (KPL), logistics expenditure, and revenue generation per vehicle.
                         </p>
                     </div>
-                    <span class="text-xs font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/20 px-3 py-1.5 rounded-lg border border-emerald-500/10 dark:border-emerald-500/20 self-start">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-[#3A7D44] dark:text-[#3A7D44] bg-[#3A7D44]/10 dark:bg-[#3A7D44]/10 px-3 py-1.5 rounded-lg border border-[#3A7D44]/10 dark:border-[#3A7D44]/20 self-start">
                         Marketplace Statistics
                     </span>
                 </div>
@@ -32,7 +32,7 @@
                 </div>
                 <div class="bg-white dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700/80 rounded-2xl p-5 shadow-sm">
                     <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Cumulative Revenue</p>
-                    <p class="text-2xl font-black text-emerald-600 dark:text-emerald-400">₱{{ number_format($totalRevenue, 2) }}</p>
+                    <p class="text-2xl font-black text-[#3A7D44] dark:text-[#3A7D44]">₱{{ number_format($totalRevenue, 2) }}</p>
                 </div>
                 <div class="bg-white dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700/80 rounded-2xl p-5 shadow-sm">
                     <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Total Fuel Expense</p>
@@ -43,7 +43,7 @@
                     @php
                         $netFleet = $totalRevenue - $totalFuelCost;
                     @endphp
-                    <p class="text-2xl font-black {{ $netFleet >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-500' }}">
+                    <p class="text-2xl font-black {{ $netFleet >= 0 ? 'text-[#3A7D44] dark:text-[#3A7D44]' : 'text-rose-500' }}">
                         ₱{{ number_format($netFleet, 2) }}
                     </p>
                 </div>
@@ -94,7 +94,7 @@
                                             @if($analytics['kpl'] > 0)
                                                 @php
                                                     $efficiencyBadge = match(true) {
-                                                        $analytics['kpl'] >= 6 => 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 border border-emerald-200/50 dark:border-emerald-800/30',
+                                                        $analytics['kpl'] >= 6 => 'bg-[#3A7D44]/10 text-[#3A7D44] dark:bg-[#3A7D44]/10 dark:text-[#3A7D44] border border-[#3A7D44]/20 dark:border-[#3A7D44]/15',
                                                         $analytics['kpl'] >= 4 => 'bg-amber-50 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400 border border-amber-200/50 dark:border-amber-800/30',
                                                         default => 'bg-rose-50 text-rose-705 dark:bg-rose-950/30 dark:text-rose-450 border border-rose-200/50 dark:border-rose-800/30',
                                                     };
@@ -116,7 +116,7 @@
                                             ₱{{ number_format($analytics['total_fuel_cost'], 2) }}
                                         </td>
                                         <td class="px-5 py-4 text-right">
-                                            <span class="text-sm font-extrabold {{ $analytics['net_income'] >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-500' }}">
+                                            <span class="text-sm font-extrabold {{ $analytics['net_income'] >= 0 ? 'text-[#3A7D44] dark:text-[#3A7D44]' : 'text-rose-500' }}">
                                                 ₱{{ number_format($analytics['net_income'], 2) }}
                                             </span>
                                         </td>
@@ -170,7 +170,7 @@
                                         <td class="px-5 py-4 text-right font-semibold text-slate-700 dark:text-slate-350">
                                             {{ number_format($log->fuel_liters, 2) }} L
                                         </td>
-                                        <td class="px-5 py-4 text-right font-extrabold text-emerald-600 dark:text-emerald-400">
+                                        <td class="px-5 py-4 text-right font-extrabold text-[#3A7D44] dark:text-[#3A7D44]">
                                             ₱{{ number_format($log->cost, 2) }}
                                         </td>
                                         <td class="px-5 py-4 text-right font-mono text-xs text-slate-500 dark:text-slate-400">

@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rule;
+use App\Mail\SendOtpMail;
 use App\Models\LogisticsProfile;
 
 class ProfileController extends Controller
@@ -30,6 +32,11 @@ class ProfileController extends Controller
             'logistics_partner' => view('logistics.profile-logistics', [
                 'user' => $user,
                 'profile' => $user->logisticsProfile,
+            ]),
+
+            'buyer' => view('buyer.profile-buyer', [
+                'user'    => $user,
+                'profile' => $user->buyerProfile,
             ]),
 
             default => redirect()->route('dashboard'),
@@ -78,6 +85,11 @@ class ProfileController extends Controller
 
             $user->farmerProfile->update($profileData);
 
+            // Sync users table cooperative_id with farmer_profiles
+            $user->update([
+                'cooperative_id' => $user->farmerProfile->cooperative_id,
+            ]);
+
         } elseif ($user->role === 'logistics_partner' && $user->logisticsProfile) {
             $profileRules = [
                 'phone'               => ['nullable', 'string', 'max:20'],
@@ -101,15 +113,51 @@ class ProfileController extends Controller
 
             $user->logisticsProfile->update($profileData);
 
+        } elseif ($user->role === 'buyer') {
+            $profileRules = [
+                'phone' => ['nullable', 'string', 'max:20'],
+            ];
+
+            $validated = $request->validate(array_merge($userRules, $profileRules));
+
+            if ($user->buyerProfile) {
+                $user->buyerProfile->update([
+                    'phone' => $validated['phone'] ?? null,
+                ]);
+            }
+
         } else {
             $validated = $request->validate($userRules);
         }
+
+        // ── Track email change before updating ──
+        $emailChanged = $validated['email'] !== $user->email;
 
         // ── Update user table ──
         $user->update([
             'name'  => $validated['name'],
             'email' => $validated['email'],
         ]);
+
+        // ── If email changed, reset verification and send OTP ──
+        if ($emailChanged) {
+            $otp = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+            $user->forceFill([
+                'email_verified_at' => null,
+                'email_otp' => $otp,
+                'email_otp_expires_at' => now()->addMinutes(10),
+            ])->save();
+
+            Mail::to($user->email)->send(new SendOtpMail($otp, $user->name));
+
+            return redirect()->route('verification.notice')
+                ->with('status', 'email-changed');
+        }
+
+        if (session('profile_complete')) {
+            session()->forget('profile_complete');
+            return redirect()->route('dashboard')->with('success', 'Profile completed! Welcome to HarvestHaul.');
+        }
 
         return back()->with('success', 'Profile updated successfully.');
     }

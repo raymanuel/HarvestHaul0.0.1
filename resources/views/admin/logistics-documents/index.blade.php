@@ -1,4 +1,4 @@
-<x-layout title="Logistics Documents">
+﻿<x-layout title="Logistics Documents">
 <div class="w-full max-w-5xl mx-auto">
 
     <!-- Nice Admin Page Header -->
@@ -13,7 +13,7 @@
     </header>
 
     @if(session('success'))
-        <div class="mb-6 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-400 rounded-xl px-5 py-4 text-sm font-semibold flex items-center gap-2">
+        <div class="mb-6 bg-[#3A7D44]/10 dark:bg-[#3A7D44]/10 border border-[#3A7D44]/20 dark:border-[#3A7D44]/20 text-[#3A7D44] dark:text-[#3A7D44] rounded-xl px-5 py-4 text-sm font-semibold flex items-center gap-2">
             <span>✅</span> {{ session('success') }}
         </div>
     @endif
@@ -44,7 +44,7 @@
                                 <p class="text-[10px] text-slate-400 dark:text-slate-500 font-mono mt-0.5">
                                     Permit: {{ $profile->business_permit_no }}
                                     @if($profile->business_permit_verified)
-                                        <span class="bg-emerald-50 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-400 border border-emerald-200/50 dark:border-emerald-500/20 text-[8px] font-bold px-1.5 py-0.5 rounded-md uppercase tracking-wide ml-1">Verified</span>
+                                        <span class="bg-[#3A7D44]/10 dark:bg-[#3A7D44]/10 text-[#3A7D44] dark:text-[#3A7D44] border border-[#3A7D44]/20 dark:border-[#3A7D44]500/20 text-[8px] font-bold px-1.5 py-0.5 rounded-md uppercase tracking-wide ml-1">Verified</span>
                                     @else
                                         <span class="bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-400 border border-amber-200/50 dark:border-amber-500/20 text-[8px] font-bold px-1.5 py-0.5 rounded-md uppercase tracking-wide ml-1">Unverified</span>
                                     @endif
@@ -55,7 +55,7 @@
                     @if($pendingCount > 0)
                         <span class="bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-400 border border-amber-200/50 dark:border-amber-500/20 text-[10px] font-bold px-3 py-1 rounded-lg uppercase tracking-widest">{{ $pendingCount }} Pending</span>
                     @else
-                        <span class="bg-emerald-50 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-400 border border-emerald-200/50 dark:border-emerald-500/20 text-[10px] font-bold px-3 py-1 rounded-lg uppercase tracking-widest">Reviewed</span>
+                        <span class="bg-[#3A7D44]/10 dark:bg-[#3A7D44]/10 text-[#3A7D44] dark:text-[#3A7D44] border border-[#3A7D44]/20 dark:border-[#3A7D44]500/20 text-[10px] font-bold px-3 py-1 rounded-lg uppercase tracking-widest">Reviewed</span>
                     @endif
                 </div>
 
@@ -64,13 +64,13 @@
                     @foreach($docs as $doc)
                         @php
                             $statusStyle = match($doc->status) {
-                                'approved' => 'bg-emerald-50 dark:bg-emerald-950/20 border-emerald-100 dark:border-emerald-900/30 text-emerald-700 dark:text-emerald-400',
+                                'approved' => 'bg-[#3A7D44]/10 dark:bg-[#3A7D44]/10 border-[#3A7D44]/20 dark:border-[#3A7D44]/15 text-[#3A7D44] dark:text-[#3A7D44]',
                                 'rejected' => 'bg-red-50 dark:bg-red-950/20 border-red-100 dark:border-red-900/30 text-red-600 dark:text-red-400',
                                 default    => 'bg-slate-50 dark:bg-slate-900/40 border-slate-100 dark:border-slate-800/50 text-slate-600 dark:text-slate-400',
                             };
                             $badgeStyle = match($doc->status) {
-                                'approved' => 'bg-white dark:bg-slate-900 border-emerald-200/65 dark:border-emerald-800/50 text-emerald-700 dark:text-emerald-400',
-                                'rejected' => 'bg-white dark:bg-slate-900 border-red-200/65 dark:border-red-800/50 text-red-600 dark:text-red-400',
+                                'approved' => 'bg-white dark:bg-slate-900 border-[#3A7D44]/20/20 dark:border-[#3A7D44]/20 text-[#3A7D44] dark:text-[#3A7D44]',
+                                'rejected' => 'bg-white dark:bg-slate-900 border-red-200/20 dark:border-red-800/50 text-red-600 dark:text-red-400',
                                 default    => 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400',
                             };
                             $typeLabel = match($doc->document_type) {
@@ -90,7 +90,7 @@
                                         <p class="text-xs text-slate-400 dark:text-slate-500 italic mt-1">Note: {{ $doc->notes }}</p>
                                     @endif
                                     @if($doc->document_type === 'business_permit' && $doc->business_permit_match_confirmed)
-                                        <p class="text-xs text-emerald-600 dark:text-emerald-400 font-bold mt-1">✓ Permit number match confirmed</p>
+                                        <p class="text-xs text-[#3A7D44] dark:text-[#3A7D44] font-bold mt-1">✓ Permit number match confirmed</p>
                                     @endif
                                 </div>
                                 <div class="flex items-center gap-3">
@@ -106,16 +106,16 @@
                                     <form method="POST" action="{{ route('admin.logistics-documents.approve', $doc->id) }}" class="flex items-center gap-2 flex-wrap">
                                         @csrf @method('PATCH')
                                         <input type="text" name="notes" placeholder="Admin note (optional)"
-                                            class="border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-800 dark:text-slate-200 w-48 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 bg-white dark:bg-slate-900 transition">
+                                            class="border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-800 dark:text-slate-200 w-48 focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/20 focus:border-[#3A7D44] bg-white dark:bg-slate-900 transition">
                                         @if($doc->document_type === 'business_permit')
                                             <label class="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-400 font-semibold cursor-pointer">
                                                 <input type="checkbox" name="permit_match_confirmed" value="1"
-                                                    class="w-3.5 h-3.5 accent-emerald-600 rounded">
+                                                    class="w-3.5 h-3.5 accent-[#3A7D44] rounded">
                                                 Permit No. matches
                                             </label>
                                         @endif
                                         <button type="submit"
-                                            class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 dark:bg-emerald-950/20 dark:hover:bg-emerald-950/40 dark:text-emerald-400 transition cursor-pointer"
+                                            class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-[#3A7D44]/10 text-[#3A7D44] hover:bg-[#3A7D44]/15 dark:bg-[#3A7D44]/10 dark:hover:bg-[#3A7D44]/15 dark:text-[#3A7D44] transition cursor-pointer"
                                             title="Approve Document">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />

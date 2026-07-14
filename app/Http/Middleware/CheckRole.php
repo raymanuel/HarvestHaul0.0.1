@@ -4,26 +4,22 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Support\Facades\Auth;
 
-/**
- * Class CheckRole
- * 
- * Generic role authorization middleware template.
- * Currently serves as a pass-through placeholder. Role routing is enforced
- * via dedicated middleware classes (EnsureUserIsFarmer, EnsureUserIsLogistics, etc.).
- */
 class CheckRole
 {
-    /**
-     * Handle an incoming request.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
-     * @return \Symfony\Component\HttpFoundation\Response
-     */
-    public function handle(Request $request, Closure $next): Response
+    public function handle(Request $request, Closure $next, string ...$roles)
     {
+        if (!Auth::check()) {
+            abort(403, 'Unauthorized.');
+        }
+
+        $userRole = Auth::user()->role;
+
+        if (!empty($roles) && !in_array($userRole, $roles)) {
+            abort(403, 'Unauthorized. Required role: ' . implode(' or ', $roles) . '.');
+        }
+
         return $next($request);
     }
 }

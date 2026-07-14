@@ -5,14 +5,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HarvestHaul</title>
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Source+Sans+3:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 
     <style>
         body {
             margin: 0; padding: 0;
-            font-family: 'Figtree', sans-serif;
-            background: linear-gradient(135deg, #F5F2EC 0%, #FAF6F0 50%, #EFF2E6 100%);
+            font-family: 'Source Sans 3', sans-serif;
+            background: linear-gradient(135deg, #FAF6ED 0%, #F5F0E6 50%, #E8DCC8 100%);
             min-height: 100vh;
             display: flex; align-items: center; justify-content: center;
             padding: 2rem 1rem;
@@ -25,7 +26,7 @@
             backdrop-filter: blur(16px);
             border-radius: 1.5rem;
             border: 1px solid rgba(255, 255, 255, 0.4);
-            box-shadow: 0 25px 50px -12px rgba(45, 106, 47, 0.06);
+            box-shadow: 0 25px 50px -12px rgba(58, 125, 68, 0.06);
             text-align: center;
         }
         form {
@@ -40,7 +41,7 @@
             width: 100%;
             padding: 0.85rem 1rem;
             border-radius: 0.5rem;
-            border: 1px solid rgba(45, 106, 47, 0.15);
+            border: 1px solid rgba(58, 125, 68, 0.15);
             background: rgba(255, 255, 255, 0.85);
             font-size: 0.95rem;
             color: #1f2937;
@@ -49,14 +50,14 @@
         }
         input:focus {
             outline: none;
-            border-color: #2D6A2F;
-            box-shadow: 0 0 0 3px rgba(45, 106, 47, 0.1);
+            border-color: #3A7D44;
+            box-shadow: 0 0 0 3px rgba(58, 125, 68, 0.1);
             background: #ffffff;
         }
         button[type="submit"] {
             width: 100%;
             padding: 0.9rem;
-            background: #2D6A2F;
+            background: #3A7D44;
             color: white;
             border: none;
             border-radius: 0.5rem;
@@ -65,15 +66,16 @@
             cursor: pointer;
             transition: all 0.2s ease;
             margin-top: 0.5rem;
-            box-shadow: 0 4px 6px -1px rgba(45, 106, 47, 0.2);
+            box-shadow: 0 4px 6px -1px rgba(58, 125, 68, 0.2);
         }
         button[type="submit"]:hover {
-            background: #245525;
+            background: #2E6336;
             transform: translateY(-1px);
         }
         button[type="submit"]:active {
             transform: translateY(1px);
         }
+        .heading-font { font-family: 'DM Serif Display', serif; }
     </style>
 </head>
 <body>

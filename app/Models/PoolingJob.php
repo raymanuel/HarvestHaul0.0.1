@@ -74,13 +74,19 @@ class PoolingJob extends Model
         'total_kg'          => 'decimal:2',
         'truck_capacity_kg' => 'decimal:2',
         'radius_km'         => 'decimal:2',
-        'start_latitude'    => 'float', // float (not decimal) for faster math in spatial calculations
-        'start_longitude'   => 'float',
-        'end_latitude'      => 'float',
-        'end_longitude'     => 'float',
-        'confirmed_at'      => 'datetime',
-        'completed_at'      => 'datetime',
-        'route_geometry'    => 'array', // CRITICAL: JSON column → PHP array for JS rendering
+        'start_latitude'        => 'float',
+        'start_longitude'       => 'float',
+        'end_latitude'          => 'float',
+        'end_longitude'         => 'float',
+        'confirmed_at'          => 'datetime',
+        'accepted_at'           => 'datetime',
+        'completed_at'          => 'datetime',
+        'end_odometer_reading'  => 'decimal:2',
+        'planned_distance_km'   => 'decimal:2',
+        'actual_distance_km'    => 'decimal:2',
+        'proposal_expires_at'   => 'datetime',
+        'negotiation_rounds'    => 'integer',
+        'route_geometry'        => 'array',
     ];
 
     // ─────────────────────────────────────────────────────────
@@ -109,19 +115,29 @@ class PoolingJob extends Model
     }
 
     /**
+     * Latest GPS tracking record for this job.
+     */
+    public function latestTracking()
+    {
+        return $this->hasOne(TrackingRecord::class, 'pooling_job_id')->latest('posted_at');
+    }
+
+    /**
      * All harvests bundled into this pooling job.
      * Many-to-many via `pooling_job_harvests` pivot table.
      * Pivot columns available on each $harvest->pivot:
      *   - pickup_order   (sort order for driver stop sequence)
      *   - quantity_kg    (how much of this harvest is in the job)
-     *   - distance_from_route
      *   - cost_share     (this farmer's freight cost portion)
+     *   - status         (pending/accepted/rejected)
+     *   - payment_status, receipt_path, loaded_quantity_kg, etc.
      * Results are ordered by pickup_order for driver route display.
      */
     public function harvests()
     {
         return $this->belongsToMany(Harvest::class, 'pooling_job_harvests')
-                    ->withPivot('pickup_order', 'quantity_kg', 'distance_from_route', 'cost_share')
+                    ->using(PoolingJobHarvest::class)
+                    ->withPivot('pickup_order', 'quantity_kg', 'cost_share', 'status', 'payment_status', 'receipt_path', 'loaded_quantity_kg', 'loaded_volume_cubic_meters', 'delivery_receipt_path', 'load_photo_path', 'actual_quantity_kg', 'farmer_qty_confirmed', 'crop_confirmed', 'arrived_at', 'loaded_at', 'delivered_at', 'buyer_confirmed_at')
                     ->orderByPivot('pickup_order');
     }
 
@@ -161,5 +177,13 @@ class PoolingJob extends Model
     {
         if (!$this->truck_capacity_kg) return 0;
         return round(($this->total_kg / $this->truck_capacity_kg) * 100, 1);
+    }
+
+    /**
+     * Invoices generated for this pooling job.
+     */
+    public function invoices()
+    {
+        return $this->hasMany(\App\Models\Invoice::class);
     }
 }

@@ -9,14 +9,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * ═══════════════════════════════════════════════════════════════
  * MODEL: Harvest
  * ═══════════════════════════════════════════════════════════════
- * Represents a single crop lot posted by a farmer for transport.
+ * Represents a single crop product posted by a farmer for transport.
  * This is the core "cargo unit" of the platform.
  *
  * LIFECYCLE (status flow):
- *   active → assigned → in_progress → completed
- *              ↑
- *   Set to 'assigned' when a PoolingJob is confirmed and this
- *   harvest is attached to the job's route.
+ *   active → negotiating → sold → assigned → in_progress → completed
+ *            ↑ partially_sold (partial sale, new buyers can negotiate)
  *
  * SPATIAL DATA:
  *   latitude/longitude   → pickup location (farmer's farm)
@@ -35,49 +33,58 @@ class Harvest extends Model
 {
     use HasFactory;
 
-    /**
-     * Fillable columns.
-     * Note: destination can be stored two ways:
-     *   (1) destination_id → FK to destinations table (structured)
-     *   (2) destination_address + lat/lng → free-text fallback
-     */
     protected $fillable = [
         'user_id',
         'driver_id',
         'crop_category_id',
         'crop_id',
         'crop_variety_id',
-        'crop_type',       // legacy free-text fallback if crop_id not set
-        'variety',         // legacy free-text fallback if crop_variety_id not set
+        'crop_type',
+        'variety',
         'quantity_kg',
+        'remaining_quantity_kg',
         'unit',
-        'status',          // active | assigned | in_progress | completed
+        'status',
+        'visibility',
         'notes',
         'harvest_date',
         'quality_grade',
         'packaging_type',
-        'latitude',        // pickup GPS lat
-        'longitude',       // pickup GPS lng
-        'cluster_id',      // optional grouping for nearby farms
-        // Destination fields — one of two methods used:
-        'destination_id',           // FK to destinations table
-        'destination_address',      // free-text fallback
-        'destination_latitude',     // destination GPS lat
-        'destination_longitude',    // destination GPS lng
+        'crop_photos',
+        'latitude',
+        'longitude',
+        'cluster_id',
+        'negotiation_locked_at',
+        'destination_id',
+        'destination_address',
+        'destination_latitude',
+        'destination_longitude',
     ];
 
-    /**
-     * Type casts — ensures coordinates are returned as float/decimal
-     * and harvest_date as a Carbon date object for formatting.
-     */
     protected $casts = [
-        'quantity_kg'            => 'decimal:2',
-        'latitude'               => 'decimal:8',
-        'longitude'              => 'decimal:8',
-        'destination_latitude'   => 'decimal:8',
-        'destination_longitude'  => 'decimal:8',
-        'harvest_date'           => 'date',
+        'quantity_kg'              => 'decimal:2',
+        'remaining_quantity_kg'    => 'decimal:2',
+        'latitude'                 => 'decimal:8',
+        'longitude'                => 'decimal:8',
+        'destination_latitude'     => 'decimal:8',
+        'destination_longitude'    => 'decimal:8',
+        'harvest_date'             => 'date',
+        'crop_photos'              => 'array',
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function (Harvest $harvest) {
+            if (is_null($harvest->remaining_quantity_kg)) {
+                $harvest->remaining_quantity_kg = $harvest->quantity_kg;
+            }
+            if (is_null($harvest->visibility)) {
+                $harvest->visibility = 'both';
+            }
+        });
+    }
 
     // ─────────────────────────────────────────────────────────
     // RELATIONSHIPS
@@ -119,6 +126,12 @@ class Harvest extends Model
         return $this->belongsTo(Destination::class, 'destination_id');
     }
 
+    /** Pooling jobs this harvest is attached to. */
+    public function poolingJobs()
+    {
+        return $this->belongsToMany(PoolingJob::class, 'pooling_job_harvests', 'harvest_id', 'pooling_job_id');
+    }
+
     // ─────────────────────────────────────────────────────────
     // QUERY SCOPES
     // Use: Harvest::active()->get() or Harvest::withLocation()->get()
@@ -128,6 +141,18 @@ class Harvest extends Model
     public function scopeActive($query)
     {
         return $query->where('status', 'active');
+    }
+
+    /** Harvests available for buyer negotiation (active or partially sold). */
+    public function scopeAvailableForBuyers($query)
+    {
+        return $query->whereIn('status', ['active', 'partially_sold']);
+    }
+
+    /** Harvests visible on the logistics routing map (sold or partially sold). */
+    public function scopeVisibleToLogistics($query)
+    {
+        return $query->whereIn('status', ['sold', 'partially_sold']);
     }
 
     /** Returns harvests not yet approved/active (farmer draft state). */
@@ -189,5 +214,52 @@ class Harvest extends Model
         }
 
         return null;
+    }
+
+    // ─────────────────────────────────────────────────────────
+    // NEGOTIATION RELATIONSHIP
+    // ─────────────────────────────────────────────────────────
+
+    /** B2B negotiations for this harvest. */
+    public function negotiations()
+    {
+        return $this->hasMany(Negotiation::class, 'harvest_id');
+    }
+
+    // ─────────────────────────────────────────────────────────
+    // RESOLVED DESTINATION ACCESSORS
+    // Check completed negotiations first (deal-specific), fall back to harvest default.
+    // ─────────────────────────────────────────────────────────
+
+    public function getResolvedDestinationAddressAttribute(): ?string
+    {
+        $completedDeal = $this->negotiations()->where('status', 'COMPLETED')->first();
+        return $completedDeal->destination_address ?? $this->destination_address;
+    }
+
+    public function getResolvedDestinationLatitudeAttribute(): ?float
+    {
+        $completedDeal = $this->negotiations()->where('status', 'COMPLETED')->first();
+        return $completedDeal->destination_latitude ?? $this->destination_latitude;
+    }
+
+    public function getResolvedDestinationLongitudeAttribute(): ?float
+    {
+        $completedDeal = $this->negotiations()->where('status', 'COMPLETED')->first();
+        return $completedDeal->destination_longitude ?? $this->destination_longitude;
+    }
+
+    /**
+     * Get the sale progress percentage.
+     * Returns null if quantity_kg is 0.
+     */
+    public function getSaleProgressAttribute(): ?float
+    {
+        if (!$this->quantity_kg || $this->quantity_kg <= 0) {
+            return null;
+        }
+
+        $sold = (float) $this->quantity_kg - (float) ($this->remaining_quantity_kg ?? $this->quantity_kg);
+        return round(($sold / (float) $this->quantity_kg) * 100, 1);
     }
 }

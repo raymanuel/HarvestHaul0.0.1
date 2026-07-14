@@ -85,6 +85,10 @@ class ScrapeCropPrices extends Command
                 $crop->update(['baseline_price_per_kg' => $price]);
                 $this->line("🌾 {$name}: ₱" . number_format($price, 2) . "/kg [Source: {$source}]");
                 
+                if (!isset($prices[$name])) {
+                    $this->warn("⚠️ Using fallback price for {$name}. Live scrape failed or unavailable.", 'verbose');
+                }
+                
                 \App\Models\AuditLog::create([
                     'admin_id'    => $adminId, 
                     'action'      => 'scraped_crop_price',

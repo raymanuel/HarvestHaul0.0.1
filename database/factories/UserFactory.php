@@ -11,34 +11,69 @@ use Illuminate\Support\Str;
  */
 class UserFactory extends Factory
 {
-    /**
-     * The current password being used by the factory.
-     */
     protected static ?string $password;
 
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
         return [
             'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
-            'password' => static::$password ??= Hash::make('pass123'),
+            'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
+            'role' => 'farmer',
+            'status' => 'active',
+            'phone' => fake()->phoneNumber(),
+            'affiliation_type' => 'independent',
         ];
     }
 
-    /**
-     * Indicate that the model's email address should be unverified.
-     */
     public function unverified(): static
     {
         return $this->state(fn (array $attributes) => [
             'email_verified_at' => null,
+        ]);
+    }
+
+    public function admin(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 'admin',
+        ]);
+    }
+
+    public function farmer(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 'farmer',
+        ]);
+    }
+
+    public function logisticsPartner(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 'logistics_partner',
+        ]);
+    }
+
+    public function buyer(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 'buyer',
+        ]);
+    }
+
+    public function driver(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 'driver',
+        ]);
+    }
+
+    public function inactive(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'status' => 'inactive',
         ]);
     }
 }

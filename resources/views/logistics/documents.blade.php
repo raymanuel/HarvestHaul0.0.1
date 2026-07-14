@@ -1,4 +1,4 @@
-<x-layout title="My Business Documents">
+﻿<x-layout title="My Business Documents">
 
     <div class="w-full max-w-3xl mx-auto pb-12">
 
@@ -30,7 +30,7 @@
                 <span class="text-xs text-slate-500 dark:text-slate-400 font-medium">Declared Business Permit No.:</span>
                 <span class="text-sm font-bold text-slate-800 dark:text-slate-200 font-mono">{{ $profile->business_permit_no }}</span>
                 @if($profile->business_permit_verified)
-                    <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-500/10 dark:border-emerald-500/20 px-2.5 py-1 rounded-lg">Verified</span>
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-[#3A7D44] dark:text-[#3A7D44] bg-[#3A7D44]/10 dark:bg-[#3A7D44]/5 border border-[#3A7D44]/10 dark:border-[#3A7D44]/20 px-2.5 py-1 rounded-lg">Verified</span>
                 @else
                     <span class="text-[10px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 border border-amber-500/10 dark:border-amber-500/20 px-2.5 py-1 rounded-lg">Pending Verification</span>
                 @endif
@@ -50,7 +50,7 @@
                         Document Type <span class="text-red-500">*</span>
                     </label>
                     <select name="document_type" required
-                        class="w-full px-4 py-3 border border-slate-200 dark:border-slate-600 rounded-xl text-sm text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-900/60 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 dark:focus:ring-emerald-400/30 focus:border-emerald-500 dark:focus:border-emerald-400 transition">
+                        class="w-full px-4 py-3 border border-slate-200 dark:border-slate-600 rounded-xl text-sm text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-900/60 focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/30 dark:focus:ring-[#3A7D44]/30 focus:border-[#3A7D44] dark:focus:border-[#3A7D44] transition">
                         <option value="" disabled selected>Select document type</option>
                         <option value="dti_sec" {{ old('document_type') === 'dti_sec' ? 'selected' : '' }}>
                             DTI / SEC Registration
@@ -76,7 +76,7 @@
                         File <span class="text-red-500">*</span>
                     </label>
                     <input type="file" name="document_file" required accept=".jpg,.jpeg,.png,.pdf"
-                        class="w-full px-4 py-3 border border-slate-200 dark:border-slate-600 rounded-xl text-sm text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-900/60 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-emerald-50 file:text-emerald-700 dark:file:bg-emerald-900/30 dark:file:text-emerald-400 hover:file:bg-emerald-100 dark:hover:file:bg-emerald-900/50 transition">
+                        class="w-full px-4 py-3 border border-slate-200 dark:border-slate-600 rounded-xl text-sm text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-900/60 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-[#3A7D44]/10 file:text-[#3A7D44] dark:file:bg-[#3A7D44]/10 dark:file:text-[#3A7D44] hover:file:bg-[#3A7D44]/15 dark:hover:file:bg-[#3A7D44]/15 transition">
                     <p class="text-slate-400 dark:text-slate-500 text-xs mt-1.5 font-medium">
                         Accepted: JPG, PNG, PDF — max 5MB
                     </p>
@@ -86,7 +86,7 @@
                 </div>
 
                 <button type="submit"
-                    class="bg-gradient-to-tr from-emerald-600 to-teal-500 dark:from-emerald-500 dark:to-teal-400 text-white dark:text-white text-sm font-bold px-6 py-3.5 rounded-xl border border-emerald-600/20 dark:border-emerald-400/25 shadow-md shadow-emerald-600/15 dark:shadow-emerald-900/30 hover:shadow-lg hover:shadow-emerald-600/25 dark:hover:shadow-emerald-400/30 hover:translate-y-[-1px] active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 dark:focus:ring-emerald-400/40 transition-all duration-200"
+                    class="bg-gradient-to-tr from-[#3A7D44] to-[#2E6336] dark:from-[#3A7D44] dark:to-[#2E6336] text-white dark:text-white text-sm font-bold px-6 py-3.5 rounded-xl border border-[#3A7D44]/20 dark:border-[#3A7D44]/25 shadow-md shadow-[#3A7D44]/15 dark:shadow-[#3A7D44]/30 hover:shadow-lg hover:shadow-[#3A7D44]/25 dark:hover:shadow-[#3A7D44]/30 hover:translate-y-[-1px] active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/30 dark:focus:ring-[#3A7D44]/40 transition-all duration-200"
                     style="background-color: #059669; text-shadow: 0 1px 2px rgba(0,0,0,0.15);">
                     Upload Document
                 </button>
@@ -107,7 +107,7 @@
                     @foreach($documents as $doc)
                         @php
                             $statusStyle = match($doc->status) {
-                                'approved' => ['badge' => 'text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 border-emerald-500/10 dark:border-emerald-500/20', 'card' => 'bg-emerald-50/30 dark:bg-emerald-900/10 border-emerald-200/50 dark:border-emerald-800/30'],
+                                'approved' => ['badge' => 'text-[#3A7D44] dark:text-[#3A7D44] bg-[#3A7D44]/10 dark:bg-[#3A7D44]/5 border-[#3A7D44]/10 dark:border-[#3A7D44]/20', 'card' => 'bg-[#3A7D44]/10/30 dark:bg-[#3A7D44]/5 border-[#3A7D44]/20 dark:border-[#3A7D44]/15'],
                                 'rejected' => ['badge' => 'text-rose-700 dark:text-rose-400 bg-rose-50 dark:bg-rose-900/20 border-rose-500/10 dark:border-rose-500/20', 'card' => 'bg-rose-50/30 dark:bg-rose-900/10 border-rose-200/50 dark:border-rose-800/30'],
                                 default    => ['badge' => 'text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-700/40 border-slate-200/50 dark:border-slate-600/40', 'card' => 'bg-slate-50/50 dark:bg-slate-900/30 border-slate-200/50 dark:border-slate-700/40'],
                             };
@@ -138,7 +138,7 @@
                                     {{ $doc->status }}
                                 </span>
                                 <a href="{{ Storage::url($doc->file_path) }}" target="_blank"
-                                    class="text-emerald-600 dark:text-emerald-400 text-xs font-bold hover:underline transition">
+                                    class="text-[#3A7D44] dark:text-[#3A7D44] text-xs font-bold hover:underline transition">
                                     View
                                 </a>
                                 @if($doc->status !== 'approved')
@@ -147,8 +147,11 @@
                                         @method('DELETE')
                                         <button type="button"
                                             onclick="swalConfirm(this.closest('form'), {title: 'Remove Document?', text: 'This document will be permanently deleted.', confirmText: 'Yes, remove', icon: 'warning', confirmColor: '#ef4444'})"
-                                            class="text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300 text-xs font-bold hover:underline transition">
-                                            Remove
+                                            class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 dark:bg-rose-950/20 dark:hover:bg-rose-950/40 dark:text-rose-400 transition"
+                                            title="Remove Document">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                            </svg>
                                         </button>
                                     </form>
                                 @endif

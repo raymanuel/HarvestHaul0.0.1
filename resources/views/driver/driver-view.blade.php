@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
@@ -27,6 +27,7 @@
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -73,11 +74,11 @@
         <div class="flex items-center justify-between max-w-lg mx-auto">
             <div class="flex items-center gap-3">
                 <div class="relative flex items-center justify-center">
-                    <span class="absolute inline-flex h-2.5 w-2.5 rounded-full bg-emerald-505 dark:bg-emerald-400 animate-ping opacity-75"></span>
-                    <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-600 dark:bg-emerald-500"></span>
+                    <span class="absolute inline-flex h-2.5 w-2.5 rounded-full bg-[#3A7D44] dark:bg-[#3A7D44] animate-ping opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#3A7D44] dark:bg-[#3A7D44]/100"></span>
                 </div>
                 <div>
-                    <p class="text-[9px] text-emerald-600 dark:text-emerald-400 font-bold uppercase tracking-widest leading-none">Driver Portal &middot; Live</p>
+                    <p class="text-[9px] text-[#3A7D44] dark:text-[#3A7D44] font-bold uppercase tracking-widest leading-none">Driver Portal &middot; Live</p>
                     <h1 class="text-base font-extrabold heading-font text-slate-800 dark:text-white mt-1.5 leading-none">{{ Auth::user()->name }}</h1>
                 </div>
             </div>
@@ -95,7 +96,7 @@
                     <div id="driver-notif-dropdown" class="hidden absolute right-0 mt-2 w-72 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl z-50 overflow-hidden text-slate-800 dark:text-slate-100">
                         <div class="px-4 py-2.5 bg-slate-50 dark:bg-slate-950 border-b border-slate-150 dark:border-slate-800 flex items-center justify-between text-[10px]">
                             <span class="font-bold uppercase tracking-wider text-slate-400">Notifications</span>
-                            <button onclick="markAllDriverNotifRead()" class="text-[9px] text-emerald-650 dark:text-emerald-450 font-bold hover:underline">Mark all read</button>
+                            <button onclick="markAllDriverNotifRead()" class="text-[9px] text-[#3A7D44] dark:text-[#3A7D44] font-bold hover:underline">Mark all read</button>
                         </div>
                         <div id="driver-notif-list" class="max-h-60 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800 text-xs">
                             <p class="text-center text-slate-450 dark:text-slate-500 py-4">No notifications</p>
@@ -113,10 +114,10 @@
                     </svg>
                 </button>
 
-                <form method="POST" action="{{ route('logout') }}">
+                <form method="POST" action="{{ route('logout') }}" id="driver-logout-form">
                     @csrf
-                    <button type="submit" class="flex items-center gap-1.5 text-xs font-bold text-slate-600 dark:text-slate-350 hover:text-slate-800 dark:hover:text-white bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700/80 border border-slate-200 dark:border-slate-700/50 rounded-xl px-3.5 py-2 transition-all duration-200 active:scale-[0.97]">
-                        <svg xmlns="http://www.w3.org/255" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <button type="button" onclick="swalConfirm(document.getElementById('driver-logout-form'), {title:'Sign Out', text:'Are you sure you want to sign out?', icon:'question', confirmText:'Yes, sign out', cancelText:'Cancel', confirmColor:'#ef4444'})" class="cursor-pointer flex items-center gap-1.5 text-xs font-bold text-slate-600 dark:text-slate-350 hover:text-slate-800 dark:hover:text-white bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700/80 border border-slate-200 dark:border-slate-700/50 rounded-xl px-3.5 py-2 transition-all duration-200 active:scale-[0.97]">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                         </svg>
                         <span>Exit</span>
@@ -128,41 +129,41 @@
 
     <main class="max-w-lg mx-auto px-4 py-6 relative">
         <!-- Glow highlights -->
-        <div class="absolute top-10 left-10 w-48 h-48 bg-emerald-500/5 dark:bg-emerald-450/5 rounded-full blur-[80px] pointer-events-none"></div>
+        <div class="absolute top-10 left-10 w-48 h-48 bg-[#3A7D44]/5 dark:bg-[#3A7D44]/5 rounded-full blur-[80px] pointer-events-none"></div>
 
         <!-- Summary Metrics Cards -->
         <div class="grid grid-cols-2 gap-4 mb-6">
-            <div class="glass-card rounded-3xl p-5 flex items-center gap-3.5 relative overflow-hidden group hover:border-emerald-500/30 transition-all duration-300 shadow-sm">
-                <div class="absolute -right-3 -bottom-3 w-16 h-16 bg-emerald-500/5 rounded-full group-hover:scale-150 transition-all duration-500"></div>
-                <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
+            <div class="glass-card rounded-3xl p-5 flex items-center gap-3.5 relative overflow-hidden group hover:border-[#3A7D44]/30 transition-all duration-300 shadow-sm">
+                <div class="absolute -right-3 -bottom-3 w-16 h-16 bg-[#3A7D44]/5 rounded-full group-hover:scale-150 transition-all duration-500"></div>
+                <div class="w-10 h-10 rounded-xl bg-[#3A7D44]/10 border border-[#3A7D44]/20 flex items-center justify-center text-[#3A7D44] dark:text-[#3A7D44] shrink-0">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
                     </svg>
                 </div>
                 <div>
                     <p class="text-[9px] text-slate-400 font-bold uppercase tracking-wider leading-none">Active Runs</p>
-                    <p class="text-2xl font-black text-emerald-650 dark:text-emerald-400 heading-font mt-1.5 leading-none">{{ $jobs->count() }}</p>
+                    <p class="text-2xl font-black text-[#3A7D44] dark:text-[#3A7D44] heading-font mt-1.5 leading-none">{{ $jobs->count() }}</p>
                 </div>
             </div>
 
-            <div class="glass-card rounded-3xl p-5 flex items-center gap-3.5 relative overflow-hidden group hover:border-teal-500/30 transition-all duration-300 shadow-sm">
-                <div class="absolute -right-3 -bottom-3 w-16 h-16 bg-teal-500/5 rounded-full group-hover:scale-150 transition-all duration-500"></div>
-                <div class="w-10 h-10 rounded-xl bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-teal-600 dark:text-teal-400 shrink-0">
+            <div class="glass-card rounded-3xl p-5 flex items-center gap-3.5 relative overflow-hidden group hover:border-[#2E6336]/20 transition-all duration-300 shadow-sm">
+                <div class="absolute -right-3 -bottom-3 w-16 h-16 bg-[#2E6336]/5 rounded-full group-hover:scale-150 transition-all duration-500"></div>
+                <div class="w-10 h-10 rounded-xl bg-[#2E6336]/10 border border-[#2E6336]/20 flex items-center justify-center text-[#2E6336] dark:text-[#2E6336] shrink-0">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                 </div>
                 <div>
                     <p class="text-[9px] text-slate-400 font-bold uppercase tracking-wider leading-none">Completed</p>
-                    <p class="text-2xl font-black text-teal-650 dark:text-teal-400 heading-font mt-1.5 leading-none">{{ $completedJobs }}</p>
+                    <p class="text-2xl font-black text-[#2E6336] dark:text-[#2E6336] heading-font mt-1.5 leading-none">{{ $completedJobs }}</p>
                 </div>
             </div>
         </div>
 
         <!-- Flash Messages -->
         @if(session('success'))
-            <div class="mb-5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-bold heading-font rounded-2xl p-4 flex items-center gap-3 animate-fadeIn">
-                <div class="w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-500 shrink-0">✓</div>
+            <div class="mb-5 bg-[#3A7D44]/10 border border-[#3A7D44]/20 text-[#3A7D44] dark:text-[#3A7D44] text-xs font-bold heading-font rounded-2xl p-4 flex items-center gap-3 animate-fadeIn">
+                <div class="w-5 h-5 rounded-full bg-[#3A7D44]/20 flex items-center justify-center text-[#3A7D44] shrink-0">✓</div>
                 <span>{{ session('success') }}</span>
             </div>
         @endif
@@ -187,7 +188,7 @@
                 <div class="px-5 py-4 border-b border-slate-100 dark:border-slate-800/50 bg-slate-50/50 dark:bg-slate-900/40 flex items-center justify-between">
                     <div>
                         <div class="flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                            <span class="w-2 h-2 rounded-full bg-[#3A7D44]/100 animate-pulse"></span>
                             <p class="text-sm font-black text-slate-800 dark:text-white heading-font">Job ID #{{ $job->id }}</p>
                         </div>
                         <p class="text-[10px] text-slate-450 mt-1">
@@ -197,7 +198,7 @@
                     @php
                         $badge = match($job->status) {
                             'confirmed'   => ['bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20', 'Ready'],
-                            'in_progress' => ['bg-sky-500/10 text-sky-600 dark:text-sky-400 border-sky-500/20', 'In Transit'],
+                            'in_progress' => ['bg-[#1F4D25]/10 text-[#1F4D25] dark:text-[#1F4D25] border-[#1F4D25]/20', 'In Transit'],
                             default       => ['bg-slate-500/10 text-slate-500 dark:text-slate-400 border-slate-500/20', ucfirst($job->status)],
                         };
                     @endphp
@@ -236,13 +237,13 @@
                 <!-- Truck Row -->
                 <div class="px-5 py-3 text-xs border-b border-slate-100 dark:border-slate-800/50 bg-slate-50/10 dark:bg-slate-900/5 flex items-center justify-between">
                     <div class="flex items-center gap-2 text-slate-400 font-semibold text-[10px] uppercase tracking-wide">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-emerald-550 dark:text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-[#3A7D44] dark:text-[#3A7D44]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" />
                         </svg>
                         <span>Assigned Fleet Truck</span>
                     </div>
                     <div class="flex items-center gap-2">
-                        <span class="font-mono text-[9px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-emerald-400 border border-slate-200 dark:border-slate-700/60 rounded px-2.5 py-0.5">
+                        <span class="font-mono text-[9px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-[#3A7D44] border border-slate-200 dark:border-slate-700/60 rounded px-2.5 py-0.5">
                             {{ $job->truck->plate_number ?? '—' }}
                         </span>
                         @if($job->truck->vehicle_type ?? false)
@@ -272,7 +273,7 @@
                         <form method="POST" action="{{ route('driver.jobs.status', $job) }}" class="flex-1">
                             @csrf @method('PATCH')
                             <button type="submit"
-                                    class="w-full text-xs font-extrabold text-white bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 rounded-2xl py-3.5 shadow-lg shadow-emerald-500/15 hover:shadow-emerald-500/25 transition-all duration-200 active:scale-[0.98] flex items-center justify-center gap-1.5">
+                                    class="w-full text-xs font-extrabold text-white bg-gradient-to-r from-[#3A7D44] to-[#2E6336] hover:from-[#3A7D44] hover:to-[#2E6336] rounded-2xl py-3.5 shadow-lg shadow-[#3A7D44]/15 hover:shadow-[#3A7D44]/25 transition-all duration-200 active:scale-[0.98] flex items-center justify-center gap-1.5">
                                 <span>Start Run</span>
                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
@@ -288,15 +289,15 @@
                 <div class="absolute inset-0 bg-gradient-to-b from-slate-200/10 dark:from-slate-950/10 to-transparent pointer-events-none"></div>
                 <div class="relative w-24 h-24 mx-auto mb-6 flex items-center justify-center">
                     <div class="absolute inset-0 rounded-full bg-slate-200 dark:bg-slate-800/40 animate-ping opacity-25"></div>
-                    <div class="w-14 h-14 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-3xl text-emerald-600 dark:text-emerald-450 shadow-md">🚛</div>
+                    <div class="w-14 h-14 rounded-full bg-[#3A7D44]/10 border border-[#3A7D44]/20 flex items-center justify-center text-3xl text-[#3A7D44] dark:text-[#3A7D44] shadow-md">🚛</div>
                 </div>
                 <h3 class="text-base font-extrabold text-slate-850 dark:text-white heading-font tracking-tight">No Active Routes Assigned</h3>
                 <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 max-w-xs mx-auto leading-relaxed">
                     Logistic dispatchers have not pooled a run for you yet. Standing by for real-time schedule assignments.
                 </p>
-                <div class="mt-6 inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1.5 rounded-full">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                    <span class="text-[9px] text-emerald-600 dark:text-emerald-400 font-bold uppercase tracking-wider">Listening for dispatch...</span>
+                <div class="mt-6 inline-flex items-center gap-2 bg-[#3A7D44]/10 border border-[#3A7D44]/20 px-3 py-1.5 rounded-full">
+                    <span class="w-2 h-2 rounded-full bg-[#3A7D44]/100 animate-pulse"></span>
+                    <span class="text-[9px] text-[#3A7D44] dark:text-[#3A7D44] font-bold uppercase tracking-wider">Listening for dispatch...</span>
                 </div>
             </div>
         @endforelse
@@ -325,43 +326,75 @@
             }
         });
 
-        // Fetch driver notifications
-        function fetchDriverNotif() {
-            fetch('/api/notifications')
-                .then(r => r.json())
-                .then(data => {
-                    var badge = document.getElementById('driver-notif-badge');
-                    if (data.unread_count > 0) {
-                        badge.classList.remove('hidden');
-                    } else {
-                        badge.classList.add('hidden');
-                    }
+        // Fetch driver notifications (with SweetAlert toast for new ones)
+        var fetchDriverNotif = (function () {
+            var prevUnread = 0;
+            var knownIds = {};
 
-                    var list = document.getElementById('driver-notif-list');
-                    if (data.notifications.length === 0) {
-                        list.innerHTML = `<p class="text-center text-slate-450 dark:text-slate-500 py-4">No notifications</p>`;
-                        return;
-                    }
+            return function () {
+                fetch('/api/notifications')
+                    .then(function (r) { return r.json(); })
+                    .then(function (data) {
+                        var badge = document.getElementById('driver-notif-badge');
+                        if (data.unread_count > 0) {
+                            badge.classList.remove('hidden');
+                        } else {
+                            badge.classList.add('hidden');
+                        }
 
-                    var html = '';
-                    data.notifications.forEach(n => {
-                        var isUnread = !n.read_at;
-                        var bgClass = isUnread ? 'bg-emerald-500/5 dark:bg-emerald-400/5' : '';
-                        var indicator = isUnread ? `<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0 mt-1"></span>` : '';
-                        var link = n.link ? n.link : '#';
+                        // Show SweetAlert toast for new unread notifications
+                        if (data.unread_count > prevUnread && data.notifications.length > 0) {
+                            var newest = data.notifications[0];
+                            if (!knownIds[newest.id]) {
+                                knownIds[newest.id] = true;
+                                Swal.fire({
+                                    icon: null,
+                                    title: newest.title,
+                                    text: newest.message,
+                                    timer: 4000,
+                                    timerProgressBar: true,
+                                    showConfirmButton: false,
+                                    toast: true,
+                                    position: 'top-end',
+                                    background: document.documentElement.classList.contains('dark') ? '#1e293b' : '#fff',
+                                    color: document.documentElement.classList.contains('dark') ? '#e2e8f0' : '#1e293b',
+                                    customClass: { popup: 'rounded-xl shadow-lg border border-[#3A7D44]/20 text-xs' }
+                                });
+                            }
+                        }
+                        prevUnread = data.unread_count;
 
-                        html += `
-                            <div class="px-4 py-2.5 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition flex items-start justify-between gap-2.5 ${bgClass}" onclick="markDriverNotifRead(${n.id}, '${link}')">
-                                <div class="flex-1 cursor-pointer">
-                                    <p class="font-bold text-[11px] leading-tight text-slate-800 dark:text-slate-200">${n.title}</p>
-                                    <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 leading-snug">${n.message}</p>
-                                </div>
-                                ${indicator}
-                            </div>
-                        `;
+                        var list = document.getElementById('driver-notif-list');
+                        if (data.notifications.length === 0) {
+                            list.innerHTML = '<p class="text-center text-slate-450 dark:text-slate-500 py-4">No notifications</p>';
+                            return;
+                        }
+
+                        var html = '';
+                        data.notifications.forEach(function (n) {
+                            knownIds[n.id] = true;
+                            var isUnread = !n.read_at;
+                            var bgClass = isUnread ? 'bg-[#3A7D44]/5 dark:bg-[#3A7D44]/5' : '';
+                            var indicator = isUnread ? '<span class="w-1.5 h-1.5 rounded-full bg-[#3A7D44]/100 shrink-0 mt-1"></span>' : '';
+                            var link = n.link ? n.link : '#';
+
+                            html += '<div class="px-4 py-2.5 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition flex items-start justify-between gap-2.5 ' + bgClass + '" onclick="markDriverNotifRead(' + n.id + ', \'' + link + '\')">';
+                            html += '<div class="flex-1 cursor-pointer">';
+                            html += '<p class="font-bold text-[11px] leading-tight text-slate-800 dark:text-slate-200">' + escapeHtml(n.title) + '</p>';
+                            html += '<p class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 leading-snug">' + escapeHtml(n.message) + '</p>';
+                            html += '</div>';
+                            html += indicator;
+                            html += '</div>';
+                        });
+                        list.innerHTML = html;
                     });
-                    list.innerHTML = html;
-                });
+            };
+        })();
+
+        function escapeHtml(str) {
+            var div = document.createElement('div');
+            div.appendChild(document.createTextNode(str));
+            return div.innerHTML;
         }
 
         function markDriverNotifRead(id, link) {
@@ -395,6 +428,79 @@
             fetchDriverNotif();
             setInterval(fetchDriverNotif, 15000);
         });
+    </script>
+
+    {{-- SweetAlert Global Flash Handler --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            @if(session('success'))
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success',
+                    text: @json(session('success')),
+                    timer: 3000,
+                    timerProgressBar: true,
+                    showConfirmButton: false,
+                    toast: true,
+                    position: 'top-end',
+                    background: document.documentElement.classList.contains('dark') ? '#1e293b' : '#fff',
+                    color: document.documentElement.classList.contains('dark') ? '#e2e8f0' : '#1e293b',
+                    iconColor: '#3A7D44',
+                    customClass: { popup: 'rounded-xl shadow-lg border border-[#3A7D44]/20' }
+                });
+            @endif
+            @if(session('error'))
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: @json(session('error')),
+                    timer: 4500,
+                    timerProgressBar: true,
+                    showConfirmButton: true,
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#ef4444',
+                    toast: false,
+                    background: document.documentElement.classList.contains('dark') ? '#1e293b' : '#fff',
+                    color: document.documentElement.classList.contains('dark') ? '#e2e8f0' : '#1e293b',
+                    customClass: { popup: 'rounded-xl shadow-lg' }
+                });
+            @endif
+        });
+
+        function swalConfirm(formOrCallback, opts = {}) {
+            const defaults = {
+                title: opts.title || 'Are you sure?',
+                text: opts.text || 'This action cannot be undone.',
+                icon: opts.icon || 'warning',
+                confirmText: opts.confirmText || 'Yes, proceed',
+                cancelText: opts.cancelText || 'Cancel',
+                confirmColor: opts.confirmColor || '#3A7D44',
+                cancelColor: opts.cancelColor || '#64748b'
+            };
+
+            Swal.fire({
+                title: defaults.title,
+                text: defaults.text,
+                icon: defaults.icon,
+                showCancelButton: true,
+                confirmButtonText: defaults.confirmText,
+                cancelButtonText: defaults.cancelText,
+                confirmButtonColor: defaults.confirmColor,
+                cancelButtonColor: defaults.cancelColor,
+                background: document.documentElement.classList.contains('dark') ? '#1e293b' : '#fff',
+                color: document.documentElement.classList.contains('dark') ? '#e2e8f0' : '#1e293b',
+                customClass: { popup: 'rounded-xl shadow-2xl' },
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    if (typeof formOrCallback === 'function') {
+                        formOrCallback();
+                    } else if (formOrCallback && formOrCallback.submit) {
+                        formOrCallback.submit();
+                    }
+                }
+            });
+        }
     </script>
 </body>
 </html>

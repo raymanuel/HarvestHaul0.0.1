@@ -1,33 +1,46 @@
-<x-layout>
+﻿<x-layout>
 
 <div class="w-full max-w-4xl mx-auto pb-12">
 
     <!-- Ambient glow decoration -->
-    <div class="absolute top-0 right-1/4 w-96 h-96 rounded-full bg-emerald-500/5 blur-[120px] pointer-events-none z-0"></div>
-    <div class="absolute top-1/3 left-1/3 w-[500px] h-[500px] rounded-full bg-sky-500/5 blur-[150px] pointer-events-none z-0"></div>
+    <div class="absolute top-0 right-1/4 w-96 h-96 rounded-full bg-[#3A7D44]/5 blur-[120px] pointer-events-none z-0"></div>
+    <div class="absolute top-1/3 left-1/3 w-[500px] h-[500px] rounded-full bg-[#1F4D25]/5 blur-[150px] pointer-events-none z-0"></div>
 
     <div class="relative z-10">
         <!-- Page Header -->
         <header class="mb-8 pt-6">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <span class="text-[10px] font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 dark:bg-emerald-400/10 px-3 py-1 rounded-full border border-emerald-500/20">My Profile</span>
+                    <span class="text-[10px] font-bold uppercase tracking-widest text-[#3A7D44] dark:text-[#3A7D44] bg-[#3A7D44]/10 dark:bg-[#3A7D44]/10 px-3 py-1 rounded-full border border-[#3A7D44]/20">My Profile</span>
                     <h1 class="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight heading-font mt-3">Profile Settings</h1>
                     <p class="text-sm text-slate-500 dark:text-slate-400 mt-1 font-medium">Manage your account, business credentials, and security settings.</p>
                 </div>
                 <div class="flex items-center gap-3">
-                    <!-- Verification Badge -->
+                    <!-- Profile Verification Badge -->
                     @if($profile?->is_verified)
-                        <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-400 rounded-full text-xs font-bold">
+                        <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#3A7D44]/10 border border-[#3A7D44]/20 text-[#3A7D44] dark:text-[#3A7D44] rounded-full text-xs font-bold">
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
-                            Verified Partner
+                            Profile Verified
                         </span>
                     @else
                         <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-amber-500/10 border border-amber-500/20 text-amber-700 dark:text-amber-400 rounded-full text-xs font-bold">
-                            <span class="text-sm">⏳</span>
-                            Pending Verification
+                            Profile Pending
+                        </span>
+                    @endif
+
+                    <!-- Email Verification Badge -->
+                    @if($user->hasVerifiedEmail())
+                        <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-blue-500/10 border border-blue-500/20 text-blue-700 dark:text-blue-400 rounded-full text-xs font-bold">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                            </svg>
+                            Email Verified
+                        </span>
+                    @else
+                        <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-amber-500/10 border border-amber-500/20 text-amber-700 dark:text-amber-400 rounded-full text-xs font-bold">
+                            Email Unverified
                         </span>
                     @endif
                 </div>
@@ -36,8 +49,8 @@
 
         {{-- Flash Messages --}}
         @if (session('success'))
-            <div class="mb-6 bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-400 rounded-2xl p-5 text-sm font-semibold flex items-center gap-3 shadow-sm">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-emerald-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <div class="mb-6 bg-[#3A7D44]/10 border border-[#3A7D44]/20 text-[#3A7D44] dark:text-[#3A7D44] rounded-2xl p-5 text-sm font-semibold flex items-center gap-3 shadow-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-[#3A7D44] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 {{ session('success') }}
@@ -45,8 +58,8 @@
         @endif
 
         @if (session('password_success'))
-            <div class="mb-6 bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-400 rounded-2xl p-5 text-sm font-semibold flex items-center gap-3 shadow-sm">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-emerald-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <div class="mb-6 bg-[#3A7D44]/10 border border-[#3A7D44]/20 text-[#3A7D44] dark:text-[#3A7D44] rounded-2xl p-5 text-sm font-semibold flex items-center gap-3 shadow-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-[#3A7D44] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 {{ session('password_success') }}
@@ -63,6 +76,20 @@
             </div>
         @endif
 
+        @if (session('profile_complete'))
+            <div style="margin-bottom:24px; padding:16px 20px; border-radius:16px; background:linear-gradient(135deg,#EFF2E9,#f0f7f0); border:1px solid #3A7D44/20;">
+                <div style="display:flex; align-items:flex-start; gap:12px;">
+                    <div style="width:36px; height:36px; border-radius:10px; background:#3A7D44; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                    </div>
+                    <div>
+                        <h3 style="font-size:14px; font-weight:800; color:#1a3a1a; margin-bottom:2px;">Welcome to HarvestHaul!</h3>
+                        <p style="font-size:12px; color:#4a6a4a; line-height:1.5; font-weight:500;">Please complete your business details below to start managing fleet and coordinating shipments.</p>
+                    </div>
+                </div>
+            </div>
+        @endif
+
         {{-- ═══════════════════════════════════════════ --}}
         {{-- PROFILE FORM --}}
         {{-- ═══════════════════════════════════════════ --}}
@@ -73,7 +100,7 @@
             {{-- ── ACCOUNT INFORMATION ── --}}
             <div class="bg-white dark:bg-slate-800/80 backdrop-blur border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6 sm:p-8 shadow-sm">
                 <div class="flex items-center gap-3 mb-6">
-                    <div class="w-10 h-10 rounded-2xl bg-emerald-500/10 border border-emerald-500/15 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
+                    <div class="w-10 h-10 rounded-2xl bg-[#3A7D44]/10 border border-[#3A7D44]/15 flex items-center justify-center text-[#3A7D44] dark:text-[#3A7D44] shrink-0">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                         </svg>
@@ -88,12 +115,12 @@
                     <div>
                         <label class="text-xs font-bold text-slate-600 dark:text-slate-400 block mb-1.5">Representative Name</label>
                         <input type="text" name="name" value="{{ old('name', $user->name) }}" required
-                            class="px-4 py-3 w-full bg-white/80 dark:bg-slate-700/50 border border-slate-200/80 dark:border-slate-600/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition text-sm text-slate-800 dark:text-white">
+                            class="px-4 py-3 w-full bg-white/80 dark:bg-slate-700/50 border border-slate-200/80 dark:border-slate-600/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/20 focus:border-[#3A7D44] transition text-sm text-slate-800 dark:text-white">
                     </div>
                     <div>
                         <label class="text-xs font-bold text-slate-600 dark:text-slate-400 block mb-1.5">Email Address</label>
                         <input type="email" name="email" value="{{ old('email', $user->email) }}" required
-                            class="px-4 py-3 w-full bg-white/80 dark:bg-slate-700/50 border border-slate-200/80 dark:border-slate-600/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition text-sm text-slate-800 dark:text-white">
+                            class="px-4 py-3 w-full bg-white/80 dark:bg-slate-700/50 border border-slate-200/80 dark:border-slate-600/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/20 focus:border-[#3A7D44] transition text-sm text-slate-800 dark:text-white">
                     </div>
                 </div>
             </div>
@@ -101,7 +128,7 @@
             {{-- ── BUSINESS DETAILS ── --}}
             <div class="bg-white dark:bg-slate-800/80 backdrop-blur border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6 sm:p-8 shadow-sm">
                 <div class="flex items-center gap-3 mb-6">
-                    <div class="w-10 h-10 rounded-2xl bg-sky-500/10 border border-sky-500/15 flex items-center justify-center text-sky-600 dark:text-sky-400 shrink-0">
+                    <div class="w-10 h-10 rounded-2xl bg-[#1F4D25]/10 border border-[#1F4D25]/15 flex items-center justify-center text-[#1F4D25] dark:text-[#1F4D25] shrink-0">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                         </svg>
@@ -117,12 +144,12 @@
                         <div>
                             <label class="text-xs font-bold text-slate-600 dark:text-slate-400 block mb-1.5">Company / Cooperative Name</label>
                             <input type="text" name="company_name" value="{{ old('company_name', $profile->company_name ?? '') }}" required
-                                class="px-4 py-3 w-full bg-white/80 dark:bg-slate-700/50 border border-slate-200/80 dark:border-slate-600/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition text-sm text-slate-800 dark:text-white">
+                                class="px-4 py-3 w-full bg-white/80 dark:bg-slate-700/50 border border-slate-200/80 dark:border-slate-600/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1F4D25]/20 focus:border-[#1F4D25] transition text-sm text-slate-800 dark:text-white">
                         </div>
                         <div>
                             <label class="text-xs font-bold text-slate-600 dark:text-slate-400 block mb-1.5">Phone Number</label>
                             <input type="text" name="phone" value="{{ old('phone', $profile->phone ?? '') }}"
-                                class="px-4 py-3 w-full bg-white/80 dark:bg-slate-700/50 border border-slate-200/80 dark:border-slate-600/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition text-sm text-slate-800 dark:text-white">
+                                class="px-4 py-3 w-full bg-white/80 dark:bg-slate-700/50 border border-slate-200/80 dark:border-slate-600/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1F4D25]/20 focus:border-[#1F4D25] transition text-sm text-slate-800 dark:text-white">
                         </div>
                     </div>
 
@@ -130,11 +157,11 @@
                     <div class="flex items-center gap-3">
                         <span class="text-xs font-bold text-slate-500 dark:text-slate-400">Organization Type:</span>
                         @if($profile?->logistics_type === 'cooperative')
-                            <span class="inline-flex items-center gap-1 px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-400 rounded-lg text-xs font-bold">
-                                🤝 Cooperative
+                            <span class="inline-flex items-center gap-1 px-3 py-1 bg-[#3A7D44]/10 border border-[#3A7D44]/20 text-[#3A7D44] dark:text-[#3A7D44] rounded-lg text-xs font-bold">
+                                Cooperative
                             </span>
                         @else
-                            <span class="inline-flex items-center gap-1 px-3 py-1 bg-sky-500/10 border border-sky-500/20 text-sky-700 dark:text-sky-400 rounded-lg text-xs font-bold">
+                            <span class="inline-flex items-center gap-1 px-3 py-1 bg-[#1F4D25]/10 border border-[#1F4D25]/20 text-[#1F4D25] dark:text-[#1F4D25] rounded-lg text-xs font-bold">
                                 🏢 Private Company
                             </span>
                         @endif
@@ -183,7 +210,7 @@
 
             {{-- SAVE BUTTON --}}
             <div class="flex justify-end">
-                <button type="submit" class="px-8 py-3 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:brightness-105 text-white font-bold rounded-xl text-sm shadow-md shadow-emerald-600/15 hover:shadow-lg transition duration-200 transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer inline-flex items-center gap-2">
+                <button type="submit" class="px-8 py-3 bg-gradient-to-r from-[#3A7D44] to-[#2E6336] hover:brightness-105 text-white font-bold rounded-xl text-sm shadow-md shadow-[#3A7D44]/15 hover:shadow-lg transition duration-200 transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer inline-flex items-center gap-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                     </svg>

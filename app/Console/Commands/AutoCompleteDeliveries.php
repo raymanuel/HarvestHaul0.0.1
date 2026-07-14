@@ -31,7 +31,7 @@ class AutoCompleteDeliveries extends Command
             }
 
             \App\Models\AuditLog::create([
-                'admin_id'    => 0,
+                'admin_id'    => null,
                 'action'      => 'auto_complete_delivery',
                 'target_type' => 'pooling_jobs',
                 'target_id'   => $job->id,

@@ -1,4 +1,4 @@
-<x-layout title="Register Driver Account">
+﻿<x-layout title="Register Driver Account">
 
     <div class="w-full max-w-2xl mx-auto pb-12">
 
@@ -6,7 +6,7 @@
             <a href="{{ route('logistics.drivers.index') }}" class="text-sm text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 mb-4 inline-block font-semibold transition">
                 ← Back to Drivers Fleet
             </a>
-            <span class="text-xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/20 px-3 py-1.5 rounded-lg border border-emerald-500/10 dark:border-emerald-500/20 inline-block mb-2">Fleet Integration</span>
+            <span class="text-xs font-bold uppercase tracking-wider text-[#3A7D44] dark:text-[#3A7D44] bg-[#3A7D44]/10 dark:bg-[#3A7D44]/10 px-3 py-1.5 rounded-lg border border-[#3A7D44]/10 dark:border-[#3A7D44]/20 inline-block mb-2">Fleet Integration</span>
             <h1 class="text-3xl font-bold text-slate-900 dark:text-white tracking-tight heading-font">Add Driver Account</h1>
             <p class="text-slate-500 dark:text-slate-400 mt-1 font-medium">Create credentials for a new carrier in your fleet to enable telemetry-guided runs.</p>
         </header>
@@ -25,7 +25,7 @@
                             Driver Name <span class="text-red-500">*</span>
                         </label>
                         <input type="text" name="name" value="{{ old('name') }}" required placeholder="e.g. Eliseo Santos"
-                            class="w-full px-4 py-3 border border-slate-200 dark:border-slate-600 rounded-xl text-sm text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-900/60 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 dark:focus:ring-emerald-400/30 focus:border-emerald-500 dark:focus:border-emerald-400 transition">
+                            class="w-full px-4 py-3 border border-slate-200 dark:border-slate-600 rounded-xl text-sm text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-900/60 focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/30 dark:focus:ring-[#3A7D44]/30 focus:border-[#3A7D44] dark:focus:border-[#3A7D44] transition">
                         @error('name')
                             <p class="text-red-500 dark:text-red-400 text-xs mt-1.5 font-medium">{{ $message }}</p>
                         @enderror
@@ -37,7 +37,7 @@
                             Email Address <span class="text-red-500">*</span>
                         </label>
                         <input type="email" name="email" value="{{ old('email') }}" required placeholder="e.g. eliseo@driver.com"
-                            class="w-full px-4 py-3 border border-slate-200 dark:border-slate-600 rounded-xl text-sm text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-900/60 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 dark:focus:ring-emerald-400/30 focus:border-emerald-500 dark:focus:border-emerald-400 transition">
+                            class="w-full px-4 py-3 border border-slate-200 dark:border-slate-600 rounded-xl text-sm text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-900/60 focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/30 dark:focus:ring-[#3A7D44]/30 focus:border-[#3A7D44] dark:focus:border-[#3A7D44] transition">
                         @error('email')
                             <p class="text-red-500 dark:text-red-400 text-xs mt-1.5 font-medium">{{ $message }}</p>
                         @enderror
@@ -51,7 +51,7 @@
                             Phone Number <span class="text-red-500">*</span>
                         </label>
                         <input type="text" name="phone" value="{{ old('phone') }}" required placeholder="e.g. +639123456789"
-                            class="w-full px-4 py-3 border border-slate-200 dark:border-slate-600 rounded-xl text-sm text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-900/60 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 dark:focus:ring-emerald-400/30 focus:border-emerald-500 dark:focus:border-emerald-400 transition">
+                            class="w-full px-4 py-3 border border-slate-200 dark:border-slate-600 rounded-xl text-sm text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-900/60 focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/30 dark:focus:ring-[#3A7D44]/30 focus:border-[#3A7D44] dark:focus:border-[#3A7D44] transition">
                         @error('phone')
                             <p class="text-red-500 dark:text-red-400 text-xs mt-1.5 font-medium">{{ $message }}</p>
                         @enderror
@@ -63,7 +63,7 @@
                             License Number <span class="text-red-500">*</span>
                         </label>
                         <input type="text" name="license_number" value="{{ old('license_number') }}" required placeholder="e.g. D01-23-456789"
-                            class="w-full px-4 py-3 border border-slate-200 dark:border-slate-600 rounded-xl text-sm text-slate-850 dark:text-slate-200 bg-white dark:bg-slate-900/60 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 dark:focus:ring-emerald-400/30 focus:border-emerald-500 dark:focus:border-emerald-400 transition font-mono uppercase">
+                            class="w-full px-4 py-3 border border-slate-200 dark:border-slate-600 rounded-xl text-sm text-slate-850 dark:text-slate-200 bg-white dark:bg-slate-900/60 focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/30 dark:focus:ring-[#3A7D44]/30 focus:border-[#3A7D44] dark:focus:border-[#3A7D44] transition font-mono uppercase">
                         @error('license_number')
                             <p class="text-red-500 dark:text-red-400 text-xs mt-1.5 font-medium">{{ $message }}</p>
                         @enderror
@@ -76,7 +76,7 @@
                         Assigned Vehicle Type
                     </label>
                     <select name="vehicle_type"
-                        class="w-full px-4 py-3 border border-slate-200 dark:border-slate-600 rounded-xl text-sm text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-900/60 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 dark:focus:ring-emerald-400/30 focus:border-emerald-500 dark:focus:border-emerald-400 transition">
+                        class="w-full px-4 py-3 border border-slate-200 dark:border-slate-600 rounded-xl text-sm text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-900/60 focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/30 dark:focus:ring-[#3A7D44]/30 focus:border-[#3A7D44] dark:focus:border-[#3A7D44] transition">
                         <option value="" selected>None / Select Later</option>
                         <option value="6-Wheeler Flatbed" {{ old('vehicle_type') === '6-Wheeler Flatbed' ? 'selected' : '' }}>6-Wheeler Flatbed</option>
                         <option value="10-Wheeler Wing Van" {{ old('vehicle_type') === '10-Wheeler Wing Van' ? 'selected' : '' }}>10-Wheeler Wing Van</option>
@@ -95,7 +95,7 @@
                             Password <span class="text-red-500">*</span>
                         </label>
                         <input type="password" name="password" required placeholder="Minimum 8 characters"
-                            class="w-full px-4 py-3 border border-slate-200 dark:border-slate-600 rounded-xl text-sm text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-900/60 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 dark:focus:ring-emerald-400/30 focus:border-emerald-500 dark:focus:border-emerald-400 transition">
+                            class="w-full px-4 py-3 border border-slate-200 dark:border-slate-600 rounded-xl text-sm text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-900/60 focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/30 dark:focus:ring-[#3A7D44]/30 focus:border-[#3A7D44] dark:focus:border-[#3A7D44] transition">
                         @error('password')
                             <p class="text-red-500 dark:text-red-400 text-xs mt-1.5 font-medium">{{ $message }}</p>
                         @enderror
@@ -107,13 +107,13 @@
                             Confirm Password <span class="text-red-500">*</span>
                         </label>
                         <input type="password" name="password_confirmation" required placeholder="Retype password"
-                            class="w-full px-4 py-3 border border-slate-200 dark:border-slate-600 rounded-xl text-sm text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-900/60 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 dark:focus:ring-emerald-400/30 focus:border-emerald-500 dark:focus:border-emerald-400 transition">
+                            class="w-full px-4 py-3 border border-slate-200 dark:border-slate-600 rounded-xl text-sm text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-900/60 focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/30 dark:focus:ring-[#3A7D44]/30 focus:border-[#3A7D44] dark:focus:border-[#3A7D44] transition">
                     </div>
                 </div>
 
                 <div class="flex items-center gap-3">
                     <button type="submit"
-                        class="bg-gradient-to-tr from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white text-sm font-bold px-6 py-3.5 rounded-xl border border-emerald-600/20 dark:border-emerald-400/25 shadow-md shadow-emerald-600/15 dark:shadow-emerald-900/30 hover:shadow-lg hover:translate-y-[-1px] active:translate-y-0 transition-all duration-200"
+                        class="bg-gradient-to-tr from-[#3A7D44] to-[#2E6336] hover:from-[#3A7D44] hover:to-[#2E6336] text-white text-sm font-bold px-6 py-3.5 rounded-xl border border-[#3A7D44]/20 dark:border-[#3A7D44]/25 shadow-md shadow-[#3A7D44]/15 dark:shadow-[#3A7D44]/30 hover:shadow-lg hover:translate-y-[-1px] active:translate-y-0 transition-all duration-200"
                         style="background-color: #059669; text-shadow: 0 1px 2px rgba(0,0,0,0.15);">
                         Create Account
                     </button>

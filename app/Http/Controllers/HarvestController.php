@@ -5,18 +5,20 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Harvest;
+use App\Models\HarvestStatus;
 use App\Models\Crop;
 use App\Models\CropVariety;
+use Illuminate\Validation\Rule;
 
 /**
  * Class HarvestController
  * 
- * Manages the CRUD lifecycle of crop harvest listings posted by farmer users.
+ * Manages the CRUD lifecycle of crop harvest posts by farmer users.
  * 
  * System Flow:
- * 1. Post Listing: Farmers register their upcoming crop volumes, matching crops/varieties,
+ * 1. Post Harvest: Farmers register their upcoming crop volumes, matching crops/varieties,
  *    and delivery destinations.
- * 2. Geo-location Binding: The listing automatically inherits the farmer's profile coordinates
+ * 2. Geo-location Binding: The post automatically inherits the farmer's profile coordinates
  *    as the pickup location, while matching a pinned address as the destination.
  * 3. Commercial Check: Independent farmers are warned if no active/verified commercial logistics 
  *    coordinators are currently on the platform to transport their produce.
@@ -62,7 +64,7 @@ class HarvestController extends Controller
         if (!$this->isVerifiedFarmer()) {
             return redirect()
                 ->route('harvests.index')
-                ->with('error', 'Your account is pending verification. You cannot post harvest listings until approved by an administrator.');
+                ->with('error', 'Your account is pending verification. You cannot post harvests until approved by an administrator.');
         }
 
         $crops = Crop::with(['varieties' => function ($query) {
@@ -91,7 +93,7 @@ class HarvestController extends Controller
     }
 
     // -------------------------------------------------------
-    // store — save new harvest listing
+    // store — save new harvest post
     // -------------------------------------------------------
     public function store(Request $request)
     {
@@ -100,7 +102,7 @@ class HarvestController extends Controller
         if (!$this->isVerifiedFarmer()) {
             return redirect()
                 ->route('harvests.index')
-                ->with('error', 'Your account is pending verification. You cannot post harvest listings until approved by an administrator.');
+                ->with('error', 'Your account is pending verification. You cannot post harvests until approved by an administrator.');
         }
 
         if ($request->destination_id === 'custom') {
@@ -120,6 +122,8 @@ class HarvestController extends Controller
             'destination_address'   => ['required', 'string', 'max:500'],
             'destination_latitude'  => ['required', 'numeric', 'between:-90,90'],
             'destination_longitude' => ['required', 'numeric', 'between:-180,180'],
+            'crop_photos'           => ['nullable', 'array', 'max:5'],
+            'crop_photos.*'         => ['nullable', 'image', 'max:5120'], // 5MB each
         ], [
             'crop_id.required'              => 'Please select a crop.',
             'crop_variety_id.required'      => 'Please select a crop variety.',
@@ -131,8 +135,20 @@ class HarvestController extends Controller
             'destination_latitude.required' => 'Please select or pin a delivery destination.',
         ]);
 
+        // Validate destination within Philippines bounds
+        $destLat = (float) $validated['destination_latitude'];
+        $destLng = (float) $validated['destination_longitude'];
+        if ($destLat < 4 || $destLat > 21 || $destLng < 116 || $destLng > 127) {
+            return back()->withInput()->with('error', 'Destination must be within the Philippines (4°N–21°N, 116°E–127°E).');
+        }
+
         $crop          = Crop::findOrFail($validated['crop_id']);
         $cropVariety   = CropVariety::findOrFail($validated['crop_variety_id']);
+
+        // Validate crop_variety belongs to selected crop
+        if ($cropVariety->crop_id !== $crop->id) {
+            return back()->withInput()->with('error', 'Selected variety does not belong to the selected crop.');
+        }
         $farmerProfile = Auth::user()->farmerProfile;
 
         $harvest = Auth::user()->harvests()->create([
@@ -142,6 +158,7 @@ class HarvestController extends Controller
             'crop_type'             => $crop->name,
             'variety'               => $cropVariety->name,
             'quantity_kg'           => $validated['quantity_kg'],
+            'remaining_quantity_kg' => $validated['quantity_kg'],
             'unit'                  => 'kg',
             'notes'                 => $validated['notes'] ?? null,
             'harvest_date'          => $validated['harvest_date'] ?? null,
@@ -154,19 +171,29 @@ class HarvestController extends Controller
             'destination_latitude'  => $validated['destination_latitude'],
             'destination_longitude' => $validated['destination_longitude'],
             'status'                => 'active',
+            'visibility'            => $farmerProfile?->affiliation_type === 'independent' ? 'buyers_only' : 'both',
         ]);
+
+        // Handle crop photos
+        if ($request->hasFile('crop_photos')) {
+            $paths = [];
+            foreach ($request->file('crop_photos') as $photo) {
+                $paths[] = $photo->store('crop-photos/' . $harvest->id, 'public');
+            }
+            $harvest->update(['crop_photos' => $paths]);
+        }
 
         \App\Models\AuditLog::create([
             'admin_id'    => Auth::id(),
             'action'      => 'created_harvest',
             'target_type' => 'harvest',
             'target_id'   => $harvest->id,
-            'notes'       => "Farmer " . Auth::user()->name . " created harvest listing for {$harvest->crop_type} ({$harvest->quantity_kg} kg).",
+            'notes'       => "Farmer " . Auth::user()->name . " created harvest post for {$harvest->crop_type} ({$harvest->quantity_kg} kg).",
         ]);
 
         return redirect()
             ->route('harvests.index')
-            ->with('success', 'Harvest listing posted. You are now visible on the logistics map.');
+            ->with('success', 'Harvest post published. You are now visible on the logistics map.');
     }
 
     // -------------------------------------------------------
@@ -179,7 +206,7 @@ class HarvestController extends Controller
         if (!$this->isVerifiedFarmer()) {
             return redirect()
                 ->route('harvests.index')
-                ->with('error', 'Your account is pending verification. You cannot edit harvest listings until approved by an administrator.');
+                ->with('error', 'Your account is pending verification. You cannot edit harvests until approved by an administrator.');
         }
 
         $harvest = Auth::user()->harvests()->findOrFail($id);
@@ -204,13 +231,18 @@ class HarvestController extends Controller
         if (!$this->isVerifiedFarmer()) {
             return redirect()
                 ->route('harvests.index')
-                ->with('error', 'Your account is pending verification. You cannot edit harvest listings until approved by an administrator.');
+                ->with('error', 'Your account is pending verification. You cannot edit harvests until approved by an administrator.');
         }
 
         $harvest = Auth::user()->harvests()->findOrFail($id);
 
-        if (in_array($harvest->status, ['completed', 'cancelled'])) {
-            return back()->with('error', 'This listing can no longer be modified.');
+        if (in_array($harvest->status, HarvestStatus::LOCKED)) {
+            return back()->with('error', 'This post can no longer be modified.');
+        }
+
+        // Block edit if harvest has active pooling proposals
+        if ($harvest->poolingJobs()->where('pooling_jobs.status', 'in', ['pending', 'confirmed', 'in_progress'])->exists()) {
+            return back()->with('error', 'Cannot edit while a logistics proposal is active.');
         }
 
         $validated = $request->validate([
@@ -231,7 +263,11 @@ class HarvestController extends Controller
         $crop        = Crop::findOrFail($validated['crop_id']);
         $cropVariety = CropVariety::findOrFail($validated['crop_variety_id']);
 
-        $harvest->update([
+        if ($cropVariety->crop_id !== $crop->id) {
+            return back()->withInput()->with('error', 'Selected variety does not belong to the selected crop.');
+        }
+
+        $updateData = [
             'crop_id'          => $validated['crop_id'],
             'crop_variety_id'  => $validated['crop_variety_id'],
             'crop_category_id' => $crop->crop_category_id,
@@ -242,23 +278,30 @@ class HarvestController extends Controller
             'harvest_date'     => $validated['harvest_date'] ?? null,
             'quality_grade'    => $validated['quality_grade'] ?? null,
             'packaging_type'   => $validated['packaging_type'] ?? null,
-        ]);
+        ];
+
+        // If harvest is still active (no deals), sync remaining qty with new quantity
+        if ($harvest->status === HarvestStatus::ACTIVE) {
+            $updateData['remaining_quantity_kg'] = $validated['quantity_kg'];
+        }
+
+        $harvest->update($updateData);
 
         \App\Models\AuditLog::create([
             'admin_id'    => Auth::id(),
             'action'      => 'updated_harvest',
             'target_type' => 'harvest',
             'target_id'   => $harvest->id,
-            'notes'       => "Farmer " . Auth::user()->name . " updated harvest listing for {$harvest->crop_type} ({$harvest->quantity_kg} kg).",
+            'notes'       => "Farmer " . Auth::user()->name . " updated harvest post for {$harvest->crop_type} ({$harvest->quantity_kg} kg).",
         ]);
 
         return redirect()
             ->route('harvests.index')
-            ->with('success', 'Harvest listing updated successfully.');
+            ->with('success', 'Harvest post updated successfully.');
     }
 
     // -------------------------------------------------------
-    // destroy — remove farmer's own harvest listing
+    // destroy — remove farmer's own harvest post
     // -------------------------------------------------------
     public function destroy($id)
     {
@@ -267,7 +310,12 @@ class HarvestController extends Controller
         $harvest = Auth::user()->harvests()->findOrFail($id);
 
         if ($harvest->driver_id !== null) {
-            return back()->with('error', 'Cannot remove a listing that already has a driver assigned.');
+            return back()->with('error', 'Cannot remove a post that already has a driver assigned.');
+        }
+
+        // Block deletion if harvest is attached to any active pooling job
+        if ($harvest->poolingJobs()->where('pooling_jobs.status', 'in', ['pending', 'confirmed', 'in_progress'])->exists()) {
+            return back()->with('error', 'Cannot remove a post that is part of an active pooling route. Wait for the route to complete or be cancelled.');
         }
 
         $harvest->delete();
@@ -277,9 +325,9 @@ class HarvestController extends Controller
             'action'      => 'deleted_harvest',
             'target_type' => 'harvest',
             'target_id'   => $harvest->id,
-            'notes'       => "Farmer " . Auth::user()->name . " deleted harvest listing for {$harvest->crop_type} ({$harvest->quantity_kg} kg).",
+            'notes'       => "Farmer " . Auth::user()->name . " deleted harvest post for {$harvest->crop_type} ({$harvest->quantity_kg} kg).",
         ]);
 
-        return back()->with('success', 'Harvest listing removed.');
+        return back()->with('success', 'Harvest post removed.');
     }
 }

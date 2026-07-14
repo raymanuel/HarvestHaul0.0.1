@@ -14,6 +14,7 @@ class Crop extends Model
         'name',
         'description',
         'status',
+        'baseline_price_per_kg',
     ];
 
     protected $casts = [
@@ -32,7 +33,7 @@ class Crop extends Model
         return $this->hasMany(CropVariety::class);
     }
 
-    // A crop has many harvest listings
+    // A crop has many harvest posts
     public function harvests()
     {
         return $this->hasMany(Harvest::class);

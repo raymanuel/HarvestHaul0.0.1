@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -24,13 +24,13 @@
             box-shadow: 0 4px 20px rgba(0,0,0,0.04);
             border: 1px solid rgba(45,106,47,0.08);
         }
-        h1 { font-size: 1.75rem; font-weight: 700; color: #2D6A2F; margin-bottom: 0.25rem; }
+        h1 { font-size: 1.75rem; font-weight: 700; color: #3A7D44; margin-bottom: 0.25rem; }
         .updated { font-size: 0.8rem; color: #9ca3af; margin-bottom: 2rem; }
         h2 { font-size: 1.1rem; font-weight: 600; color: #1b1b18; margin-top: 2rem; margin-bottom: 0.5rem; }
         p { font-size: 0.9rem; color: #4b5563; margin-bottom: 1rem; }
         ul { margin: 0.5rem 0 1rem 1.5rem; }
         li { font-size: 0.9rem; color: #4b5563; margin-bottom: 0.3rem; }
-        .back { display: inline-block; margin-top: 2rem; font-size: 0.85rem; color: #2D6A2F; font-weight: 600; text-decoration: none; }
+        .back { display: inline-block; margin-top: 2rem; font-size: 0.85rem; color: #3A7D44; font-weight: 600; text-decoration: none; }
         .back:hover { text-decoration: underline; }
     </style>
 </head>
@@ -47,8 +47,8 @@
         <h2>2. User Roles & Responsibilities</h2>
         <p>Each user role (Farmer, Logistics Partner, Cooperative, Buyer, Driver, Admin) carries specific responsibilities as outlined in the platform. Farmers list harvests, Logistics facilitate transport, Buyers purchase crops, and Drivers execute deliveries. You may only use features relevant to your assigned role.</p>
 
-        <h2>3. Listings & Transactions</h2>
-        <p>Crop listings must be accurate in volume, quality, and price. All financial transactions are arranged directly between parties. HarvestHaul facilitates connection and coordination but is not a party to any sale or transport contract between users.</p>
+        <h2>3. Posts & Transactions</h2>
+        <p>Crop posts must be accurate in volume, quality, and price. All financial transactions are arranged directly between parties. HarvestHaul facilitates connection and coordination but is not a party to any sale or transport contract between users.</p>
 
         <h2>4. Prohibited Conduct</h2>
         <ul>
@@ -59,7 +59,7 @@
         </ul>
 
         <h2>5. Limitation of Liability</h2>
-        <p>HarvestHaul is provided on an "as is" basis. We make no warranties regarding the accuracy of listings, the quality of crops, or the performance of logistics services. We are not liable for any indirect, incidental, or consequential damages arising from your use of the platform.</p>
+        <p>HarvestHaul is provided on an "as is" basis. We make no warranties regarding the accuracy of posts, the quality of crops, or the performance of logistics services. We are not liable for any indirect, incidental, or consequential damages arising from your use of the platform.</p>
 
         <h2>6. Termination</h2>
         <p>We reserve the right to suspend or terminate accounts that violate these terms or engage in fraudulent activity. Users may delete their accounts at any time via their profile settings.</p>

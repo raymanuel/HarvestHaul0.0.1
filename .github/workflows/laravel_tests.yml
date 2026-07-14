@@ -1,5 +1,5 @@
 name: Laravel Check
-on: [pull_request] # This triggers the check whenever someone opens a PR
+on: [push, pull_request]
 
 jobs:
   laravel-tests:
@@ -10,10 +10,11 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.2' # Match your local version
+          php-version: '8.2'
+          extensions: pcntl, posix
           
       - name: Install Dependencies
         run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
         
-      - name: Check for Syntax Errors
-        run: php artisan test --parallel # This runs your Pest/PHPUnit tests
+      - name: Run Tests
+        run: php artisan test --parallel

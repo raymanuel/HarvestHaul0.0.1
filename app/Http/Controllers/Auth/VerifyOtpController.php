@@ -29,7 +29,7 @@ class VerifyOtpController extends Controller
             return back()->withErrors(['otp' => 'OTP has expired. Request a new one.']);
         }
 
-        if ($request->otp !== $user->email_otp) {
+        if (!hash_equals($user->email_otp, $request->otp)) {
             return back()->withErrors(['otp' => 'Invalid OTP code.']);
         }
 
@@ -38,6 +38,22 @@ class VerifyOtpController extends Controller
             'email_otp' => null,
             'email_otp_expires_at' => null,
         ])->save();
+
+        $needsProfileCompletion = false;
+        if ($user->role === 'farmer') {
+            $profile = $user->farmerProfile;
+            $needsProfileCompletion = !$profile || !$profile->farm_location
+                || $profile->farm_location === 'Set your farm location in profile';
+        } elseif ($user->role === 'logistics_partner') {
+            $profile = $user->logisticsProfile;
+            $needsProfileCompletion = !$profile || !$profile->company_name
+                || $profile->company_name === $user->name;
+        }
+
+        if ($needsProfileCompletion) {
+            return redirect()->route('profile.show')
+                ->with('profile_complete', true);
+        }
 
         return redirect()->route('verification.success');
     }

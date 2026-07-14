@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('harvests', function (Blueprint $table) {
             $table->id();
 
-            // The farmer who posted this listing
+            // The farmer who posted this harvest
             $table->foreignId('user_id')
                   ->constrained()
                   ->onDelete('cascade');

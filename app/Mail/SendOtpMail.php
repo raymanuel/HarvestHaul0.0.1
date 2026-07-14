@@ -24,7 +24,7 @@ class SendOtpMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Your HARVEST Email Verification Code',
+            subject: 'Your HarvestHaul Email Verification Code',
         );
     }
 

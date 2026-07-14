@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
@@ -6,7 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $title ?? 'HarvestHaul Portal — Coordinated Agribusiness' }}</title>
     <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#10b981">
+    <meta name="theme-color" content="#3A7D44">
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function() {
@@ -38,14 +38,11 @@
         })();
     </script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class'
-        }
-    </script>
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    {{-- Stack for page-specific head assets (Leaflet CSS, etc.) --}}
+    @stack('head')
 
     <style>
         body {
@@ -196,7 +193,7 @@
     <!-- Mobile Top Header (Nice Admin Style) -->
     <header class="lg:hidden sticky top-0 z-50 bg-[#111827] text-white px-5 py-4 flex justify-between items-center border-b border-slate-800 shadow-md">
         <a href="/dashboard" class="flex items-center gap-2 group">
-            <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center">
+            <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-[#3A7D44] to-[#2E6336] flex items-center justify-center">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                     <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8a13 13 0 0 1-10 10Z"/>
                 </svg>
@@ -221,7 +218,7 @@
             <!-- Sidebar Header & Logo -->
             <div class="px-5 py-5 border-b border-slate-800 shrink-0 flex items-center logo-container">
                 <a href="/dashboard" class="flex items-center gap-3 group logo-link">
-                    <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center shadow-md shadow-emerald-600/10 shrink-0">
+                    <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#3A7D44] to-[#2E6336] flex items-center justify-center shadow-md shadow-[#3A7D44]/10 shrink-0">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                             <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8a13 13 0 0 1-10 10Z"/>
                         </svg>
@@ -235,7 +232,7 @@
                 
                 <!-- Base Dashboard Node -->
                 <div class="space-y-1.5">
-                    <a href="/dashboard" data-tooltip="Dashboard" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->is('dashboard') ? (Auth::check() && Auth::user()->role === 'buyer' ? 'bg-violet-600 text-white shadow-md shadow-violet-600/10' : 'bg-emerald-600 text-white shadow-md shadow-emerald-600/10') : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
+                    <a href="/dashboard" data-tooltip="Dashboard" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->is('dashboard') ? (Auth::check() && Auth::user()->role === 'buyer' ? 'bg-violet-600 text-white shadow-md shadow-violet-600/10' : 'bg-[#3A7D44] text-white shadow-md shadow-[#3A7D44]/10') : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
                         <span class="nav-icon shrink-0">
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
@@ -250,7 +247,7 @@
                     <div class="space-y-1.5">
                         <p class="section-label text-[10px] font-bold text-slate-500 uppercase tracking-widest px-4">Agricultural Workspace</p>
                         
-                        <a href="{{ route('harvests.index') }}" data-tooltip="My Active Harvests" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->routeIs('harvests.*') ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
+                        <a href="{{ route('harvests.index') }}" data-tooltip="My Active Harvests" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->routeIs('harvests.*') ? 'bg-[#3A7D44] text-white shadow-md shadow-[#3A7D44]/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
                             <span class="nav-icon shrink-0">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
@@ -259,25 +256,18 @@
                             <span class="nav-label">My Active Harvests</span>
                         </a>
 
-                        <a href="{{ route('farmer.negotiations') }}" data-tooltip="Crop Negotiations" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->routeIs('farmer.negotiations') || request()->routeIs('negotiations.room') ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
+                        {{-- Crop Negotiations moved to floating widget --}}
+
+                        <a href="{{ route('farmer.proposals') }}" data-tooltip="Pooling Proposals" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->routeIs('farmer.proposals') ? 'bg-[#3A7D44] text-white shadow-md shadow-[#3A7D44]/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
                             <span class="nav-icon shrink-0">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                                 </svg>
                             </span>
-                            <span class="nav-label">Crop Negotiations</span>
+                            <span class="nav-label">Pooling Proposals</span>
                         </a>
 
-                        <a href="{{ route('farmer.proposals') }}" data-tooltip="Negotiation Hub" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->routeIs('farmer.proposals') ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
-                            <span class="nav-icon shrink-0">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                                </svg>
-                            </span>
-                            <span class="nav-label">Negotiation Hub</span>
-                        </a>
-
-                        <a href="{{ route('tracking.index') }}" data-tooltip="Track Shipments" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->routeIs('tracking.index') ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
+                        <a href="{{ route('tracking.index') }}" data-tooltip="Track Shipments" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->routeIs('tracking.index') ? 'bg-[#3A7D44] text-white shadow-md shadow-[#3A7D44]/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
                             <span class="nav-icon shrink-0">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -287,7 +277,7 @@
                             <span class="nav-label">Track Shipments</span>
                         </a>
 
-                        <a href="{{ route('farmer.documents') }}" data-tooltip="Regulatory Documents" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->routeIs('farmer.documents*') ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
+                        <a href="{{ route('farmer.documents') }}" data-tooltip="Regulatory Documents" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->routeIs('farmer.documents*') ? 'bg-[#3A7D44] text-white shadow-md shadow-[#3A7D44]/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
                             <span class="nav-icon shrink-0">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -296,7 +286,7 @@
                             <span class="nav-label">Regulatory Documents</span>
                         </a>
 
-                        <a href="{{ route('profile.show') }}" data-tooltip="My Profile" class="nav-link lg:hidden flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->routeIs('profile.*') ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
+                        <a href="{{ route('profile.show') }}" data-tooltip="My Profile" class="nav-link lg:hidden flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->routeIs('profile.*') ? 'bg-[#3A7D44] text-white shadow-md shadow-[#3A7D44]/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
                             <span class="nav-icon shrink-0">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -321,14 +311,7 @@
                             <span class="nav-label">Crop Board</span>
                         </a>
 
-                        <a href="{{ route('buyer.negotiations') }}" data-tooltip="My Negotiations" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->routeIs('buyer.negotiations') || request()->routeIs('negotiations.room') ? 'bg-violet-600 text-white shadow-md shadow-violet-600/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
-                            <span class="nav-icon shrink-0">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                                </svg>
-                            </span>
-                            <span class="nav-label">My Negotiations</span>
-                        </a>
+                        {{-- My Negotiations moved to floating widget --}}
 
                         <a href="{{ route('buyer.tracking') }}" data-tooltip="Delivery Tracking" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->routeIs('buyer.tracking') ? 'bg-violet-600 text-white shadow-md shadow-violet-600/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
                             <span class="nav-icon shrink-0">
@@ -359,6 +342,7 @@
                                                      request()->routeIs('admin.logistics') ||
                                                      request()->routeIs('admin.logistics.*') ||
                                                      request()->routeIs('admin.logistics-documents*') ||
+                                                     request()->routeIs('admin.buyers*') ||
                                                      request()->routeIs('admin.drivers*');
                     @endphp
                     <!-- People / Users Sub-Group Dropdown -->
@@ -380,7 +364,7 @@
                         </button>
                         
                         <div id="trust-verification-dropdown" class="{{ $isTrustVerificationActive ? '' : 'hidden' }} mt-1 pl-4 space-y-1.5 transition-all">
-                            <a href="{{ route('admin.users') }}" data-tooltip="User Management" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->routeIs('admin.users*') ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
+                            <a href="{{ route('admin.users') }}" data-tooltip="User Management" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->routeIs('admin.users*') ? 'bg-[#3A7D44] text-white shadow-md shadow-[#3A7D44]/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
                                 <span class="nav-icon shrink-0">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
@@ -389,7 +373,7 @@
                                 <span class="nav-label">User Management</span>
                             </a>
 
-                            <a href="{{ route('admin.farmers') }}" data-tooltip="Farmer Verification" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->routeIs('admin.farmers*') ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
+                            <a href="{{ route('admin.farmers') }}" data-tooltip="Farmer Verification" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->routeIs('admin.farmers*') ? 'bg-[#3A7D44] text-white shadow-md shadow-[#3A7D44]/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
                                 <span class="nav-icon shrink-0">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
@@ -398,7 +382,7 @@
                                 <span class="nav-label">Farmer Verification</span>
                             </a>
                             
-                            <a href="{{ route('admin.farmer-documents') }}" data-tooltip="Farmer Licenses" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->routeIs('admin.farmer-documents*') ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
+                            <a href="{{ route('admin.farmer-documents') }}" data-tooltip="Farmer Licenses" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->routeIs('admin.farmer-documents*') ? 'bg-[#3A7D44] text-white shadow-md shadow-[#3A7D44]/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
                                 <span class="nav-icon shrink-0">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -407,7 +391,16 @@
                                 <span class="nav-label">Farmer Licenses</span>
                             </a>
 
-                            <a href="{{ route('admin.logistics') }}" data-tooltip="Logistics Registry" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->routeIs('admin.logistics', 'admin.logistics.*') ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
+                            <a href="{{ route('admin.buyers') }}" data-tooltip="Buyer Verification" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->routeIs('admin.buyers*') ? 'bg-[#3A7D44] text-white shadow-md shadow-[#3A7D44]/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
+                                <span class="nav-icon shrink-0">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z" />
+                                    </svg>
+                                </span>
+                                <span class="nav-label">Buyer Verification</span>
+                            </a>
+
+                            <a href="{{ route('admin.logistics') }}" data-tooltip="Logistics Registry" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->routeIs('admin.logistics', 'admin.logistics.*') ? 'bg-[#3A7D44] text-white shadow-md shadow-[#3A7D44]/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
                                 <span class="nav-icon shrink-0">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -417,7 +410,7 @@
                                 <span class="nav-label">Logistics Registry</span>
                             </a>
                             
-                            <a href="{{ route('admin.logistics-documents') }}" data-tooltip="Logistics Credentials" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->routeIs('admin.logistics-documents*') ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
+                            <a href="{{ route('admin.logistics-documents') }}" data-tooltip="Logistics Credentials" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->routeIs('admin.logistics-documents*') ? 'bg-[#3A7D44] text-white shadow-md shadow-[#3A7D44]/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
                                 <span class="nav-icon shrink-0">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" />
@@ -426,7 +419,7 @@
                                 <span class="nav-label">Logistics Credentials</span>
                             </a>
 
-                            <a href="{{ route('admin.drivers') }}" data-tooltip="Driver Verification" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->routeIs('admin.drivers*') ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
+                            <a href="{{ route('admin.drivers') }}" data-tooltip="Driver Verification" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->routeIs('admin.drivers*') ? 'bg-[#3A7D44] text-white shadow-md shadow-[#3A7D44]/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
                                 <span class="nav-icon shrink-0">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -459,7 +452,7 @@
                         </button>
                         
                         <div id="agricultural-matrix-dropdown" class="{{ $isAgriculturalMatrixActive ? '' : 'hidden' }} mt-1 pl-4 space-y-1.5 transition-all">
-                            <a href="{{ route('admin.harvests') }}" data-tooltip="Harvest Oversight" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->routeIs('admin.harvests*') ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
+                            <a href="{{ route('admin.harvests') }}" data-tooltip="Harvest Oversight" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->routeIs('admin.harvests*') ? 'bg-[#3A7D44] text-white shadow-md shadow-[#3A7D44]/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
                                 <span class="nav-icon shrink-0">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
@@ -468,7 +461,7 @@
                                 <span class="nav-label">Harvest Oversight</span>
                             </a>
 
-                            <a href="{{ route('admin.crops.index') }}" data-tooltip="Crop Registry" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->routeIs('admin.crops*') ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
+                            <a href="{{ route('admin.crops.index') }}" data-tooltip="Crop Registry" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->routeIs('admin.crops*') ? 'bg-[#3A7D44] text-white shadow-md shadow-[#3A7D44]/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
                                 <span class="nav-icon shrink-0">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
@@ -501,7 +494,7 @@
                         </button>
                         
                         <div id="governance-dropdown" class="{{ $isGovernanceActive ? '' : 'hidden' }} mt-1 pl-4 space-y-1.5 transition-all">
-                            <a href="{{ route('admin.analytics') }}" data-tooltip="Platform Analytics" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->routeIs('admin.analytics*') ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
+                            <a href="{{ route('admin.analytics') }}" data-tooltip="Platform Analytics" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->routeIs('admin.analytics*') ? 'bg-[#3A7D44] text-white shadow-md shadow-[#3A7D44]/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
                                 <span class="nav-icon shrink-0">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 002 2h2a2 2 0 002-2z" />
@@ -509,7 +502,7 @@
                                 </span>
                                 <span class="nav-label">Platform Analytics</span>
                             </a>
-                            <a href="{{ route('admin.audit-logs') }}" data-tooltip="Platform Audit Logs" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->routeIs('admin.audit-logs*') ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
+                            <a href="{{ route('admin.audit-logs') }}" data-tooltip="Platform Audit Logs" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->routeIs('admin.audit-logs*') ? 'bg-[#3A7D44] text-white shadow-md shadow-[#3A7D44]/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
                                 <span class="nav-icon shrink-0">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -526,7 +519,7 @@
                     <div class="space-y-1.5">
                         <p class="section-label text-[10px] font-bold text-slate-500 uppercase tracking-widest px-4">Operational Dispatch</p>
                         
-                        <a href="{{ route('route.optimization') }}" data-tooltip="Dispatch Console" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->routeIs('route.optimization') ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
+                        <a href="{{ route('route.optimization') }}" data-tooltip="Dispatch Console" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->routeIs('route.optimization') ? 'bg-[#3A7D44] text-white shadow-md shadow-[#3A7D44]/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
                             <span class="nav-icon shrink-0">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
@@ -536,7 +529,7 @@
                             <span class="nav-label">Dispatch Console</span>
                         </a>
 
-                        <a href="{{ route('pooling.index') }}" data-tooltip="Proposal Inbox" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->routeIs('pooling.index') ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
+                        <a href="{{ route('pooling.index') }}" data-tooltip="Proposal Inbox" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->routeIs('pooling.index') ? 'bg-[#3A7D44] text-white shadow-md shadow-[#3A7D44]/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
                             <span class="nav-icon shrink-0">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
@@ -545,7 +538,7 @@
                             <span class="nav-label">Proposal Inbox</span>
                         </a>
 
-                        <a href="{{ route('pooling.cost-ledger.index') }}" data-tooltip="Cost Ledger" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->routeIs('pooling.cost-ledger*') ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
+                        <a href="{{ route('pooling.cost-ledger.index') }}" data-tooltip="Cost Ledger" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->routeIs('pooling.cost-ledger*') ? 'bg-[#3A7D44] text-white shadow-md shadow-[#3A7D44]/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
                             <span class="nav-icon shrink-0">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 11h.01M12 11h.01M15 11h.01M4 19h16a2 2 0 002-2V7a2 2 0 00-2-2H4a2 2 0 00-2 2v10a2 2 0 002 2z" />
@@ -554,7 +547,7 @@
                             <span class="nav-label">Cost Ledger</span>
                         </a>
 
-                        <a href="{{ route('logistics.analytics') }}" data-tooltip="Fleet Analytics" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->routeIs('logistics.analytics') ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
+                        <a href="{{ route('logistics.analytics') }}" data-tooltip="Fleet Analytics" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->routeIs('logistics.analytics') ? 'bg-[#3A7D44] text-white shadow-md shadow-[#3A7D44]/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
                             <span class="nav-icon shrink-0">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
@@ -563,7 +556,7 @@
                             <span class="nav-label">Fleet Analytics</span>
                         </a>
 
-                        <a href="{{ route('logistics.documents') }}" data-tooltip="Business License Docs" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->routeIs('logistics.documents*') ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
+                        <a href="{{ route('logistics.documents') }}" data-tooltip="Business License Docs" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->routeIs('logistics.documents*') ? 'bg-[#3A7D44] text-white shadow-md shadow-[#3A7D44]/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
                             <span class="nav-icon shrink-0">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -572,7 +565,7 @@
                             <span class="nav-label">Business License Docs</span>
                         </a>
 
-                        <a href="{{ route('logistics.drivers.index') }}" data-tooltip="Manage Drivers" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->routeIs('logistics.drivers*') ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
+                        <a href="{{ route('logistics.drivers.index') }}" data-tooltip="Manage Drivers" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->routeIs('logistics.drivers*') ? 'bg-[#3A7D44] text-white shadow-md shadow-[#3A7D44]/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
                             <span class="nav-icon shrink-0">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
@@ -581,7 +574,7 @@
                             <span class="nav-label">Manage Drivers</span>
                         </a>
 
-                        <a href="{{ route('logistics.vehicles.index') }}" data-tooltip="Manage Vehicles" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->routeIs('logistics.vehicles*') ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
+                        <a href="{{ route('logistics.vehicles.index') }}" data-tooltip="Manage Vehicles" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->routeIs('logistics.vehicles*') ? 'bg-[#3A7D44] text-white shadow-md shadow-[#3A7D44]/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
                             <span class="nav-icon shrink-0">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -591,7 +584,7 @@
                             <span class="nav-label">Manage Vehicles</span>
                         </a>
 
-                        <a href="{{ route('profile.show') }}" data-tooltip="My Profile" class="nav-link lg:hidden flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->routeIs('profile.*') ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
+                        <a href="{{ route('profile.show') }}" data-tooltip="My Profile" class="nav-link lg:hidden flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->routeIs('profile.*') ? 'bg-[#3A7D44] text-white shadow-md shadow-[#3A7D44]/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
                             <span class="nav-icon shrink-0">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -649,7 +642,7 @@
                     </button>
                     <div>
                         <span class="text-xs font-bold uppercase tracking-wider text-slate-400">HarvestHaul Operations Workspace</span>
-                        <h2 class="text-sm font-bold text-slate-700 mt-0.5">Role Domain: <span class="{{ Auth::user()->role === 'buyer' ? 'text-violet-650 dark:text-violet-400' : 'text-emerald-700' }} uppercase font-black">{{ Auth::user()->role }}</span></h2>
+                        <h2 class="text-sm font-bold text-slate-700 mt-0.5">Role Domain: <span class="{{ Auth::user()->role === 'buyer' ? 'text-violet-650 dark:text-violet-400' : 'text-[#3A7D44]' }} uppercase font-black">{{ Auth::user()->role }}</span></h2>
                     </div>
                 </div>
 
@@ -668,9 +661,9 @@
                         <div id="notifications-dropdown" class="hidden absolute right-0 mt-2 w-80 bg-white dark:bg-slate-800 border border-slate-200/85 dark:border-slate-700 rounded-2xl shadow-xl z-50 overflow-hidden">
                             <div class="px-4 py-3 bg-slate-50 dark:bg-slate-900/40 border-b border-slate-150 dark:border-slate-700/60 flex items-center justify-between">
                                 <span class="text-[10px] font-bold text-slate-700 dark:text-slate-350 uppercase tracking-wider">Notifications</span>
-                                <button onclick="markAllNotificationsAsRead()" class="text-[9px] text-emerald-650 dark:text-emerald-400 font-bold hover:underline">Mark all read</button>
+                                <button onclick="markAllNotificationsAsRead()" class="text-[9px] text-[#3A7D44] dark:text-[#3A7D44] font-bold hover:underline">Mark all read</button>
                             </div>
-                            <div id="notifications-list" class="max-h-64 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-750">
+                            <div id="notifications-list" class="max-h-64 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-700">
                                 <p class="text-center text-xs text-slate-400 dark:text-slate-500 py-6">No notifications</p>
                             </div>
                         </div>
@@ -693,7 +686,7 @@
                     <!-- Profile Menu Dropdown -->
                     <div class="relative" id="profile-menu">
                         <button onclick="toggleProfileDropdown()" class="flex items-center gap-3.5 pl-6 border-l border-slate-100 dark:border-slate-700 hover:opacity-90 transition cursor-pointer focus:outline-none text-left">
-                            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-50 to-teal-50 dark:from-slate-700 dark:to-slate-600 border border-slate-100 dark:border-slate-600 flex items-center justify-center text-slate-600 dark:text-emerald-350 font-extrabold uppercase text-sm select-none">
+                            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#3A7D44]/10 to-[#2E6336]/10 dark:from-slate-700 dark:to-slate-600 border border-slate-100 dark:border-slate-600 flex items-center justify-center text-slate-600 dark:text-[#3A7D44] font-extrabold uppercase text-sm select-none">
                                 {{ substr(Auth::user()->name, 0, 2) }}
                             </div>
                             <div class="hidden sm:block">
@@ -710,7 +703,7 @@
                         <!-- Dropdown Menu -->
                         <div id="profile-dropdown" class="hidden absolute right-0 mt-2 w-56 bg-white dark:bg-slate-800 border border-slate-200/85 dark:border-slate-700 rounded-2xl shadow-xl z-50 overflow-hidden py-1.5 px-1.5 space-y-1">
                             @if(Auth::check() && (Auth::user()->role === 'farmer' || Auth::user()->role === 'logistics_partner' || Auth::user()->role === 'buyer'))
-                                <a href="{{ route('profile.show') }}" class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/40 hover:text-emerald-600 dark:hover:text-emerald-400 transition-all">
+                                <a href="{{ route('profile.show') }}" class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/40 hover:text-[#3A7D44] dark:hover:text-[#3A7D44] transition-all">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-400 dark:text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                     </svg>
@@ -719,7 +712,7 @@
                             @endif
                             <form method="POST" action="{{ route('logout') }}" class="w-full" id="logout-form">
                                 @csrf
-                                <button type="button" onclick="swalConfirm(document.getElementById('logout-form'), {title:'Sign Out', text:'Are you sure you want to sign out?', icon:'question', confirmText:'Yes, sign out', cancelText:'Cancel', confirmColor:'#ef4444'})" class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold text-red-650 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 transition-all text-left">
+                                <button type="button" onclick="swalConfirm(document.getElementById('logout-form'), {title:'Sign Out', text:'Are you sure you want to sign out?', icon:'question', confirmText:'Yes, sign out', cancelText:'Cancel', confirmColor:'#ef4444'})" class="cursor-pointer w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold text-red-650 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 hover:text-red-700 dark:hover:text-red-300 transition-all duration-200 active:scale-[0.97] text-left">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 shrink-0 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                                     </svg>
@@ -908,44 +901,76 @@
             }
         });
 
-        // Fetch Notifications
-        function fetchNotifications() {
-            fetch('/api/notifications')
-                .then(response => response.json())
-                .then(data => {
-                    var badge = document.getElementById('notification-badge');
-                    if (data.unread_count > 0) {
-                        badge.classList.remove('hidden');
-                    } else {
-                        badge.classList.add('hidden');
-                    }
+        // Fetch Notifications (with SweetAlert toast for new ones)
+        var fetchNotifications = (function () {
+            var prevUnread = 0;
+            var knownIds = {};
 
-                    var list = document.getElementById('notifications-list');
-                    if (data.notifications.length === 0) {
-                        list.innerHTML = `<p class="text-center text-xs text-slate-400 dark:text-slate-500 py-6">No notifications</p>`;
-                        return;
-                    }
+            return function () {
+                fetch('/api/notifications')
+                    .then(function (r) { return r.json(); })
+                    .then(function (data) {
+                        var badge = document.getElementById('notification-badge');
+                        if (data.unread_count > 0) {
+                            badge.classList.remove('hidden');
+                        } else {
+                            badge.classList.add('hidden');
+                        }
 
-                    var html = '';
-                    data.notifications.forEach(n => {
-                        var isUnread = !n.read_at;
-                        var bgClass = isUnread ? 'bg-emerald-500/5 dark:bg-emerald-400/5' : '';
-                        var indicator = isUnread ? `<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></span>` : '';
-                        var link = n.link ? n.link : '#';
-                        
-                        html += `
-                            <div class="px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition flex items-start justify-between gap-3 ${bgClass}" onclick="markNotificationRead(${n.id}, '${link}')">
-                                <div class="flex-1 cursor-pointer">
-                                    <p class="text-xs font-bold text-slate-800 dark:text-slate-200">${n.title}</p>
-                                    <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">${n.message}</p>
-                                    <span class="text-[9px] text-slate-400 dark:text-slate-500 mt-1 block">${new Date(n.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
-                                </div>
-                                ${indicator}
-                            </div>
-                        `;
+                        // Show SweetAlert toast for new unread notifications
+                        if (data.unread_count > prevUnread && data.notifications.length > 0) {
+                            var newest = data.notifications[0];
+                            if (!knownIds[newest.id]) {
+                                knownIds[newest.id] = true;
+                                Swal.fire({
+                                    icon: null,
+                                    title: newest.title,
+                                    text: newest.message,
+                                    timer: 4000,
+                                    timerProgressBar: true,
+                                    showConfirmButton: false,
+                                    toast: true,
+                                    position: 'top-end',
+                                    background: document.documentElement.classList.contains('dark') ? '#1e293b' : '#fff',
+                                    color: document.documentElement.classList.contains('dark') ? '#e2e8f0' : '#1e293b',
+                                    customClass: { popup: 'rounded-xl shadow-lg border border-[#3A7D44]/20 text-xs' }
+                                });
+                            }
+                        }
+                        prevUnread = data.unread_count;
+
+                        var list = document.getElementById('notifications-list');
+                        if (data.notifications.length === 0) {
+                            list.innerHTML = '<p class="text-center text-xs text-slate-400 dark:text-slate-500 py-6">No notifications</p>';
+                            return;
+                        }
+
+                        var html = '';
+                        data.notifications.forEach(function (n) {
+                            knownIds[n.id] = true;
+                            var isUnread = !n.read_at;
+                            var bgClass = isUnread ? 'bg-[#3A7D44]/5 dark:bg-[#3A7D44]/5' : '';
+                            var indicator = isUnread ? '<span class="w-1.5 h-1.5 rounded-full bg-[#3A7D44] shrink-0"></span>' : '';
+                            var link = n.link ? n.link : '#';
+                            
+                            html += '<div class="px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition flex items-start justify-between gap-3 ' + bgClass + '" onclick="markNotificationRead(' + n.id + ', \'' + link + '\')">';
+                            html += '<div class="flex-1 cursor-pointer">';
+                            html += '<p class="text-xs font-bold text-slate-800 dark:text-slate-200">' + escapeHtml(n.title) + '</p>';
+                            html += '<p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">' + escapeHtml(n.message) + '</p>';
+                            html += '<span class="text-[9px] text-slate-400 dark:text-slate-500 mt-1 block">' + new Date(n.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) + '</span>';
+                            html += '</div>';
+                            html += indicator;
+                            html += '</div>';
+                        });
+                        list.innerHTML = html;
                     });
-                    list.innerHTML = html;
-                });
+            };
+        })();
+
+        function escapeHtml(str) {
+            var div = document.createElement('div');
+            div.appendChild(document.createTextNode(str));
+            return div.innerHTML;
         }
 
         // Mark a notification as read and redirect
@@ -999,8 +1024,8 @@
                     position: 'top-end',
                     background: document.documentElement.classList.contains('dark') ? '#1e293b' : '#fff',
                     color: document.documentElement.classList.contains('dark') ? '#e2e8f0' : '#1e293b',
-                    iconColor: '#10b981',
-                    customClass: { popup: 'rounded-xl shadow-lg border border-emerald-200/30' }
+                    iconColor: '#3A7D44',
+                    customClass: { popup: 'rounded-xl shadow-lg border border-[#3A7D44]/20' }
                 });
             @endif
             @if(session('error'))
@@ -1013,6 +1038,22 @@
                     showConfirmButton: true,
                     confirmButtonText: 'OK',
                     confirmButtonColor: '#ef4444',
+                    toast: false,
+                    background: document.documentElement.classList.contains('dark') ? '#1e293b' : '#fff',
+                    color: document.documentElement.classList.contains('dark') ? '#e2e8f0' : '#1e293b',
+                    customClass: { popup: 'rounded-xl shadow-lg' }
+                });
+            @endif
+            @if(session('warning'))
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Notice',
+                    text: @json(session('warning')),
+                    timer: 5000,
+                    timerProgressBar: true,
+                    showConfirmButton: true,
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#f59e0b',
                     toast: false,
                     background: document.documentElement.classList.contains('dark') ? '#1e293b' : '#fff',
                     color: document.documentElement.classList.contains('dark') ? '#e2e8f0' : '#1e293b',
@@ -1032,7 +1073,7 @@
                 icon: opts.icon || 'warning',
                 confirmText: opts.confirmText || 'Yes, proceed',
                 cancelText: opts.cancelText || 'Cancel',
-                confirmColor: opts.confirmColor || '#10b981',
+                confirmColor: opts.confirmColor || '#3A7D44',
                 cancelColor: opts.cancelColor || '#64748b'
             };
 
@@ -1060,6 +1101,14 @@
             });
         }
     </script>
+
+    {{-- Stack for page-specific JS (Leaflet, Turf, init code) --}}
+    @stack('scripts')
+
+    {{-- Floating Negotiations Widget --}}
+    @if(Auth::check() && (Auth::user()->role === 'farmer' || Auth::user()->role === 'buyer' || (Auth::user()->role === 'logistics_partner' && Auth::user()->logisticsProfile && Auth::user()->logisticsProfile->isCooperative())))
+        <x-negotiations-widget />
+    @endif
 
 </body>
 </html>

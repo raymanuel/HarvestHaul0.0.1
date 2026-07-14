@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
@@ -14,6 +14,7 @@
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
@@ -27,7 +28,7 @@
 <body class="text-slate-800 antialiased min-h-screen">
 
     <!-- Top Header Panel -->
-    <header class="bg-gradient-to-tr from-emerald-600 to-teal-500 text-white px-5 pt-6 pb-5 sticky top-0 z-20 shadow-md">
+    <header class="bg-gradient-to-tr from-[#3A7D44] to-[#2E6336] text-white px-5 pt-6 pb-5 sticky top-0 z-20 shadow-md">
         <div class="flex items-center gap-4 max-w-lg mx-auto">
             <a href="{{ route('driver.dashboard') }}" class="text-white bg-white/10 hover:bg-white/20 p-2 rounded-xl border border-white/10 transition-all">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
@@ -35,7 +36,7 @@
                 </svg>
             </a>
             <div>
-                <p class="text-[10px] text-emerald-100 font-bold uppercase tracking-widest">Cargo Details</p>
+                <p class="text-[10px] text-[#3A7D44]/60 font-bold uppercase tracking-widest">Cargo Details</p>
                 <h1 class="text-xl font-bold leading-tight heading-font mt-0.5">Job #{{ $job->id }}</h1>
             </div>
         </div>
@@ -45,7 +46,7 @@
 
         <!-- Flash Messages -->
         @if(session('success'))
-            <div class="bg-emerald-50 border border-emerald-200/60 text-emerald-800 text-xs font-bold heading-font rounded-xl px-4 py-3">
+            <div class="bg-[#3A7D44]/10 border border-[#3A7D44]/20 text-[#1A2E1A] text-xs font-bold heading-font rounded-xl px-4 py-3">
                 ✅ {{ session('success') }}
             </div>
         @endif
@@ -68,8 +69,8 @@
                 @php
                     $badge = match($job->status) {
                         'confirmed'   => ['bg-amber-50 text-amber-700 border-amber-200/50',  'Ready'],
-                        'in_progress' => ['bg-sky-50 text-sky-700 border-sky-200/50',    'In Transit'],
-                        'completed'   => ['bg-emerald-50 text-emerald-700 border-emerald-200/50',  'Completed'],
+                        'in_progress' => ['bg-[#1F4D25]/10 text-[#1F4D25] border-[#1F4D25]/20',    'In Transit'],
+                        'completed'   => ['bg-[#3A7D44]/10 text-[#3A7D44] border-[#3A7D44]/20',  'Completed'],
                         default       => ['bg-slate-50 text-slate-500 border-slate-200/50',    ucfirst($job->status)],
                     };
                 @endphp
@@ -108,17 +109,17 @@
                         <div>
                             <label class="block text-[9px] font-bold text-slate-400 uppercase mb-1">Liters</label>
                             <input type="number" step="0.01" name="fuel_liters" required placeholder="0.00"
-                                class="w-full border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-700 font-bold focus:outline-none focus:ring-2 focus:ring-emerald-500/10 focus:border-emerald-500">
+                                class="w-full border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-700 font-bold focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/10 focus:border-[#3A7D44]">
                         </div>
                         <div>
                             <label class="block text-[9px] font-bold text-slate-400 uppercase mb-1">Cost (₱)</label>
                             <input type="number" step="0.01" name="cost" required placeholder="0.00"
-                                class="w-full border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-700 font-bold focus:outline-none focus:ring-2 focus:ring-emerald-500/10 focus:border-emerald-500">
+                                class="w-full border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-700 font-bold focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/10 focus:border-[#3A7D44]">
                         </div>
                         <div>
                             <label class="block text-[9px] font-bold text-slate-400 uppercase mb-1">Odometer (km)</label>
                             <input type="number" step="0.1" name="odometer_reading" required placeholder="0.0"
-                                class="w-full border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-700 font-bold focus:outline-none focus:ring-2 focus:ring-emerald-500/10 focus:border-emerald-500">
+                                class="w-full border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-700 font-bold focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/10 focus:border-[#3A7D44]">
                         </div>
                     </div>
                     <button type="submit" class="w-full py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl shadow-sm transition">
@@ -142,12 +143,12 @@
             <form method="POST" action="{{ route('driver.jobs.status', $job) }}">
                 @csrf @method('PATCH')
                 @if($job->status === 'confirmed')
-                    <button type="submit" class="w-full py-4 bg-gradient-to-tr from-sky-600 to-blue-500 hover:shadow-sky-600/10 rounded-2xl text-xs font-bold text-white transition-all shadow-md active:scale-[0.98]">
+                    <button type="submit" class="w-full py-4 bg-gradient-to-tr from-[#1F4D25] to-[#2E6336] hover:shadow-[#1F4D25]/10 rounded-2xl text-xs font-bold text-white transition-all shadow-md active:scale-[0.98]">
                         🚛 Start Job — Mark In Transit
                     </button>
                 @else
                     @if($allStopsDelivered)
-                        <button type="submit" class="w-full py-4 bg-gradient-to-tr from-emerald-600 to-teal-500 hover:shadow-emerald-600/10 rounded-2xl text-xs font-bold text-white transition-all shadow-md active:scale-[0.98]">
+                        <button type="submit" class="w-full py-4 bg-gradient-to-tr from-[#3A7D44] to-[#2E6336] hover:shadow-[#3A7D44]/10 rounded-2xl text-xs font-bold text-white transition-all shadow-md active:scale-[0.98]">
                             ✅ Finalize Job — Mark Completed
                         </button>
                     @else
@@ -168,7 +169,7 @@
 
                     <!-- Stop Header -->
                     <div class="flex items-center gap-3 px-5 py-4 border-b border-slate-100 bg-slate-50/20">
-                        <div class="w-7 h-7 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white text-xs font-black flex items-center justify-center flex-shrink-0 heading-font">
+                        <div class="w-7 h-7 rounded-xl bg-gradient-to-tr from-[#3A7D44] to-[#2E6336] text-white text-xs font-black flex items-center justify-center flex-shrink-0 heading-font">
                             {{ $index + 1 }}
                         </div>
                         <div class="min-w-0">
@@ -217,8 +218,8 @@
                             <span class="text-xs font-bold uppercase
                                 @if($harvest->pivot->status === 'assigned') text-slate-500
                                 @elseif($harvest->pivot->status === 'arrived') text-amber-600
-                                @elseif($harvest->pivot->status === 'loaded') text-sky-650
-                                @elseif($harvest->pivot->status === 'delivered') text-emerald-600
+                                @elseif($harvest->pivot->status === 'loaded') text-[#1F4D25]
+                                @elseif($harvest->pivot->status === 'delivered') text-[#3A7D44]
                                 @endif">
                                 {{ strtoupper($harvest->pivot->status ?? 'assigned') }}
                             </span>
@@ -242,16 +243,16 @@
                                         <div>
                                             <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Loaded Weight (kg)</label>
                                             <input type="number" step="0.01" min="0.01" name="loaded_quantity_kg" required value="{{ $harvest->quantity_kg }}"
-                                                class="w-full border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-700 font-bold focus:outline-none focus:ring-2 focus:ring-emerald-500/10 focus:border-emerald-500">
+                                                class="w-full border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-700 font-bold focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/10 focus:border-[#3A7D44]">
                                         </div>
                                         <div>
                                             <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Loaded Vol (m³)</label>
                                             <input type="number" step="0.01" min="0.01" name="loaded_volume_cubic_meters" required value="1.5"
-                                                class="w-full border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-700 font-bold focus:outline-none focus:ring-2 focus:ring-emerald-500/10 focus:border-emerald-500">
+                                                class="w-full border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-700 font-bold focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/10 focus:border-[#3A7D44]">
                                         </div>
                                     </div>
                                     
-                                    <button type="submit" class="w-full py-2.5 bg-sky-500 hover:bg-sky-650 text-white text-xs font-bold rounded-xl shadow-sm transition cursor-pointer">
+                                    <button type="submit" class="w-full py-2.5 bg-[#1F4D25]/100 hover:bg-[#1F4D25] text-white text-xs font-bold rounded-xl shadow-sm transition cursor-pointer">
                                         ⚖️ Confirm Cargo & Mark Loaded
                                     </button>
                                 </form>
@@ -263,10 +264,10 @@
                                     <div>
                                         <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Take/Upload Photo of Delivered Goods</label>
                                         <input type="file" name="delivery_receipt" required accept="image/*" capture="environment"
-                                            class="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 transition cursor-pointer">
+                                            class="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-[#3A7D44]/10 file:text-[#3A7D44] hover:file:bg-[#3A7D44]/15 transition cursor-pointer">
                                     </div>
 
-                                    <button type="submit" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-sm transition cursor-pointer">
+                                    <button type="submit" class="w-full py-2.5 bg-[#3A7D44] hover:bg-[#2E6336] text-white text-xs font-bold rounded-xl shadow-sm transition cursor-pointer">
                                         📸 Mark Delivered & Upload Photo of Goods
                                     </button>
                                 </form>
@@ -281,7 +282,7 @@
                                     @if($harvest->pivot->delivery_receipt_path)
                                         <div class="text-[10px] text-slate-400 font-bold flex items-center gap-1">
                                             <span>📎</span> Goods Photo Uploaded: 
-                                            <a href="{{ Storage::url($harvest->pivot->delivery_receipt_path) }}" target="_blank" class="text-emerald-600 hover:underline">View Photo</a>
+                                            <a href="{{ Storage::url($harvest->pivot->delivery_receipt_path) }}" target="_blank" class="text-[#3A7D44] hover:underline">View Photo</a>
                                         </div>
                                     @endif
                                 </div>
@@ -312,11 +313,84 @@
             <span id="syncing-text">Syncing queued pings…</span>
         </div>
         <div id="synced-badge"
-             class="hidden bg-emerald-600 text-white text-xs font-bold px-4 py-3 rounded-2xl shadow-xl flex items-center gap-2.5 border border-emerald-500">
+             class="hidden bg-[#3A7D44] text-white text-xs font-bold px-4 py-3 rounded-2xl shadow-xl flex items-center gap-2.5 border border-[#3A7D44]">
             <span>✅</span>
             <span id="synced-text">All pings synced successfully</span>
         </div>
     </div>
+
+    {{-- SweetAlert Global Flash Handler --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            @if(session('success'))
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success',
+                    text: @json(session('success')),
+                    timer: 3000,
+                    timerProgressBar: true,
+                    showConfirmButton: false,
+                    toast: true,
+                    position: 'top-end',
+                    background: document.documentElement.classList.contains('dark') ? '#1e293b' : '#fff',
+                    color: document.documentElement.classList.contains('dark') ? '#e2e8f0' : '#1e293b',
+                    iconColor: '#3A7D44',
+                    customClass: { popup: 'rounded-xl shadow-lg border border-[#3A7D44]/20' }
+                });
+            @endif
+            @if(session('error'))
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: @json(session('error')),
+                    timer: 4500,
+                    timerProgressBar: true,
+                    showConfirmButton: true,
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#ef4444',
+                    toast: false,
+                    background: document.documentElement.classList.contains('dark') ? '#1e293b' : '#fff',
+                    color: document.documentElement.classList.contains('dark') ? '#e2e8f0' : '#1e293b',
+                    customClass: { popup: 'rounded-xl shadow-lg' }
+                });
+            @endif
+        });
+
+        function swalConfirm(formOrCallback, opts = {}) {
+            const defaults = {
+                title: opts.title || 'Are you sure?',
+                text: opts.text || 'This action cannot be undone.',
+                icon: opts.icon || 'warning',
+                confirmText: opts.confirmText || 'Yes, proceed',
+                cancelText: opts.cancelText || 'Cancel',
+                confirmColor: opts.confirmColor || '#3A7D44',
+                cancelColor: opts.cancelColor || '#64748b'
+            };
+
+            Swal.fire({
+                title: defaults.title,
+                text: defaults.text,
+                icon: defaults.icon,
+                showCancelButton: true,
+                confirmButtonText: defaults.confirmText,
+                cancelButtonText: defaults.cancelText,
+                confirmButtonColor: defaults.confirmColor,
+                cancelButtonColor: defaults.cancelColor,
+                background: document.documentElement.classList.contains('dark') ? '#1e293b' : '#fff',
+                color: document.documentElement.classList.contains('dark') ? '#e2e8f0' : '#1e293b',
+                customClass: { popup: 'rounded-xl shadow-2xl' },
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    if (typeof formOrCallback === 'function') {
+                        formOrCallback();
+                    } else if (formOrCallback && formOrCallback.submit) {
+                        formOrCallback.submit();
+                    }
+                }
+            });
+        }
+    </script>
 
     <script>
     (function () {

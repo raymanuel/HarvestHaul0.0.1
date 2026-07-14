@@ -1,4 +1,4 @@
-<x-layout>
+﻿<x-layout>
     <div class="w-full max-w-5xl mx-auto pb-12">
 
         {{-- Header --}}
@@ -12,7 +12,7 @@
                         Monitor incoming shipments and confirm receipt of delivered goods
                     </p>
                 </div>
-                <span class="text-xs font-semibold uppercase tracking-wider text-sky-700 dark:text-sky-400 bg-sky-50 dark:bg-sky-950/20 px-3 py-1.5 rounded-lg border border-sky-500/10 dark:border-sky-500/20 self-start">
+                <span class="text-xs font-semibold uppercase tracking-wider text-[#1F4D25] dark:text-[#1F4D25] bg-[#1F4D25]/10 dark:bg-[#1F4D25]/10 px-3 py-1.5 rounded-lg border border-[#1F4D25]/10 dark:border-[#1F4D25]/20 self-start">
                     Buyer Portal
                 </span>
             </div>
@@ -20,7 +20,7 @@
 
         {{-- Flash Messages --}}
         @if(session('success'))
-            <div class="bg-emerald-50 border border-emerald-200/60 text-emerald-800 text-xs font-bold heading-font rounded-xl px-4 py-3 mb-6">
+            <div class="bg-[#3A7D44]/10 border border-[#3A7D44]/20 text-[#1A2E1A] text-xs font-bold heading-font rounded-xl px-4 py-3 mb-6">
                 ✅ {{ session('success') }}
             </div>
         @endif
@@ -57,7 +57,7 @@
                             </div>
                             @php
                                 $statusBadge = match($delivery->status) {
-                                    'in_progress'             => ['bg-sky-50 text-sky-700 border-sky-200/50 dark:bg-sky-950/30 dark:text-sky-400', 'In Transit'],
+                                    'in_progress'             => ['bg-[#1F4D25]/10 text-[#1F4D25] border-[#1F4D25]/20 dark:bg-[#1F4D25]/10 dark:text-[#1F4D25]', 'In Transit'],
                                     'awaiting_confirmation'   => ['bg-amber-50 text-amber-700 border-amber-200/50 dark:bg-amber-950/30 dark:text-amber-400', 'Awaiting Your Confirmation'],
                                     default                   => ['bg-slate-50 text-slate-500 border-slate-200/50', ucfirst($delivery->status)],
                                 };
@@ -86,7 +86,7 @@
                             @if($delivery->latestTracking)
                                 <div class="bg-slate-50 dark:bg-slate-900/30 border border-slate-100 dark:border-slate-700/50 rounded-xl p-3 mb-4">
                                     <div class="flex items-center gap-2 text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">
-                                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                                        <span class="w-2 h-2 rounded-full bg-[#3A7D44]/100 animate-pulse"></span>
                                         Last Known Position
                                     </div>
                                     <p class="text-xs text-slate-600 dark:text-slate-300 font-mono">
@@ -103,7 +103,7 @@
                                 <form method="POST" action="{{ route('buyer.confirm-receipt', $delivery) }}">
                                     @csrf
                                     <button type="submit"
-                                        class="w-full py-3 bg-gradient-to-tr from-emerald-600 to-teal-500 hover:shadow-emerald-600/10 rounded-xl text-xs font-bold text-white transition-all shadow-md active:scale-[0.98] cursor-pointer">
+                                        class="w-full py-3 bg-gradient-to-tr from-[#3A7D44] to-[#2E6336] hover:shadow-[#3A7D44]/10 rounded-xl text-xs font-bold text-white transition-all shadow-md active:scale-[0.98] cursor-pointer">
                                         ✅ Confirm Receipt — I received this delivery
                                     </button>
                                 </form>
@@ -150,7 +150,7 @@
                                 </td>
                                 <td class="px-5 py-3 font-mono text-slate-400">{{ $delivery->truck->plate_number ?? '—' }}</td>
                                 <td class="px-5 py-3">
-                                    <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md border bg-emerald-50 text-emerald-700 border-emerald-200/50 dark:bg-emerald-950/30 dark:text-emerald-400">
+                                    <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md border bg-[#3A7D44]/10 text-[#3A7D44] border-[#3A7D44]/20 bg-[#3A7D44]/10 dark:bg-[#3A7D44]/10 text-[#3A7D44] dark:text-[#3A7D44]">
                                         Completed
                                     </span>
                                 </td>

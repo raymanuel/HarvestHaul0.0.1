@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Harvest;
+use App\Models\HarvestStatus;
 use App\Models\Negotiation;
 use App\Models\PoolingJob;
 use Illuminate\Http\Request;
@@ -12,8 +13,8 @@ use Illuminate\Support\Facades\Auth;
  * BuyerController
  *
  * Manages the Buyer workspace:
- * - Dashboard overview (active negotiations, recent listings)
- * - B2B Crop Board (cooperative-scoped or public independent listings)
+ * - Dashboard overview (active negotiations, recent posts)
+ * - B2B Crop Board (cooperative-scoped or public independent posts)
  * - Initiate and manage negotiations with farmers
  * - Track incoming deliveries and confirm receipt
  */
@@ -37,13 +38,13 @@ class BuyerController extends Controller
             ->count();
 
         // Scoped crop board preview (6 items)
-        $recentListings = $this->scopedHarvestQuery()
+        $recentPosts = $this->scopedHarvestQuery()
             ->with(['farmer.farmerProfile', 'crop', 'cropVariety'])
             ->latest()
             ->take(6)
             ->get();
 
-        // Incoming deliveries awaiting buyer confirmation
+       
         $pendingConfirmations = PoolingJob::where('buyer_id', $user->id)
             ->where('status', 'awaiting_confirmation')
             ->with(['truck', 'harvests.crop', 'driver'])
@@ -53,7 +54,7 @@ class BuyerController extends Controller
         return view('buyer.dashboard', [
             'activeNegotiations'    => $activeNegotiations,
             'completedDeals'        => $completedDeals,
-            'recentListings'        => $recentListings,
+            'recentPosts'           => $recentPosts,
             'pendingConfirmations'  => $pendingConfirmations,
         ]);
     }
@@ -61,17 +62,38 @@ class BuyerController extends Controller
     /**
      * B2B Crop Board — full paginated list of available harvests.
      * Scoped by buyer's affiliation:
-     *   - Cooperative buyer → sees ONLY their cooperative's farmers' listings
-     *   - Independent buyer → sees only independent farmer listings
+     *   - Cooperative buyer → sees ONLY their cooperative's farmers' posts
+     *   - Independent buyer → sees only independent farmer posts
      */
     public function cropBoard()
     {
-        $listings = $this->scopedHarvestQuery()
+        $buyer = Auth::user();
+
+        // Include negotiating products so they appear grayed out on the crop board
+        $posts = $this->scopedHarvestQuery()
+            ->orWhere('status', 'negotiating')
             ->with(['farmer.farmerProfile', 'crop', 'cropVariety'])
             ->latest()
             ->paginate(12);
 
-        return view('buyer.crop-board', compact('listings'));
+        // Map of ALL negotiating harvest IDs (for any buyer, not just current)
+        $negotiatingHarvestIds = [];
+        $negotiationRoomMap = [];
+
+        // Current buyer's own negotiations
+        Negotiation::where('buyer_id', $buyer->id)
+            ->whereIn('status', ['OPEN', 'AGREED'])
+            ->each(function ($n) use (&$negotiatingHarvestIds, &$negotiationRoomMap) {
+                $negotiatingHarvestIds[] = $n->harvest_id;
+                $negotiationRoomMap[$n->harvest_id] = $n->id;
+            });
+
+        // All negotiating harvest IDs (to show grayed out to other buyers)
+        $allNegotiatingIds = Harvest::where('status', 'negotiating')
+            ->pluck('id')
+            ->toArray();
+
+        return view('buyer.crop-board', compact('posts', 'negotiatingHarvestIds', 'negotiationRoomMap', 'allNegotiatingIds'));
     }
 
     /**
@@ -79,16 +101,7 @@ class BuyerController extends Controller
      */
     public function negotiations()
     {
-        $user = Auth::user();
-
-        $negotiations = Negotiation::where('buyer_id', $user->id)
-            ->with(['farmer', 'harvest.crop', 'harvest.cropVariety', 'messages' => function ($q) {
-                $q->latest()->take(1);
-            }])
-            ->latest()
-            ->paginate(15);
-
-        return view('buyer.negotiations', compact('negotiations'));
+        return redirect()->route('dashboard');
     }
 
     /**
@@ -100,16 +113,9 @@ class BuyerController extends Controller
 
         $activeDeliveries = PoolingJob::where('buyer_id', $user->id)
             ->whereIn('status', ['in_progress', 'awaiting_confirmation'])
-            ->with(['truck', 'harvests.crop', 'harvests.farmer', 'driver', 'logisticsProfile'])
+            ->with(['truck', 'harvests.crop', 'harvests.farmer', 'driver', 'logisticsProfile', 'latestTracking'])
             ->latest()
             ->get();
-
-        // Get latest tracking position for each active delivery
-        $activeDeliveries->each(function ($job) {
-            $job->latestTracking = \App\Models\TrackingRecord::where('pooling_job_id', $job->id)
-                ->latest('posted_at')
-                ->first();
-        });
 
         $completedDeliveries = PoolingJob::where('buyer_id', $user->id)
             ->where('status', 'completed')
@@ -168,6 +174,35 @@ class BuyerController extends Controller
     }
 
     /**
+     * Show a single crop/harvest detail page (marketplace product style).
+     */
+    public function showCropDetail(Harvest $harvest)
+    {
+        $buyer = Auth::user();
+
+        // If product is under negotiation by another buyer, block initiation
+        if ($harvest->status === 'negotiating') {
+            $myNegotiation = Negotiation::where('buyer_id', $buyer->id)
+                ->where('harvest_id', $harvest->id)
+                ->whereIn('status', ['OPEN', 'AGREED'])
+                ->first();
+
+            if (!$myNegotiation) {
+                return back()->with('error', 'This product is currently under negotiation with another buyer.');
+            }
+        }
+
+        $harvest->load(['farmer.farmerProfile', 'crop.category', 'cropVariety', 'destination']);
+
+        $negotiation = Negotiation::where('buyer_id', $buyer->id)
+            ->where('harvest_id', $harvest->id)
+            ->whereIn('status', ['OPEN', 'AGREED'])
+            ->first();
+
+        return view('buyer.crop-detail', compact('harvest', 'negotiation'));
+    }
+
+    /**
      * Build a scoped harvest query based on buyer's cooperative affiliation.
      */
     private function scopedHarvestQuery()
@@ -182,7 +217,9 @@ class BuyerController extends Controller
         }
 
         if ($cooperativeId) {
-            return Harvest::where('status', 'active')
+            return Harvest::whereIn('status', HarvestStatus::BUYER_AVAILABLE)
+                ->whereIn('visibility', ['buyers_only', 'both'])
+                ->where('remaining_quantity_kg', '>', 0)
                 ->whereHas('farmer.farmerProfile', function ($q) use ($cooperativeId) {
                     $q->where('is_verified', true)
                       ->where('affiliation_type', 'cooperative')
@@ -190,7 +227,9 @@ class BuyerController extends Controller
                 });
         }
 
-        return Harvest::where('status', 'active')
+        return Harvest::whereIn('status', HarvestStatus::BUYER_AVAILABLE)
+            ->whereIn('visibility', ['buyers_only', 'both'])
+            ->where('remaining_quantity_kg', '>', 0)
             ->whereHas('farmer.farmerProfile', function ($q) {
                 $q->where('is_verified', true)
                   ->where('affiliation_type', 'independent');

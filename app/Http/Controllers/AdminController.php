@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 use App\Models\User;
 use App\Models\AuditLog;
 use App\Models\Harvest;
+use App\Models\HarvestStatus;
 
 class AdminController extends Controller
 {
@@ -46,18 +48,37 @@ class AdminController extends Controller
             ->latest()
             ->get();
 
+        $pendingBuyersList = User::where('role', 'buyer')
+            ->whereHas('buyerProfile', fn($q) => $q->where('is_verified', false))
+            ->with('buyerProfile')
+            ->latest()
+            ->get();
+
+        $userCounts = User::whereNot('role', 'admin')
+            ->selectRaw('role, COUNT(*) as total')
+            ->groupBy('role')
+            ->pluck('total', 'role');
+
+        $harvestCounts = Harvest::whereIn('status', ['active', 'pending'])
+            ->selectRaw('status, COUNT(*) as total')
+            ->groupBy('status')
+            ->pluck('total', 'status');
+
         return view('admin.admin-view', [
-            'totalUsers'               => User::whereNot('role', 'admin')->count(),
-            'totalFarmers'             => User::where('role', 'farmer')->count(),
-            'totalLogistics'           => User::where('role', 'logistics_partner')->count(),
-            'totalDrivers'             => User::where('role', 'driver')->count(),
+            'totalUsers'               => $userCounts->sum(),
+            'totalFarmers'             => $userCounts->get('farmer', 0),
+            'totalLogistics'           => $userCounts->get('logistics_partner', 0),
+            'totalDrivers'             => $userCounts->get('driver', 0),
+            'totalBuyers'              => $userCounts->get('buyer', 0),
             'pendingFarmers'           => $pendingFarmersList->count(),
             'pendingLogistics'         => $pendingLogisticsList->count(),
-            'activeHarvests'           => Harvest::where('status', 'active')->count(),
-            'pendingHarvests'          => Harvest::where('status', 'pending')->count(),
+            'pendingBuyers'            => $pendingBuyersList->count(),
+            'activeHarvests'           => $harvestCounts->get('active', 0),
+            'pendingHarvests'          => $harvestCounts->get('pending', 0),
             'recentLogs'               => AuditLog::with('admin')->latest()->take(5)->get(),
             'pendingFarmersList'       => $pendingFarmersList,
             'pendingLogisticsList'     => $pendingLogisticsList,
+            'pendingBuyersList'        => $pendingBuyersList,
             'pendingFarmerDocsList'    => $pendingFarmerDocsList,
             'pendingLogisticsDocsList' => $pendingLogisticsDocsList,
         ]);
@@ -71,7 +92,7 @@ class AdminController extends Controller
 
         $users = User::with(['farmerProfile', 'logisticsProfile', 'driverProfile.partner.user'])
                      ->orderBy('role')
-                     ->get();
+                     ->paginate(50);
 
         $cooperatives = \App\Models\LogisticsProfile::with('user')->orderBy('company_name')->get();
 
@@ -84,10 +105,10 @@ class AdminController extends Controller
 
         $newStatus = $user->status === 'active' ? 'inactive' : 'active';
 
-        // Archiving flow — check for active harvests
+        // Archiving flow — check for active harvests (including partially_sold)
         if ($newStatus === 'inactive' && $user->role === 'farmer') {
             $activeHarvests = Harvest::where('user_id', $user->id)
-                ->where('status', 'active')
+                ->whereIn('status', HarvestStatus::BUYER_AVAILABLE)
                 ->get();
 
             if ($activeHarvests->isNotEmpty() && !$request->boolean('force')) {
@@ -99,10 +120,10 @@ class AdminController extends Controller
                 ]);
             }
 
-            // Force confirmed — cancel all active harvests
+            // Force confirmed — cancel all active and partially_sold harvests
             if ($activeHarvests->isNotEmpty()) {
                 Harvest::where('user_id', $user->id)
-                    ->where('status', 'active')
+                    ->whereIn('status', HarvestStatus::BUYER_AVAILABLE)
                     ->update(['status' => 'cancelled']);
 
                 AuditLog::create([
@@ -110,7 +131,7 @@ class AdminController extends Controller
                     'action'      => 'cancelled_harvests_on_archive',
                     'target_type' => 'farmer',
                     'target_id'   => $user->id,
-                    'notes'       => "Cancelled {$activeHarvests->count()} active harvest listing(s) due to account archiving of {$user->name}.",
+                    'notes'       => "Cancelled {$activeHarvests->count()} active harvest post(s) due to account archiving of {$user->name}.",
                 ]);
             }
         }
@@ -142,7 +163,7 @@ class AdminController extends Controller
         $harvests = Harvest::with(['farmer', 'crop', 'cropVariety', 'cropCategory'])
             ->orderByRaw("FIELD(status, 'active', 'pending', 'completed', 'cancelled')")
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->paginate(50);
 
         return view('admin.harvests', compact('harvests'));
     }
@@ -154,11 +175,67 @@ class AdminController extends Controller
         $this->adminOnly();
 
         $drivers = User::where('role', 'driver')
-            ->with('logisticsProfile')
+            ->with(['logisticsProfile', 'driverProfile'])
             ->orderBy('status')
-            ->get();
+            ->paginate(50);
 
         return view('admin.drivers', compact('drivers'));
+    }
+
+    public function verifyDriverIdentity(User $user)
+    {
+        $this->adminOnly();
+
+        if ($user->role !== 'driver') {
+            return back()->with('error', 'User is not a driver.');
+        }
+
+        $user->driverProfile()->update(['identity_verified' => true]);
+
+        AuditLog::create([
+            'admin_id'    => Auth::id(),
+            'action'      => 'verified_driver_identity',
+            'target_type' => 'driver',
+            'target_id'   => $user->id,
+            'notes'       => "Driver identity verified for {$user->name}.",
+        ]);
+
+        \App\Models\Notification::create([
+            'user_id' => $user->id,
+            'title' => 'Identity Verified',
+            'message' => 'Your identity has been verified by the administrator.',
+            'link' => route('dashboard'),
+        ]);
+
+        return back()->with('success', "{$user->name}'s identity has been verified.");
+    }
+
+    public function rejectDriverIdentity(User $user)
+    {
+        $this->adminOnly();
+
+        if ($user->role !== 'driver') {
+            return back()->with('error', 'User is not a driver.');
+        }
+
+        $user->driverProfile()->update(['identity_verified' => false]);
+
+        AuditLog::create([
+            'admin_id'    => Auth::id(),
+            'action'      => 'rejected_driver_identity',
+            'target_type' => 'driver',
+            'target_id'   => $user->id,
+            'notes'       => "Driver identity verification rejected for {$user->name}.",
+        ]);
+
+        \App\Models\Notification::create([
+            'user_id' => $user->id,
+            'title' => 'Identity Verification Rejected',
+            'message' => 'Your identity verification was rejected. Please upload a clearer ID photo.',
+            'link' => route('dashboard'),
+        ]);
+
+        return back()->with('success', "{$user->name}'s identity verification has been rejected.");
     }
 
     // -------------------------------------------------------
@@ -169,7 +246,7 @@ class AdminController extends Controller
 
         $farmers = User::where('role', 'farmer')
                        ->with('farmerProfile')
-                       ->get();
+                       ->paginate(50);
 
         return view('admin.farmers', compact('farmers'));
     }
@@ -230,7 +307,7 @@ class AdminController extends Controller
 
         $partners = User::where('role', 'logistics_partner')
                         ->with('logisticsProfile')
-                        ->get();
+                        ->paginate(50);
 
         return view('admin.logistics', compact('partners'));
     }
@@ -284,6 +361,67 @@ class AdminController extends Controller
     }
 
     // -------------------------------------------------------
+    // Buyer Verification
+    public function buyers()
+    {
+        $this->adminOnly();
+
+        $buyers = User::where('role', 'buyer')
+                        ->with('buyerProfile')
+                        ->get();
+
+        return view('admin.buyers', compact('buyers'));
+    }
+
+    public function verifyBuyer(User $user)
+    {
+        $this->adminOnly();
+
+        $user->buyerProfile()->update(['is_verified' => true]);
+
+        AuditLog::create([
+            'admin_id'    => Auth::id(),
+            'action'      => 'verified_buyer',
+            'target_type' => 'buyer',
+            'target_id'   => $user->id,
+            'notes'       => "Buyer profile approved for {$user->name}.",
+        ]);
+
+        \App\Models\Notification::create([
+            'user_id' => $user->id,
+            'title' => 'Profile Verified',
+            'message' => 'Your buyer profile has been verified by the administrator.',
+            'link' => route('dashboard'),
+        ]);
+
+        return back()->with('success', "{$user->name} has been verified.");
+    }
+
+    public function rejectBuyer(User $user)
+    {
+        $this->adminOnly();
+
+        $user->buyerProfile()->update(['is_verified' => false]);
+
+        AuditLog::create([
+            'admin_id'    => Auth::id(),
+            'action'      => 'rejected_buyer',
+            'target_type' => 'buyer',
+            'target_id'   => $user->id,
+            'notes'       => "Buyer profile rejected for {$user->name}.",
+        ]);
+
+        \App\Models\Notification::create([
+            'user_id' => $user->id,
+            'title' => 'Profile Verification Rejected',
+            'message' => 'Your buyer profile verification was rejected by the administrator.',
+            'link' => route('dashboard'),
+        ]);
+
+        return back()->with('success', "{$user->name} has been rejected.");
+    }
+
+    // -------------------------------------------------------
     public function storeUser(Request $request)
     {
         $this->adminOnly();
@@ -291,7 +429,7 @@ class AdminController extends Controller
         $rules = [
             'name'     => ['required', 'string', 'max:255', 'unique:users,name'],
             'email'    => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
-            'password' => ['required', 'string', 'min:8'],
+            'password' => ['required', 'string', 'min:8', 'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s])[A-Za-z\d\W_]{8,}$/'],
             'role'     => ['required', 'in:admin,farmer,logistics_partner,driver,buyer'],
             'status'   => ['required', 'in:active,inactive'],
         ];
@@ -301,7 +439,7 @@ class AdminController extends Controller
             $rules['phone'] = ['required', 'string', 'max:20'];
             $rules['farm_location'] = ['required', 'string', 'max:255'];
             $rules['affiliation_type'] = ['required', 'in:cooperative,independent'];
-            $rules['cooperative_id'] = ['required_if:affiliation_type,cooperative', 'nullable', 'exists:logistics_profiles,id'];
+            $rules['cooperative_id'] = ['required_if:affiliation_type,cooperative', 'nullable', Rule::exists('logistics_profiles', 'id')->where('logistics_type', 'cooperative')];
         } elseif ($request->role === 'logistics_partner') {
             $rules['phone'] = ['required', 'string', 'max:20'];
             $rules['company_name'] = ['required', 'string', 'max:255'];
@@ -315,7 +453,7 @@ class AdminController extends Controller
         } elseif ($request->role === 'buyer') {
             $rules['phone'] = ['required', 'string', 'max:20'];
             $rules['affiliation_type'] = ['required', 'in:cooperative,independent'];
-            $rules['cooperative_id'] = ['required_if:affiliation_type,cooperative', 'nullable', 'exists:logistics_profiles,id'];
+            $rules['cooperative_id'] = ['required_if:affiliation_type,cooperative', 'nullable', Rule::exists('logistics_profiles', 'id')->where('logistics_type', 'cooperative')];
         }
 
         $validated = $request->validate($rules);
@@ -328,8 +466,17 @@ class AdminController extends Controller
                 'role'             => $validated['role'],
                 'status'           => $validated['status'],
                 'phone'            => $validated['phone'] ?? null,
-                'affiliation_type' => $validated['role'] === 'buyer' ? ($validated['affiliation_type'] ?? 'independent') : 'independent',
-                'cooperative_id'   => ($validated['role'] === 'buyer' && ($validated['affiliation_type'] ?? 'independent') === 'cooperative') ? $validated['cooperative_id'] : null,
+                'affiliation_type' => match ($validated['role']) {
+                    'farmer'            => $validated['affiliation_type'] ?? 'independent',
+                    'buyer'             => $validated['affiliation_type'] ?? 'independent',
+                    'logistics_partner' => $validated['logistics_type'] === 'cooperative' ? 'cooperative' : 'independent',
+                    default             => 'independent',
+                },
+                'cooperative_id'   => match ($validated['role']) {
+                    'farmer' => ($validated['affiliation_type'] ?? 'independent') === 'cooperative' ? $validated['cooperative_id'] : null,
+                    'buyer'  => ($validated['affiliation_type'] ?? 'independent') === 'cooperative' ? $validated['cooperative_id'] : null,
+                    default  => null,
+                },
             ]);
 
             $user->email_verified_at = now();
@@ -354,6 +501,11 @@ class AdminController extends Controller
                     'logistics_type'      => $validated['logistics_type'],
                     'cda_registration_no' => $validated['logistics_type'] === 'cooperative' ? $validated['cda_registration_no'] : null,
                     'is_verified'         => true,
+                ]);
+            } elseif ($validated['role'] === 'buyer') {
+                $user->buyerProfile()->create([
+                    'phone'       => $validated['phone'],
+                    'is_verified' => true,
                 ]);
             } elseif ($validated['role'] === 'driver') {
                 $user->driverProfile()->create([
@@ -384,7 +536,7 @@ class AdminController extends Controller
         $rules = [
             'name'     => ['required', 'string', 'max:255', 'unique:users,name,' . $user->id],
             'email'    => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $user->id],
-            'password' => ['nullable', 'string', 'min:8'],
+            'password' => ['nullable', 'string', 'min:8', 'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s])[A-Za-z\d\W_]{8,}$/'],
             'role'     => ['required', 'in:admin,farmer,logistics_partner,driver,buyer'],
             'status'   => ['required', 'in:active,inactive'],
         ];
@@ -394,7 +546,7 @@ class AdminController extends Controller
             $rules['phone'] = ['required', 'string', 'max:20'];
             $rules['farm_location'] = ['required', 'string', 'max:255'];
             $rules['affiliation_type'] = ['required', 'in:cooperative,independent'];
-            $rules['cooperative_id'] = ['required_if:affiliation_type,cooperative', 'nullable', 'exists:logistics_profiles,id'];
+            $rules['cooperative_id'] = ['required_if:affiliation_type,cooperative', 'nullable', Rule::exists('logistics_profiles', 'id')->where('logistics_type', 'cooperative')];
         } elseif ($request->role === 'logistics_partner') {
             $rules['phone'] = ['required', 'string', 'max:20'];
             $rules['company_name'] = ['required', 'string', 'max:255'];
@@ -408,7 +560,7 @@ class AdminController extends Controller
         } elseif ($request->role === 'buyer') {
             $rules['phone'] = ['required', 'string', 'max:20'];
             $rules['affiliation_type'] = ['required', 'in:cooperative,independent'];
-            $rules['cooperative_id'] = ['required_if:affiliation_type,cooperative', 'nullable', 'exists:logistics_profiles,id'];
+            $rules['cooperative_id'] = ['required_if:affiliation_type,cooperative', 'nullable', Rule::exists('logistics_profiles', 'id')->where('logistics_type', 'cooperative')];
         }
 
         $validated = $request->validate($rules);
@@ -421,7 +573,7 @@ class AdminController extends Controller
             // If changing to inactive/archived, apply standard safety checks (same as toggleStatus)
             if ($newStatus === 'inactive' && $oldStatus === 'active' && $user->role === 'farmer') {
                 $activeHarvests = Harvest::where('user_id', $user->id)
-                    ->where('status', 'active')
+                    ->whereIn('status', HarvestStatus::BUYER_AVAILABLE)
                     ->get();
 
                 if ($activeHarvests->isNotEmpty() && !$request->boolean('force')) {
@@ -430,7 +582,7 @@ class AdminController extends Controller
 
                 if ($activeHarvests->isNotEmpty()) {
                     Harvest::where('user_id', $user->id)
-                        ->where('status', 'active')
+                        ->whereIn('status', HarvestStatus::BUYER_AVAILABLE)
                         ->update(['status' => 'cancelled']);
                 }
             }
@@ -442,8 +594,17 @@ class AdminController extends Controller
                 'role'             => $validated['role'],
                 'status'           => $validated['status'],
                 'phone'            => $validated['phone'] ?? null,
-                'affiliation_type' => $validated['role'] === 'buyer' ? ($validated['affiliation_type'] ?? 'independent') : 'independent',
-                'cooperative_id'   => ($validated['role'] === 'buyer' && ($validated['affiliation_type'] ?? 'cooperative') === 'cooperative') ? $validated['cooperative_id'] : null,
+                'affiliation_type' => match ($validated['role']) {
+                    'farmer'            => $validated['affiliation_type'] ?? 'independent',
+                    'buyer'             => $validated['affiliation_type'] ?? 'independent',
+                    'logistics_partner' => $validated['logistics_type'] === 'cooperative' ? 'cooperative' : 'independent',
+                    default             => 'independent',
+                },
+                'cooperative_id'   => match ($validated['role']) {
+                    'farmer' => ($validated['affiliation_type'] ?? 'independent') === 'cooperative' ? $validated['cooperative_id'] : null,
+                    'buyer'  => ($validated['affiliation_type'] ?? 'independent') === 'cooperative' ? $validated['cooperative_id'] : null,
+                    default  => null,
+                },
             ];
 
             if (!empty($validated['password'])) {
@@ -457,6 +618,7 @@ class AdminController extends Controller
                 $user->farmerProfile()?->delete();
                 $user->logisticsProfile()?->delete();
                 $user->driverProfile()?->delete();
+                $user->buyerProfile()?->delete();
             }
 
             if ($validated['role'] === 'farmer') {
@@ -478,6 +640,11 @@ class AdminController extends Controller
                     'cda_registration_no' => $validated['logistics_type'] === 'cooperative' ? $validated['cda_registration_no'] : null,
                     'is_verified'         => true,
                 ]);
+            } elseif ($validated['role'] === 'buyer') {
+                $user->buyerProfile()->updateOrCreate([], [
+                    'phone'       => $validated['phone'],
+                    'is_verified' => true,
+                ]);
             } elseif ($validated['role'] === 'driver') {
                 $user->driverProfile()->updateOrCreate([], [
                     'phone'          => $validated['phone'],
@@ -495,6 +662,24 @@ class AdminController extends Controller
                 'target_id'   => $user->id,
                 'notes'       => "Admin updated user {$user->name}. Role: {$oldRole} -> {$user->role}. Status: {$oldStatus} -> {$user->status}.",
             ]);
+
+            if ($validated['role'] === 'admin' && $oldRole !== 'admin') {
+                AuditLog::create([
+                    'admin_id'    => Auth::id(),
+                    'action'      => 'promoted_to_admin',
+                    'target_type' => 'user',
+                    'target_id'   => $user->id,
+                    'notes'       => "Admin promoted user {$user->name} ({$oldRole}) to administrator.",
+                ]);
+            } elseif ($oldRole === 'admin' && $validated['role'] !== 'admin') {
+                AuditLog::create([
+                    'admin_id'    => Auth::id(),
+                    'action'      => 'demoted_from_admin',
+                    'target_type' => 'user',
+                    'target_id'   => $user->id,
+                    'notes'       => "Admin demoted administrator {$user->name} to {$validated['role']}.",
+                ]);
+            }
 
             return redirect()->route('admin.users')->with('success', "User {$user->name} updated successfully.");
         });
@@ -517,61 +702,124 @@ class AdminController extends Controller
         $this->adminOnly();
 
         // ── Crop Pricing Trends ──
-        // Average negotiated price per crop from completed negotiations
-        $cropPricingTrends = \App\Models\Negotiation::where('status', 'COMPLETED')
-            ->whereNotNull('negotiated_price')
-            ->join('harvests', 'negotiations.harvest_id', '=', 'harvests.id')
-            ->join('crops', 'harvests.crop_id', '=', 'crops.id')
-            ->select(
-                'crops.name as crop_name',
-                \DB::raw('ROUND(AVG(negotiations.negotiated_price), 2) as avg_price'),
-                \DB::raw('MIN(negotiations.negotiated_price) as min_price'),
-                \DB::raw('MAX(negotiations.negotiated_price) as max_price'),
-                \DB::raw('COUNT(negotiations.id) as deal_count'),
-            )
-            ->groupBy('crops.name')
-            ->orderByDesc('deal_count')
-            ->get();
+        $cropPricingTrends = \Cache::remember('admin.crop_pricing_trends', 300, function () {
+            return \App\Models\Negotiation::where('status', 'COMPLETED')
+                ->whereNotNull('negotiated_price')
+                ->join('harvests', 'negotiations.harvest_id', '=', 'harvests.id')
+                ->join('crops', 'harvests.crop_id', '=', 'crops.id')
+                ->select(
+                    'crops.name as crop_name',
+                    \DB::raw('ROUND(AVG(negotiations.negotiated_price), 2) as avg_price'),
+                    \DB::raw('MIN(negotiations.negotiated_price) as min_price'),
+                    \DB::raw('MAX(negotiations.negotiated_price) as max_price'),
+                    \DB::raw('COUNT(negotiations.id) as deal_count'),
+                )
+                ->groupBy('crops.name')
+                ->orderByDesc('deal_count')
+                ->get();
+        });
 
         // Weekly price aggregation (last 12 weeks)
-        $weeklyPrices = \App\Models\Negotiation::where('status', 'COMPLETED')
-            ->whereNotNull('negotiated_price')
-            ->where('negotiations.created_at', '>=', now()->subWeeks(12))
-            ->join('harvests', 'negotiations.harvest_id', '=', 'harvests.id')
-            ->join('crops', 'harvests.crop_id', '=', 'crops.id')
-            ->select(
-                'crops.name as crop_name',
-                \DB::raw('strftime("%Y-%W", negotiations.created_at) as week'),
-                \DB::raw('ROUND(AVG(negotiations.negotiated_price), 2) as avg_price'),
-            )
-            ->groupBy('crops.name', 'week')
-            ->orderBy('week')
-            ->get()
-            ->groupBy('crop_name');
+        $weeklyPrices = \Cache::remember('admin.weekly_prices', 300, function () {
+            return \App\Models\Negotiation::where('status', 'COMPLETED')
+                ->whereNotNull('negotiated_price')
+                ->where('negotiations.created_at', '>=', now()->subWeeks(12))
+                ->join('harvests', 'negotiations.harvest_id', '=', 'harvests.id')
+                ->join('crops', 'harvests.crop_id', '=', 'crops.id')
+                ->select(
+                    'crops.name as crop_name',
+                    \DB::raw('strftime("%Y-%W", negotiations.created_at) as week'),
+                    \DB::raw('ROUND(AVG(negotiations.negotiated_price), 2) as avg_price'),
+                )
+                ->groupBy('crops.name', 'week')
+                ->orderBy('week')
+                ->get()
+                ->groupBy('crop_name');
+        });
 
         // ── Logistics Efficiency ──
-        $fleetMetrics = \App\Models\PoolingJob::where('status', 'completed')
-            ->select(
-                \DB::raw('COUNT(*) as total_trips'),
-                \DB::raw('ROUND(AVG(JULIANDAY(completed_at) - JULIANDAY(confirmed_at)), 2) as avg_trip_days'),
-            )
-            ->first();
+        $fleetMetrics = \Cache::remember('admin.fleet_metrics', 300, function () {
+            return \App\Models\PoolingJob::where('status', 'completed')
+                ->select(
+                    \DB::raw('COUNT(*) as total_trips'),
+                    \DB::raw('ROUND(AVG(JULIANDAY(completed_at) - JULIANDAY(confirmed_at)), 2) as avg_trip_days'),
+                )
+                ->first();
+        });
 
-        $totalFuelLogs = \App\Models\FuelLog::count();
-        $totalFuelCost = \App\Models\FuelLog::sum('cost');
-        $totalFuelLiters = \App\Models\FuelLog::sum('fuel_liters');
+        $totalFuelLogs = \Cache::remember('admin.total_fuel_logs', 300, fn() => \App\Models\FuelLog::count());
+        $totalFuelCost = \Cache::remember('admin.total_fuel_cost', 300, fn() => \App\Models\FuelLog::sum('cost'));
+        $totalFuelLiters = \Cache::remember('admin.total_fuel_liters', 300, fn() => \App\Models\FuelLog::sum('fuel_liters'));
         $avgKpl = $totalFuelLiters > 0
             ? round(\App\Models\FuelLog::selectRaw('(MAX(odometer_reading) - MIN(odometer_reading)) as distance')->value('distance') / $totalFuelLiters, 2)
             : 0;
 
         // ── Baseline Price Management ──
-        $crops = \App\Models\Crop::orderBy('name')->get();
+        $crops = \Cache::remember('admin.crops_list', 600, fn() => \App\Models\Crop::orderBy('name')->get());
 
         return view('admin.analytics', compact(
             'cropPricingTrends', 'weeklyPrices', 'fleetMetrics',
             'totalFuelLogs', 'totalFuelCost', 'totalFuelLiters', 'avgKpl',
             'crops'
         ));
+    }
+
+    // -------------------------------------------------------
+    // Data Export (CSV)
+    public function exportUsers()
+    {
+        $this->adminOnly();
+
+        $users = User::with(['farmerProfile', 'logisticsProfile', 'driverProfile'])->get();
+
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="users-export-' . now()->format('Y-m-d') . '.csv"',
+        ];
+
+        $callback = function () use ($users) {
+            $handle = fopen('php://output', 'w');
+            fputcsv($handle, ['ID', 'Name', 'Email', 'Role', 'Status', 'Phone', 'Created At']);
+
+            foreach ($users as $user) {
+                fputcsv($handle, [
+                    $user->id, $user->name, $user->email, $user->role,
+                    $user->status, $user->phone, $user->created_at,
+                ]);
+            }
+
+            fclose($handle);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    public function exportHarvests()
+    {
+        $this->adminOnly();
+
+        $harvests = Harvest::with(['farmer', 'crop'])->get();
+
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="harvests-export-' . now()->format('Y-m-d') . '.csv"',
+        ];
+
+        $callback = function () use ($harvests) {
+            $handle = fopen('php://output', 'w');
+            fputcsv($handle, ['ID', 'Farmer', 'Crop', 'Variety', 'Quantity (kg)', 'Status', 'Created At']);
+
+            foreach ($harvests as $h) {
+                fputcsv($handle, [
+                    $h->id, $h->farmer->name ?? '—', $h->crop->name ?? $h->crop_type ?? '—',
+                    $h->variety ?? '—', $h->quantity_kg, $h->status, $h->created_at,
+                ]);
+            }
+
+            fclose($handle);
+        };
+
+        return response()->stream($callback, 200, $headers);
     }
 
     // -------------------------------------------------------

@@ -20,6 +20,9 @@ class TrackingRecord extends Model
         'driver_id',
         'latitude',
         'longitude',
+        'speed_kmh',
+        'bearing',
+        'accuracy_meters',
         'posted_at',
     ];
 
@@ -31,6 +34,9 @@ class TrackingRecord extends Model
     protected $casts = [
         'latitude' => 'float',
         'longitude' => 'float',
+        'speed_kmh' => 'float',
+        'bearing' => 'float',
+        'accuracy_meters' => 'float',
         'posted_at' => 'datetime',
     ];
 

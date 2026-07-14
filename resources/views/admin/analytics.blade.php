@@ -1,4 +1,4 @@
-<x-layout>
+﻿<x-layout>
     <div class="w-full max-w-6xl mx-auto pb-12">
 
         {{-- Header --}}
@@ -20,7 +20,7 @@
 
         {{-- Flash Messages --}}
         @if(session('success'))
-            <div class="bg-emerald-50 border border-emerald-200/60 text-emerald-800 text-xs font-bold heading-font rounded-xl px-4 py-3 mb-6">
+            <div class="bg-[#3A7D44]/10 border border-[#3A7D44]/20 text-[#1A2E1A] text-xs font-bold heading-font rounded-xl px-4 py-3 mb-6">
                 ✅ {{ session('success') }}
             </div>
         @endif
@@ -53,7 +53,7 @@
                         @foreach($cropPricingTrends as $trend)
                             <tr class="hover:bg-slate-50/40 dark:hover:bg-slate-900/10 transition">
                                 <td class="px-5 py-3 font-bold text-slate-700 dark:text-slate-300">🌾 {{ $trend->crop_name }}</td>
-                                <td class="px-5 py-3 text-right font-mono text-emerald-600 dark:text-emerald-400 font-bold">₱{{ number_format($trend->avg_price, 2) }}</td>
+                                <td class="px-5 py-3 text-right font-mono text-[#3A7D44] dark:text-[#3A7D44] font-bold">₱{{ number_format($trend->avg_price, 2) }}</td>
                                 <td class="px-5 py-3 text-right font-mono text-slate-400">₱{{ number_format($trend->min_price, 2) }}</td>
                                 <td class="px-5 py-3 text-right font-mono text-slate-400">₱{{ number_format($trend->max_price, 2) }}</td>
                                 <td class="px-5 py-3 text-right">
@@ -80,7 +80,7 @@
                                 @endphp
                                 @foreach($weeks as $week)
                                     @php $heightPercent = ($week->avg_price / $maxPrice) * 100; @endphp
-                                    <div class="flex-1 bg-gradient-to-t from-emerald-500 to-teal-400 rounded-t-sm opacity-80 hover:opacity-100 transition relative group cursor-default"
+                                    <div class="flex-1 bg-gradient-to-t from-[#3A7D44] to-[#2E6336] rounded-t-sm opacity-80 hover:opacity-100 transition relative group cursor-default"
                                          style="height: {{ $heightPercent }}%; min-height: 4px;">
                                         <div class="absolute -top-6 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[8px] font-bold px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition whitespace-nowrap z-10">
                                             ₱{{ number_format($week->avg_price, 2) }} · W{{ substr($week->week, -2) }}
@@ -109,7 +109,7 @@
             </div>
             <div class="bg-white dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700/80 rounded-2xl p-5 shadow-sm">
                 <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Avg Trip Duration</p>
-                <p class="text-2xl font-bold text-sky-600 dark:text-sky-400">
+                <p class="text-2xl font-bold text-[#1F4D25] dark:text-[#1F4D25]">
                     {{ $fleetMetrics->avg_trip_days ? number_format($fleetMetrics->avg_trip_days, 1) . 'd' : '—' }}
                 </p>
             </div>
@@ -120,7 +120,7 @@
             </div>
             <div class="bg-white dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700/80 rounded-2xl p-5 shadow-sm">
                 <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Avg KPL</p>
-                <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{{ $avgKpl > 0 ? $avgKpl : '—' }}</p>
+                <p class="text-2xl font-bold text-[#3A7D44] dark:text-[#3A7D44]">{{ $avgKpl > 0 ? $avgKpl : '—' }}</p>
             </div>
         </div>
 
@@ -152,7 +152,7 @@
                             <td class="px-5 py-3 font-bold text-slate-700 dark:text-slate-300">{{ $crop->name }}</td>
                             <td class="px-5 py-3 text-right font-mono">
                                 @if($crop->baseline_price_per_kg)
-                                    <span class="text-emerald-600 dark:text-emerald-400 font-bold">₱{{ number_format($crop->baseline_price_per_kg, 2) }}/kg</span>
+                                    <span class="text-[#3A7D44] dark:text-[#3A7D44] font-bold">₱{{ number_format($crop->baseline_price_per_kg, 2) }}/kg</span>
                                 @else
                                     <span class="text-slate-300 dark:text-slate-600 italic">Not set</span>
                                 @endif
@@ -163,9 +163,9 @@
                                     <input type="number" name="baseline_price_per_kg" step="0.01" min="0.01"
                                            value="{{ $crop->baseline_price_per_kg }}"
                                            placeholder="₱/kg"
-                                           class="w-24 text-right text-xs border border-slate-200 dark:border-slate-600 rounded-lg px-2 py-1.5 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500">
+                                           class="w-24 text-right text-xs border border-slate-200 dark:border-slate-600 rounded-lg px-2 py-1.5 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-[#3A7D44]/30 focus:border-[#3A7D44]">
                                     <button type="submit"
-                                            class="text-[10px] font-bold uppercase px-2.5 py-1.5 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 border border-emerald-200/50 dark:border-emerald-500/20 rounded-lg hover:bg-emerald-100 dark:hover:bg-emerald-900/30 transition cursor-pointer">
+                                            class="text-[10px] font-bold uppercase px-2.5 py-1.5 bg-[#3A7D44]/10 dark:bg-[#3A7D44]/10 text-[#3A7D44] dark:text-[#3A7D44] border border-[#3A7D44]/20 dark:border-[#3A7D44]/20 rounded-lg hover:bg-[#3A7D44]/15 hover:bg-[#3A7D44]/20 transition cursor-pointer">
                                         Save
                                     </button>
                                 </form>

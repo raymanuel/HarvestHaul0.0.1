@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Models\Harvest;
+use App\Models\HarvestStatus;
 use App\Models\PoolingJob;
 use App\Http\Controllers\BuyerController;
 
@@ -24,9 +25,8 @@ class DashboardController extends Controller
 
         if ($user->role === 'logistics_partner' && $logisticsProfile = $user->logisticsProfile) {
 
-            // Collect the exact primary key IDs of scoped farmers matching visibility criteria
-            $farmerIds = User::where('role', 'farmer')
-                ->whereHas('farmerProfile', function ($query) use ($logisticsProfile) {
+            $availableHarvests = Harvest::whereIn('status', HarvestStatus::LOGISTICS_VISIBLE)
+                ->whereHas('farmer.farmerProfile', function ($query) use ($logisticsProfile) {
                     $query->where('is_verified', true);
 
                     if ($logisticsProfile->logistics_type === 'cooperative') {
@@ -36,19 +36,12 @@ class DashboardController extends Controller
                         $query->where('affiliation_type', 'independent');
                     }
                 })
-                ->pluck('id');
-
-            // Count active harvests using native column mapping constraints directly
-            $activeHarvestCount = Harvest::where('status', 'sold')
-                ->whereIn('user_id', $farmerIds)
-                ->count();
-
-            $availableHarvests = Harvest::where('status', 'sold')
-                ->whereIn('user_id', $farmerIds)
                 ->with(['farmer.farmerProfile', 'crop', 'cropVariety', 'destination'])
                 ->latest()
                 ->take(5)
                 ->get();
+
+            $activeHarvestCount = $availableHarvests->count();
 
             $activeDispatchRuns = PoolingJob::where('logistics_profile_id', $logisticsProfile->id)
                 ->whereIn('status', ['confirmed', 'in_progress'])
@@ -59,7 +52,7 @@ class DashboardController extends Controller
 
             $latestProposals = PoolingJob::where('logistics_profile_id', $logisticsProfile->id)
                 ->where('status', 'pending')
-                ->with(['truck', 'harvests.crop'])
+                ->with(['truck', 'harvests.crop', 'harvests.cropVariety', 'harvests.farmer.farmerProfile'])
                 ->latest()
                 ->take(3)
                 ->get();
@@ -84,29 +77,29 @@ class DashboardController extends Controller
                 ->count();
         }
 
+        // Farmer dashboard metrics — load once, derive counts from collections
+        $activeHarvests = collect();
+        $pendingProposals = collect();
+        $activeShipments = collect();
+
+        if ($user->role === 'farmer') {
+            $activeHarvests = $user->harvests()->whereIn('status', HarvestStatus::BUYER_AVAILABLE)->with(['crop', 'cropVariety', 'destination'])->latest()->take(3)->get();
+            $pendingProposals = PoolingJob::whereHas('harvests', function($query) use ($user) {
+                $query->where('user_id', $user->id);
+            })->where('status', 'pending')->with(['logisticsProfile', 'truck', 'harvests.crop'])->latest()->take(5)->get();
+            $activeShipments = PoolingJob::whereHas('harvests', function($query) use ($user) {
+                $query->where('user_id', $user->id);
+            })->where('status', 'in_progress')->with(['driver', 'truck', 'harvests.crop'])->latest()->take(5)->get();
+        }
+
         return match($user->role) {
             'farmer' => view('farmers.farmer-view', [
-                // 1. Precise count of active B2B crop inventory
-                'activeHarvestsCount' => $user->harvests()->where('status', 'active')->count(),
-
-                // 2. Count of hauls currently in transit for this specific farmer
-                'activeShipmentsCount' => PoolingJob::whereHas('harvests', function($query) use ($user) {
-                    $query->where('user_id', $user->id);
-                })->where('status', 'in_progress')->count(),
-
-                // 3. Count of multi-party negotiation offers targeting this farmer
-                'pendingProposalsCount' => PoolingJob::whereHas('harvests', function($query) use ($user) {
-                    $query->where('user_id', $user->id);
-                })->where('status', 'pending')->count(),
-
-                // Live lists
-                'activeHarvests' => $user->harvests()->where('status', 'active')->with(['crop', 'cropVariety', 'destination'])->latest()->take(3)->get(),
-                'pendingProposals' => PoolingJob::whereHas('harvests', function($query) use ($user) {
-                    $query->where('user_id', $user->id);
-                })->where('status', 'pending')->with(['logisticsProfile', 'truck', 'harvests.crop'])->latest()->get(),
-                'activeShipments' => PoolingJob::whereHas('harvests', function($query) use ($user) {
-                    $query->where('user_id', $user->id);
-                })->where('status', 'in_progress')->with(['driver', 'truck', 'harvests.crop'])->latest()->get(),
+                'activeHarvests' => $activeHarvests,
+                'activeHarvestsCount' => $activeHarvests->count(),
+                'pendingProposals' => $pendingProposals,
+                'pendingProposalsCount' => $pendingProposals->count(),
+                'activeShipments' => $activeShipments,
+                'activeShipmentsCount' => $activeShipments->count(),
                 'guidanceCrops' => \App\Models\Crop::whereNotNull('baseline_price_per_kg')
                     ->orderBy('name')
                     ->get()
