@@ -2,19 +2,71 @@
 
 namespace App\Models;
 
-class HarvestStatus
+enum HarvestStatus: string
 {
-    const PENDING = 'pending';
-    const ACTIVE = 'active';
-    const NEGOTIATING = 'negotiating';
-    const PARTIALLY_SOLD = 'partially_sold';
-    const SOLD = 'sold';
-    const ASSIGNED = 'assigned';
-    const IN_PROGRESS = 'in_progress';
-    const COMPLETED = 'completed';
-    const CANCELLED = 'cancelled';
+    case ACTIVE = 'active';
+    case NEGOTIATING = 'negotiating';
+    case PARTIALLY_SOLD = 'partially_sold';
+    case SOLD = 'sold';
+    case ASSIGNED = 'assigned';
+    case IN_PROGRESS = 'in_progress';
+    case COMPLETED = 'completed';
+    case CANCELLED = 'cancelled';
+    case PENDING = 'pending';
 
-    const BUYER_AVAILABLE = [self::ACTIVE, self::PARTIALLY_SOLD];
-    const LOGISTICS_VISIBLE = [self::SOLD, self::PARTIALLY_SOLD];
-    const LOCKED = [self::NEGOTIATING, self::PARTIALLY_SOLD, self::SOLD, self::ASSIGNED, self::IN_PROGRESS, self::COMPLETED, self::CANCELLED];
+    /** Statuses where the harvest is visible to buyers for negotiation. */
+    public static function buyerAvailable(): array
+    {
+        return [self::ACTIVE, self::PARTIALLY_SOLD];
+    }
+
+    /** Statuses where the harvest is visible to logistics partners. */
+    public static function logisticsVisible(): array
+    {
+        return [self::SOLD, self::PARTIALLY_SOLD];
+    }
+
+    /** Statuses where the harvest is locked (assigned/in transit). */
+    public static function locked(): array
+    {
+        return [self::ASSIGNED, self::IN_PROGRESS, self::COMPLETED];
+    }
+
+    /** Check if this specific status is locked. */
+    public function isLocked(): bool
+    {
+        return in_array($this, self::locked());
+    }
+
+    /** Human-readable label for display. */
+    public function label(): string
+    {
+        return match ($this) {
+            self::ACTIVE         => 'Active',
+            self::NEGOTIATING    => 'Under Negotiation',
+            self::PARTIALLY_SOLD => 'Partially Sold',
+            self::SOLD           => 'Sold',
+            self::ASSIGNED       => 'Assigned',
+            self::IN_PROGRESS    => 'In Transit',
+            self::COMPLETED      => 'Completed',
+            self::CANCELLED      => 'Cancelled',
+            self::PENDING        => 'Pending',
+        };
+    }
+
+    /** Tailwind color class for badges. */
+    public function color(): string
+    {
+        return match ($this) {
+            self::ACTIVE         => 'green',
+            self::NEGOTIATING    => 'yellow',
+            self::PARTIALLY_SOLD => 'blue',
+            self::SOLD           => 'indigo',
+            self::ASSIGNED       => 'purple',
+            self::IN_PROGRESS    => 'orange',
+            self::COMPLETED      => 'gray',
+            self::CANCELLED      => 'red',
+            self::PENDING        => 'gray',
+        };
+    }
 }

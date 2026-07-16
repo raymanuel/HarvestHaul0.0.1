@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\PoolingJob;
+use App\Models\PoolingJobStatus;
 use App\Models\TrackingRecord;
 use App\Services\ETAService;
 use App\Traits\GeometryHelper;
@@ -46,7 +47,7 @@ class TrackingController extends Controller
             abort(403);
         }
         
-        $activeJobs = $query->with(['truck', 'driver', 'harvests.crop', 'harvests.farmer.farmerProfile', 'harvests.destination', 'latestTracking'])->latest()->get();
+        $activeJobs = $query->with(['truck', 'driver', 'harvests.crop', 'harvests.farmer.farmerProfile', 'harvests.destination', 'latestTracking'])->latest()->take(50)->get();
         
         return view('tracking.index', compact('activeJobs'));
     }
@@ -75,7 +76,7 @@ class TrackingController extends Controller
         }
 
         // Hard limitation check: Only log coordinates if the delivery trip is active
-        if ($job->status !== 'in_progress') {
+        if ($job->status !== PoolingJobStatus::IN_PROGRESS) {
             return response()->json(['status' => 'error', 'message' => 'Job is not in transit.'], 422);
         }
 

@@ -14,6 +14,7 @@ class TruckFactory extends Factory
     {
         return [
             'logistics_profile_id' => User::factory()->logisticsPartner(),
+            'truck_name' => fake()->word(),
             'plate_number' => fake()->unique()->bothify('??-####'),
             'capacity_kg' => fake()->randomFloat(2, 3000, 15000),
             'status' => 'available',

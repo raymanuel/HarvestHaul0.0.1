@@ -23,7 +23,6 @@ class UserFactory extends Factory
             'remember_token' => Str::random(10),
             'role' => 'farmer',
             'status' => 'active',
-            'phone' => fake()->phoneNumber(),
             'affiliation_type' => 'independent',
         ];
     }

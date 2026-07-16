@@ -106,8 +106,6 @@
                                     <span class="bg-[#3A7D44]/10 dark:bg-[#3A7D44]/10 text-[#3A7D44] dark:text-[#3A7D44] text-[10px] font-bold px-2.5 py-1 rounded-lg uppercase tracking-wider border border-[#3A7D44]/10 dark:border-[#3A7D44]/20">Active</span>
                                 @elseif($harvest->status === 'partially_sold')
                                     <span class="bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-450 text-[10px] font-bold px-2.5 py-1 rounded-lg uppercase tracking-wider border border-amber-500/10 dark:border-amber-500/20">Partial Sale</span>
-                                @elseif($harvest->status === 'pending')
-                                    <span class="bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-450 text-[10px] font-bold px-2.5 py-1 rounded-lg uppercase tracking-wider border border-amber-500/10 dark:border-amber-500/20">Pending</span>
                                 @elseif($harvest->status === 'completed')
                                     <span class="bg-[#1F4D25]/10 dark:bg-[#1F4D25]/10 text-[#1F4D25] dark:text-[#1F4D25] text-[10px] font-bold px-2.5 py-1 rounded-lg uppercase tracking-wider border border-[#1F4D25]/10 dark:border-[#1F4D25]/20">Completed</span>
                                 @elseif($harvest->status === 'cancelled')
@@ -118,8 +116,7 @@
                             <td class="px-6 py-4 text-slate-400 dark:text-slate-500 text-xs font-semibold whitespace-nowrap">{{ $harvest->created_at->format('M d, Y') }}</td>
                             <td class="px-6 py-4">
                                 @php
-                                    $canEdit = in_array($harvest->status, ['active', 'pending'])
-                                        || ($harvest->status === 'partially_sold' && (float) ($harvest->remaining_quantity_kg ?? 0) > 0);
+                                    $canEdit = $harvest->status === 'active';
                                 @endphp
                                 @if($canEdit)
                                     <div class="flex items-center gap-2">

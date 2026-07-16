@@ -4,51 +4,21 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
-/**
- * ═══════════════════════════════════════════════════════════════
- * MODEL: PoolingJob
- * ═══════════════════════════════════════════════════════════════
- * The central "job record" that ties together:
- *   - A logistics partner's truck
- *   - A driver assigned to drive
- *   - One or more harvests from different farmers
- *   - A planned route (geometry stored as JSON)
- *   - Pricing (reference + negotiated)
- *
- * LIFECYCLE (status flow):
- *   pending → confirmed → in_progress → completed
- *   (pending = created but not yet accepted by all parties)
- *   (confirmed = all parties agreed, driver assigned)
- *   (in_progress = driver has started the route)
- *   (completed = all pickups/drop-offs finished)
- *
- * PIVOT TABLE: pooling_job_harvests
- *   Stores per-harvest attributes for the job:
- *   - pickup_order    → stop sequence number (1 = first pickup)
- *   - quantity_kg     → how much cargo from this farm
- *   - distance_from_route → deviation from main route
- *   - cost_share      → this farmer's proportional freight cost
- *                       (computed at confirmation time)
- *
- * PRICING LOGIC:
- *   price_reference  → algo-generated estimate (distance × rate + weight × rate + base)
- *   negotiated_price → final agreed price after farmer/logistics negotiation
- *   cost_share       → per-farmer portion = (their_kg / total_kg) × negotiated_price
- * ═══════════════════════════════════════════════════════════════
- */
 class PoolingJob extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     /**
-     * Guarded columns — set only via direct assignment (not mass assignment).
-     * These are system-computed fields that shouldn't be freely set via forms.
+     * Allow-list for mass assignment (Laravel best practice).
+     * System-computed fields like id, created_at, updated_at are protected by default.
      */
-    protected $guarded = [
+    protected $fillable = [
         'logistics_profile_id',
         'truck_id',
         'driver_id',
+        'buyer_id',
         'status',
         'total_kg',
         'truck_capacity_kg',
@@ -60,7 +30,22 @@ class PoolingJob extends Model
         'radius_km',
         'notes',
         'confirmed_at',
+        'accepted_at',
         'completed_at',
+        'price_reference',
+        'negotiated_price',
+        'planned_distance_km',
+        'actual_distance_km',
+        'end_odometer_reading',
+        'proposal_expires_at',
+        'negotiation_rounds',
+        'route_geometry',
+        'weather_condition',
+        'weather_temperature',
+        'weather_wind_speed',
+        'weather_icon',
+        'weather_checked_at',
+        'weather_advisory',
     ];
 
     /**
@@ -87,6 +72,7 @@ class PoolingJob extends Model
         'proposal_expires_at'   => 'datetime',
         'negotiation_rounds'    => 'integer',
         'route_geometry'        => 'array',
+        'status'                => PoolingJobStatus::class,
     ];
 
     // ─────────────────────────────────────────────────────────
@@ -112,6 +98,12 @@ class PoolingJob extends Model
     public function driver()
     {
         return $this->belongsTo(User::class, 'driver_id');
+    }
+
+    /** The buyer who placed or is awaiting this order. */
+    public function buyer()
+    {
+        return $this->belongsTo(User::class, 'buyer_id');
     }
 
     /**

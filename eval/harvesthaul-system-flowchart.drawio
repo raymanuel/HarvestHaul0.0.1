@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<mxfile host="app.diagrams.net" modified="2026-07-13T00:00:00.000Z" agent="HarvestHaul" version="24.0.0" type="device">
+<mxfile host="app.diagrams.net" modified="2026-07-16T12:00:00.000Z" agent="HarvestHaul" version="24.0.0" type="device">
   <diagram id="harvesthaul-main" name="System Flow">
-    <mxGraphModel dx="4000" dy="3000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1920" pageHeight="1080" math="0" shadow="0">
+    <mxGraphModel dx="4000" dy="3000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2500" pageHeight="2000" math="0" shadow="0">
       <root>
         <mxCell id="0"/>
         <mxCell id="1" parent="0"/>
 
         <!-- TITLE -->
-        <mxCell id="title" value="HarvestHaul — Complete System Flow" style="text;html=1;fontSize=28;fontStyle=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
-          <mxGeometry x="660" y="20" width="600" height="50" as="geometry"/>
+        <mxCell id="title" value="HarvestHaul — Complete System Flow (v2026-07-16)" style="text;html=1;fontSize=28;fontStyle=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="800" y="20" width="800" height="50" as="geometry"/>
         </mxCell>
 
         <!-- ============================================ -->
         <!-- PHASE 1: REGISTRATION & VERIFICATION -->
         <!-- ============================================ -->
         <mxCell id="phase1-bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;strokeWidth=2;dashed=1;" vertex="1" parent="1">
-          <mxGeometry x="40" y="90" width="380" height="680" as="geometry"/>
+          <mxGeometry x="40" y="90" width="380" height="620" as="geometry"/>
         </mxCell>
         <mxCell id="phase1-label" value="PHASE 1: Registration &amp; Verification" style="text;html=1;fontSize=16;fontStyle=1;align=center;verticalAlign=middle;fillColor=#E8EAF6;rounded=1;" vertex="1" parent="1">
           <mxGeometry x="100" y="100" width="260" height="30" as="geometry"/>
@@ -27,46 +27,38 @@
         <mxCell id="p1-select-role" value="Select Role&#xa;(Farmer / Logistics / Buyer)" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff9c4;strokeColor=#f9a825;" vertex="1" parent="1">
           <mxGeometry x="120" y="210" width="200" height="80" as="geometry"/>
         </mxCell>
-        <mxCell id="p1-register" value="Fill Registration Form&#xa;+ Create Profile" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#bbdefb;strokeColor=#1565c0;" vertex="1" parent="1">
-          <mxGeometry x="120" y="310" width="200" height="50" as="geometry"/>
+        <mxCell id="p1-register" value="Fill Registration Form&#xa;+ Create Profile&#xa;status=active (no approval gate)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#bbdefb;strokeColor=#1565c0;" vertex="1" parent="1">
+          <mxGeometry x="120" y="310" width="200" height="60" as="geometry"/>
         </mxCell>
-        <mxCell id="p1-otp" value="Email OTP Sent&#xa;(6-digit, 10min expiry)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1bee7;strokeColor=#7b1fa2;" vertex="1" parent="1">
-          <mxGeometry x="120" y="380" width="200" height="50" as="geometry"/>
+        <mxCell id="p1-otp" value="Email OTP Sent&#xa;(6-digit, 10min expiry)&#xa;throttle:5,1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1bee7;strokeColor=#7b1fa2;" vertex="1" parent="1">
+          <mxGeometry x="120" y="390" width="200" height="60" as="geometry"/>
         </mxCell>
         <mxCell id="p1-verify-otp" value="OTP Verified?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff9c4;strokeColor=#f9a825;" vertex="1" parent="1">
-          <mxGeometry x="145" y="450" width="150" height="70" as="geometry"/>
+          <mxGeometry x="145" y="470" width="150" height="70" as="geometry"/>
         </mxCell>
-        <mxCell id="p1-admin-verify" value="Admin Verifies Profile&#xa;+ Documents" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffccbc;strokeColor=#bf360c;" vertex="1" parent="1">
-          <mxGeometry x="120" y="540" width="200" height="50" as="geometry"/>
+        <mxCell id="p1-active" value="Email Verified ✓&#xa;Full Access Granted&#xa;(auto-login on register)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#c8e6c9;strokeColor=#2e7d32;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="130" y="570" width="180" height="60" as="geometry"/>
         </mxCell>
-        <mxCell id="p1-verified" value="Verified?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff9c4;strokeColor=#f9a825;" vertex="1" parent="1">
-          <mxGeometry x="145" y="610" width="150" height="60" as="geometry"/>
-        </mxCell>
-        <mxCell id="p1-active" value="Account Active&#xa;Access Granted" style="ellipse;whiteSpace=wrap;html=1;fillColor=#c8e6c9;strokeColor=#2e7d32;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="130" y="690" width="180" height="40" as="geometry"/>
+        <mxCell id="p1-forgot" value="Forgot Password&#xa;Reset Link (email)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffccbc;strokeColor=#bf360c;" vertex="1" parent="1">
+          <mxGeometry x="370" y="390" width="120" height="50" as="geometry"/>
         </mxCell>
 
         <mxCell id="p1-e1" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="p1-start" target="p1-select-role" parent="1"/>
         <mxCell id="p1-e2" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="p1-select-role" target="p1-register" parent="1"/>
         <mxCell id="p1-e3" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="p1-register" target="p1-otp" parent="1"/>
         <mxCell id="p1-e4" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="p1-otp" target="p1-verify-otp" parent="1"/>
-        <mxCell id="p1-e5" value="Yes" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="p1-verify-otp" target="p1-admin-verify" parent="1"/>
+        <mxCell id="p1-e5" value="Yes" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="p1-verify-otp" target="p1-active" parent="1"/>
         <mxCell id="p1-e6" value="No" style="edgeStyle=orthogonalEdgeStyle;exitX=1;exitY=0.5;" edge="1" source="p1-verify-otp" target="p1-otp" parent="1">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="380" y="485"/>
-              <mxPoint x="380" y="405"/>
+              <mxPoint x="380" y="505"/>
+              <mxPoint x="380" y="420"/>
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="p1-e7" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="p1-admin-verify" target="p1-verified" parent="1"/>
-        <mxCell id="p1-e8" value="Yes" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="p1-verified" target="p1-active" parent="1"/>
-        <mxCell id="p1-e9" value="Rejected" style="edgeStyle=orthogonalEdgeStyle;exitX=1;exitY=0.5;" edge="1" source="p1-verified" target="p1-admin-verify" parent="1">
+        <mxCell id="p1-e7" style="edgeStyle=orthogonalEdgeStyle;dashed=1;strokeColor=#bf360c;" edge="1" source="p1-active" target="p1-forgot" parent="1">
           <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="380" y="640"/>
-              <mxPoint x="380" y="565"/>
-            </Array>
+            <mxPoint x="310" y="600" as="targetPoint"/>
           </mxGeometry>
         </mxCell>
 
@@ -74,29 +66,32 @@
         <!-- PHASE 2: CROP LISTING (FARMER) -->
         <!-- ============================================ -->
         <mxCell id="phase2-bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;strokeWidth=2;dashed=1;" vertex="1" parent="1">
-          <mxGeometry x="460" y="90" width="340" height="500" as="geometry"/>
+          <mxGeometry x="460" y="90" width="380" height="580" as="geometry"/>
         </mxCell>
         <mxCell id="phase2-label" value="PHASE 2: Crop Listing (Farmer)" style="text;html=1;fontSize=16;fontStyle=1;align=center;verticalAlign=middle;fillColor=#E8F5E9;rounded=1;" vertex="1" parent="1">
           <mxGeometry x="510" y="100" width="240" height="30" as="geometry"/>
         </mxCell>
 
         <mxCell id="p2-create" value="Farmer Creates&#xa;Harvest Listing" style="ellipse;whiteSpace=wrap;html=1;fillColor=#c8e6c9;strokeColor=#2e7d32;" vertex="1" parent="1">
-          <mxGeometry x="540" y="150" width="180" height="50" as="geometry"/>
+          <mxGeometry x="530" y="150" width="180" height="50" as="geometry"/>
         </mxCell>
-        <mxCell id="p2-select-crop" value="Select Crop → Variety&#xa;Set Quantity + Price/kg" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#bbdefb;strokeColor=#1565c0;" vertex="1" parent="1">
-          <mxGeometry x="530" y="220" width="200" height="50" as="geometry"/>
+        <mxCell id="p2-select-crop" value="Select Crop Category→Crop→Variety&#xa;Set Quantity + Price/kg + Visibility&#xa;Select Destination (market/port)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#bbdefb;strokeColor=#1565c0;" vertex="1" parent="1">
+          <mxGeometry x="530" y="220" width="200" height="70" as="geometry"/>
         </mxCell>
-        <mxCell id="p2-gps" value="GPS Auto-Copied&#xa;from Profile" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#b2dfdb;strokeColor=#00695c;" vertex="1" parent="1">
-          <mxGeometry x="530" y="290" width="200" height="50" as="geometry"/>
+        <mxCell id="p2-gps" value="GPS Auto-Copied&#xa;from FarmerProfile" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#b2dfdb;strokeColor=#00695c;" vertex="1" parent="1">
+          <mxGeometry x="530" y="310" width="200" height="50" as="geometry"/>
         </mxCell>
-        <mxCell id="p2-photos" value="Upload Crop Photos&#xa;(max 5, 5MB each)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1bee7;strokeColor=#7b1fa2;" vertex="1" parent="1">
-          <mxGeometry x="530" y="360" width="200" height="50" as="geometry"/>
+        <mxCell id="p2-photos" value="Upload Crop Photos&#xa;(max 5, 5MB each)&#xa;→ crop_photos[] JSON" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1bee7;strokeColor=#7b1fa2;" vertex="1" parent="1">
+          <mxGeometry x="530" y="380" width="200" height="60" as="geometry"/>
         </mxCell>
         <mxCell id="p2-validate" value="PH GPS Bounds Valid?&#xa;(4°N–21°N, 116°E–127°E)" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff9c4;strokeColor=#f9a825;" vertex="1" parent="1">
-          <mxGeometry x="540" y="430" width="180" height="80" as="geometry"/>
+          <mxGeometry x="540" y="460" width="180" height="80" as="geometry"/>
         </mxCell>
-        <mxCell id="p2-active" value="Status: active&#xa;Visible on Logistics Map" style="ellipse;whiteSpace=wrap;html=1;fillColor=#c8e6c9;strokeColor=#2e7d32;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="540" y="530" width="180" height="50" as="geometry"/>
+        <mxCell id="p2-pending" value="Status: pending (draft)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff9c4;strokeColor=#f9a825;" vertex="1" parent="1">
+          <mxGeometry x="710" y="510" width="130" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="p2-active" value="Status: active&#xa;Visible on Crop Board + LP Map&#xa;remaining_quantity = quantity" style="ellipse;whiteSpace=wrap;html=1;fillColor=#c8e6c9;strokeColor=#2e7d32;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="530" y="580" width="200" height="60" as="geometry"/>
         </mxCell>
 
         <mxCell id="p2-e1" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="p2-create" target="p2-select-crop" parent="1"/>
@@ -104,60 +99,64 @@
         <mxCell id="p2-e3" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="p2-gps" target="p2-photos" parent="1"/>
         <mxCell id="p2-e4" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="p2-photos" target="p2-validate" parent="1"/>
         <mxCell id="p2-e5" value="Yes" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="p2-validate" target="p2-active" parent="1"/>
-        <mxCell id="p2-e6" value="No → Reject" style="edgeStyle=orthogonalEdgeStyle;exitX=1;exitY=0.5;" edge="1" source="p2-validate" target="p2-create" parent="1">
+        <mxCell id="p2-e6" value="No→Reject" style="edgeStyle=orthogonalEdgeStyle;exitX=1;exitY=0.5;" edge="1" source="p2-validate" target="p2-create" parent="1">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="800" y="470"/>
+              <mxPoint x="800" y="500"/>
               <mxPoint x="800" y="175"/>
             </Array>
           </mxGeometry>
         </mxCell>
+        <mxCell id="p2-e7" style="edgeStyle=orthogonalEdgeStyle;dashed=1;" edge="1" source="p2-validate" target="p2-pending" parent="1"/>
 
         <!-- ============================================ -->
         <!-- PHASE 3: B2B NEGOTIATION (BUYER ↔ FARMER) -->
         <!-- ============================================ -->
         <mxCell id="phase3-bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;strokeWidth=2;dashed=1;" vertex="1" parent="1">
-          <mxGeometry x="840" y="90" width="340" height="620" as="geometry"/>
+          <mxGeometry x="880" y="90" width="380" height="680" as="geometry"/>
         </mxCell>
-        <mxCell id="phase3-label" value="PHASE 3: B2B Negotiation (Buyer ↔ Farmer)" style="text;html=1;fontSize=14;fontStyle=1;align=center;verticalAlign=middle;fillColor=#FFF3E0;rounded=1;" vertex="1" parent="1">
-          <mxGeometry x="870" y="100" width="280" height="30" as="geometry"/>
+        <mxCell id="phase3-label" value="PHASE 3: B2B Negotiation (Buyer ↔ Farmer)&#xa;Scoped: cooperative/independent" style="text;html=1;fontSize=14;fontStyle=1;align=center;verticalAlign=middle;fillColor=#FFF3E0;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="890" y="100" width="360" height="40" as="geometry"/>
         </mxCell>
 
-        <mxCell id="p3-browse" value="Buyer Browses&#xa;Crop Board" style="ellipse;whiteSpace=wrap;html=1;fillColor=#c8e6c9;strokeColor=#2e7d32;" vertex="1" parent="1">
-          <mxGeometry x="920" y="150" width="180" height="50" as="geometry"/>
+        <mxCell id="p3-browse" value="Buyer Browses&#xa;Crop Board (scoped)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#c8e6c9;strokeColor=#2e7d32;" vertex="1" parent="1">
+          <mxGeometry x="930" y="160" width="180" height="50" as="geometry"/>
         </mxCell>
-        <mxCell id="p3-start-neg" value="Start Negotiation&#xa;Harvest → negotiating" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#bbdefb;strokeColor=#1565c0;" vertex="1" parent="1">
-          <mxGeometry x="910" y="220" width="200" height="50" as="geometry"/>
+        <mxCell id="p3-start-neg" value="Start Negotiation&#xa;POST /negotiations/start&#xa;Harvest → negotiating&#xa;DB::transaction+lockForUpdate" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#bbdefb;strokeColor=#1565c0;" vertex="1" parent="1">
+          <mxGeometry x="920" y="230" width="200" height="70" as="geometry"/>
         </mxCell>
-        <mxCell id="p3-chat" value="Chat Room&#xa;(Real-time Messaging)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1bee7;strokeColor=#7b1fa2;" vertex="1" parent="1">
-          <mxGeometry x="910" y="290" width="200" height="50" as="geometry"/>
+        <mxCell id="p3-chat" value="Chat Room (AJAX polling)&#xa;GET /negotiations/{id}" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1bee7;strokeColor=#7b1fa2;" vertex="1" parent="1">
+          <mxGeometry x="920" y="320" width="200" height="50" as="geometry"/>
         </mxCell>
-        <mxCell id="p3-propose" value="Propose Terms&#xa;(Price/kg + Volume)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff9c4;strokeColor=#f9a825;" vertex="1" parent="1">
-          <mxGeometry x="910" y="360" width="200" height="50" as="geometry"/>
+        <mxCell id="p3-propose" value="Propose/Propose Terms&#xa;Max 10 offer rounds" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff9c4;strokeColor=#f9a825;" vertex="1" parent="1">
+          <mxGeometry x="920" y="390" width="200" height="50" as="geometry"/>
         </mxCell>
-        <mxCell id="p3-agree" value="Both Agree?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff9c4;strokeColor=#f9a825;" vertex="1" parent="1">
-          <mxGeometry x="945" y="430" width="130" height="70" as="geometry"/>
+        <mxCell id="p3-agree" value="Agree?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff9c4;strokeColor=#f9a825;" vertex="1" parent="1">
+          <mxGeometry x="955" y="460" width="130" height="70" as="geometry"/>
         </mxCell>
-        <mxCell id="p3-finalize" value="Buyer Finalizes Deal&#xa;+ Drop-off Coordinates" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffccbc;strokeColor=#bf360c;" vertex="1" parent="1">
-          <mxGeometry x="910" y="520" width="200" height="50" as="geometry"/>
+        <mxCell id="p3-finalize" value="Buyer Finalizes Deal&#xa;+ Drop-off Coordinates&#xa;Status: COMPLETED&#xa;Harvest→sold or partial" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffccbc;strokeColor=#bf360c;" vertex="1" parent="1">
+          <mxGeometry x="920" y="550" width="200" height="70" as="geometry"/>
         </mxCell>
-        <mxCell id="p3-sold" value="Status: sold&#xa;Visible to Logistics" style="ellipse;whiteSpace=wrap;html=1;fillColor=#c8e6c9;strokeColor=#2e7d32;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="920" y="600" width="180" height="50" as="geometry"/>
+        <mxCell id="p3-sold" value="Harvest: status=sold&#xa;Visible to Logistics Map" style="ellipse;whiteSpace=wrap;html=1;fillColor=#c8e6c9;strokeColor=#2e7d32;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="930" y="640" width="180" height="50" as="geometry"/>
         </mxCell>
-        <mxCell id="p3-timeout" value="7-Day Timeout&#xa;→ Auto-Close" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffcdd2;strokeColor=#c62828;" vertex="1" parent="1">
-          <mxGeometry x="1090" y="300" width="130" height="50" as="geometry"/>
+        <mxCell id="p3-cancel" value="Cancel/Cancel&#xa;Harvest→active/partial" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffcdd2;strokeColor=#c62828;" vertex="1" parent="1">
+          <mxGeometry x="1130" y="400" width="130" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="p3-timeout" value="48h Timeout&#xa;→ Auto-Close&#xa;(daily cron)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffcdd2;strokeColor=#c62828;" vertex="1" parent="1">
+          <mxGeometry x="1130" y="280" width="130" height="60" as="geometry"/>
         </mxCell>
 
         <mxCell id="p3-e1" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="p3-browse" target="p3-start-neg" parent="1"/>
         <mxCell id="p3-e2" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="p3-start-neg" target="p3-chat" parent="1"/>
         <mxCell id="p3-e3" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="p3-chat" target="p3-propose" parent="1"/>
         <mxCell id="p3-e4" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="p3-propose" target="p3-agree" parent="1"/>
-        <mxCell id="p3-e5" value="Yes" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="p3-agree" target="p3-finalize" parent="1"/>
-        <mxCell id="p3-e6" value="No → Counter" style="edgeStyle=orthogonalEdgeStyle;exitX=0;exitY=0.5;" edge="1" source="p3-agree" target="p3-propose" parent="1">
+        <mxCell id="p3-e5" value="Yes→AGREED" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="p3-agree" target="p3-finalize" parent="1"/>
+        <mxCell id="p3-e6" value="No→Counter" style="edgeStyle=orthogonalEdgeStyle;exitX=0;exitY=0.5;" edge="1" source="p3-agree" target="p3-propose" parent="1">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="880" y="465"/>
-              <mxPoint x="880" y="385"/>
+              <mxPoint x="890" y="495"/>
+              <mxPoint x="890" y="415"/>
             </Array>
           </mxGeometry>
         </mxCell>
@@ -165,47 +164,48 @@
         <mxCell id="p3-e8" style="edgeStyle=orthogonalEdgeStyle;dashed=1;strokeColor=#c62828;" edge="1" source="p3-chat" target="p3-timeout" parent="1">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="1060" y="315"/>
+              <mxPoint x="1070" y="345"/>
             </Array>
           </mxGeometry>
         </mxCell>
+        <mxCell id="p3-e9" value="Cancel" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="p3-propose" target="p3-cancel" parent="1"/>
 
         <!-- ============================================ -->
-        <!-- PHASE 4: RESOURCE POOLING (LOGISTICS) -->
+        <!-- PHASE 4: RESOURCE POOLING + FREIGHT NEG (LOGISTICS) -->
         <!-- ============================================ -->
         <mxCell id="phase4-bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;strokeWidth=2;dashed=1;" vertex="1" parent="1">
-          <mxGeometry x="1220" y="90" width="380" height="700" as="geometry"/>
+          <mxGeometry x="1300" y="90" width="400" height="820" as="geometry"/>
         </mxCell>
-        <mxCell id="phase4-label" value="PHASE 4: Resource Pooling (Logistics Partner)" style="text;html=1;fontSize=14;fontStyle=1;align=center;verticalAlign=middle;fillColor=#E3F2FD;rounded=1;" vertex="1" parent="1">
-          <mxGeometry x="1260" y="100" width="300" height="30" as="geometry"/>
+        <mxCell id="phase4-label" value="PHASE 4: Resource Pooling + Freight Negotiation&#xa;(Logistics Partner ↔ Farmer)" style="text;html=1;fontSize=14;fontStyle=1;align=center;verticalAlign=middle;fillColor=#E3F2FD;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="1340" y="100" width="320" height="40" as="geometry"/>
         </mxCell>
 
-        <mxCell id="p4-view-map" value="View Leaflet Map&#xa;(Sold Harvests + Trucks)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#c8e6c9;strokeColor=#2e7d32;" vertex="1" parent="1">
-          <mxGeometry x="1310" y="150" width="200" height="50" as="geometry"/>
+        <mxCell id="p4-view-map" value="View Leaflet Map&#xa;(Sold/Partial Harvests + Trucks)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#c8e6c9;strokeColor=#2e7d32;" vertex="1" parent="1">
+          <mxGeometry x="1390" y="160" width="220" height="50" as="geometry"/>
         </mxCell>
-        <mxCell id="p4-select" value="Select Truck + Harvests" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#bbdefb;strokeColor=#1565c0;" vertex="1" parent="1">
-          <mxGeometry x="1310" y="220" width="200" height="40" as="geometry"/>
+        <mxCell id="p4-select" value="Select Truck + Harvests&#xa;Validate: single buyer, no conflicts" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#bbdefb;strokeColor=#1565c0;" vertex="1" parent="1">
+          <mxGeometry x="1390" y="230" width="220" height="50" as="geometry"/>
         </mxCell>
-        <mxCell id="p4-knapsack" value="1. Knapsack Algorithm&#xa;Select Optimal Harvest Subset" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff9c4;strokeColor=#f9a825;" vertex="1" parent="1">
-          <mxGeometry x="1310" y="280" width="200" height="50" as="geometry"/>
+        <mxCell id="p4-knapsack" value="1. Knapsack Algorithm&#xa;Fit harvests to capacity&#xa;Brute-force (n≤20) / Greedy (n>20)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff9c4;strokeColor=#f9a825;" vertex="1" parent="1">
+          <mxGeometry x="1390" y="300" width="220" height="60" as="geometry"/>
         </mxCell>
-        <mxCell id="p4-tsp" value="2. Nearest-Neighbor TSP&#xa;Order Pickup Stops" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff9c4;strokeColor=#f9a825;" vertex="1" parent="1">
-          <mxGeometry x="1310" y="350" width="200" height="50" as="geometry"/>
+        <mxCell id="p4-tsp" value="2. Nearest-Neighbor TSP&#xa;Order Pickup Stops (O(n²))" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff9c4;strokeColor=#f9a825;" vertex="1" parent="1">
+          <mxGeometry x="1390" y="380" width="220" height="50" as="geometry"/>
         </mxCell>
-        <mxCell id="p4-distance" value="3. Haversine Distance&#xa;Compute Route" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff9c4;strokeColor=#f9a825;" vertex="1" parent="1">
-          <mxGeometry x="1310" y="420" width="200" height="50" as="geometry"/>
+        <mxCell id="p4-distance" value="3. Haversine Distance&#xa;Sequence dropoffs (deduplicated)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff9c4;strokeColor=#f9a825;" vertex="1" parent="1">
+          <mxGeometry x="1390" y="450" width="220" height="50" as="geometry"/>
         </mxCell>
-        <mxCell id="p4-cost" value="4. Cost Allocation&#xa;Weight × Distance Scoring" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff9c4;strokeColor=#f9a825;" vertex="1" parent="1">
-          <mxGeometry x="1310" y="490" width="200" height="50" as="geometry"/>
+        <mxCell id="p4-cost" value="4. Reference Price&#xa;(dist×₱15)+(weight×₱0.50)+₱250&#xa;Proportional per-farmer cost" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff9c4;strokeColor=#f9a825;" vertex="1" parent="1">
+          <mxGeometry x="1390" y="520" width="220" height="60" as="geometry"/>
         </mxCell>
-        <mxCell id="p4-weather" value="5. Weather Check&#xa;Per Waypoint" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#b2dfdb;strokeColor=#00695c;" vertex="1" parent="1">
-          <mxGeometry x="1310" y="560" width="200" height="50" as="geometry"/>
+        <mxCell id="p4-weather" value="5. Weather Check&#xa;Per waypoint (OpenWeatherMap)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#b2dfdb;strokeColor=#00695c;" vertex="1" parent="1">
+          <mxGeometry x="1390" y="600" width="220" height="50" as="geometry"/>
         </mxCell>
-        <mxCell id="p4-confirm" value="Confirm Route&#xa;(DB Transaction)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffccbc;strokeColor=#bf360c;" vertex="1" parent="1">
-          <mxGeometry x="1310" y="630" width="200" height="50" as="geometry"/>
+        <mxCell id="p4-confirm" value="Confirm Route&#xa;POST /pooling/confirm&#xa;DB::transaction+lockForUpdate&#xa;Harvest→assigned, Truck→reserved&#xa;Status: pending, 48h expiry" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffccbc;strokeColor=#bf360c;" vertex="1" parent="1">
+          <mxGeometry x="1390" y="670" width="220" height="80" as="geometry"/>
         </mxCell>
-        <mxCell id="p4-auto-assign" value="Auto-Assign Driver&#xa;(Nearest + 8hr Rest)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1bee7;strokeColor=#7b1fa2;" vertex="1" parent="1">
-          <mxGeometry x="1310" y="700" width="200" height="50" as="geometry"/>
+        <mxCell id="p4-proposals" value="Proposals Sent to Farmers&#xa;Each harvest pivot: cost_share, status=pending" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1bee7;strokeColor=#7b1fa2;" vertex="1" parent="1">
+          <mxGeometry x="1390" y="770" width="220" height="50" as="geometry"/>
         </mxCell>
 
         <mxCell id="p4-e1" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="p4-view-map" target="p4-select" parent="1"/>
@@ -215,41 +215,44 @@
         <mxCell id="p4-e5" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="p4-distance" target="p4-cost" parent="1"/>
         <mxCell id="p4-e6" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="p4-cost" target="p4-weather" parent="1"/>
         <mxCell id="p4-e7" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="p4-weather" target="p4-confirm" parent="1"/>
-        <mxCell id="p4-e8" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="p4-confirm" target="p4-auto-assign" parent="1"/>
+        <mxCell id="p4-e8" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="p4-confirm" target="p4-proposals" parent="1"/>
 
         <!-- ============================================ -->
-        <!-- PHASE 5: PROPOSAL ACCEPTANCE -->
+        <!-- PHASE 5: PROPOSAL ACCEPTANCE + COUNTER (FARMER ↔ LOGISTICS) -->
         <!-- ============================================ -->
         <mxCell id="phase5-bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;strokeWidth=2;dashed=1;" vertex="1" parent="1">
-          <mxGeometry x="40" y="800" width="380" height="550" as="geometry"/>
+          <mxGeometry x="40" y="850" width="440" height="640" as="geometry"/>
         </mxCell>
-        <mxCell id="phase5-label" value="PHASE 5: Proposal Acceptance (Farmer ↔ Logistics)" style="text;html=1;fontSize=14;fontStyle=1;align=center;verticalAlign=middle;fillColor=#FCE4EC;rounded=1;" vertex="1" parent="1">
-          <mxGeometry x="50" y="810" width="360" height="30" as="geometry"/>
+        <mxCell id="phase5-label" value="PHASE 5: Proposal Acceptance + Counter-Offer&#xa;(Farmer ↔ Logistics, max 5 rounds)" style="text;html=1;fontSize=14;fontStyle=1;align=center;verticalAlign=middle;fillColor=#FCE4EC;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="50" y="860" width="420" height="40" as="geometry"/>
         </mxCell>
 
         <mxCell id="p5-receive" value="Farmer Receives&#xa;Pooling Proposal" style="ellipse;whiteSpace=wrap;html=1;fillColor=#c8e6c9;strokeColor=#2e7d32;" vertex="1" parent="1">
-          <mxGeometry x="130" y="860" width="180" height="50" as="geometry"/>
+          <mxGeometry x="120" y="920" width="180" height="50" as="geometry"/>
         </mxCell>
         <mxCell id="p5-decide" value="Farmer Decision" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff9c4;strokeColor=#f9a825;" vertex="1" parent="1">
-          <mxGeometry x="155" y="930" width="130" height="70" as="geometry"/>
+          <mxGeometry x="145" y="990" width="130" height="70" as="geometry"/>
         </mxCell>
-        <mxCell id="p5-accept" value="Accept&#xa;→ pivot status: accepted" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#c8e6c9;strokeColor=#2e7d32;" vertex="1" parent="1">
-          <mxGeometry x="50" y="1020" width="140" height="50" as="geometry"/>
+        <mxCell id="p5-accept" value="Accept&#xa;pivot→accepted&#xa;Notify LP" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#c8e6c9;strokeColor=#2e7d32;" vertex="1" parent="1">
+          <mxGeometry x="40" y="1080" width="140" height="60" as="geometry"/>
         </mxCell>
-        <mxCell id="p5-reject" value="Reject&#xa;→ harvest back to active" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffcdd2;strokeColor=#c62828;" vertex="1" parent="1">
-          <mxGeometry x="210" y="1020" width="140" height="50" as="geometry"/>
+        <mxCell id="p5-reject" value="Reject&#xa;pivot→rejected&#xa;Harvest→sold" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffcdd2;strokeColor=#c62828;" vertex="1" parent="1">
+          <mxGeometry x="210" y="1080" width="140" height="60" as="geometry"/>
         </mxCell>
-        <mxCell id="p5-counter" value="Counter-Propose&#xa;±75% of reference, max 5 rounds" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff9c4;strokeColor=#f9a825;" vertex="1" parent="1">
-          <mxGeometry x="100" y="1090" width="220" height="50" as="geometry"/>
+        <mxCell id="p5-counter" value="Counter (Farmer)&#xa;Submit counter_price&#xa;25%-175% of reference&#xa;Max 5 rounds total&#xa;Only this farmer's share" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff9c4;strokeColor=#f9a825;" vertex="1" parent="1">
+          <mxGeometry x="300" y="1160" width="160" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="p5-lp-respond" value="LP Counter-Bid&#xa;New price to ALL farmers&#xa;Resets all to pending&#xa;Recalculates cost_shares" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffccbc;strokeColor=#bf360c;" vertex="1" parent="1">
+          <mxGeometry x="40" y="1160" width="160" height="90" as="geometry"/>
         </mxCell>
         <mxCell id="p5-all-accept" value="All Farmers&#xa;Accepted?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff9c4;strokeColor=#f9a825;" vertex="1" parent="1">
-          <mxGeometry x="155" y="1160" width="130" height="70" as="geometry"/>
+          <mxGeometry x="145" y="1300" width="130" height="70" as="geometry"/>
         </mxCell>
-        <mxCell id="p5-confirmed" value="PoolingJob → confirmed&#xa;Driver Notified" style="ellipse;whiteSpace=wrap;html=1;fillColor=#c8e6c9;strokeColor=#2e7d32;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="130" y="1250" width="180" height="50" as="geometry"/>
+        <mxCell id="p5-confirmed" value="PoolingJob→confirmed&#xa;Driver Auto-Assign&#xa;(nearest+8hr rest)&#xa;Driver Notified" style="ellipse;whiteSpace=wrap;html=1;fillColor=#c8e6c9;strokeColor=#2e7d32;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="110" y="1400" width="200" height="70" as="geometry"/>
         </mxCell>
-        <mxCell id="p5-expire" value="48hr Timeout&#xa;→ Auto-Reject" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffcdd2;strokeColor=#c62828;" vertex="1" parent="1">
-          <mxGeometry x="340" y="940" width="120" height="50" as="geometry"/>
+        <mxCell id="p5-expire" value="48h Timeout&#xa;→ Auto-Reject&#xa;(hourly cron)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffcdd2;strokeColor=#c62828;" vertex="1" parent="1">
+          <mxGeometry x="370" y="1000" width="120" height="60" as="geometry"/>
         </mxCell>
 
         <mxCell id="p5-e1" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="p5-receive" target="p5-decide" parent="1"/>
@@ -258,58 +261,73 @@
         <mxCell id="p5-e4" value="Counter" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="p5-decide" target="p5-counter" parent="1"/>
         <mxCell id="p5-e5" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="p5-accept" target="p5-all-accept" parent="1"/>
         <mxCell id="p5-e6" value="Yes" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="p5-all-accept" target="p5-confirmed" parent="1"/>
-        <mxCell id="p5-e7" value="No → Wait" style="edgeStyle=orthogonalEdgeStyle;exitX=0;exitY=0.5;" edge="1" source="p5-all-accept" target="p5-receive" parent="1">
+        <mxCell id="p5-e7" value="No→Wait" style="edgeStyle=orthogonalEdgeStyle;exitX=0;exitY=0.5;" edge="1" source="p5-all-accept" target="p5-receive" parent="1">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="20" y="1195"/>
-              <mxPoint x="20" y="885"/>
+              <mxPoint x="20" y="1335"/>
+              <mxPoint x="20" y="945"/>
             </Array>
           </mxGeometry>
         </mxCell>
         <mxCell id="p5-e8" style="edgeStyle=orthogonalEdgeStyle;dashed=1;strokeColor=#c62828;" edge="1" source="p5-receive" target="p5-expire" parent="1"/>
+        <mxCell id="p5-e9" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="p5-counter" target="p5-lp-respond" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="260" y="1205"/>
+              <mxPoint x="180" y="1205"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p5-e10" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="p5-lp-respond" target="p5-all-accept" parent="1"/>
 
         <!-- ============================================ -->
         <!-- PHASE 6: DELIVERY EXECUTION (DRIVER) -->
         <!-- ============================================ -->
         <mxCell id="phase6-bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;strokeWidth=2;dashed=1;" vertex="1" parent="1">
-          <mxGeometry x="460" y="800" width="380" height="680" as="geometry"/>
+          <mxGeometry x="520" y="850" width="420" height="780" as="geometry"/>
         </mxCell>
-        <mxCell id="phase6-label" value="PHASE 6: Delivery Execution (Driver PWA)" style="text;html=1;fontSize=14;fontStyle=1;align=center;verticalAlign=middle;fillColor=#E0F7FA;rounded=1;" vertex="1" parent="1">
-          <mxGeometry x="500" y="810" width="300" height="30" as="geometry"/>
+        <mxCell id="phase6-label" value="PHASE 6: Delivery Execution (Driver PWA)&#xa;Per-stop: assigned→arrived→loaded→delivered" style="text;html=1;fontSize=14;fontStyle=1;align=center;verticalAlign=middle;fillColor=#E0F7FA;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="540" y="860" width="380" height="40" as="geometry"/>
         </mxCell>
 
-        <mxCell id="p6-accept" value="Driver Accepts Job" style="ellipse;whiteSpace=wrap;html=1;fillColor=#c8e6c9;strokeColor=#2e7d32;" vertex="1" parent="1">
-          <mxGeometry x="550" y="860" width="180" height="40" as="geometry"/>
+        <mxCell id="p6-accept" value="Driver Accepts Job&#xa;POST /driver/.../accept&#xa;Sets accepted_at" style="ellipse;whiteSpace=wrap;html=1;fillColor=#c8e6c9;strokeColor=#2e7d32;" vertex="1" parent="1">
+          <mxGeometry x="600" y="920" width="200" height="60" as="geometry"/>
         </mxCell>
-        <mxCell id="p6-start" value="Start Trip&#xa;→ in_progress" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#bbdefb;strokeColor=#1565c0;" vertex="1" parent="1">
-          <mxGeometry x="550" y="920" width="180" height="40" as="geometry"/>
+        <mxCell id="p6-start" value="Start Trip&#xa;confirmed→in_progress&#xa;Requires ≥1 GPS ping" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#bbdefb;strokeColor=#1565c0;" vertex="1" parent="1">
+          <mxGeometry x="600" y="1000" width="200" height="60" as="geometry"/>
         </mxCell>
-        <mxCell id="p6-gps-stream" value="GPS Streaming&#xa;(every 15-30s)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#b2dfdb;strokeColor=#00695c;" vertex="1" parent="1">
-          <mxGeometry x="550" y="980" width="180" height="40" as="geometry"/>
+        <mxCell id="p6-gps-stream" value="GPS Streaming (every 15s)&#xa;POST /driver/tracking/store&#xa;Accuracy filter: ≤500m&#xa;Dedup: 30s same coords" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#b2dfdb;strokeColor=#00695c;" vertex="1" parent="1">
+          <mxGeometry x="600" y="1080" width="200" height="70" as="geometry"/>
         </mxCell>
         <mxCell id="p6-stop-seq" value="For Each Stop:" style="text;html=1;fontSize=12;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="570" y="1030" width="140" height="20" as="geometry"/>
+          <mxGeometry x="630" y="1155" width="140" height="20" as="geometry"/>
         </mxCell>
-        <mxCell id="p6-arrived" value="1. Arrived&#xa;(geofence ≤500m)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff9c4;strokeColor=#f9a825;" vertex="1" parent="1">
-          <mxGeometry x="550" y="1060" width="180" height="40" as="geometry"/>
+        <mxCell id="p6-arrived" value="1. Arrived&#xa;Geofence ≤500m farm GPS" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff9c4;strokeColor=#f9a825;" vertex="1" parent="1">
+          <mxGeometry x="600" y="1180" width="200" height="40" as="geometry"/>
         </mxCell>
-        <mxCell id="p6-loaded" value="2. Loaded&#xa;(crop confirmed + photo)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff9c4;strokeColor=#f9a825;" vertex="1" parent="1">
-          <mxGeometry x="550" y="1120" width="180" height="40" as="geometry"/>
+        <mxCell id="p6-loaded" value="2. Loaded&#xa;Crop confirmed + photo req&#xa;Qty ≤ allocation" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff9c4;strokeColor=#f9a825;" vertex="1" parent="1">
+          <mxGeometry x="600" y="1240" width="200" height="50" as="geometry"/>
         </mxCell>
-        <mxCell id="p6-delivered" value="3. Delivered&#xa;(receipt photo)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff9c4;strokeColor=#f9a825;" vertex="1" parent="1">
-          <mxGeometry x="550" y="1180" width="180" height="40" as="geometry"/>
+        <mxCell id="p6-delivered" value="3. Delivered&#xa;Receipt photo required&#xa;Harvest→completed" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff9c4;strokeColor=#f9a825;" vertex="1" parent="1">
+          <mxGeometry x="600" y="1310" width="200" height="50" as="geometry"/>
         </mxCell>
-        <mxCell id="p6-fuel" value="Fuel Logging&#xa;(liters, cost, odometer)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1bee7;strokeColor=#7b1fa2;" vertex="1" parent="1">
-          <mxGeometry x="550" y="1240" width="180" height="40" as="geometry"/>
+        <mxCell id="p6-fuel" value="Fuel Logging&#xa;Liters, cost, odometer" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1bee7;strokeColor=#7b1fa2;" vertex="1" parent="1">
+          <mxGeometry x="600" y="1380" width="200" height="40" as="geometry"/>
         </mxCell>
-        <mxCell id="p6-end" value="End Trip&#xa;→ awaiting_confirmation" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffccbc;strokeColor=#bf360c;" vertex="1" parent="1">
-          <mxGeometry x="550" y="1300" width="180" height="40" as="geometry"/>
+        <mxCell id="p6-end" value="End Trip&#xa;in_progress→awaiting_complete&#xa;Requires: end odometer+all stops delivered&#xa;Actual distance from GPS records" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffccbc;strokeColor=#bf360c;" vertex="1" parent="1">
+          <mxGeometry x="600" y="1440" width="200" height="80" as="geometry"/>
         </mxCell>
-        <mxCell id="p6-delay" value="Delay Detection&#xa;(every 15min cron)&#xa;Stall / Stop / GPS Loss" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffcdd2;strokeColor=#c62828;" vertex="1" parent="1">
-          <mxGeometry x="770" y="980" width="180" height="60" as="geometry"/>
+        <mxCell id="p6-delay" value="Delay Detection&#xa;(15min cron)&#xa;Stall/Stop/GPS Loss/ETA&#xa;Auto-escalation+Resolution" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffcdd2;strokeColor=#c62828;" vertex="1" parent="1">
+          <mxGeometry x="840" y="1080" width="180" height="80" as="geometry"/>
         </mxCell>
-        <mxCell id="p6-websocket" value="WebSocket Broadcast&#xa;(2s poll + 30s heartbeat)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#b2dfdb;strokeColor=#00695c;" vertex="1" parent="1">
-          <mxGeometry x="770" y="1060" width="180" height="50" as="geometry"/>
+        <mxCell id="p6-websocket" value="WebSocket Broadcast&#xa;Custom PHP server:8080&#xa;DB-polling every 2s" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#b2dfdb;strokeColor=#00695c;" vertex="1" parent="1">
+          <mxGeometry x="840" y="1180" width="180" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="p6-eta" value="ETA Service&#xa;Median speed filter&#xa;0.85 terrain mult&#xa;Confidence scoring" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1bee7;strokeColor=#7b1fa2;" vertex="1" parent="1">
+          <mxGeometry x="840" y="1260" width="180" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="p6-identity" value="Driver Identity&#xa;ID photo + selfie&#xa;Admin verify/reject" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff9c4;strokeColor=#f9a825;" vertex="1" parent="1">
+          <mxGeometry x="840" y="1350" width="180" height="60" as="geometry"/>
         </mxCell>
 
         <mxCell id="p6-e1" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="p6-accept" target="p6-start" parent="1"/>
@@ -321,28 +339,30 @@
         <mxCell id="p6-e7" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="p6-fuel" target="p6-end" parent="1"/>
         <mxCell id="p6-e8" style="edgeStyle=orthogonalEdgeStyle;dashed=1;" edge="1" source="p6-gps-stream" target="p6-delay" parent="1"/>
         <mxCell id="p6-e9" style="edgeStyle=orthogonalEdgeStyle;dashed=1;" edge="1" source="p6-gps-stream" target="p6-websocket" parent="1"/>
+        <mxCell id="p6-e10" style="edgeStyle=orthogonalEdgeStyle;dashed=1;" edge="1" source="p6-gps-stream" target="p6-eta" parent="1"/>
+        <mxCell id="p6-e11" style="edgeStyle=orthogonalEdgeStyle;dashed=1;" edge="1" source="p6-accept" target="p6-identity" parent="1"/>
 
         <!-- ============================================ -->
         <!-- PHASE 7: BUYER CONFIRMATION -->
         <!-- ============================================ -->
         <mxCell id="phase7-bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;strokeWidth=2;dashed=1;" vertex="1" parent="1">
-          <mxGeometry x="880" y="800" width="300" height="350" as="geometry"/>
+          <mxGeometry x="980" y="850" width="340" height="420" as="geometry"/>
         </mxCell>
         <mxCell id="phase7-label" value="PHASE 7: Buyer Confirmation" style="text;html=1;fontSize=14;fontStyle=1;align=center;verticalAlign=middle;fillColor=#F3E5F5;rounded=1;" vertex="1" parent="1">
-          <mxGeometry x="920" y="810" width="220" height="30" as="geometry"/>
+          <mxGeometry x="1040" y="860" width="220" height="30" as="geometry"/>
         </mxCell>
 
-        <mxCell id="p7-track" value="Buyer Tracks&#xa;Live GPS + ETA" style="ellipse;whiteSpace=wrap;html=1;fillColor=#c8e6c9;strokeColor=#2e7d32;" vertex="1" parent="1">
-          <mxGeometry x="940" y="860" width="180" height="50" as="geometry"/>
+        <mxCell id="p7-track" value="Buyer Tracks&#xa;Live GPS + ETA + WS" style="ellipse;whiteSpace=wrap;html=1;fillColor=#c8e6c9;strokeColor=#2e7d32;" vertex="1" parent="1">
+          <mxGeometry x="1060" y="910" width="180" height="50" as="geometry"/>
         </mxCell>
-        <mxCell id="p7-confirm" value="Confirm Receipt" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#bbdefb;strokeColor=#1565c0;" vertex="1" parent="1">
-          <mxGeometry x="940" y="940" width="180" height="40" as="geometry"/>
+        <mxCell id="p7-confirm" value="Confirm Receipt&#xa;POST /buyer/deliveries/.../confirm&#xa;await→completed&#xa;pivot.buyer_confirmed_at" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#bbdefb;strokeColor=#1565c0;" vertex="1" parent="1">
+          <mxGeometry x="1060" y="980" width="180" height="70" as="geometry"/>
         </mxCell>
-        <mxCell id="p7-completed" value="Status: completed" style="ellipse;whiteSpace=wrap;html=1;fillColor=#c8e6c9;strokeColor=#2e7d32;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="940" y="1010" width="180" height="40" as="geometry"/>
+        <mxCell id="p7-completed" value="Status: completed&#xa;Audit Logged&#xa;LP Notified" style="ellipse;whiteSpace=wrap;html=1;fillColor=#c8e6c9;strokeColor=#2e7d32;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1060" y="1080" width="180" height="60" as="geometry"/>
         </mxCell>
-        <mxCell id="p7-auto" value="Auto-Complete&#xa;(48h no confirmation)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffcdd2;strokeColor=#c62828;" vertex="1" parent="1">
-          <mxGeometry x="940" y="1080" width="180" height="50" as="geometry"/>
+        <mxCell id="p7-auto" value="Auto-Complete&#xa;48h no confirmation&#xa;(hourly cron)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffcdd2;strokeColor=#c62828;" vertex="1" parent="1">
+          <mxGeometry x="1060" y="1170" width="180" height="50" as="geometry"/>
         </mxCell>
 
         <mxCell id="p7-e1" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="p7-track" target="p7-confirm" parent="1"/>
@@ -350,38 +370,35 @@
         <mxCell id="p7-e3" style="edgeStyle=orthogonalEdgeStyle;dashed=1;strokeColor=#c62828;" edge="1" source="p7-completed" target="p7-auto" parent="1"/>
 
         <!-- ============================================ -->
-        <!-- PHASE 8: PAYMENT & INVOICING -->
+        <!-- PHASE 8: COST LEDGER + PAYMENT + INVOICE -->
         <!-- ============================================ -->
         <mxCell id="phase8-bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;strokeWidth=2;dashed=1;" vertex="1" parent="1">
-          <mxGeometry x="1220" y="820" width="380" height="530" as="geometry"/>
+          <mxGeometry x="1360" y="950" width="380" height="580" as="geometry"/>
         </mxCell>
-        <mxCell id="phase8-label" value="PHASE 8: Payment &amp; Invoicing" style="text;html=1;fontSize=14;fontStyle=1;align=center;verticalAlign=middle;fillColor=#FFF8E1;rounded=1;" vertex="1" parent="1">
-          <mxGeometry x="1280" y="830" width="260" height="30" as="geometry"/>
+        <mxCell id="phase8-label" value="PHASE 8: Cost Ledger, Payment &amp; Invoice" style="text;html=1;fontSize=14;fontStyle=1;align=center;verticalAlign=middle;fillColor=#FFF8E1;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="1400" y="960" width="300" height="30" as="geometry"/>
         </mxCell>
 
-        <mxCell id="p8-ledger" value="Farmer Views&#xa;Cost Ledger" style="ellipse;whiteSpace=wrap;html=1;fillColor=#c8e6c9;strokeColor=#2e7d32;" vertex="1" parent="1">
-          <mxGeometry x="1310" y="880" width="180" height="50" as="geometry"/>
+        <mxCell id="p8-ledger" value="View Cost Ledger&#xa;GET /pooling/{id}/cost-ledger&#xa;Per-farmer: cost_share, status" style="ellipse;whiteSpace=wrap;html=1;fillColor=#c8e6c9;strokeColor=#2e7d32;" vertex="1" parent="1">
+          <mxGeometry x="1430" y="1010" width="200" height="60" as="geometry"/>
         </mxCell>
-        <mxCell id="p8-upload" value="Upload Payment Receipt&#xa;(JPG/PNG/PDF)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#bbdefb;strokeColor=#1565c0;" vertex="1" parent="1">
-          <mxGeometry x="1310" y="950" width="180" height="50" as="geometry"/>
+        <mxCell id="p8-upload" value="Farmer Uploads&#xa;Payment Receipt (JPG/PNG/PDF)&#xa;10MB max" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#bbdefb;strokeColor=#1565c0;" vertex="1" parent="1">
+          <mxGeometry x="1430" y="1090" width="200" height="60" as="geometry"/>
         </mxCell>
         <mxCell id="p8-status-submitted" value="Status: submitted" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff9c4;strokeColor=#f9a825;" vertex="1" parent="1">
-          <mxGeometry x="1310" y="1020" width="180" height="30" as="geometry"/>
+          <mxGeometry x="1430" y="1170" width="200" height="30" as="geometry"/>
         </mxCell>
-        <mxCell id="p8-confirm-qty" value="Farmer Confirms&#xa;Loaded Quantity" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1bee7;strokeColor=#7b1fa2;" vertex="1" parent="1">
-          <mxGeometry x="1310" y="1070" width="180" height="50" as="geometry"/>
+        <mxCell id="p8-confirm-qty" value="Farmer Confirms&#xa;Loaded Quantity&#xa;Idempotent: once-only" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1bee7;strokeColor=#7b1fa2;" vertex="1" parent="1">
+          <mxGeometry x="1430" y="1220" width="200" height="60" as="geometry"/>
         </mxCell>
-        <mxCell id="p8-mark-paid" value="Logistics Verifies&#xa;+ Marks Paid" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffccbc;strokeColor=#bf360c;" vertex="1" parent="1">
-          <mxGeometry x="1310" y="1140" width="180" height="50" as="geometry"/>
+        <mxCell id="p8-mark-paid" value="Logistics Verifies&#xa;+ Marks Paid&#xa;payment_status→paid" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffccbc;strokeColor=#bf360c;" vertex="1" parent="1">
+          <mxGeometry x="1430" y="1300" width="200" height="60" as="geometry"/>
         </mxCell>
-        <mxCell id="p8-status-paid" value="Status: paid" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#c8e6c9;strokeColor=#2e7d32;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="1310" y="1210" width="180" height="30" as="geometry"/>
+        <mxCell id="p8-status-paid" value="Status: paid&#xa;Audit Logged" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#c8e6c9;strokeColor=#2e7d32;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1430" y="1380" width="200" height="40" as="geometry"/>
         </mxCell>
-        <mxCell id="p8-invoice" value="Auto Invoice Generation&#xa;(hourly cron)&#xa;PDF + Email" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#b2dfdb;strokeColor=#00695c;" vertex="1" parent="1">
-          <mxGeometry x="1310" y="1270" width="180" height="60" as="geometry"/>
-        </mxCell>
-        <mxCell id="p8-fleet" value="Fleet Analytics&#xa;Revenue / KPL / Fuel" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1bee7;strokeColor=#7b1fa2;" vertex="1" parent="1">
-          <mxGeometry x="1310" y="1350" width="180" height="50" as="geometry"/>
+        <mxCell id="p8-invoice" value="Auto Invoice Generation&#xa;(hourly cron)&#xa;InvoiceService::getOrCreateInvoice&#xa;HH-INV-{YYYYMMDD}-{job-id}&#xa;PDF via DomPDF→public/invoices/&#xa;Email to LP + all farmers" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#b2dfdb;strokeColor=#00695c;" vertex="1" parent="1">
+          <mxGeometry x="1430" y="1440" width="200" height="90" as="geometry"/>
         </mxCell>
 
         <mxCell id="p8-e1" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="p8-ledger" target="p8-upload" parent="1"/>
@@ -390,19 +407,18 @@
         <mxCell id="p8-e4" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="p8-confirm-qty" target="p8-mark-paid" parent="1"/>
         <mxCell id="p8-e5" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="p8-mark-paid" target="p8-status-paid" parent="1"/>
         <mxCell id="p8-e6" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="p8-status-paid" target="p8-invoice" parent="1"/>
-        <mxCell id="p8-e7" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="p8-invoice" target="p8-fleet" parent="1"/>
 
         <!-- ============================================ -->
         <!-- SCHEDULED COMMANDS BOX -->
         <!-- ============================================ -->
         <mxCell id="cron-bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#E65100;strokeWidth=2;dashed=1;" vertex="1" parent="1">
-          <mxGeometry x="40" y="1400" width="700" height="120" as="geometry"/>
+          <mxGeometry x="40" y="1600" width="820" height="150" as="geometry"/>
         </mxCell>
-        <mxCell id="cron-label" value="SCHEDULED COMMANDS (Cron)" style="text;html=1;fontSize=14;fontStyle=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
-          <mxGeometry x="240" y="1410" width="300" height="20" as="geometry"/>
+        <mxCell id="cron-label" value="SCHEDULED COMMANDS (Cron + Manual)" style="text;html=1;fontSize=14;fontStyle=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="240" y="1610" width="300" height="20" as="geometry"/>
         </mxCell>
-        <mxCell id="cron-list" value="• delays:check (15min) — stall/stop/GPS loss detection&#xa;• weather:check (30min) — weather advisories per waypoint&#xa;• invoices:generate (hourly) — PDF invoices for completed jobs&#xa;• proposals:auto-reject (hourly) — cancel expired 48h proposals&#xa;• deliveries:auto-complete (hourly) — finish stale jobs 48h&#xa;• negotiations:auto-close (daily) — close inactive 7d negotiations&#xa;• data:cleanup (daily) — purge old tracking/notifications/weather" style="text;html=1;fontSize=11;align=left;verticalAlign=top;whiteSpace=wrap;" vertex="1" parent="1">
-          <mxGeometry x="60" y="1435" width="660" height="80" as="geometry"/>
+        <mxCell id="cron-list" value="SCHEDULED:&#xa;• delays:check (15min) — stall/stop/GPS/ETA detection + escalation + resolution&#xa;• weather:check (30min) — weather per waypoint (depot+farms+destination)&#xa;• deliveries:auto-complete (hourly) — awaiting_confirmation >48h→completed&#xa;• deliveries:auto-complete-stale (hourly) — in_progress >48h stale→completed&#xa;• invoices:generate (hourly) — completed jobs→PDF invoice→email&#xa;• proposals:auto-reject-expired (hourly) — pending >48h→cancelled; free truck&#xa;• negotiations:auto-close-stale (daily) — OPEN/AGREED >48h inactive→CANCELLED&#xa;• data:cleanup (daily) — purge old tracking/notifications/weather&#xa;&#xa;MANUAL:&#xa;• crops:scrape — scrape DA prices for baseline_price_per_kg&#xa;• websocket:serve — start custom WebSocket server on port 8080&#xa;• app:backfill-buyer-profiles — one-off migration fix" style="text;html=1;fontSize=11;align=left;verticalAlign=top;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="60" y="1635" width="780" height="110" as="geometry"/>
         </mxCell>
 
         <!-- ============================================ -->
@@ -412,12 +428,12 @@
         <mxCell id="cross-1-2" style="edgeStyle=orthogonalEdgeStyle;dashed=1;strokeColor=#1565c0;strokeWidth=2;" edge="1" source="p1-active" target="p2-create" parent="1">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="430" y="710"/>
+              <mxPoint x="430" y="600"/>
               <mxPoint x="430" y="175"/>
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="cross-1-2-label" value="Farmer&#xa;listed" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;fontColor=#1565c0;" vertex="1" connectable="0" parent="cross-1-2">
+        <mxCell id="cross-1-2-label" value="Farmer listed" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;fontColor=#1565c0;" vertex="1" connectable="0" parent="cross-1-2">
           <mxGeometry x="-0.2" relative="1" as="geometry">
             <mxPoint as="offset"/>
           </mxGeometry>
@@ -427,8 +443,8 @@
         <mxCell id="cross-2-3" style="edgeStyle=orthogonalEdgeStyle;dashed=1;strokeColor=#1565c0;strokeWidth=2;" edge="1" source="p2-active" target="p3-browse" parent="1">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="820" y="555"/>
-              <mxPoint x="820" y="175"/>
+              <mxPoint x="840" y="610"/>
+              <mxPoint x="840" y="185"/>
             </Array>
           </mxGeometry>
         </mxCell>
@@ -442,28 +458,28 @@
         <mxCell id="cross-3-4" style="edgeStyle=orthogonalEdgeStyle;dashed=1;strokeColor=#1565c0;strokeWidth=2;" edge="1" source="p3-sold" target="p4-view-map" parent="1">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="1200" y="625"/>
-              <mxPoint x="1200" y="175"/>
+              <mxPoint x="1260" y="665"/>
+              <mxPoint x="1260" y="185"/>
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="cross-3-4-label" value="Visible on&#xa;Logistics Map" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;fontColor=#1565c0;" vertex="1" connectable="0" parent="cross-3-4">
+        <mxCell id="cross-3-4-label" value="Sold→LP Map" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;fontColor=#1565c0;" vertex="1" connectable="0" parent="cross-3-4">
           <mxGeometry x="-0.2" relative="1" as="geometry">
             <mxPoint as="offset"/>
           </mxGeometry>
         </mxCell>
 
         <!-- Phase 4 → Phase 5: Pooling plan → Farmer proposals -->
-        <mxCell id="cross-4-5" style="edgeStyle=orthogonalEdgeStyle;dashed=1;strokeColor=#1565c0;strokeWidth=2;" edge="1" source="p4-auto-assign" target="p5-receive" parent="1">
+        <mxCell id="cross-4-5" style="edgeStyle=orthogonalEdgeStyle;dashed=1;strokeColor=#1565c0;strokeWidth=2;" edge="1" source="p4-proposals" target="p5-receive" parent="1">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="1200" y="725"/>
-              <mxPoint x="20" y="725"/>
-              <mxPoint x="20" y="885"/>
+              <mxPoint x="1280" y="795"/>
+              <mxPoint x="20" y="795"/>
+              <mxPoint x="20" y="945"/>
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="cross-4-5-label" value="Proposal&#xa;sent to farmers" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;fontColor=#1565c0;" vertex="1" connectable="0" parent="cross-4-5">
+        <mxCell id="cross-4-5-label" value="Proposal sent" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;fontColor=#1565c0;" vertex="1" connectable="0" parent="cross-4-5">
           <mxGeometry x="-0.2" relative="1" as="geometry">
             <mxPoint as="offset"/>
           </mxGeometry>
@@ -473,12 +489,12 @@
         <mxCell id="cross-5-6" style="edgeStyle=orthogonalEdgeStyle;dashed=1;strokeColor=#1565c0;strokeWidth=2;" edge="1" source="p5-confirmed" target="p6-accept" parent="1">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="430" y="1275"/>
-              <mxPoint x="430" y="880"/>
+              <mxPoint x="480" y="1435"/>
+              <mxPoint x="480" y="950"/>
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="cross-5-6-label" value="Driver&#xa;notified" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;fontColor=#1565c0;" vertex="1" connectable="0" parent="cross-5-6">
+        <mxCell id="cross-5-6-label" value="Driver notified" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;fontColor=#1565c0;" vertex="1" connectable="0" parent="cross-5-6">
           <mxGeometry x="-0.2" relative="1" as="geometry">
             <mxPoint as="offset"/>
           </mxGeometry>
@@ -488,12 +504,12 @@
         <mxCell id="cross-6-7" style="edgeStyle=orthogonalEdgeStyle;dashed=1;strokeColor=#1565c0;strokeWidth=2;" edge="1" source="p6-end" target="p7-track" parent="1">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="850" y="1320"/>
-              <mxPoint x="850" y="885"/>
+              <mxPoint x="920" y="1480"/>
+              <mxPoint x="920" y="935"/>
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="cross-6-7-label" value="Buyer&#xa;notified" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;fontColor=#1565c0;" vertex="1" connectable="0" parent="cross-6-7">
+        <mxCell id="cross-6-7-label" value="Buyer notified" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;fontColor=#1565c0;" vertex="1" connectable="0" parent="cross-6-7">
           <mxGeometry x="-0.2" relative="1" as="geometry">
             <mxPoint as="offset"/>
           </mxGeometry>
@@ -503,8 +519,8 @@
         <mxCell id="cross-7-8" style="edgeStyle=orthogonalEdgeStyle;dashed=1;strokeColor=#1565c0;strokeWidth=2;" edge="1" source="p7-completed" target="p8-ledger" parent="1">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="1200" y="1030"/>
-              <mxPoint x="1200" y="905"/>
+              <mxPoint x="1300" y="1110"/>
+              <mxPoint x="1300" y="1040"/>
             </Array>
           </mxGeometry>
         </mxCell>
@@ -518,46 +534,64 @@
         <!-- ROLE LEGEND -->
         <!-- ============================================ -->
         <mxCell id="legend-bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fafafa;strokeColor=#999999;strokeWidth=1;" vertex="1" parent="1">
-          <mxGeometry x="780" y="1400" width="500" height="120" as="geometry"/>
+          <mxGeometry x="900" y="1600" width="600" height="150" as="geometry"/>
         </mxCell>
         <mxCell id="legend-title" value="LEGEND" style="text;html=1;fontSize=14;fontStyle=1;align=center;" vertex="1" parent="1">
-          <mxGeometry x="980" y="1405" width="100" height="20" as="geometry"/>
+          <mxGeometry x="1150" y="1605" width="100" height="20" as="geometry"/>
         </mxCell>
         <mxCell id="legend-farmer" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#c8e6c9;strokeColor=#2e7d32;" vertex="1" parent="1">
-          <mxGeometry x="800" y="1435" width="30" height="20" as="geometry"/>
+          <mxGeometry x="920" y="1635" width="30" height="20" as="geometry"/>
         </mxCell>
         <mxCell id="legend-farmer-text" value="Farmer Actions" style="text;html=1;fontSize=11;" vertex="1" parent="1">
-          <mxGeometry x="840" y="1435" width="100" height="20" as="geometry"/>
+          <mxGeometry x="960" y="1635" width="100" height="20" as="geometry"/>
         </mxCell>
         <mxCell id="legend-buyer" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#bbdefb;strokeColor=#1565c0;" vertex="1" parent="1">
-          <mxGeometry x="800" y="1460" width="30" height="20" as="geometry"/>
+          <mxGeometry x="920" y="1660" width="30" height="20" as="geometry"/>
         </mxCell>
         <mxCell id="legend-buyer-text" value="Buyer Actions" style="text;html=1;fontSize=11;" vertex="1" parent="1">
-          <mxGeometry x="840" y="1460" width="100" height="20" as="geometry"/>
+          <mxGeometry x="960" y="1660" width="100" height="20" as="geometry"/>
         </mxCell>
         <mxCell id="legend-logistics" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffccbc;strokeColor=#bf360c;" vertex="1" parent="1">
-          <mxGeometry x="800" y="1485" width="30" height="20" as="geometry"/>
+          <mxGeometry x="920" y="1685" width="30" height="20" as="geometry"/>
         </mxCell>
         <mxCell id="legend-logistics-text" value="Logistics Actions" style="text;html=1;fontSize=11;" vertex="1" parent="1">
-          <mxGeometry x="840" y="1485" width="110" height="20" as="geometry"/>
+          <mxGeometry x="960" y="1685" width="110" height="20" as="geometry"/>
         </mxCell>
         <mxCell id="legend-decision" value="" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff9c4;strokeColor=#f9a825;" vertex="1" parent="1">
-          <mxGeometry x="960" y="1432" width="26" height="26" as="geometry"/>
+          <mxGeometry x="1100" y="1632" width="26" height="26" as="geometry"/>
         </mxCell>
         <mxCell id="legend-decision-text" value="Decision Point" style="text;html=1;fontSize=11;" vertex="1" parent="1">
-          <mxGeometry x="995" y="1435" width="100" height="20" as="geometry"/>
+          <mxGeometry x="1135" y="1635" width="100" height="20" as="geometry"/>
         </mxCell>
         <mxCell id="legend-system" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1bee7;strokeColor=#7b1fa2;" vertex="1" parent="1">
-          <mxGeometry x="960" y="1460" width="26" height="20" as="geometry"/>
+          <mxGeometry x="1100" y="1660" width="26" height="20" as="geometry"/>
         </mxCell>
         <mxCell id="legend-system-text" value="System/Automation" style="text;html=1;fontSize=11;" vertex="1" parent="1">
-          <mxGeometry x="995" y="1460" width="120" height="20" as="geometry"/>
+          <mxGeometry x="1135" y="1660" width="120" height="20" as="geometry"/>
         </mxCell>
         <mxCell id="legend-weather" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#b2dfdb;strokeColor=#00695c;" vertex="1" parent="1">
-          <mxGeometry x="960" y="1485" width="26" height="20" as="geometry"/>
+          <mxGeometry x="1100" y="1685" width="26" height="20" as="geometry"/>
         </mxCell>
-        <mxCell id="legend-weather-text" value="Weather/GPS" style="text;html=1;fontSize=11;" vertex="1" parent="1">
-          <mxGeometry x="995" y="1485" width="100" height="20" as="geometry"/>
+        <mxCell id="legend-weather-text" value="Weather/GPS/ETA" style="text;html=1;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1135" y="1685" width="120" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="legend-danger" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffcdd2;strokeColor=#c62828;" vertex="1" parent="1">
+          <mxGeometry x="1280" y="1632" width="26" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="legend-danger-text" value="Danger/Timeout" style="text;html=1;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1315" y="1635" width="110" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="legend-dash" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff9c4;strokeColor=#f9a825;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="1280" y="1660" width="26" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="legend-dash-text" value="Data/Calculation" style="text;html=1;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1315" y="1660" width="120" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="legend-cron" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#E65100;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="1280" y="1685" width="26" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="legend-cron-text" value="Cron Job" style="text;html=1;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1315" y="1685" width="100" height="20" as="geometry"/>
         </mxCell>
 
       </root>

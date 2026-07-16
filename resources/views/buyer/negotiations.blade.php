@@ -63,10 +63,10 @@
                                         {{ $negotiation->farmer->name ?? 'Farmer' }}
                                     </td>
                                     <td class="p-5 text-right font-mono font-extrabold text-slate-800 dark:text-white text-xs">
-                                        ₱{{ number_format($negotiation->offered_price, 2) }} / kg
+                                        ₱{{ number_format($negotiation->negotiated_price ?? 0, 2) }} / kg
                                     </td>
                                     <td class="p-5 text-right font-mono font-bold text-slate-500 dark:text-slate-400 text-xs">
-                                        {{ number_format($negotiation->quantity_kg) }} kg
+                                        {{ number_format($negotiation->negotiated_volume ?? 0) }} kg
                                     </td>
                                     <td class="p-5 text-center whitespace-nowrap">
                                         <span class="text-[9px] font-extrabold uppercase tracking-widest px-2.5 py-1 rounded border

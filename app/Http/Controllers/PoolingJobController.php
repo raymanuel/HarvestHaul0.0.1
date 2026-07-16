@@ -2,9 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\ConfirmPoolingPlanAction;
+use App\Http\Requests\PlanPoolingJobRequest;
+use App\Http\Requests\ConfirmPoolingJobRequest;
+use App\Http\Requests\CounterProposalRequest;
+use App\Http\Requests\LogisticsCounterRequest;
 use App\Models\Harvest;
 use App\Models\HarvestStatus;
 use App\Models\PoolingJob;
+use App\Models\PoolingJobStatus;
+use App\Models\NegotiationStatus;
 use App\Models\Truck;
 use App\Services\ResourcePoolingService;
 use App\Services\WeatherService;
@@ -12,7 +19,6 @@ use App\Traits\GeometryHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Validator;
 
 class PoolingJobController extends Controller
 {
@@ -41,8 +47,7 @@ class PoolingJobController extends Controller
     public function plan(Request $request)
     {
         try {
-            // Use explicit Validator to guarantee JSON error response instead of 302 HTML redirects
-            $validator = Validator::make($request->all(), [
+            $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
                 'truck_id'      => 'required|integer|exists:trucks,id',
                 'harvest_ids'   => 'required|array|min:1',
                 'harvest_ids.*' => 'integer|exists:harvests,id',
@@ -157,7 +162,7 @@ class PoolingJobController extends Controller
 
             // Build plan from request data instead of re-running the algorithm
             // (avoids race condition where harvests get claimed between plan preview and confirm)
-            $harvests = Harvest::whereIn('id', $request->harvest_ids)->with('crop')->get();
+            $harvests = Harvest::whereIn('id', $request->harvest_ids)->with(['crop', 'negotiations'])->get();
 
             if ($harvests->isEmpty()) {
                 return response()->json(['error' => 'No harvests could be selected for this plan.'], 422);
@@ -167,8 +172,8 @@ class PoolingJobController extends Controller
             $totalKg = (float) $request->total_kg;
             // Use negotiated volume for validation, not raw quantity_kg
             $actualHarvestSum = $harvests->sum(function ($h) {
-                $negotiation = $h->negotiations()->where('status', 'COMPLETED')->first();
-                return $negotiation ? (float) $negotiation->negotiated_volume : (float) $h->quantity_kg;
+                $completedNegotiation = $h->negotiations->firstWhere('status', 'COMPLETED');
+                return $completedNegotiation ? (float) $completedNegotiation->negotiated_volume : (float) $h->quantity_kg;
             });
             if ($totalKg < ($actualHarvestSum * 0.99) || $totalKg > ($actualHarvestSum * 1.01)) {
                 return response()->json(['error' => 'Submitted total_kg (' . $totalKg . ' kg) does not match actual harvest sum (' . $actualHarvestSum . ' kg).'], 422);
@@ -177,13 +182,13 @@ class PoolingJobController extends Controller
             $stops = [];
             $order = 1;
             foreach ($harvests as $h) {
-                $negotiation = $h->negotiations()->where('status', 'COMPLETED')->first();
+                $completedNegotiation = $h->negotiations->firstWhere('status', 'COMPLETED');
                 $stops[] = [
                     'harvest_id' => $h->id,
                     'pickup_order' => $order++,
                     'latitude' => (float) ($h->latitude ?? 0),
                     'longitude' => (float) ($h->longitude ?? 0),
-                    'quantity_kg' => $negotiation ? (float) $negotiation->negotiated_volume : (float) $h->quantity_kg,
+                    'quantity_kg' => $completedNegotiation ? (float) $completedNegotiation->negotiated_volume : (float) $h->quantity_kg,
                     'crop' => $h->crop->name ?? $h->crop_type ?? 'Unknown',
                 ];
             }
@@ -236,35 +241,7 @@ class PoolingJobController extends Controller
             $plan['notes']          = $request->notes ?? null;
             $plan['route_geometry'] = $request->route_geometry;
 
-            // Execute database persistence model
-            $job = $this->poolingService->confirm($plan, $logisticsProfile->id);
-
-            // Eager load crop for notification messages
-            $job->load('harvests.crop');
-
-            // Compute & store per-farmer cost shares in pivot table
-            $this->recalculateCostShares($job);
-
-            foreach ($job->harvests as $harvest) {
-                try {
-                    \App\Models\Notification::create([
-                        'user_id' => $harvest->user_id,
-                        'title' => 'New Pooling Proposal',
-                        'message' => "Your harvest '{$harvest->crop->name}' has been pooled into Route #{$job->id}.",
-                        'link' => route('farmer.proposals'),
-                    ]);
-                } catch (\Exception $e) {
-                    Log::warning('Failed to send pooling notification to user ' . $harvest->user_id . ': ' . $e->getMessage());
-                }
-            }
-
-            \App\Models\AuditLog::create([
-                'admin_id'    => Auth::id(),
-                'action'      => 'confirmed_pooling_plan',
-                'target_type' => 'pooling_job',
-                'target_id'   => $job->id,
-                'notes'       => "Logistics Partner " . Auth::user()->name . " confirmed route #{$job->id} (Total weight: {$job->total_kg} kg, Price: ₱" . ($job->negotiated_price ?? $job->price_reference ?? 0) . ").",
-            ]);
+            $job = app(ConfirmPoolingPlanAction::class)->execute($plan, $logisticsProfile->id);
 
             return response()->json([
                 'success'        => true,
@@ -290,6 +267,7 @@ class PoolingJobController extends Controller
             ->where('status', 'pending')
             ->with(['truck', 'harvests.farmer'])
             ->latest()
+            ->take(50)
             ->get();
 
         // Also fetch recently cancelled proposals so the logistics partner can see farmer rejections
@@ -298,6 +276,7 @@ class PoolingJobController extends Controller
             ->where('updated_at', '>=', now()->subHours(24))
             ->with(['truck', 'harvests.farmer'])
             ->latest('updated_at')
+            ->take(20)
             ->get();
 
         return view('logistics.proposals-index', compact('proposals', 'cancelledProposals'));
@@ -305,11 +284,7 @@ class PoolingJobController extends Controller
 
     public function show(PoolingJob $poolingJob)
     {
-        $logisticsProfile = Auth::user()->logisticsProfile;
-
-        if ($poolingJob->logistics_profile_id !== $logisticsProfile->id) {
-            abort(403);
-        }
+        $this->authorize('update', $poolingJob);
 
         return redirect()->route('pooling.cost-ledger', $poolingJob);
     }
@@ -331,6 +306,7 @@ class PoolingJobController extends Controller
                 $query->where('user_id', $user->id)->with(['crop', 'cropVariety', 'destination']);
             }])
             ->latest()
+            ->take(50)
             ->get();
 
         return view('farmers.farmer-proposals', compact('proposals'));
@@ -365,13 +341,27 @@ class PoolingJobController extends Controller
             }
 
             if ($totalAllocationScore > 0) {
-                foreach ($job->harvests as $harvest) {
-                    $proportion = $allocationScores[$harvest->id] / $totalAllocationScore;
-                    $costShare = round($basePrice * $proportion, 2);
+                $harvestArray = $job->harvests->toArray();
+                $assignedTotal = 0.0;
+                $pivotUpdates = [];
 
-                    $job->harvests()->updateExistingPivot($harvest->id, [
-                        'cost_share' => $costShare,
-                    ]);
+                foreach ($harvestArray as $index => $harvest) {
+                    $proportion = $allocationScores[$harvest['id']] / $totalAllocationScore;
+
+                    // Last farmer absorbs any rounding difference to ensure sum equals basePrice exactly
+                    if ($index === count($harvestArray) - 1) {
+                        $costShare = round($basePrice - $assignedTotal, 2);
+                    } else {
+                        $costShare = round($basePrice * $proportion, 2);
+                        $assignedTotal += $costShare;
+                    }
+
+                    $pivotUpdates[$harvest['id']] = ['cost_share' => $costShare];
+                }
+
+                // Batch update all pivot rows in one query
+                foreach ($pivotUpdates as $harvestId => $data) {
+                    $job->harvests()->updateExistingPivot($harvestId, $data);
                 }
             }
         }
@@ -384,12 +374,12 @@ class PoolingJobController extends Controller
     {
         $user = auth()->user();
 
-        $harvest = $poolingJob->harvests()->where('user_id', $user->id)->first();
-        if (!$harvest) {
-            abort(403, 'Unauthorized. Harvest not found in this route.');
-        }
+        $poolingJob->load('harvests');
+        $this->authorize('view', $poolingJob);
 
-        if ($poolingJob->status !== 'pending') {
+        $harvest = $poolingJob->harvests()->where('user_id', $user->id)->first();
+
+        if ($poolingJob->status !== PoolingJobStatus::PENDING) {
             abort(422, 'This proposal is no longer open for changes.');
         }
 
@@ -414,32 +404,40 @@ class PoolingJobController extends Controller
         }
 
         if ($allAccepted) {
-            $poolingJob->status = 'confirmed';
+            $poolingJob->status = PoolingJobStatus::CONFIRMED;
             $poolingJob->confirmed_at = now();
             $poolingJob->save();
 
-            // Mark all harvests as assigned
-            foreach ($poolingJob->harvests as $h) {
-                $h->update(['status' => 'assigned']);
-            }
+            // Bulk update all harvest statuses
+            Harvest::whereIn('id', $poolingJob->harvests->pluck('id'))->update(['status' => HarvestStatus::ASSIGNED]);
 
+            // Batch create notifications
+            $notifications = [];
             if ($poolingJob->driver_id) {
-                \App\Models\Notification::create([
-                    'user_id' => $poolingJob->driver_id,
-                    'title' => 'New Route Confirmed',
-                    'message' => "All farmers accepted. Route #{$poolingJob->id} has been dispatched to you.",
-                    'link' => route('driver.dashboard'),
-                ]);
+                $notifications[] = [
+                    'user_id'    => $poolingJob->driver_id,
+                    'title'      => 'New Route Confirmed',
+                    'message'    => "All farmers accepted. Route #{$poolingJob->id} has been dispatched to you.",
+                    'link'       => route('driver.dashboard'),
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
             }
 
             $logisticsUser = $poolingJob->logisticsProfile->user;
             if ($logisticsUser) {
-                \App\Models\Notification::create([
-                    'user_id' => $logisticsUser->id,
-                    'title' => 'Proposal Confirmed',
-                    'message' => "All farmers accepted Proposal #{$poolingJob->id}. Route is now confirmed.",
-                    'link' => route('pooling.index'),
-                ]);
+                $notifications[] = [
+                    'user_id'    => $logisticsUser->id,
+                    'title'      => 'Proposal Confirmed',
+                    'message'    => "All farmers accepted Proposal #{$poolingJob->id}. Route is now confirmed.",
+                    'link'       => route('pooling.index'),
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+            }
+
+            if (!empty($notifications)) {
+                \App\Models\Notification::insert($notifications);
             }
         } elseif ($anyRejected) {
             \App\Models\Notification::create([
@@ -460,7 +458,10 @@ class PoolingJobController extends Controller
     {
         $user = auth()->user();
 
-        if ($poolingJob->status !== 'pending') {
+        $poolingJob->load('harvests');
+        $this->authorize('view', $poolingJob);
+
+        if ($poolingJob->status !== PoolingJobStatus::PENDING) {
             abort(422, 'This proposal is no longer open for changes.');
         }
 
@@ -469,23 +470,28 @@ class PoolingJobController extends Controller
         }
 
         $harvest = $poolingJob->harvests()->where('user_id', $user->id)->first();
-        if (!$harvest) {
-            abort(403, 'Unauthorized.');
-        }
 
-        // Only reset status if harvest was assigned (not partially_sold with active deals)
-        if ($harvest->status === 'assigned') {
-            $harvest->status = 'active';
+        if ($harvest->status === HarvestStatus::ASSIGNED) {
+            $hasCompletedDeals = $harvest->negotiations()
+                ->where('status', NegotiationStatus::COMPLETED)
+                ->exists();
+
+            if ($hasCompletedDeals) {
+                $isIndependent = $harvest->user?->farmerProfile?->affiliation_type === 'independent';
+                $harvest->status = HarvestStatus::PARTIALLY_SOLD;
+                $harvest->visibility = $isIndependent ? 'buyers_only' : 'both';
+            } else {
+                $harvest->status = HarvestStatus::ACTIVE;
+            }
             $harvest->save();
         }
 
-        // Detach from the pooling job
         $poolingJob->harvests()->detach($harvest->id);
 
         $poolingJob->load('harvests');
 
         if ($poolingJob->harvests->isEmpty()) {
-            $poolingJob->status = 'cancelled';
+            $poolingJob->status = PoolingJobStatus::CANCELLED;
             $poolingJob->save();
 
             // Free the truck
@@ -503,23 +509,30 @@ class PoolingJobController extends Controller
             $this->recalculateCostShares($poolingJob);
 
             // Reset remaining farmers' acceptance status — they must re-approve new shares
+            $pendingFarmerIds = [];
             foreach ($poolingJob->harvests as $remaining) {
                 if ($remaining->pivot->status === 'accepted') {
                     $poolingJob->harvests()->updateExistingPivot($remaining->id, [
                         'status' => 'pending'
                     ]);
-
-                    try {
-                        \App\Models\Notification::create([
-                            'user_id' => $remaining->user_id,
-                            'title' => 'Cost Shares Recalculated — Re-approval Required',
-                            'message' => "A farmer rejected Route #{$poolingJob->id}. Your cost share has been recalculated. Please review and re-accept.",
-                            'link' => route('farmer.proposals'),
-                        ]);
-                    } catch (\Exception $e) {
-                        Log::warning('Failed to send recalculated cost notification to user ' . $remaining->user_id . ': ' . $e->getMessage());
-                    }
+                    $pendingFarmerIds[] = $remaining->user_id;
                 }
+            }
+
+            // Bulk create notifications for recalculated cost shares
+            if (!empty($pendingFarmerIds)) {
+                $notifications = [];
+                foreach ($pendingFarmerIds as $farmerId) {
+                    $notifications[] = [
+                        'user_id'    => $farmerId,
+                        'title'      => 'Cost Shares Recalculated — Re-approval Required',
+                        'message'    => "A farmer rejected Route #{$poolingJob->id}. Your cost share has been recalculated. Please review and re-accept.",
+                        'link'       => route('farmer.proposals'),
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ];
+                }
+                \App\Models\Notification::insert($notifications);
             }
         }
 
@@ -540,11 +553,14 @@ class PoolingJobController extends Controller
     /**
      * Farmer submits a counter-proposal price bid.
      */
-    public function counterProposal(Request $request, PoolingJob $poolingJob)
+    public function counterProposal(CounterProposalRequest $request, PoolingJob $poolingJob)
     {
         $user = auth()->user();
 
-        if ($poolingJob->status !== 'pending') {
+        $poolingJob->load('harvests');
+        $this->authorize('view', $poolingJob);
+
+        if ($poolingJob->status !== PoolingJobStatus::PENDING) {
             abort(422, 'This proposal is no longer open for changes.');
         }
 
@@ -552,14 +568,8 @@ class PoolingJobController extends Controller
             abort(410, 'This proposal has expired. Please wait for a new one.');
         }
 
-        $request->validate([
-            'counter_price' => 'required|numeric|min:1|max:999999'
-        ]);
-
+        $validated = $request->validated();
         $harvest = $poolingJob->harvests()->where('user_id', $user->id)->first();
-        if (!$harvest) {
-            abort(403, 'Unauthorized.');
-        }
 
         // Enforce negotiation rounds limit
         if ($poolingJob->negotiation_rounds >= 5) {
@@ -574,13 +584,13 @@ class PoolingJobController extends Controller
 
         $minAllowed = $referencePrice * 0.25;
         $maxAllowed = $referencePrice * 1.75;
-        if ($request->counter_price < $minAllowed || $request->counter_price > $maxAllowed) {
+        if ($validated['counter_price'] < $minAllowed || $validated['counter_price'] > $maxAllowed) {
             return back()->with('error', 'Counter-price must be between ₱' . number_format($minAllowed, 2) . ' and ₱' . number_format($maxAllowed, 2) . ' based on the reference price.');
         }
 
         // Update ONLY this farmer's cost_share
         $poolingJob->harvests()->updateExistingPivot($harvest->id, [
-            'cost_share' => $request->counter_price,
+            'cost_share' => $validated['counter_price'],
         ]);
 
         // Mark only this farmer as accepted (their counter), leave others unchanged
@@ -598,7 +608,7 @@ class PoolingJobController extends Controller
             \App\Models\Notification::create([
                 'user_id' => $logisticsUser->id,
                 'title' => 'New Price Counter-Offer',
-                'message' => "Farmer {$user->name} counter-proposed ₱" . number_format($request->counter_price, 2) . " for Route #{$poolingJob->id}.",
+                'message' => "Farmer {$user->name} counter-proposed ₱" . number_format($validated['counter_price'], 2) . " for Route #{$poolingJob->id}.",
                 'link' => route('pooling.index'),
             ]);
         }
@@ -611,12 +621,9 @@ class PoolingJobController extends Controller
      */
     public function logisticsAcceptCounter(PoolingJob $poolingJob)
     {
-        $logisticsProfile = auth()->user()->logisticsProfile;
-        if ($poolingJob->logistics_profile_id !== $logisticsProfile->id) {
-            abort(403);
-        }
+        $this->authorize('update', $poolingJob);
 
-        if ($poolingJob->status !== 'pending') {
+        if ($poolingJob->status !== PoolingJobStatus::PENDING) {
             return back()->with('error', 'This proposal is no longer pending.');
         }
 
@@ -624,12 +631,10 @@ class PoolingJobController extends Controller
             return back()->with('error', 'This proposal has expired.');
         }
 
-        // Check buyer_id is set on the job
         if (!$poolingJob->buyer_id) {
             return back()->with('error', 'No buyer assigned to this job. Cannot confirm without a buyer.');
         }
 
-        // Recalculate total from existing individual cost shares (preserves counter-offers)
         $poolingJob->load('harvests');
         $totalCostShare = $poolingJob->harvests->sum(function ($h) {
             return (float) ($h->pivot->cost_share ?? 0);
@@ -645,14 +650,12 @@ class PoolingJobController extends Controller
         }
 
         if ($allAccepted) {
-            $poolingJob->status = 'confirmed';
+            $poolingJob->status = PoolingJobStatus::CONFIRMED;
             $poolingJob->confirmed_at = now();
             $poolingJob->save();
 
-            // Mark all harvests as assigned
-            foreach ($poolingJob->harvests as $h) {
-                $h->update(['status' => 'assigned']);
-            }
+            // Bulk update all harvest statuses
+            Harvest::whereIn('id', $poolingJob->harvests->pluck('id'))->update(['status' => HarvestStatus::ASSIGNED]);
 
             // Notify driver
             if ($poolingJob->driver_id) {
@@ -671,19 +674,16 @@ class PoolingJobController extends Controller
     /**
      * Logistics submits a new counter-bid to farmers.
      */
-    public function logisticsCounter(Request $request, PoolingJob $poolingJob)
+    public function logisticsCounter(LogisticsCounterRequest $request, PoolingJob $poolingJob)
     {
-        $logisticsProfile = auth()->user()->logisticsProfile;
-        if ($poolingJob->logistics_profile_id !== $logisticsProfile->id) {
-            abort(403);
-        }
+        $this->authorize('update', $poolingJob);
 
         // Verify logistics partner is verified
         if (!$logisticsProfile->is_verified) {
             return back()->with('error', 'Your account is pending verification. Counter-proposals are not available until approved.');
         }
 
-        if ($poolingJob->status !== 'pending') {
+        if ($poolingJob->status !== PoolingJobStatus::PENDING) {
             abort(422, 'This proposal is no longer open for changes.');
         }
 
@@ -691,21 +691,19 @@ class PoolingJobController extends Controller
             abort(410, 'This proposal has expired. Please create a new proposal.');
         }
 
-        $request->validate([
-            'negotiated_price' => 'required|numeric|min:1|max:999999'
-        ]);
+        $validated = $request->validated();
 
         // Enforce price bounds: counter-price must be within ±75% of the reference price
         $referencePrice = (float) ($poolingJob->price_reference ?? 0);
         if ($referencePrice > 0) {
             $minAllowed = $referencePrice * 0.25;
             $maxAllowed = $referencePrice * 1.75;
-            if ($request->negotiated_price < $minAllowed || $request->negotiated_price > $maxAllowed) {
+            if ($validated['negotiated_price'] < $minAllowed || $validated['negotiated_price'] > $maxAllowed) {
                 return back()->with('error', 'Price must be between ₱' . number_format($minAllowed, 2) . ' and ₱' . number_format($maxAllowed, 2) . ' based on the reference price.');
             }
         }
 
-        $poolingJob->negotiated_price = $request->negotiated_price;
+        $poolingJob->negotiated_price = $validated['negotiated_price'];
         $poolingJob->save();
 
         // Recalculate per-farmer cost shares proportionally from the new total
@@ -722,15 +720,21 @@ class PoolingJobController extends Controller
         // Reload pivot data after all updates so notifications show correct cost shares
         $poolingJob->load('harvests');
 
-        // Notify farmers
+        // Bulk create notifications for all farmers
+        $notifications = [];
         foreach ($poolingJob->harvests as $h) {
             $farmerShare = $h->pivot->cost_share ?? 0;
-            \App\Models\Notification::create([
-                'user_id' => $h->user_id,
-                'title' => 'New Hauling Bid Offered',
-                'message' => "Logistics operator offered a new bid for Route #{$poolingJob->id}. Your cost share is ₱" . number_format($farmerShare, 2) . ". Please review and re-accept.",
-                'link' => route('farmer.proposals'),
-            ]);
+            $notifications[] = [
+                'user_id'    => $h->user_id,
+                'title'      => 'New Hauling Bid Offered',
+                'message'    => "Logistics operator offered a new bid for Route #{$poolingJob->id}. Your cost share is ₱" . number_format($farmerShare, 2) . ". Please review and re-accept.",
+                'link'       => route('farmer.proposals'),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+        }
+        if (!empty($notifications)) {
+            \App\Models\Notification::insert($notifications);
         }
 
         return back()->with('success', 'New bid price submitted to farmers.');

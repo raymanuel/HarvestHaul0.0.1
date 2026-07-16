@@ -9,12 +9,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('farmer_profiles', function (Blueprint $table) {
-            $table->enum('affiliation_type', ['cooperative', 'independent'])
-                  ->after('longitude');
+            $table->string('affiliation_type', 20)->default('independent');
 
             $table->foreignId('cooperative_id')
                   ->nullable()
-                  ->after('affiliation_type')
                   ->constrained('logistics_profiles')
                   ->onDelete('set null');
         });

@@ -27,6 +27,7 @@ class AdminFarmerDocumentController extends Controller
         $documents = FarmerDocument::with('farmer')
             ->orderByRaw("FIELD(status, 'pending', 'approved', 'rejected')")
             ->orderBy('created_at', 'asc')
+            ->take(200)
             ->get()
             ->groupBy('user_id');
 

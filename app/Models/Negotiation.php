@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Negotiation extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'buyer_id',
@@ -30,6 +31,7 @@ class Negotiation extends Model
         'farmer_last_read_at' => 'datetime',
         'destination_latitude' => 'decimal:8',
         'destination_longitude' => 'decimal:8',
+        'status' => NegotiationStatus::class,
     ];
 
     public function buyer()

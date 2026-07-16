@@ -146,12 +146,7 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
         */
         Route::middleware(EnsureUserIsFarmer::class)->group(function () {
             // Harvest Posts Management
-            Route::get('/harvests', [HarvestController::class, 'index'])->name('harvests.index');
-            Route::get('/harvests/create', [HarvestController::class, 'create'])->name('harvests.create');
-            Route::post('/harvests', [HarvestController::class, 'store'])->name('harvests.store');
-            Route::get('/harvests/{id}/edit', [HarvestController::class, 'edit'])->name('harvests.edit');
-            Route::put('/harvests/{id}', [HarvestController::class, 'update'])->name('harvests.update');
-            Route::delete('/harvests/{id}', [HarvestController::class, 'destroy'])->name('harvests.destroy');
+            Route::resource('harvests', HarvestController::class)->except(['show']);
 
             // FIXED: Changed path and name to prevent collision with Logistics group
             Route::get('/farmer/proposals', [PoolingJobController::class, 'farmerProposals'])
@@ -266,14 +261,14 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
         |------------------------------------------------------------------
         */
         Route::prefix('negotiations')->name('negotiations.')->middleware(['role:farmer,buyer,logistics_partner'])->group(function () {
-            Route::post('/start', [NegotiationController::class, 'start'])->name('start');
+            Route::post('/start', [NegotiationController::class, 'start'])->name('start')->middleware('throttle:10,1');
             Route::get('/list', [NegotiationController::class, 'listJson'])->name('list');
             Route::get('/{negotiation}', [NegotiationController::class, 'room'])->name('room');
             Route::post('/{negotiation}/message', [NegotiationController::class, 'sendMessage'])->name('message')->middleware('throttle:15,1');
             Route::post('/{negotiation}/propose', [NegotiationController::class, 'proposeTerms'])->name('propose')->middleware('throttle:10,1');
             Route::post('/{negotiation}/agree', [NegotiationController::class, 'agreeTerms'])->name('agree')->middleware('throttle:10,1');
-            Route::post('/{negotiation}/finalize', [NegotiationController::class, 'finalizeDeal'])->name('finalize');
-            Route::post('/{negotiation}/cancel', [NegotiationController::class, 'cancelDeal'])->name('cancel');
+            Route::post('/{negotiation}/finalize', [NegotiationController::class, 'finalizeDeal'])->name('finalize')->middleware('throttle:5,1');
+            Route::post('/{negotiation}/cancel', [NegotiationController::class, 'cancelDeal'])->name('cancel')->middleware('throttle:10,1');
             Route::get('/{negotiation}/messages', [NegotiationController::class, 'getMessages'])->name('messages');
         });
 

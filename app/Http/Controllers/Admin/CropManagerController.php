@@ -322,7 +322,7 @@ class CropManagerController extends Controller
     // -------------------------------------------------------
     public function destroyVariety(CropVariety $variety)
     {
-        $activeHarvests = $variety->harvests()->whereIn('status', ['active', 'pending'])->count();
+        $activeHarvests = $variety->harvests()->where('status', 'active')->count();
 
         if ($activeHarvests > 0) {
             return back()->with('error', 'Cannot delete a variety that has active harvest posts referencing it.');

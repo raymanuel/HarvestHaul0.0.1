@@ -67,9 +67,9 @@ class PredictorController extends Controller
             })
             ->values();
 
-        // Active posts
-        $activeCount    = Harvest::where('user_id', $user->id)->where('status', 'active')->count();
-        $completedCount = Harvest::where('user_id', $user->id)->where('status', 'completed')->count();
+        // Active posts — derive from already-fetched collection
+        $activeCount    = $harvests->where('status', 'active')->count();
+        $completedCount = $harvests->where('status', 'completed')->count();
 
         return view('farmers.predictor', compact(
             'predictions', 'activeCount', 'completedCount'
@@ -89,14 +89,17 @@ class PredictorController extends Controller
         $profile = $user->logisticsProfile;
         if (!$profile) abort(403);
 
-        // Completed jobs for this partner — compute avg kg/job
+        // Completed jobs for this partner — compute avg kg/job at DB level
+        $avgKgPerJob = PoolingJob::where('logistics_profile_id', $profile->id)
+            ->where('status', 'completed')
+            ->avg('total_kg');
+        $avgKgPerJob = $avgKgPerJob ? round($avgKgPerJob, 1) : null;
+
+        // Keep collection for view compatibility (used for count + display)
         $completedJobs = PoolingJob::where('logistics_profile_id', $profile->id)
             ->where('status', 'completed')
+            ->take(200)
             ->get();
-
-        $avgKgPerJob = $completedJobs->count() > 0
-            ? round($completedJobs->avg(fn($j) => (float) $j->total_kg), 1)
-            : null;
 
         // Active harvest pool visible to this partner
         $activeHarvestsKg = Harvest::where('status', 'active')

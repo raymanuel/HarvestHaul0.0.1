@@ -4,34 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
-/**
- * ═══════════════════════════════════════════════════════════════
- * MODEL: Harvest
- * ═══════════════════════════════════════════════════════════════
- * Represents a single crop product posted by a farmer for transport.
- * This is the core "cargo unit" of the platform.
- *
- * LIFECYCLE (status flow):
- *   active → negotiating → sold → assigned → in_progress → completed
- *            ↑ partially_sold (partial sale, new buyers can negotiate)
- *
- * SPATIAL DATA:
- *   latitude/longitude   → pickup location (farmer's farm)
- *   destination_latitude/longitude → drop-off market/buyer
- *   These coordinates feed into the ResourcePoolingService
- *   routing algorithms.
- *
- * RELATIONSHIPS:
- *   Harvest ─ belongs to → User (farmer)
- *   Harvest ─ belongs to → Crop, CropVariety, CropCategory
- *   Harvest ─ belongs to → Destination (market/buyer)
- *   Harvest ─ many-to-many → PoolingJob (via pooling_job_harvests pivot)
- * ═══════════════════════════════════════════════════════════════
- */
 class Harvest extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'user_id',
@@ -54,7 +31,6 @@ class Harvest extends Model
         'latitude',
         'longitude',
         'cluster_id',
-        'negotiation_locked_at',
         'destination_id',
         'destination_address',
         'destination_latitude',
@@ -70,6 +46,7 @@ class Harvest extends Model
         'destination_longitude'    => 'decimal:8',
         'harvest_date'             => 'date',
         'crop_photos'              => 'array',
+        'status'                   => HarvestStatus::class,
     ];
 
     protected static function boot()
@@ -226,27 +203,41 @@ class Harvest extends Model
         return $this->hasMany(Negotiation::class, 'harvest_id');
     }
 
+    /** Completed negotiation (cached per instance to avoid N+1). */
+    private ?Negotiation $completedNegotiation = null;
+
+    public function getCompletedNegotiation(): ?Negotiation
+    {
+        if (!isset($this->completedNegotiation)) {
+            $this->completedNegotiation = $this->negotiations()
+                ->where('status', 'COMPLETED')
+                ->first();
+        }
+        return $this->completedNegotiation;
+    }
+
     // ─────────────────────────────────────────────────────────
     // RESOLVED DESTINATION ACCESSORS
     // Check completed negotiations first (deal-specific), fall back to harvest default.
+    // Uses cached getCompletedNegotiation() to avoid N+1 (was 3 queries per row).
     // ─────────────────────────────────────────────────────────
 
     public function getResolvedDestinationAddressAttribute(): ?string
     {
-        $completedDeal = $this->negotiations()->where('status', 'COMPLETED')->first();
-        return $completedDeal->destination_address ?? $this->destination_address;
+        $completedDeal = $this->getCompletedNegotiation();
+        return $completedDeal?->destination_address ?? $this->destination_address;
     }
 
     public function getResolvedDestinationLatitudeAttribute(): ?float
     {
-        $completedDeal = $this->negotiations()->where('status', 'COMPLETED')->first();
-        return $completedDeal->destination_latitude ?? $this->destination_latitude;
+        $completedDeal = $this->getCompletedNegotiation();
+        return $completedDeal?->destination_latitude ?? $this->destination_latitude;
     }
 
     public function getResolvedDestinationLongitudeAttribute(): ?float
     {
-        $completedDeal = $this->negotiations()->where('status', 'COMPLETED')->first();
-        return $completedDeal->destination_longitude ?? $this->destination_longitude;
+        $completedDeal = $this->getCompletedNegotiation();
+        return $completedDeal?->destination_longitude ?? $this->destination_longitude;
     }
 
     /**

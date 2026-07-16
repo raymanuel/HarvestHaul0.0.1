@@ -27,6 +27,7 @@ class AdminLogisticsDocumentController extends Controller
         $documents = LogisticsDocument::with(['logisticsPartner', 'logisticsPartner.logisticsProfile'])
             ->orderByRaw("FIELD(status, 'pending', 'approved', 'rejected')")
             ->orderBy('created_at', 'asc')
+            ->take(200)
             ->get()
             ->groupBy('user_id');
 

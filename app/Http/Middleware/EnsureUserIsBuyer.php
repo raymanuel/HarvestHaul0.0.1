@@ -13,9 +13,16 @@ class EnsureUserIsBuyer
         $user = $request->user();
         
         $isBuyer = $user && $user->role === 'buyer';
-        $isCooperativeLogistics = $user && $user->role === 'logistics_partner' 
-            && $user->logisticsProfile 
-            && $user->logisticsProfile->isCooperative();
+        $isCooperativeLogistics = false;
+
+        if ($user && $user->role === 'logistics_partner') {
+            // Load logisticsProfile once if not already loaded
+            if (!$user->relationLoaded('logisticsProfile')) {
+                $user->load('logisticsProfile');
+            }
+            $isCooperativeLogistics = $user->logisticsProfile
+                && $user->logisticsProfile->isCooperative();
+        }
 
         if (!$isBuyer && !$isCooperativeLogistics) {
             abort(403, 'Unauthorized. Buyer access only.');

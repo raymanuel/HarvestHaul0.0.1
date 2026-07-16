@@ -70,6 +70,7 @@ class DashboardController extends Controller
                 ->whereIn('status', ['confirmed', 'in_progress'])
                 ->with(['truck', 'harvests.crop', 'harvests.farmer', 'harvests.destination'])
                 ->latest()
+                ->take(10)
                 ->get();
 
             $completedJobs = PoolingJob::where('driver_id', $user->id)
@@ -83,7 +84,7 @@ class DashboardController extends Controller
         $activeShipments = collect();
 
         if ($user->role === 'farmer') {
-            $activeHarvests = $user->harvests()->whereIn('status', HarvestStatus::BUYER_AVAILABLE)->with(['crop', 'cropVariety', 'destination'])->latest()->take(3)->get();
+            $activeHarvests = $user->harvests()->whereIn('status', [...HarvestStatus::BUYER_AVAILABLE, HarvestStatus::NEGOTIATING])->with(['crop', 'cropVariety', 'destination'])->latest()->take(3)->get();
             $pendingProposals = PoolingJob::whereHas('harvests', function($query) use ($user) {
                 $query->where('user_id', $user->id);
             })->where('status', 'pending')->with(['logisticsProfile', 'truck', 'harvests.crop'])->latest()->take(5)->get();

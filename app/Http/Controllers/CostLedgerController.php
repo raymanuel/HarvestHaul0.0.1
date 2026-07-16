@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\PoolingJob;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\UploadReceiptRequest;
+use App\Http\Requests\ConfirmQuantityRequest;
 
 class CostLedgerController extends Controller
 {
@@ -19,7 +21,7 @@ class CostLedgerController extends Controller
         if (!$profile) abort(403);
 
         $jobs = PoolingJob::where('logistics_profile_id', $profile->id)
-            ->with(['truck', 'harvests'])
+            ->with(['truck', 'harvests.crop', 'harvests.farmer'])
             ->whereIn('status', ['confirmed', 'in_progress', 'completed'])
             ->latest()
             ->paginate(15);
@@ -98,7 +100,7 @@ class CostLedgerController extends Controller
     /**
      * Upload payment receipt (Farmer action).
      */
-    public function uploadReceipt(Request $request, PoolingJob $poolingJob, $harvestId)
+    public function uploadReceipt(UploadReceiptRequest $request, PoolingJob $poolingJob, $harvestId)
     {
         $user = Auth::user();
 
@@ -114,10 +116,6 @@ class CostLedgerController extends Controller
         if (!in_array($poolingJob->status, $allowedStatuses)) {
             return back()->with('error', 'Cannot upload receipt. Job must be confirmed, in progress, or awaiting confirmation.');
         }
-
-        $request->validate([
-            'payment_receipt' => 'required|image|max:10240|mimes:jpg,jpeg,png,pdf', // 10MB, image or PDF only
-        ]);
 
         if ($request->hasFile('payment_receipt')) {
             $file = $request->file('payment_receipt');
@@ -217,7 +215,7 @@ class CostLedgerController extends Controller
     /**
      * Farmer confirms the actual loaded quantity for their harvest.
      */
-    public function confirmQuantity(Request $request, PoolingJob $poolingJob, $harvestId)
+    public function confirmQuantity(ConfirmQuantityRequest $request, PoolingJob $poolingJob, $harvestId)
     {
         $user = Auth::user();
 
@@ -234,17 +232,14 @@ class CostLedgerController extends Controller
 
         // Use pivot quantity_kg (original posted amount) as the max, not the harvest record
         $originalQuantity = (float) ($harvest->pivot->quantity_kg ?: $harvest->quantity_kg);
+        $validated = $request->validated();
 
-        $request->validate([
-            'actual_quantity_kg' => 'required|numeric|min:0.01|max:' . $originalQuantity,
-        ]);
-
-        if ((float) $request->actual_quantity_kg > $originalQuantity) {
+        if ((float) $validated['actual_quantity_kg'] > $originalQuantity) {
             return back()->with('error', 'Confirmed quantity cannot exceed the posted harvest quantity of ' . $originalQuantity . ' kg.');
         }
 
         $poolingJob->harvests()->updateExistingPivot($harvest->id, [
-            'actual_quantity_kg'   => $request->actual_quantity_kg,
+            'actual_quantity_kg'   => $validated['actual_quantity_kg'],
             'farmer_qty_confirmed' => true,
         ]);
 
@@ -253,14 +248,14 @@ class CostLedgerController extends Controller
             'action'      => 'farmer_confirmed_quantity',
             'target_type' => 'pooling_job_harvests',
             'target_id'   => $poolingJob->id,
-            'notes'       => "Farmer {$user->name} confirmed actual quantity {$request->actual_quantity_kg} kg for Harvest #{$harvest->id} on Route #{$poolingJob->id}.",
+            'notes'       => "Farmer {$user->name} confirmed actual quantity {$validated['actual_quantity_kg']} kg for Harvest #{$harvest->id} on Route #{$poolingJob->id}.",
         ]);
 
         if ($poolingJob->logisticsProfile && $poolingJob->logisticsProfile->user_id) {
             \App\Models\Notification::create([
                 'user_id' => $poolingJob->logisticsProfile->user_id,
                 'title'   => 'Actual Quantity Confirmed',
-                'message' => "Farmer {$user->name} confirmed actual quantity of {$request->actual_quantity_kg} kg for Route #{$poolingJob->id}.",
+                'message' => "Farmer {$user->name} confirmed actual quantity of {$validated['actual_quantity_kg']} kg for Route #{$poolingJob->id}.",
                 'link'    => route('pooling.cost-ledger', $poolingJob),
             ]);
         }
@@ -288,11 +283,13 @@ class CostLedgerController extends Controller
         $fuelLogs = \App\Models\FuelLog::whereIn('truck_id', $truckIds)
             ->with(['truck', 'driver'])
             ->orderBy('created_at', 'desc')
+            ->take(500)
             ->get();
 
         // Eager-load completed jobs per truck to avoid N+1 inside map()
         $completedJobsByTruck = PoolingJob::whereIn('truck_id', $truckIds)
             ->where('status', 'completed')
+            ->take(200)
             ->get()
             ->groupBy('truck_id');
 

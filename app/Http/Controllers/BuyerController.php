@@ -6,6 +6,7 @@ use App\Models\Harvest;
 use App\Models\HarvestStatus;
 use App\Models\Negotiation;
 use App\Models\PoolingJob;
+use App\Models\PoolingJobStatus;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -31,6 +32,7 @@ class BuyerController extends Controller
             ->whereIn('status', ['OPEN', 'AGREED'])
             ->with(['farmer', 'harvest.crop', 'harvest.cropVariety'])
             ->latest()
+            ->take(20)
             ->get();
 
         $completedDeals = Negotiation::where('buyer_id', $user->id)
@@ -44,11 +46,11 @@ class BuyerController extends Controller
             ->take(6)
             ->get();
 
-       
         $pendingConfirmations = PoolingJob::where('buyer_id', $user->id)
             ->where('status', 'awaiting_confirmation')
             ->with(['truck', 'harvests.crop', 'driver'])
             ->latest()
+            ->take(20)
             ->get();
 
         return view('buyer.dashboard', [
@@ -70,26 +72,29 @@ class BuyerController extends Controller
         $buyer = Auth::user();
 
         // Include negotiating products so they appear grayed out on the crop board
-        $posts = $this->scopedHarvestQuery()
-            ->orWhere('status', 'negotiating')
+        $posts = $this->scopedHarvestQuery(true)
             ->with(['farmer.farmerProfile', 'crop', 'cropVariety'])
             ->latest()
             ->paginate(12);
 
-        // Map of ALL negotiating harvest IDs (for any buyer, not just current)
+        // Map of negotiating harvest IDs (scoped to same filters as crop board)
         $negotiatingHarvestIds = [];
         $negotiationRoomMap = [];
 
-        // Current buyer's own negotiations
-        Negotiation::where('buyer_id', $buyer->id)
+        // Current buyer's own negotiations — use select() to avoid loading full models
+        $buyerNegotiations = Negotiation::where('buyer_id', $buyer->id)
             ->whereIn('status', ['OPEN', 'AGREED'])
-            ->each(function ($n) use (&$negotiatingHarvestIds, &$negotiationRoomMap) {
-                $negotiatingHarvestIds[] = $n->harvest_id;
-                $negotiationRoomMap[$n->harvest_id] = $n->id;
-            });
+            ->select('harvest_id', 'id')
+            ->get();
 
-        // All negotiating harvest IDs (to show grayed out to other buyers)
-        $allNegotiatingIds = Harvest::where('status', 'negotiating')
+        foreach ($buyerNegotiations as $n) {
+            $negotiatingHarvestIds[] = $n->harvest_id;
+            $negotiationRoomMap[$n->harvest_id] = $n->id;
+        }
+
+        // All negotiating harvest IDs visible to this buyer (same scope as crop board)
+        $allNegotiatingIds = $this->scopedHarvestQuery()
+            ->where('status', 'negotiating')
             ->pluck('id')
             ->toArray();
 
@@ -115,6 +120,7 @@ class BuyerController extends Controller
             ->whereIn('status', ['in_progress', 'awaiting_confirmation'])
             ->with(['truck', 'harvests.crop', 'harvests.farmer', 'driver', 'logisticsProfile', 'latestTracking'])
             ->latest()
+            ->take(20)
             ->get();
 
         $completedDeliveries = PoolingJob::where('buyer_id', $user->id)
@@ -139,18 +145,17 @@ class BuyerController extends Controller
             abort(403, 'Only the buyer can confirm receipt for this delivery.');
         }
 
-        if ($poolingJob->status !== 'awaiting_confirmation') {
+        if ($poolingJob->status !== PoolingJobStatus::AWAITING_CONFIRMATION) {
             return back()->with('error', 'This delivery is not awaiting your confirmation.');
         }
 
-        $poolingJob->update(['status' => 'completed']);
+        $poolingJob->update(['status' => PoolingJobStatus::COMPLETED]);
 
-        // Mark timestamp on all pivot entries
-        foreach ($poolingJob->harvests as $harvest) {
-            $poolingJob->harvests()->updateExistingPivot($harvest->id, [
-                'buyer_confirmed_at' => now(),
-            ]);
-        }
+        // Batch update all pivot entries with buyer_confirmed_at
+        $harvestIds = $poolingJob->harvests->pluck('id')->toArray();
+        $poolingJob->harvests()->updateExistingPivot($harvestIds, [
+            'buyer_confirmed_at' => now(),
+        ]);
 
         \App\Models\AuditLog::create([
             'admin_id'    => $user->id,
@@ -181,7 +186,7 @@ class BuyerController extends Controller
         $buyer = Auth::user();
 
         // If product is under negotiation by another buyer, block initiation
-        if ($harvest->status === 'negotiating') {
+        if ($harvest->status === HarvestStatus::NEGOTIATING) {
             $myNegotiation = Negotiation::where('buyer_id', $buyer->id)
                 ->where('harvest_id', $harvest->id)
                 ->whereIn('status', ['OPEN', 'AGREED'])
@@ -205,7 +210,7 @@ class BuyerController extends Controller
     /**
      * Build a scoped harvest query based on buyer's cooperative affiliation.
      */
-    private function scopedHarvestQuery()
+    private function scopedHarvestQuery(bool $includeNegotiating = false)
     {
         $user = Auth::user();
 
@@ -216,8 +221,12 @@ class BuyerController extends Controller
             $cooperativeId = $user->logisticsProfile->id;
         }
 
+        $statuses = $includeNegotiating
+            ? [...HarvestStatus::BUYER_AVAILABLE, 'negotiating']
+            : HarvestStatus::BUYER_AVAILABLE;
+
         if ($cooperativeId) {
-            return Harvest::whereIn('status', HarvestStatus::BUYER_AVAILABLE)
+            return Harvest::whereIn('status', $statuses)
                 ->whereIn('visibility', ['buyers_only', 'both'])
                 ->where('remaining_quantity_kg', '>', 0)
                 ->whereHas('farmer.farmerProfile', function ($q) use ($cooperativeId) {
@@ -227,7 +236,7 @@ class BuyerController extends Controller
                 });
         }
 
-        return Harvest::whereIn('status', HarvestStatus::BUYER_AVAILABLE)
+        return Harvest::whereIn('status', $statuses)
             ->whereIn('visibility', ['buyers_only', 'both'])
             ->where('remaining_quantity_kg', '>', 0)
             ->whereHas('farmer.farmerProfile', function ($q) {

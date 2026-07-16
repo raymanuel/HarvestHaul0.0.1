@@ -4,9 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Invoice extends Model
 {
+    use SoftDeletes;
+
     protected $fillable = [
         'pooling_job_id',
         'logistics_profile_id',
@@ -32,6 +35,7 @@ class Invoice extends Model
         'voided_at' => 'datetime',
         'due_at' => 'date',
         'paid_at' => 'datetime',
+        'status' => InvoiceStatus::class,
     ];
 
     public function poolingJob(): BelongsTo

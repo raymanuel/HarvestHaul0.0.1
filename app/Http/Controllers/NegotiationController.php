@@ -2,10 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\FinalizeDealAction;
+use App\Http\Requests\StartNegotiationRequest;
+use App\Http\Requests\SendMessageRequest;
+use App\Http\Requests\ProposeTermsRequest;
+use App\Http\Requests\FinalizeDealRequest;
 use App\Models\AuditLog;
 use App\Models\Harvest;
 use App\Models\HarvestStatus;
 use App\Models\Negotiation;
+use App\Models\NegotiationStatus;
 use App\Models\NegotiationMessage;
 use App\Models\Notification;
 use Illuminate\Http\Request;
@@ -22,12 +28,9 @@ class NegotiationController extends Controller
     /**
      * Start a negotiation (usually initiated by a buyer clicking a product on Crop Board).
      */
-    public function start(Request $request)
+    public function start(StartNegotiationRequest $request)
     {
-        $request->validate([
-            'harvest_id' => 'required|exists:harvests,id',
-        ]);
-
+        $validated = $request->validated();
         $buyer = Auth::user();
         $isCoopLogistics = $buyer->role === 'logistics_partner' 
             && $buyer->logisticsProfile 
@@ -49,21 +52,17 @@ class NegotiationController extends Controller
             }
         }
 
-        $harvest = Harvest::findOrFail($request->harvest_id);
+        $harvest = Harvest::findOrFail($validated['harvest_id']);
 
-        if (!in_array($harvest->status, HarvestStatus::BUYER_AVAILABLE)) {
-            return back()->with('error', 'This product is no longer available for negotiation.');
-        }
-
-        // Check harvest has pickup coordinates
+        // Check harvest has pickup coordinates (before lock — lightweight check)
         if (is_null($harvest->latitude) || is_null($harvest->longitude)) {
             return back()->with('error', 'This product has no pickup coordinates and cannot be negotiated.');
         }
 
-        // Avoid duplicate active negotiations for the same lot
+        // Avoid duplicate active negotiations for the same harvest (before lock)
         $existing = Negotiation::where('buyer_id', $buyer->id)
             ->where('harvest_id', $harvest->id)
-            ->whereIn('status', ['OPEN', 'AGREED'])
+            ->whereIn('status', [NegotiationStatus::OPEN, NegotiationStatus::AGREED])
             ->first();
 
         if ($existing) {
@@ -71,29 +70,70 @@ class NegotiationController extends Controller
                 ->with('warning', 'You already have an ongoing negotiation for this product. Redirected to your existing conversation.');
         }
 
-        // Mark harvest as under negotiation (keep visibility for partial sales)
-        if (in_array($harvest->status, HarvestStatus::BUYER_AVAILABLE)) {
-            $harvest->update([
+        // Lock harvest row to prevent two buyers claiming it simultaneously
+        $transactionFailed = false;
+        $cooperativeId = $isCoopLogistics ? $buyer->logisticsProfile->id : null;
+        $negotiation = DB::transaction(function () use ($harvest, $buyer, $isCoopLogistics, $cooperativeId, &$transactionFailed) {
+            $locked = Harvest::lockForUpdate()->find($harvest->id);
+
+            if (!in_array($locked->status, HarvestStatus::BUYER_AVAILABLE)) {
+                $transactionFailed = true;
+                return null;
+            }
+
+            // Verify harvest visibility and farmer affiliation match buyer's scope
+            if (!$locked->user?->farmerProfile) {
+                $transactionFailed = true;
+                return null;
+            }
+            $farmerProfile = $locked->user->farmerProfile;
+            $farmerAffiliation = $farmerProfile->affiliation_type;
+            $isVisible = in_array($locked->visibility, ['buyers_only', 'both']);
+            if (!$isVisible) {
+                $transactionFailed = true;
+                return null;
+            }
+            if ($isCoopLogistics) {
+                // Cooperative buyer can only see cooperative farmers in their cooperative
+                if ($farmerAffiliation !== 'cooperative' || $farmerProfile->cooperative_id !== $cooperativeId) {
+                    $transactionFailed = true;
+                    return null;
+                }
+            } else {
+                // Independent buyer can only see independent farmers
+                if ($farmerAffiliation !== 'independent') {
+                    $transactionFailed = true;
+                    return null;
+                }
+            }
+
+            // Mark harvest as under negotiation (keep visibility for partial sales)
+            $locked->update([
                 'status' => 'negotiating',
-                'negotiation_locked_at' => now(),
             ]);
+
+            // Create new negotiation
+            return Negotiation::create([
+                'buyer_id'          => $buyer->id,
+                'farmer_id'         => $locked->user_id,
+                'harvest_id'        => $locked->id,
+                'negotiated_price'  => null,
+                'negotiated_volume' => $locked->remaining_quantity_kg ?? $locked->quantity_kg,
+                'status'            => 'OPEN',
+            ]);
+        });
+
+        if ($transactionFailed || is_null($negotiation)) {
+            return back()->with('error', 'This product is no longer available for negotiation.');
         }
 
-        // Create new negotiation
-        $negotiation = Negotiation::create([
-            'buyer_id'          => $buyer->id,
-            'farmer_id'         => $harvest->user_id,
-            'harvest_id'        => $harvest->id,
-            'negotiated_price'  => null,
-            'negotiated_volume' => $harvest->remaining_quantity_kg ?? $harvest->quantity_kg,
-            'status'            => 'OPEN',
-        ]);
+        $negotiation->load('harvest');
 
         // Post default greeting message
         NegotiationMessage::create([
             'negotiation_id' => $negotiation->id,
             'sender_id'      => $buyer->id,
-            'message_text'   => "Hello! I am interested in your product #{$harvest->id} ({$harvest->crop_type}). Let's discuss pricing and volume.",
+            'message_text'   => "Hello! I am interested in your product #{$negotiation->harvest_id} ({$negotiation->harvest->crop_type}). Let's discuss pricing and volume.",
         ]);
 
         $negotiation->update(['last_activity_at' => now()]);
@@ -101,7 +141,7 @@ class NegotiationController extends Controller
         Notification::create([
             'user_id'  => $negotiation->farmer_id,
             'title'    => 'New B2B Negotiation',
-            'message'  => "{$buyer->name} is interested in your product #{$harvest->id} ({$harvest->crop_type}).",
+            'message'  => "{$buyer->name} is interested in your product #{$negotiation->harvest_id} ({$negotiation->harvest->crop_type}).",
             'link'     => route('negotiations.room', $negotiation->id),
             'type'     => 'negotiation_started',
             'category' => 'negotiation',
@@ -117,10 +157,7 @@ class NegotiationController extends Controller
     {
         $user = Auth::user();
 
-        // Security check
-        if ($negotiation->buyer_id !== $user->id && $negotiation->farmer_id !== $user->id) {
-            abort(403, 'Unauthorized access to this negotiation room.');
-        }
+        $this->authorize('view', $negotiation);
 
         // Mark messages as read for this user
         $column = $negotiation->buyer_id === $user->id ? 'buyer_last_read_at' : 'farmer_last_read_at';
@@ -134,27 +171,25 @@ class NegotiationController extends Controller
     /**
      * Post a new message in the chat room.
      */
-    public function sendMessage(Request $request, Negotiation $negotiation)
+    public function sendMessage(SendMessageRequest $request, Negotiation $negotiation)
     {
         $user = Auth::user();
 
-        if ($negotiation->buyer_id !== $user->id && $negotiation->farmer_id !== $user->id) {
-            abort(403, 'Unauthorized action.');
-        }
+        $this->authorize('view', $negotiation);
 
-        if ($negotiation->status === 'COMPLETED') {
+        if (in_array($negotiation->status, [NegotiationStatus::COMPLETED, NegotiationStatus::CANCELLED])) {
             return back()->with('error', 'This negotiation is closed. No further messages.');
         }
 
-        $request->validate([
-            'message_text' => 'required|string|max:1000',
-        ]);
+        $validated = $request->validated();
 
         $msg = NegotiationMessage::create([
             'negotiation_id' => $negotiation->id,
             'sender_id'      => $user->id,
-            'message_text'   => $request->message_text,
+            'message_text'   => $validated['message_text'],
         ]);
+
+        $negotiation->update(['last_activity_at' => now()]);
 
         $msg->load('sender');
         return response()->json(['message' => $msg]);
@@ -163,19 +198,14 @@ class NegotiationController extends Controller
     /**
      * Propose custom B2B unit price and volume terms.
      */
-    public function proposeTerms(Request $request, Negotiation $negotiation)
+    public function proposeTerms(ProposeTermsRequest $request, Negotiation $negotiation)
     {
         $user = Auth::user();
 
-        if ($negotiation->buyer_id !== $user->id && $negotiation->farmer_id !== $user->id) {
-            abort(403, 'Unauthorized action.');
-        }
+        $this->authorize('update', $negotiation);
 
         $maxVolume = $negotiation->harvest->remaining_quantity_kg ?? $negotiation->harvest->quantity_kg;
-        $request->validate([
-            'negotiated_price'  => 'required|numeric|min:0.01|max:999999.99',
-            'negotiated_volume' => "required|numeric|min:0.01|max:{$maxVolume}",
-        ]);
+        $validated = $request->validated();
 
         // Soft price bounds check — warn if significantly outside baseline range
         $crop = $negotiation->harvest->crop;
@@ -183,13 +213,13 @@ class NegotiationController extends Controller
             $baseline = (float) $crop->baseline_price_per_kg;
             $minAllowed = $baseline * 0.10;
             $maxAllowed = $baseline * 5.00;
-            if ($request->negotiated_price < $minAllowed || $request->negotiated_price > $maxAllowed) {
-                return back()->with('warning', 'Proposed price ₱' . number_format($request->negotiated_price, 2) . '/kg is significantly outside the expected range (₱' . number_format($minAllowed, 2) . ' – ₱' . number_format($maxAllowed, 2) . '). Please confirm your offer.');
+            if ($validated['negotiated_price'] < $minAllowed || $validated['negotiated_price'] > $maxAllowed) {
+                return back()->with('error', 'Proposed price ₱' . number_format($validated['negotiated_price'], 2) . '/kg is significantly outside the expected range (₱' . number_format($minAllowed, 2) . ' – ₱' . number_format($maxAllowed, 2) . '). Please adjust your offer.');
             }
         }
 
         // Don't allow re-proposing if already AGREED or COMPLETED
-        if (in_array($negotiation->status, ['AGREED', 'COMPLETED'])) {
+        if (in_array($negotiation->status, [NegotiationStatus::AGREED, NegotiationStatus::COMPLETED])) {
             return back()->with('error', 'Terms are locked. Cannot propose new terms on a ' . $negotiation->status . ' negotiation.');
         }
 
@@ -202,14 +232,14 @@ class NegotiationController extends Controller
         }
 
         $negotiation->update([
-            'negotiated_price'  => $request->negotiated_price,
-            'negotiated_volume' => $request->negotiated_volume,
+            'negotiated_price'  => $validated['negotiated_price'],
+            'negotiated_volume' => $validated['negotiated_volume'],
             'status'            => 'OPEN',
             'last_activity_at'  => now(),
         ]);
 
-        $formattedPrice = number_format($request->negotiated_price, 2);
-        $formattedVolume = number_format($request->negotiated_volume);
+        $formattedPrice = number_format($validated['negotiated_price'], 2);
+        $formattedVolume = number_format($validated['negotiated_volume']);
 
         // System message update log in chat
         $sysMsg = NegotiationMessage::create([
@@ -222,8 +252,8 @@ class NegotiationController extends Controller
             $sysMsg->load('sender');
             return response()->json([
                 'message' => $sysMsg,
-                'negotiated_price' => $request->negotiated_price,
-                'negotiated_volume' => $request->negotiated_volume,
+                'negotiated_price' => $validated['negotiated_price'],
+                'negotiated_volume' => $validated['negotiated_volume'],
             ]);
         }
 
@@ -237,15 +267,13 @@ class NegotiationController extends Controller
     {
         $user = Auth::user();
 
-        if ($negotiation->buyer_id !== $user->id && $negotiation->farmer_id !== $user->id) {
-            abort(403, 'Unauthorized action.');
-        }
+        $this->authorize('update', $negotiation);
 
         if (is_null($negotiation->negotiated_price) || is_null($negotiation->negotiated_volume)) {
             return back()->with('error', 'Cannot agree. No terms have been proposed yet.');
         }
 
-        if ($negotiation->status !== 'OPEN') {
+        if ($negotiation->status !== NegotiationStatus::OPEN) {
             return back()->with('error', 'Cannot agree. Current status is ' . $negotiation->status . '.');
         }
 
@@ -281,7 +309,7 @@ class NegotiationController extends Controller
     /**
      * Finalize the deal by submitting the drop-off coordinates (only buyer does this).
      */
-    public function finalizeDeal(Request $request, Negotiation $negotiation)
+    public function finalizeDeal(FinalizeDealRequest $request, Negotiation $negotiation)
     {
         $buyer = Auth::user();
 
@@ -289,87 +317,18 @@ class NegotiationController extends Controller
             abort(403, 'Only the buyer can finalize this deal with drop-off details.');
         }
 
-        if ($negotiation->status !== 'AGREED') {
-            return back()->with('error', 'Cannot finalize. You must both agree to terms first.');
-        }
-
-        // Check buyer account is active
         if ($buyer->status !== 'active') {
             return back()->with('error', 'Your account is not active. Cannot finalize deal.');
         }
 
-        $request->validate([
-            'destination_address'   => 'required|string|max:500',
-            'destination_latitude'  => 'required|numeric|between:-90,90',
-            'destination_longitude' => 'required|numeric|between:-180,180',
-        ]);
-
-        $harvest = $negotiation->harvest;
-
-        // Check negotiated volume doesn't exceed remaining harvest quantity (quick check before lock)
-        if ((float) $negotiation->negotiated_volume > (float) ($harvest->remaining_quantity_kg ?? $harvest->quantity_kg)) {
-            return back()->with('error', 'Negotiated volume exceeds remaining harvest quantity.');
+        try {
+            $result = app(FinalizeDealAction::class)->execute($negotiation, $buyer, $request->validated());
+        } catch (\RuntimeException $e) {
+            return back()->with('error', $e->getMessage());
         }
 
-        DB::transaction(function () use ($harvest, $negotiation, $request, $buyer) {
-            // Pessimistic lock — must be INSIDE the transaction to prevent double-sell race condition
-            $locked = Harvest::lockForUpdate()->find($harvest->id);
-
-            // Re-check remaining quantity under lock
-            $remaining = (float) ($locked->remaining_quantity_kg ?? $locked->quantity_kg);
-            if ((float) $negotiation->negotiated_volume > $remaining) {
-                return back()->with('error', 'Negotiated volume exceeds remaining harvest quantity. Another deal may have been finalized.');
-            }
-
-            $newRemaining = round($remaining - (float) $negotiation->negotiated_volume, 2);
-
-            // Update negotiation with deal-specific destination and finalize
-            $negotiation->update([
-                'status'              => 'COMPLETED',
-                'destination_address' => $request->destination_address,
-                'destination_latitude' => $request->destination_latitude,
-                'destination_longitude' => $request->destination_longitude,
-                'last_activity_at'    => now(),
-            ]);
-
-            // Determine new harvest status and visibility based on remaining quantity
-            if ($newRemaining <= 0) {
-                // Fully sold — visible to logistics partners
-                $locked->update([
-                    'remaining_quantity_kg' => 0,
-                    'status'                => 'sold',
-                    'visibility'            => 'logistics_only',
-                    'destination_address'   => $request->destination_address,
-                    'destination_latitude'  => $request->destination_latitude,
-                    'destination_longitude' => $request->destination_longitude,
-                ]);
-            } else {
-                // Partially sold — harvest stays visible to buyers for the remaining quantity
-                $isIndependent = $locked->user?->farmerProfile?->affiliation_type === 'independent';
-                $locked->update([
-                    'remaining_quantity_kg' => $newRemaining,
-                    'status'                => 'partially_sold',
-                    'visibility'            => $isIndependent ? 'buyers_only' : 'both',
-                ]);
-            }
-
-            NegotiationMessage::create([
-                'negotiation_id' => $negotiation->id,
-                'sender_id'      => $buyer->id,
-                'message_text'   => "[System Message] Deal finalized! Drop-off submitted: {$request->destination_address}" .
-                    ($newRemaining > 0 ? " ({$newRemaining} kg remaining available)" : ''),
-            ]);
-
-            AuditLog::create([
-                'admin_id'    => $buyer->id,
-                'action'      => $newRemaining <= 0 ? 'harvest_fully_sold' : 'harvest_partially_sold',
-                'target_type' => 'harvest',
-                'target_id'   => $locked->id,
-                'notes'       => "Buyer {$buyer->name} purchased {$negotiation->negotiated_volume}kg at ₱{$negotiation->negotiated_price}/kg. Remaining: {$newRemaining}kg.",
-            ]);
-        });
-
-        $msg = $negotiation->harvest->fresh()->status === 'sold'
+        $freshHarvest = $negotiation->fresh()->harvest;
+        $msg = $freshHarvest->status === HarvestStatus::SOLD
             ? 'B2B deal closed! Harvest fully sold. Now visible to logistics partners.'
             : 'B2B deal closed! Remaining quantity still available on the crop board.';
         return redirect()->route('buyer.negotiations')->with('success', $msg);
@@ -383,11 +342,9 @@ class NegotiationController extends Controller
     {
         $user = Auth::user();
 
-        if ($negotiation->buyer_id !== $user->id && $negotiation->farmer_id !== $user->id) {
-            abort(403, 'Unauthorized action.');
-        }
+        $this->authorize('update', $negotiation);
 
-        if (!in_array($negotiation->status, ['OPEN', 'AGREED'])) {
+        if (!in_array($negotiation->status, [NegotiationStatus::OPEN, NegotiationStatus::AGREED])) {
             return back()->with('error', 'Cannot cancel this negotiation. Current status: ' . $negotiation->status);
         }
 
@@ -415,7 +372,7 @@ class NegotiationController extends Controller
             ]);
 
             // Restore harvest status — check if there are other completed deals
-            if ($locked->status === 'negotiating') {
+            if ($locked->status === HarvestStatus::NEGOTIATING) {
                 $hasCompletedDeals = $locked->negotiations()
                     ->where('id', '!=', $negotiation->id)
                     ->where('status', 'COMPLETED')
@@ -429,8 +386,12 @@ class NegotiationController extends Controller
                         'visibility' => $isIndependent ? 'buyers_only' : 'both',
                     ]);
                 } else {
-                    // No other deals — revert to active
-                    $locked->update(['status' => 'active']);
+                    // No other deals — revert to active with appropriate visibility
+                    $isIndependent = $locked->user?->farmerProfile?->affiliation_type === 'independent';
+                    $locked->update([
+                        'status'     => 'active',
+                        'visibility' => $isIndependent ? 'buyers_only' : 'both',
+                    ]);
                 }
             }
 
@@ -450,10 +411,12 @@ class NegotiationController extends Controller
                 }
 
                 Notification::create([
-                    'user_id' => $job->logisticsProfile->user_id,
-                    'title'   => 'Deal Cancelled — Harvest Removed from Route',
-                    'message' => "A deal for harvest #{$locked->id} ({$locked->crop_type}) was cancelled. Route #{$job->id} has been updated.",
-                    'link'    => route('pooling.index'),
+                    'user_id'  => $job->logisticsProfile?->user_id,
+                    'title'    => 'Deal Cancelled — Harvest Removed from Route',
+                    'message'  => "A deal for harvest #{$locked->id} ({$locked->crop_type}) was cancelled. Route #{$job->id} has been updated.",
+                    'link'     => route('pooling.index'),
+                    'type'     => 'deal_cancelled',
+                    'category' => 'negotiation',
                 ]);
             }
         });
@@ -535,15 +498,13 @@ class NegotiationController extends Controller
     public function getMessages(Request $request, Negotiation $negotiation)
     {
         $user = Auth::user();
-        if ($negotiation->buyer_id !== $user->id && $negotiation->farmer_id !== $user->id) {
-            abort(403);
-        }
+        $this->authorize('view', $negotiation);
 
         $sinceId = (int) $request->query('since_id', 0);
 
         $messages = $sinceId > 0
             ? $negotiation->messages()->where('id', '>', $sinceId)->with('sender')->orderBy('id')->get()
-            : $negotiation->messages()->with('sender')->orderBy('id')->get();
+            : $negotiation->messages()->with('sender')->orderBy('id')->take(100)->get();
 
         return response()->json([
             'messages'          => $messages,
