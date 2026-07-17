@@ -4,17 +4,24 @@ on: [push, pull_request]
 jobs:
   laravel-tests:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
-          extensions: pcntl, posix
-          
+          extensions: pcntl, posix, pdo_sqlite
+          coverage: none
+
       - name: Install Dependencies
         run: composer install -q --no-ansi --no-interaction --no-progress --prefer-dist
-        
+
+      - name: Prepare Environment
+        run: |
+          cp .env.example .env
+          php artisan key:generate --force
+
       - name: Run Tests
         run: php artisan test --parallel
