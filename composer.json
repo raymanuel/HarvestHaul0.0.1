@@ -55,15 +55,12 @@
             "@php artisan test"
         ],
         "post-autoload-dump": [
+            "@php scripts/fix-pdo-mysql.php",
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
             "@php artisan package:discover --ansi"
         ],
-        "post-install-cmd": [
-            "@php scripts/fix-pdo-mysql.php"
-        ],
         "post-update-cmd": [
-            "@php artisan vendor:publish --tag=laravel-assets --ansi --force",
-            "@php scripts/fix-pdo-mysql.php"
+            "@php artisan vendor:publish --tag=laravel-assets --ansi --force"
         ],
         "post-root-package-install": [
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
