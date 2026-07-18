@@ -10,10 +10,10 @@ return new class extends Migration
     {
         Schema::table('crop_price_history', function (Blueprint $table) {
             // Step 1: Drop FK constraint first (MySQL requires this before modifying indexed columns)
-            $table->dropForeign('crop_price_history_crop_id_foreign');
+            $table->dropForeign(['crop_id']);
 
             // Step 2: Drop old unique constraint (depends on FK being dropped)
-            $table->dropUnique('crop_price_history_crop_id_source_source_date_unique');
+            $table->dropUnique(['crop_id', 'source', 'source_date']);
 
             // Step 3: Make crop_id nullable
             $table->foreignId('crop_id')->nullable()->change();
@@ -36,7 +36,7 @@ return new class extends Migration
         Schema::table('crop_price_history', function (Blueprint $table) {
             $table->dropUnique(['commodity_name', 'source', 'source_date']);
             $table->dropIndex(['source', 'source_date']);
-            $table->dropIndex('commodity_category');
+            $table->dropIndex(['commodity_category']);
             $table->dropColumn(['commodity_name', 'commodity_category', 'low_price', 'high_price', 'common_price']);
 
             $table->foreignId('crop_id')->nullable(false)->change();
