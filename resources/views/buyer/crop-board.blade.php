@@ -53,6 +53,17 @@
                             </div>
                             <p class="text-xs text-slate-500 dark:text-slate-400 font-semibold">{{ $post->cropVariety->name ?? $post->variety ?? 'Standard Variety' }}</p>
 
+                            @if($post->suggested_price_per_kg)
+                                <div class="mt-2 flex items-center gap-1.5">
+                                    <span class="text-sm font-extrabold text-[#2D8A37] dark:text-[#3A7D44] font-mono">₱{{ number_format($post->suggested_price_per_kg, 2) }}</span>
+                                    <span class="text-[9px] font-bold text-[#3A7D44]/70 dark:text-[#3A7D44]/70">/kg suggested</span>
+                                </div>
+                            @else
+                                <div class="mt-2">
+                                    <span class="text-[9px] font-bold text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded">Negotiable</span>
+                                </div>
+                            @endif
+
                             <div class="mt-3 flex items-center gap-2 flex-wrap">
                                 @php
                                     $grade = $post->quality_grade ?? 'Standard';

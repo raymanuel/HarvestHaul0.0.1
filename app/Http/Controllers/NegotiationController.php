@@ -76,7 +76,7 @@ class NegotiationController extends Controller
         $negotiation = DB::transaction(function () use ($harvest, $buyer, $isCoopLogistics, $cooperativeId, &$transactionFailed) {
             $locked = Harvest::lockForUpdate()->find($harvest->id);
 
-            if (!in_array($locked->status, HarvestStatus::BUYER_AVAILABLE)) {
+            if (!in_array($locked->status, HarvestStatus::buyerAvailable())) {
                 $transactionFailed = true;
                 return null;
             }

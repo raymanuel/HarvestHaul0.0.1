@@ -9,6 +9,7 @@ use App\Models\HarvestStatus;
 use App\Models\NegotiationStatus;
 use App\Models\Crop;
 use App\Models\CropVariety;
+use App\Services\CropResolverService;
 use App\Traits\Notifiable;
 
 class HarvestController extends Controller
@@ -87,8 +88,22 @@ class HarvestController extends Controller
             return back()->withInput()->with('error', 'Destination must be within the Philippines (4°N–21°N, 116°E–127°E).');
         }
 
-        $crop          = Crop::findOrFail($validated['crop_id']);
-        $cropVariety   = CropVariety::findOrFail($validated['crop_variety_id']);
+        $resolver = app(CropResolverService::class);
+
+        if (!empty($validated['custom_crop_name'])) {
+            $categoryId = Crop::find($validated['crop_id'])?->crop_category_id ?? 1;
+            $crop = $resolver->resolveCrop($validated['custom_crop_name'], $categoryId);
+            $validated['crop_id'] = $crop->id;
+        } else {
+            $crop = Crop::findOrFail($validated['crop_id']);
+        }
+
+        if (!empty($validated['custom_variety_name'])) {
+            $cropVariety = $resolver->resolveVariety($crop, $validated['custom_variety_name']);
+            $validated['crop_variety_id'] = $cropVariety->id;
+        } else {
+            $cropVariety = CropVariety::findOrFail($validated['crop_variety_id']);
+        }
 
         if ($cropVariety->crop_id !== $crop->id) {
             return back()->withInput()->with('error', 'Selected variety does not belong to the selected crop.');
@@ -96,13 +111,14 @@ class HarvestController extends Controller
         $farmerProfile = Auth::user()->farmerProfile;
 
         $harvest = Auth::user()->harvests()->create([
-            'crop_id'               => $validated['crop_id'],
-            'crop_variety_id'       => $validated['crop_variety_id'],
+            'crop_id'               => $crop->id,
+            'crop_variety_id'       => $cropVariety->id,
             'crop_category_id'      => $crop->crop_category_id,
             'crop_type'             => $crop->name,
             'variety'               => $cropVariety->name,
             'quantity_kg'           => $validated['quantity_kg'],
             'remaining_quantity_kg' => $validated['quantity_kg'],
+            'suggested_price_per_kg'=> $validated['suggested_price_per_kg'] ?? null,
             'unit'                  => 'kg',
             'notes'                 => $validated['notes'] ?? null,
             'harvest_date'          => $validated['harvest_date'] ?? null,
@@ -169,24 +185,39 @@ class HarvestController extends Controller
 
         $validated = $request->validated();
 
-        $crop        = Crop::findOrFail($validated['crop_id']);
-        $cropVariety = CropVariety::findOrFail($validated['crop_variety_id']);
+        $resolver = app(CropResolverService::class);
+
+        if (!empty($validated['custom_crop_name'])) {
+            $categoryId = Crop::find($validated['crop_id'])?->crop_category_id ?? 1;
+            $crop = $resolver->resolveCrop($validated['custom_crop_name'], $categoryId);
+            $validated['crop_id'] = $crop->id;
+        } else {
+            $crop = Crop::findOrFail($validated['crop_id']);
+        }
+
+        if (!empty($validated['custom_variety_name'])) {
+            $cropVariety = $resolver->resolveVariety($crop, $validated['custom_variety_name']);
+            $validated['crop_variety_id'] = $cropVariety->id;
+        } else {
+            $cropVariety = CropVariety::findOrFail($validated['crop_variety_id']);
+        }
 
         if ($cropVariety->crop_id !== $crop->id) {
             return back()->withInput()->with('error', 'Selected variety does not belong to the selected crop.');
         }
 
         $updateData = [
-            'crop_id'          => $validated['crop_id'],
-            'crop_variety_id'  => $validated['crop_variety_id'],
-            'crop_category_id' => $crop->crop_category_id,
-            'crop_type'        => $crop->name,
-            'variety'          => $cropVariety->name,
-            'quantity_kg'      => $validated['quantity_kg'],
-            'notes'            => $validated['notes'] ?? null,
-            'harvest_date'     => $validated['harvest_date'] ?? null,
-            'quality_grade'    => $validated['quality_grade'] ?? null,
-            'packaging_type'   => $validated['packaging_type'] ?? null,
+            'crop_id'               => $crop->id,
+            'crop_variety_id'       => $cropVariety->id,
+            'crop_category_id'      => $crop->crop_category_id,
+            'crop_type'             => $crop->name,
+            'variety'               => $cropVariety->name,
+            'quantity_kg'           => $validated['quantity_kg'],
+            'suggested_price_per_kg'=> $validated['suggested_price_per_kg'] ?? null,
+            'notes'                 => $validated['notes'] ?? null,
+            'harvest_date'          => $validated['harvest_date'] ?? null,
+            'quality_grade'         => $validated['quality_grade'] ?? null,
+            'packaging_type'        => $validated['packaging_type'] ?? null,
         ];
 
         if ($harvest->status === HarvestStatus::ACTIVE) {

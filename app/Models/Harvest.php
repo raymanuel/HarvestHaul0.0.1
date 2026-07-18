@@ -27,6 +27,7 @@ class Harvest extends Model
         'harvest_date',
         'quality_grade',
         'packaging_type',
+        'suggested_price_per_kg',
         'crop_photos',
         'latitude',
         'longitude',
@@ -39,6 +40,7 @@ class Harvest extends Model
 
     protected $casts = [
         'quantity_kg'              => 'decimal:2',
+        'suggested_price_per_kg'   => 'decimal:2',
         'remaining_quantity_kg'    => 'decimal:2',
         'latitude'                 => 'decimal:8',
         'longitude'                => 'decimal:8',

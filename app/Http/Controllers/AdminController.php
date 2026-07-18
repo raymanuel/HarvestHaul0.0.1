@@ -9,6 +9,7 @@ use App\Models\AuditLog;
 use App\Models\Harvest;
 use App\Models\HarvestStatus;
 use App\Models\Negotiation;
+use App\Services\Darfo12Service;
 use App\Http\Requests\AdminStoreUserRequest;
 use App\Http\Requests\AdminUpdateUserRequest;
 use App\Http\Requests\UpdateBaselinePriceRequest;
@@ -72,6 +73,10 @@ class AdminController extends Controller
             ->groupBy('status')
             ->pluck('total', 'status');
 
+        // ─── DA Price Data ──────
+        $daService = app(Darfo12Service::class);
+        ['latestDate' => $latestDaDate, 'daPrices' => $daPrices, 'priceTrends' => $priceTrends, 'scraperStatus' => $scraperStatus] = $daService->getDashboardData();
+
         return view('admin.admin-view', [
             'totalUsers'               => $userCounts->sum(),
             'totalFarmers'             => $userCounts->get('farmer', 0),
@@ -89,6 +94,10 @@ class AdminController extends Controller
             'pendingBuyersList'        => $pendingBuyersList,
             'pendingFarmerDocsList'    => $pendingFarmerDocsList,
             'pendingLogisticsDocsList' => $pendingLogisticsDocsList,
+            'daPrices'                 => $daPrices,
+            'priceTrends'              => $priceTrends,
+            'latestDaDate'             => $latestDaDate,
+            'scraperStatus'            => $scraperStatus,
         ]);
     }
 
@@ -116,7 +125,7 @@ class AdminController extends Controller
         // Archiving flow — check for active harvests (including partially_sold)
         if ($newStatus === 'inactive' && $user->role === 'farmer') {
             $activeHarvestIds = Harvest::where('user_id', $user->id)
-                ->whereIn('status', HarvestStatus::BUYER_AVAILABLE)
+                ->whereIn('status', HarvestStatus::buyerAvailable())
                 ->pluck('id');
 
             if ($activeHarvestIds->isNotEmpty() && !$request->boolean('force')) {
@@ -523,7 +532,7 @@ class AdminController extends Controller
             // If changing to inactive/archived, apply standard safety checks
             if ($newStatus === 'inactive' && $oldStatus === 'active' && $user->role === 'farmer') {
                 $activeHarvests = Harvest::where('user_id', $user->id)
-                    ->whereIn('status', HarvestStatus::BUYER_AVAILABLE)
+                    ->whereIn('status', HarvestStatus::buyerAvailable())
                     ->get();
 
                 if ($activeHarvests->isNotEmpty() && !$request->boolean('force')) {

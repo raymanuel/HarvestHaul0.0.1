@@ -70,7 +70,7 @@ class ResourcePoolingService
         // STEP 1: Fetch only SOLD/PARTIALLY_SOLD harvests with GPS coords and full relationships.
         // Inactive/assigned harvests are excluded — prevents double-booking.
         $harvests = Harvest::whereIn('id', $nearbyHarvestIds)
-            ->whereIn('status', HarvestStatus::LOGISTICS_VISIBLE)
+            ->whereIn('status', HarvestStatus::logisticsVisible())
             ->whereNotNull('latitude')
             ->whereNotNull('longitude')
             ->with(['crop', 'cropVariety', 'farmer.farmerProfile', 'destination', 'negotiations' => fn($q) => $q->where('status', 'COMPLETED')])
@@ -323,7 +323,7 @@ class ResourcePoolingService
 
             // Re-verify harvests still have sold/partially_sold status (could have changed since plan preview)
             $soldCount = Harvest::whereIn('id', collect($plan['selected_harvests'])->pluck('harvest_id'))
-                ->whereIn('status', HarvestStatus::LOGISTICS_VISIBLE)
+                ->whereIn('status', HarvestStatus::logisticsVisible())
                 ->count();
             $expectedCount = count($plan['selected_harvests']);
             if ($soldCount !== $expectedCount) {

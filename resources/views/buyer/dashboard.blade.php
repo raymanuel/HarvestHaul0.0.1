@@ -109,98 +109,13 @@
 
         </div>
 
-        {{-- ── LIVE WORKSPACE DATA ── --}}
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
-
-            {{-- COLUMN 1 & 2: Active Negotiations (left 2/3 on desktop) --}}
-            <div class="lg:col-span-2 space-y-8">
-
-                {{-- Active Negotiations Table --}}
-                <div class="bg-white dark:bg-slate-800/80 backdrop-blur border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6 shadow-sm">
-                    <div class="flex items-center justify-between mb-6">
-                        <div>
-                            <h3 class="text-lg font-bold text-slate-800 dark:text-white heading-font">Active Negotiations</h3>
-                            <p class="text-xs text-slate-500 dark:text-slate-400">Current purchase deals with independent farmers.</p>
-                        </div>
-                        <a href="{{ route('buyer.crop-board') }}" class="bg-violet-600 hover:bg-violet-700 dark:bg-violet-500 dark:hover:bg-violet-600 text-white text-xs font-bold px-4 py-2 rounded-xl transition duration-200 shadow-sm flex items-center gap-1.5">
-                            <span>+</span> Find Crops
-                        </a>
-                    </div>
-
-                    @if($activeNegotiations->isEmpty())
-                        <div class="p-8 text-center border border-dashed border-slate-200 dark:border-slate-700 rounded-2xl">
-                            
-                            <p class="text-slate-455 dark:text-slate-400 text-sm font-semibold">No active negotiations</p>
-                            <p class="text-[10px] text-slate-400 dark:text-slate-500 mt-1">Browse the Crop Board to find posts and start negotiating with farmers.</p>
-                        </div>
-                    @else
-                        <div class="space-y-4">
-                            @foreach($activeNegotiations as $negotiation)
-                                <div class="bg-slate-50/50 dark:bg-slate-900/40 border border-slate-200/50 dark:border-slate-700 rounded-2xl p-5 hover:border-violet-500/30 dark:hover:border-violet-500/20 transition-all group">
-                                    <div class="flex items-center justify-between mb-3">
-                                        <span class="text-[9px] font-extrabold uppercase tracking-widest
-                                            {{ $negotiation->status === 'AGREED' ? 'text-[#3A7D44] dark:text-[#3A7D44] bg-[#3A7D44]/10 border-[#3A7D44]/10' : 'text-violet-700 dark:text-violet-400 bg-violet-500/10 border-violet-500/10' }}
-                                            px-2 py-0.5 rounded border">{{ $negotiation->status }}</span>
-                                        <span class="text-[10px] text-slate-400 dark:text-slate-500 font-mono">{{ $negotiation->created_at->diffForHumans() }}</span>
-                                    </div>
-                                    <div class="flex items-center justify-between">
-                                        <div>
-                                            <h4 class="text-sm font-bold text-slate-800 dark:text-slate-200">{{ $negotiation->harvest->crop->name ?? 'Crop' }} — {{ $negotiation->harvest->cropVariety->name ?? 'Standard' }}</h4>
-                                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Farmer: {{ $negotiation->farmer->name ?? 'Unknown' }}</p>
-                                        </div>
-                                        <div class="text-right">
-                                            <p class="text-xs text-slate-400 dark:text-slate-500">Offered</p>
-                                            <p class="text-lg font-extrabold text-slate-800 dark:text-white font-mono">₱{{ number_format($negotiation->offered_price, 2) }}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
-                    @endif
-                </div>
-
+        {{-- ── DA RFO12 MARKET PRICES ── --}}
+        <div class="mb-10">
+            <div class="mb-4 flex items-center justify-between">
+                <h2 class="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">DA RFO12 Market Prices</h2>
+                <span class="w-20 h-px bg-slate-200 dark:bg-slate-700/80"></span>
             </div>
-
-            {{-- COLUMN 3: Recent Posts (right 1/3 on desktop) --}}
-            <div class="space-y-8">
-
-                <div class="bg-white dark:bg-slate-800/80 backdrop-blur border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6 shadow-sm h-full flex flex-col">
-                    <div class="mb-6">
-                        <h3 class="text-lg font-bold text-slate-800 dark:text-white heading-font">Fresh Posts</h3>
-                        <p class="text-xs text-slate-500 dark:text-slate-400">Latest crop lots available from verified farmers.</p>
-                    </div>
-
-                    @if($recentPosts->isEmpty())
-                        <div class="p-8 text-center border border-dashed border-slate-200 dark:border-slate-700 rounded-2xl my-auto">
-                            
-                            <p class="text-slate-455 dark:text-slate-400 text-sm font-semibold">No posts available</p>
-                            <p class="text-[10px] text-slate-400 dark:text-slate-500 mt-1">When farmers publish new crop lots, they will appear here.</p>
-                        </div>
-                    @else
-                        <div class="space-y-4 flex-1">
-                            @foreach($recentPosts as $post)
-                                <div class="bg-slate-50/50 dark:bg-slate-900/40 border border-slate-200/50 dark:border-slate-700 rounded-2xl p-4 hover:border-amber-500/30 dark:hover:border-amber-500/20 transition-all duration-300">
-                                    <div class="flex items-center justify-between mb-2">
-                                        <span class="text-[9px] font-extrabold uppercase tracking-widest text-amber-700 dark:text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/10">Available</span>
-                                        <span class="text-xs font-bold text-slate-700 dark:text-slate-300 font-mono">{{ number_format($post->quantity_kg) }} kg</span>
-                                    </div>
-                                    <h4 class="text-sm font-bold text-slate-800 dark:text-slate-200">{{ $post->crop->name ?? $post->crop_type }}</h4>
-                                    <p class="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">{{ $post->cropVariety->name ?? $post->variety ?? 'Standard Variety' }}</p>
-                                    <div class="mt-3 pt-3 border-t border-slate-200/50 dark:border-slate-700/50 flex justify-between items-center">
-                                        <span class="text-[10px] text-slate-400 dark:text-slate-500 font-medium">{{ $post->farmer->name ?? 'Farmer' }}</span>
-                                        <span class="text-[10px] text-slate-400 dark:text-slate-500 font-mono">{{ $post->harvest_date ? $post->harvest_date->format('M d') : '—' }}</span>
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
-                        <a href="{{ route('buyer.crop-board') }}" class="mt-4 block text-center text-xs font-bold text-violet-600 dark:text-violet-400 hover:underline">
-                            View All Posts →
-                        </a>
-                    @endif
-                </div>
-
-            </div>
-
+            <x-market-prices-card :daPrices="$daPrices" :priceTrends="$priceTrends" :latestDate="$latestDaDate" :scraperStatus="$scraperStatus" />
         </div>
     </div>
 

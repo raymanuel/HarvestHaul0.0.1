@@ -7,6 +7,7 @@ use App\Models\HarvestStatus;
 use App\Models\Negotiation;
 use App\Models\PoolingJob;
 use App\Models\PoolingJobStatus;
+use App\Services\Darfo12Service;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -53,11 +54,19 @@ class BuyerController extends Controller
             ->take(20)
             ->get();
 
+        // DA price data for market prices card
+        $daService = app(Darfo12Service::class);
+        ['latestDate' => $latestDaDate, 'daPrices' => $daPrices, 'priceTrends' => $priceTrends, 'scraperStatus' => $scraperStatus] = $daService->getDashboardData();
+
         return view('buyer.dashboard', [
             'activeNegotiations'    => $activeNegotiations,
             'completedDeals'        => $completedDeals,
             'recentPosts'           => $recentPosts,
             'pendingConfirmations'  => $pendingConfirmations,
+            'daPrices'              => $daPrices,
+            'priceTrends'           => $priceTrends,
+            'latestDaDate'          => $latestDaDate,
+            'scraperStatus'         => $scraperStatus,
         ]);
     }
 
@@ -222,8 +231,8 @@ class BuyerController extends Controller
         }
 
         $statuses = $includeNegotiating
-            ? [...HarvestStatus::BUYER_AVAILABLE, 'negotiating']
-            : HarvestStatus::BUYER_AVAILABLE;
+            ? [...HarvestStatus::buyerAvailable(), 'negotiating']
+            : HarvestStatus::buyerAvailable();
 
         if ($cooperativeId) {
             return Harvest::whereIn('status', $statuses)

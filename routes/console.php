@@ -31,3 +31,6 @@ Schedule::command('negotiations:auto-close-stale')->daily();
 
 // Clean up stale tracking records, old notifications, and weather logs (daily)
 Schedule::command('data:cleanup')->daily();
+
+// Scrape DA RFO12 price index via Tesseract OCR (starts 6:00 AM, repeats every 5 hours)
+Schedule::command('crops:scrape:darfo12')->cron('0 6,11,16,21 * * *');

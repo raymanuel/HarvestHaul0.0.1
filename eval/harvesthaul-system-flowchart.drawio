@@ -7,7 +7,7 @@
         <mxCell id="1" parent="0"/>
 
         <!-- TITLE -->
-        <mxCell id="title" value="HarvestHaul — Complete System Flow (v2026-07-16)" style="text;html=1;fontSize=28;fontStyle=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
+        <mxCell id="title" value="HarvestHaul — Complete System Flow (v2026-07-18)" style="text;html=1;fontSize=28;fontStyle=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
           <mxGeometry x="800" y="20" width="800" height="50" as="geometry"/>
         </mxCell>
 
@@ -66,7 +66,7 @@
         <!-- PHASE 2: CROP LISTING (FARMER) -->
         <!-- ============================================ -->
         <mxCell id="phase2-bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;strokeWidth=2;dashed=1;" vertex="1" parent="1">
-          <mxGeometry x="460" y="90" width="380" height="580" as="geometry"/>
+          <mxGeometry x="460" y="90" width="380" height="600" as="geometry"/>
         </mxCell>
         <mxCell id="phase2-label" value="PHASE 2: Crop Listing (Farmer)" style="text;html=1;fontSize=16;fontStyle=1;align=center;verticalAlign=middle;fillColor=#E8F5E9;rounded=1;" vertex="1" parent="1">
           <mxGeometry x="510" y="100" width="240" height="30" as="geometry"/>
@@ -75,23 +75,23 @@
         <mxCell id="p2-create" value="Farmer Creates&#xa;Harvest Listing" style="ellipse;whiteSpace=wrap;html=1;fillColor=#c8e6c9;strokeColor=#2e7d32;" vertex="1" parent="1">
           <mxGeometry x="530" y="150" width="180" height="50" as="geometry"/>
         </mxCell>
-        <mxCell id="p2-select-crop" value="Select Crop Category→Crop→Variety&#xa;Set Quantity + Price/kg + Visibility&#xa;Select Destination (market/port)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#bbdefb;strokeColor=#1565c0;" vertex="1" parent="1">
-          <mxGeometry x="530" y="220" width="200" height="70" as="geometry"/>
+        <mxCell id="p2-select-crop" value="Select Crop Category→Crop→Variety&#xa;OR type custom name via &quot;Other&quot;&#xa;(CropResolverService: find-or-create)&#xa;Set Quantity + Destination&#xa;Optional: Suggested Price/kg" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#bbdefb;strokeColor=#1565c0;" vertex="1" parent="1">
+          <mxGeometry x="510" y="220" width="220" height="80" as="geometry"/>
         </mxCell>
         <mxCell id="p2-gps" value="GPS Auto-Copied&#xa;from FarmerProfile" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#b2dfdb;strokeColor=#00695c;" vertex="1" parent="1">
-          <mxGeometry x="530" y="310" width="200" height="50" as="geometry"/>
+          <mxGeometry x="530" y="320" width="200" height="50" as="geometry"/>
         </mxCell>
         <mxCell id="p2-photos" value="Upload Crop Photos&#xa;(max 5, 5MB each)&#xa;→ crop_photos[] JSON" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1bee7;strokeColor=#7b1fa2;" vertex="1" parent="1">
-          <mxGeometry x="530" y="380" width="200" height="60" as="geometry"/>
+          <mxGeometry x="530" y="390" width="200" height="60" as="geometry"/>
         </mxCell>
         <mxCell id="p2-validate" value="PH GPS Bounds Valid?&#xa;(4°N–21°N, 116°E–127°E)" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff9c4;strokeColor=#f9a825;" vertex="1" parent="1">
-          <mxGeometry x="540" y="460" width="180" height="80" as="geometry"/>
+          <mxGeometry x="540" y="470" width="180" height="80" as="geometry"/>
         </mxCell>
         <mxCell id="p2-pending" value="Status: pending (draft)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff9c4;strokeColor=#f9a825;" vertex="1" parent="1">
-          <mxGeometry x="710" y="510" width="130" height="40" as="geometry"/>
+          <mxGeometry x="710" y="520" width="130" height="40" as="geometry"/>
         </mxCell>
         <mxCell id="p2-active" value="Status: active&#xa;Visible on Crop Board + LP Map&#xa;remaining_quantity = quantity" style="ellipse;whiteSpace=wrap;html=1;fillColor=#c8e6c9;strokeColor=#2e7d32;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="530" y="580" width="200" height="60" as="geometry"/>
+          <mxGeometry x="530" y="600" width="200" height="60" as="geometry"/>
         </mxCell>
 
         <mxCell id="p2-e1" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="p2-create" target="p2-select-crop" parent="1"/>
@@ -113,14 +113,14 @@
         <!-- PHASE 3: B2B NEGOTIATION (BUYER ↔ FARMER) -->
         <!-- ============================================ -->
         <mxCell id="phase3-bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;strokeWidth=2;dashed=1;" vertex="1" parent="1">
-          <mxGeometry x="880" y="90" width="380" height="680" as="geometry"/>
+          <mxGeometry x="880" y="90" width="380" height="700" as="geometry"/>
         </mxCell>
         <mxCell id="phase3-label" value="PHASE 3: B2B Negotiation (Buyer ↔ Farmer)&#xa;Scoped: cooperative/independent" style="text;html=1;fontSize=14;fontStyle=1;align=center;verticalAlign=middle;fillColor=#FFF3E0;rounded=1;" vertex="1" parent="1">
           <mxGeometry x="890" y="100" width="360" height="40" as="geometry"/>
         </mxCell>
 
-        <mxCell id="p3-browse" value="Buyer Browses&#xa;Crop Board (scoped)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#c8e6c9;strokeColor=#2e7d32;" vertex="1" parent="1">
-          <mxGeometry x="930" y="160" width="180" height="50" as="geometry"/>
+        <mxCell id="p3-browse" value="Buyer Browses&#xa;Crop Board (scoped)&#xa;+ Market Prices Card&#xa;(DA RFO12 prices + trends)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#c8e6c9;strokeColor=#2e7d32;" vertex="1" parent="1">
+          <mxGeometry x="920" y="155" width="200" height="60" as="geometry"/>
         </mxCell>
         <mxCell id="p3-start-neg" value="Start Negotiation&#xa;POST /negotiations/start&#xa;Harvest → negotiating&#xa;DB::transaction+lockForUpdate" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#bbdefb;strokeColor=#1565c0;" vertex="1" parent="1">
           <mxGeometry x="920" y="230" width="200" height="70" as="geometry"/>
@@ -417,7 +417,7 @@
         <mxCell id="cron-label" value="SCHEDULED COMMANDS (Cron + Manual)" style="text;html=1;fontSize=14;fontStyle=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
           <mxGeometry x="240" y="1610" width="300" height="20" as="geometry"/>
         </mxCell>
-        <mxCell id="cron-list" value="SCHEDULED:&#xa;• delays:check (15min) — stall/stop/GPS/ETA detection + escalation + resolution&#xa;• weather:check (30min) — weather per waypoint (depot+farms+destination)&#xa;• deliveries:auto-complete (hourly) — awaiting_confirmation >48h→completed&#xa;• deliveries:auto-complete-stale (hourly) — in_progress >48h stale→completed&#xa;• invoices:generate (hourly) — completed jobs→PDF invoice→email&#xa;• proposals:auto-reject-expired (hourly) — pending >48h→cancelled; free truck&#xa;• negotiations:auto-close-stale (daily) — OPEN/AGREED >48h inactive→CANCELLED&#xa;• data:cleanup (daily) — purge old tracking/notifications/weather&#xa;&#xa;MANUAL:&#xa;• crops:scrape — scrape DA prices for baseline_price_per_kg&#xa;• websocket:serve — start custom WebSocket server on port 8080&#xa;• app:backfill-buyer-profiles — one-off migration fix" style="text;html=1;fontSize=11;align=left;verticalAlign=top;whiteSpace=wrap;" vertex="1" parent="1">
+        <mxCell id="cron-list" value="SCHEDULED:&#xa;• delays:check (15min) — stall/stop/GPS/ETA detection + escalation + resolution&#xa;• weather:check (30min) — weather per waypoint (depot+farms+destination)&#xa;• deliveries:auto-complete (hourly) — awaiting_confirmation >48h→completed&#xa;• deliveries:auto-complete-stale (hourly) — in_progress >48h stale→completed&#xa;• invoices:generate (hourly) — completed jobs→PDF invoice→email&#xa;• proposals:auto-reject-expired (hourly) — pending >48h→cancelled; free truck&#xa;• negotiations:auto-close-stale (daily) — OPEN/AGREED >48h inactive→CANCELLED&#xa;• crops:scrape:darfo12 (6AM, 11AM, 4PM, 9PM) — DA RFO12→Tesseract OCR→crop_price_history+scraper_status (crops only)&#xa;• data:cleanup (daily) — purge old tracking/notifications/weather&#xa;&#xa;MANUAL:&#xa;• websocket:serve — start custom WebSocket server on port 8080&#xa;• app:backfill-buyer-profiles — one-off migration fix" style="text;html=1;fontSize=11;align=left;verticalAlign=top;whiteSpace=wrap;" vertex="1" parent="1">
           <mxGeometry x="60" y="1635" width="780" height="110" as="geometry"/>
         </mxCell>
 

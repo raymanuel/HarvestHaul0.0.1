@@ -84,6 +84,18 @@
                         <p class="text-lg font-extrabold text-[#3A7D44] dark:text-[#3A7D44]/60 font-mono">₱{{ number_format($harvest->cropVariety->price_per_kg, 2) }} <span class="text-sm font-bold text-[#3A7D44]/70">/ kg</span></p>
                     </div>
                 @endif
+
+                @if($harvest->suggested_price_per_kg)
+                    <div class="mt-4 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200/50 dark:border-green-700/30 rounded-2xl">
+                        <span class="text-xs font-semibold text-green-700 dark:text-green-400">Farmer's Suggested Price</span>
+                        <p class="text-lg font-extrabold text-green-700 dark:text-green-400 font-mono">₱{{ number_format($harvest->suggested_price_per_kg, 2) }} <span class="text-sm font-bold text-green-600/70 dark:text-green-400/70">/ kg</span></p>
+                    </div>
+                @else
+                    <div class="mt-4 p-4 bg-slate-50 dark:bg-slate-700/30 border border-slate-200/50 dark:border-slate-600/30 rounded-2xl">
+                        <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Farmer's Price</span>
+                        <p class="text-sm font-bold text-slate-500 dark:text-slate-400">Open to Negotiation</p>
+                    </div>
+                @endif
             </div>
         </div>
 

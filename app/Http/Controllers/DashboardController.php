@@ -8,6 +8,8 @@ use App\Models\User;
 use App\Models\Harvest;
 use App\Models\HarvestStatus;
 use App\Models\PoolingJob;
+use App\Services\Darfo12Service;
+use Carbon\Carbon;
 use App\Http\Controllers\BuyerController;
 
 class DashboardController extends Controller
@@ -15,6 +17,10 @@ class DashboardController extends Controller
     public function index()
     {
         $user = Auth::user();
+
+        // ─── DA Price Data (shared across all dashboards) ──────
+        $daService = app(Darfo12Service::class);
+        ['latestDate' => $latestDaDate, 'daPrices' => $daPrices, 'priceTrends' => $priceTrends, 'scraperStatus' => $scraperStatus] = $daService->getDashboardData();
 
         // Initialize default counter fallback metrics
         $activeHarvestCount = 0;
@@ -25,7 +31,7 @@ class DashboardController extends Controller
 
         if ($user->role === 'logistics_partner' && $logisticsProfile = $user->logisticsProfile) {
 
-            $availableHarvests = Harvest::whereIn('status', HarvestStatus::LOGISTICS_VISIBLE)
+            $availableHarvests = Harvest::whereIn('status', HarvestStatus::logisticsVisible())
                 ->whereHas('farmer.farmerProfile', function ($query) use ($logisticsProfile) {
                     $query->where('is_verified', true);
 
@@ -84,7 +90,7 @@ class DashboardController extends Controller
         $activeShipments = collect();
 
         if ($user->role === 'farmer') {
-            $activeHarvests = $user->harvests()->whereIn('status', [...HarvestStatus::BUYER_AVAILABLE, HarvestStatus::NEGOTIATING])->with(['crop', 'cropVariety', 'destination'])->latest()->take(3)->get();
+            $activeHarvests = $user->harvests()->whereIn('status', [...HarvestStatus::buyerAvailable(), HarvestStatus::NEGOTIATING])->with(['crop', 'cropVariety', 'destination'])->latest()->take(3)->get();
             $pendingProposals = PoolingJob::whereHas('harvests', function($query) use ($user) {
                 $query->where('user_id', $user->id);
             })->where('status', 'pending')->with(['logisticsProfile', 'truck', 'harvests.crop'])->latest()->take(5)->get();
@@ -101,28 +107,10 @@ class DashboardController extends Controller
                 'pendingProposalsCount' => $pendingProposals->count(),
                 'activeShipments' => $activeShipments,
                 'activeShipmentsCount' => $activeShipments->count(),
-                'guidanceCrops' => \App\Models\Crop::whereNotNull('baseline_price_per_kg')
-                    ->orderBy('name')
-                    ->get()
-                    ->map(function ($crop) {
-                        $b2b = (float) $crop->baseline_price_per_kg;
-                        $broker = round($b2b * 0.67, 2);
-                        return [
-                            'name' => $crop->name,
-                            'broker' => $broker,
-                            'b2b' => $b2b,
-                            'trend' => 'Stable',
-                            'trend_color' => 'slate',
-                        ];
-                    })->whenEmpty(function () {
-                        return collect([
-                            ['name' => 'Potato', 'broker' => 32.0, 'b2b' => 48.0, 'trend' => 'High Demand', 'trend_color' => 'emerald'],
-                            ['name' => 'Red Onion', 'broker' => 85.0, 'b2b' => 125.0, 'trend' => 'Moderate', 'trend_color' => 'amber'],
-                            ['name' => 'Carrot', 'broker' => 40.0, 'b2b' => 58.0, 'trend' => 'High Demand', 'trend_color' => 'emerald'],
-                            ['name' => 'Cassava', 'broker' => 14.0, 'b2b' => 22.0, 'trend' => 'Stable', 'trend_color' => 'slate'],
-                            ['name' => 'Cabbage', 'broker' => 28.0, 'b2b' => 42.0, 'trend' => 'High Demand', 'trend_color' => 'emerald'],
-                        ]);
-                    }),
+                'daPrices' => $daPrices,
+                'priceTrends' => $priceTrends,
+                'latestDaDate' => $latestDaDate,
+                'scraperStatus' => $scraperStatus,
             ]),
 
             'logistics_partner' => view('logistics.logistics-view', [
@@ -130,6 +118,10 @@ class DashboardController extends Controller
                 'availableHarvests'  => $availableHarvests,
                 'activeDispatchRuns' => $activeDispatchRuns,
                 'latestProposals'    => $latestProposals,
+                'daPrices' => $daPrices,
+                'priceTrends' => $priceTrends,
+                'latestDaDate' => $latestDaDate,
+                'scraperStatus' => $scraperStatus,
             ]),
 
             'admin'  => app(AdminController::class)->index(),

@@ -62,7 +62,7 @@
                     name="crop_id"
                     id="crop_id"
                     class="w-full border border-gray-300 dark:border-slate-700 rounded-xl px-4 py-3 text-sm bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-[#2D8A37] focus:border-transparent transition"
-                    onchange="updateVarieties(this.value)"
+                    onchange="handleCropChange(this.value)"
                     required
                 >
                     <option value="" disabled>Select a crop</option>
@@ -71,8 +71,20 @@
                             {{ $crop->name }}
                         </option>
                     @endforeach
+                    <option value="other" {{ old('crop_id') === 'other' ? 'selected' : '' }}>Other (type manually)</option>
                 </select>
+                <input
+                    type="text"
+                    name="custom_crop_name"
+                    id="custom_crop_name"
+                    value="{{ old('custom_crop_name') }}"
+                    placeholder="Enter crop name (e.g. Dragon Fruit)"
+                    class="mt-2 w-full border border-gray-300 dark:border-slate-700 rounded-xl px-4 py-3 text-sm bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-[#2D8A37] focus:border-transparent transition {{ old('crop_id') === 'other' ? '' : 'hidden' }}"
+                />
                 @error('crop_id')
+                    <p class="mt-2 text-xs text-red-500">{{ $message }}</p>
+                @enderror
+                @error('custom_crop_name')
                     <p class="mt-2 text-xs text-red-500">{{ $message }}</p>
                 @enderror
             </div>
@@ -86,11 +98,23 @@
                     name="crop_variety_id"
                     id="crop_variety_id"
                     class="w-full border border-gray-300 dark:border-slate-700 rounded-xl px-4 py-3 text-sm bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-[#2D8A37] focus:border-transparent transition"
+                    onchange="handleVarietyChange(this.value)"
                     required
                 >
                     <option value="" disabled>Select a variety</option>
                 </select>
+                <input
+                    type="text"
+                    name="custom_variety_name"
+                    id="custom_variety_name"
+                    value="{{ old('custom_variety_name') }}"
+                    placeholder="Enter variety name (e.g. Red Lady)"
+                    class="mt-2 w-full border border-gray-300 dark:border-slate-700 rounded-xl px-4 py-3 text-sm bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-[#2D8A37] focus:border-transparent transition {{ old('crop_variety_id') === 'other' ? '' : 'hidden' }}"
+                />
                 @error('crop_variety_id')
+                    <p class="mt-2 text-xs text-red-500">{{ $message }}</p>
+                @enderror
+                @error('custom_variety_name')
                     <p class="mt-2 text-xs text-red-500">{{ $message }}</p>
                 @enderror
             </div>
@@ -123,6 +147,28 @@
                     ⚠ That quantity seems unrealistic. Max allowed is 999,999.99 kg.
                 </p>
                 @error('quantity_kg')
+                    <p class="mt-2 text-xs text-red-500">{{ $message }}</p>
+                @enderror
+            </div>
+
+            {{-- Suggested Price --}}
+            <div class="mb-6">
+                <label class="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-2">
+                    Your Suggested Price (₱/kg) <span class="text-gray-400 dark:text-slate-500 font-normal">(optional)</span>
+                </label>
+                <input
+                    type="number"
+                    name="suggested_price_per_kg"
+                    id="suggested_price_per_kg"
+                    value="{{ old('suggested_price_per_kg', $harvest->suggested_price_per_kg) }}"
+                    placeholder="e.g. 45.00"
+                    min="0"
+                    max="99999.99"
+                    step="0.01"
+                    class="w-full border border-gray-300 dark:border-slate-700 rounded-xl px-4 py-3 text-sm bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-[#2D8A37] focus:border-transparent transition"
+                />
+                <p class="mt-1 text-xs text-gray-400 dark:text-slate-500 font-medium">Buyers will see this as your asking price. Leave blank if open to negotiation.</p>
+                @error('suggested_price_per_kg')
                     <p class="mt-2 text-xs text-red-500">{{ $message }}</p>
                 @enderror
             </div>
@@ -222,9 +268,42 @@
         ])
     );
 
+    function handleCropChange(value) {
+        const customInput = document.getElementById('custom_crop_name');
+        const varietyWrapper = document.getElementById('variety_wrapper');
+        const varietySelect = document.getElementById('crop_variety_id');
+        const customVarietyInput = document.getElementById('custom_variety_name');
+
+        if (value === 'other') {
+            customInput.classList.remove('hidden');
+            customInput.focus();
+            varietyWrapper.style.display = 'block';
+            varietySelect.innerHTML = '<option value="other">Other (type manually)</option>';
+            varietySelect.value = 'other';
+            handleVarietyChange('other');
+        } else {
+            customInput.classList.add('hidden');
+            customInput.value = '';
+            updateVarieties(value);
+        }
+    }
+
+    function handleVarietyChange(value) {
+        const customInput = document.getElementById('custom_variety_name');
+
+        if (value === 'other') {
+            customInput.classList.remove('hidden');
+            customInput.focus();
+        } else {
+            customInput.classList.add('hidden');
+            customInput.value = '';
+        }
+    }
+
     function updateVarieties(cropId, selectedVarietyId = null) {
         const wrapper  = document.getElementById('variety_wrapper');
         const select   = document.getElementById('crop_variety_id');
+        const customInput = document.getElementById('custom_variety_name');
         const varieties = cropVarieties[cropId] || [];
 
         select.innerHTML = '<option value="" disabled>Select a variety</option>';
@@ -237,11 +316,17 @@
                 if (selectedVarietyId && v.id == selectedVarietyId) opt.selected = true;
                 select.appendChild(opt);
             });
+            // Add "Other" option at the end
+            const otherOpt = document.createElement('option');
+            otherOpt.value = 'other';
+            otherOpt.textContent = 'Other (type manually)';
+            if (selectedVarietyId === 'other') otherOpt.selected = true;
+            select.appendChild(otherOpt);
             wrapper.style.display = 'block';
-            select.required = true;
+            customInput.classList.add('hidden');
+            customInput.value = '';
         } else {
             wrapper.style.display = 'none';
-            select.required = false;
         }
     }
 
@@ -264,7 +349,14 @@
         const currentCropId   = "{{ old('crop_id', $harvest->crop_id) }}";
         const currentVarietyId = "{{ old('crop_variety_id', $harvest->crop_variety_id) }}";
 
-        if (currentCropId) {
+        if (currentCropId === 'other') {
+            document.getElementById('crop_id').value = 'other';
+            handleCropChange('other');
+            document.getElementById('custom_crop_name').value = "{{ old('custom_crop_name') }}";
+            if (currentVarietyId === 'other') {
+                document.getElementById('custom_variety_name').value = "{{ old('custom_variety_name') }}";
+            }
+        } else if (currentCropId) {
             updateVarieties(currentCropId, currentVarietyId);
         }
     });

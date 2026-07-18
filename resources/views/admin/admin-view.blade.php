@@ -326,6 +326,14 @@
 
         </div>
 
+        {{-- ── MARKET PRICES ── --}}
+        <div class="mb-10">
+            <div class="mb-4 flex items-center justify-between">
+                <h2 class="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">DA RFO12 Market Prices</h2>
+            </div>
+            <x-market-prices-card :daPrices="$daPrices" :priceTrends="$priceTrends" :latestDate="$latestDaDate" :scraperStatus="$scraperStatus" />
+        </div>
+
         {{-- ── RECENT ACTIVITY ── --}}
         <div class="mb-4 flex items-center justify-between">
             <h2 class="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">Security Audit Trail</h2>

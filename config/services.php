@@ -39,4 +39,12 @@ return [
         'key' => env('OPENWEATHER_API_KEY'),
     ],
 
+    'tesseract' => [
+        'binary' => env('TESSERACT_BINARY', 'tesseract'),
+    ],
+
+    'poppler' => [
+        'pdftoppm' => env('POPPLER_PDFTOPPM', 'pdftoppm'),
+    ],
+
 ];
