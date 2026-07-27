@@ -128,7 +128,7 @@
                 <div class="flex items-center gap-3">
                     <button type="submit"
                         class="bg-gradient-to-tr from-[#3A7D44] to-[#2E6336] hover:from-[#3A7D44] hover:to-[#2E6336] text-white text-sm font-bold px-6 py-3.5 rounded-xl border border-[#3A7D44]/20 dark:border-[#3A7D44]/25 shadow-md shadow-[#3A7D44]/15 dark:shadow-[#3A7D44]/30 hover:shadow-lg hover:translate-y-[-1px] active:translate-y-0 transition-all duration-200"
-                        style="background-color: #059669; text-shadow: 0 1px 2px rgba(0,0,0,0.15);">
+                        >
                         Add Vehicle
                     </button>
                     <a href="{{ route('logistics.vehicles.index') }}" 

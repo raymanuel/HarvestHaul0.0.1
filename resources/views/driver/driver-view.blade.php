@@ -1,73 +1,4 @@
-﻿<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" content="#020617" />
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>HarvestHaul — Driver Portal</title>
-
-    <!-- Theme Initializer -->
-    <script>
-        (function() {
-            var theme = localStorage.getItem('theme');
-            var isDark = theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches);
-            if (isDark) {
-                document.documentElement.classList.add('dark');
-            } else {
-                document.documentElement.classList.remove('dark');
-            }
-        })();
-    </script>
-
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        slate: {
-                            950: '#020617',
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background: radial-gradient(circle at 50% 0%, #F8FAFC 0%, #EEF2F6 100%);
-            transition: background 0.3s ease, color 0.3s ease;
-        }
-        html.dark body {
-            background: radial-gradient(circle at 50% 0%, #0c1524 0%, #020617 100%);
-        }
-        .heading-font {
-            font-family: 'Outfit', sans-serif;
-        }
-        .glass-card {
-            background: rgba(255, 255, 255, 0.75);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(0, 0, 0, 0.06);
-            transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
-        }
-        html.dark .glass-card {
-            background: rgba(15, 23, 42, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-    </style>
-</head>
-<body class="text-slate-800 dark:text-slate-100 antialiased min-h-screen pb-12">
+﻿<x-driver-layout title="HarvestHaul — Driver Portal">
 
     <!-- Top Header Panel (Premium Sticky Glassmorphism) -->
     <header class="sticky top-0 z-35 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800/60 px-4 py-4 transition-colors duration-300">
@@ -85,24 +16,7 @@
             
             <div class="flex items-center gap-2">
                 <!-- Notifications Dropdown -->
-                <div class="relative" id="driver-notif-menu">
-                    <button onclick="toggleDriverNotif()" class="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/50 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white flex items-center justify-center transition-all duration-200 active:scale-[0.97] relative">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                        </svg>
-                        <span id="driver-notif-badge" class="hidden absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-red-500"></span>
-                    </button>
-                    <!-- Dropdown -->
-                    <div id="driver-notif-dropdown" class="hidden absolute right-0 mt-2 w-72 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl z-50 overflow-hidden text-slate-800 dark:text-slate-100">
-                        <div class="px-4 py-2.5 bg-slate-50 dark:bg-slate-950 border-b border-slate-150 dark:border-slate-800 flex items-center justify-between text-[10px]">
-                            <span class="font-bold uppercase tracking-wider text-slate-400">Notifications</span>
-                            <button onclick="markAllDriverNotifRead()" class="text-[9px] text-[#3A7D44] dark:text-[#3A7D44] font-bold hover:underline">Mark all read</button>
-                        </div>
-                        <div id="driver-notif-list" class="max-h-60 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800 text-xs">
-                            <p class="text-center text-slate-450 dark:text-slate-500 py-4">No notifications</p>
-                        </div>
-                    </div>
-                </div>
+                <x-notification-dropdown />
 
                 <!-- Theme Toggle Button -->
                 <button onclick="toggleDarkMode()" class="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/50 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white flex items-center justify-center transition-all duration-200 active:scale-[0.97]" title="Toggle Theme">
@@ -210,7 +124,7 @@
                 <!-- Logistics Payload & Stops Details -->
                 <div class="grid grid-cols-2 divide-x divide-slate-100 dark:divide-slate-800/40 border-b border-slate-100 dark:border-slate-800/50 bg-slate-50/20 dark:bg-slate-900/10">
                     <div class="px-5 py-4 flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-lg bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-650 dark:text-indigo-400 shrink-0">
+                        <div class="w-8 h-8 rounded-lg bg-brand/10 border border-brand/20 flex items-center justify-center text-brand dark:text-brand-light shrink-0">
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                             </svg>
@@ -222,7 +136,7 @@
                     </div>
 
                     <div class="px-5 py-4 flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-lg bg-pink-500/10 border border-pink-500/20 flex items-center justify-center text-pink-600 dark:text-pink-400 shrink-0">
+                        <div class="w-8 h-8 rounded-lg bg-harvest/10 border border-harvest/20 flex items-center justify-center text-harvest dark:text-harvest shrink-0">
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
                             </svg>
@@ -304,203 +218,4 @@
 
     </main>
 
-    <!-- Notification & Dark Mode Scripts -->
-    <script>
-        function toggleDarkMode() {
-            var isDark = document.documentElement.classList.toggle('dark');
-            localStorage.setItem('theme', isDark ? 'dark' : 'light');
-        }
-
-        // Driver Notifications Menu Toggle
-        function toggleDriverNotif() {
-            var dropdown = document.getElementById('driver-notif-dropdown');
-            dropdown.classList.toggle('hidden');
-        }
-
-        // Close dropdown when clicking outside
-        window.addEventListener('click', function(e) {
-            var dropdown = document.getElementById('driver-notif-dropdown');
-            var menu = document.getElementById('driver-notif-menu');
-            if (dropdown && menu && !menu.contains(e.target)) {
-                dropdown.classList.add('hidden');
-            }
-        });
-
-        // Fetch driver notifications (with SweetAlert toast for new ones)
-        var fetchDriverNotif = (function () {
-            var prevUnread = 0;
-            var knownIds = {};
-
-            return function () {
-                fetch('/api/notifications')
-                    .then(function (r) { return r.json(); })
-                    .then(function (data) {
-                        var badge = document.getElementById('driver-notif-badge');
-                        if (data.unread_count > 0) {
-                            badge.classList.remove('hidden');
-                        } else {
-                            badge.classList.add('hidden');
-                        }
-
-                        // Show SweetAlert toast for new unread notifications
-                        if (data.unread_count > prevUnread && data.notifications.length > 0) {
-                            var newest = data.notifications[0];
-                            if (!knownIds[newest.id]) {
-                                knownIds[newest.id] = true;
-                                Swal.fire({
-                                    icon: null,
-                                    title: newest.title,
-                                    text: newest.message,
-                                    timer: 4000,
-                                    timerProgressBar: true,
-                                    showConfirmButton: false,
-                                    toast: true,
-                                    position: 'top-end',
-                                    background: document.documentElement.classList.contains('dark') ? '#1e293b' : '#fff',
-                                    color: document.documentElement.classList.contains('dark') ? '#e2e8f0' : '#1e293b',
-                                    customClass: { popup: 'rounded-xl shadow-lg border border-[#3A7D44]/20 text-xs' }
-                                });
-                            }
-                        }
-                        prevUnread = data.unread_count;
-
-                        var list = document.getElementById('driver-notif-list');
-                        if (data.notifications.length === 0) {
-                            list.innerHTML = '<p class="text-center text-slate-450 dark:text-slate-500 py-4">No notifications</p>';
-                            return;
-                        }
-
-                        var html = '';
-                        data.notifications.forEach(function (n) {
-                            knownIds[n.id] = true;
-                            var isUnread = !n.read_at;
-                            var bgClass = isUnread ? 'bg-[#3A7D44]/5 dark:bg-[#3A7D44]/5' : '';
-                            var indicator = isUnread ? '<span class="w-1.5 h-1.5 rounded-full bg-[#3A7D44]/100 shrink-0 mt-1"></span>' : '';
-                            var link = n.link ? n.link : '#';
-
-                            html += '<div class="px-4 py-2.5 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition flex items-start justify-between gap-2.5 ' + bgClass + '" onclick="markDriverNotifRead(' + n.id + ', \'' + link + '\')">';
-                            html += '<div class="flex-1 cursor-pointer">';
-                            html += '<p class="font-bold text-[11px] leading-tight text-slate-800 dark:text-slate-200">' + escapeHtml(n.title) + '</p>';
-                            html += '<p class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 leading-snug">' + escapeHtml(n.message) + '</p>';
-                            html += '</div>';
-                            html += indicator;
-                            html += '</div>';
-                        });
-                        list.innerHTML = html;
-                    });
-            };
-        })();
-
-        function escapeHtml(str) {
-            var div = document.createElement('div');
-            div.appendChild(document.createTextNode(str));
-            return div.innerHTML;
-        }
-
-        function markDriverNotifRead(id, link) {
-            fetch(`/api/notifications/${id}/read`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                    'Content-Type': 'application/json'
-                }
-            }).then(() => {
-                fetchDriverNotif();
-                if (link && link !== '#') {
-                    window.location.href = link;
-                }
-            });
-        }
-
-        function markAllDriverNotifRead() {
-            fetch('/api/notifications/read-all', {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                    'Content-Type': 'application/json'
-                }
-            }).then(() => {
-                fetchDriverNotif();
-            });
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            fetchDriverNotif();
-            setInterval(fetchDriverNotif, 15000);
-        });
-    </script>
-
-    {{-- SweetAlert Global Flash Handler --}}
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            @if(session('success'))
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Success',
-                    text: @json(session('success')),
-                    timer: 3000,
-                    timerProgressBar: true,
-                    showConfirmButton: false,
-                    toast: true,
-                    position: 'top-end',
-                    background: document.documentElement.classList.contains('dark') ? '#1e293b' : '#fff',
-                    color: document.documentElement.classList.contains('dark') ? '#e2e8f0' : '#1e293b',
-                    iconColor: '#3A7D44',
-                    customClass: { popup: 'rounded-xl shadow-lg border border-[#3A7D44]/20' }
-                });
-            @endif
-            @if(session('error'))
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: @json(session('error')),
-                    timer: 4500,
-                    timerProgressBar: true,
-                    showConfirmButton: true,
-                    confirmButtonText: 'OK',
-                    confirmButtonColor: '#ef4444',
-                    toast: false,
-                    background: document.documentElement.classList.contains('dark') ? '#1e293b' : '#fff',
-                    color: document.documentElement.classList.contains('dark') ? '#e2e8f0' : '#1e293b',
-                    customClass: { popup: 'rounded-xl shadow-lg' }
-                });
-            @endif
-        });
-
-        function swalConfirm(formOrCallback, opts = {}) {
-            const defaults = {
-                title: opts.title || 'Are you sure?',
-                text: opts.text || 'This action cannot be undone.',
-                icon: opts.icon || 'warning',
-                confirmText: opts.confirmText || 'Yes, proceed',
-                cancelText: opts.cancelText || 'Cancel',
-                confirmColor: opts.confirmColor || '#3A7D44',
-                cancelColor: opts.cancelColor || '#64748b'
-            };
-
-            Swal.fire({
-                title: defaults.title,
-                text: defaults.text,
-                icon: defaults.icon,
-                showCancelButton: true,
-                confirmButtonText: defaults.confirmText,
-                cancelButtonText: defaults.cancelText,
-                confirmButtonColor: defaults.confirmColor,
-                cancelButtonColor: defaults.cancelColor,
-                background: document.documentElement.classList.contains('dark') ? '#1e293b' : '#fff',
-                color: document.documentElement.classList.contains('dark') ? '#e2e8f0' : '#1e293b',
-                customClass: { popup: 'rounded-xl shadow-2xl' },
-                reverseButtons: true
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    if (typeof formOrCallback === 'function') {
-                        formOrCallback();
-                    } else if (formOrCallback && formOrCallback.submit) {
-                        formOrCallback.submit();
-                    }
-                }
-            });
-        }
-    </script>
-</body>
-</html>
+</x-driver-layout>

@@ -10,7 +10,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Source+Sans+3:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
 
     {{-- Leaflet or other page-specific head injections --}}
     @stack('head')
@@ -19,8 +19,8 @@
         body {
             margin: 0;
             padding: 2rem 1rem;
-            font-family: 'Source Sans 3', sans-serif;
-            background: linear-gradient(135deg, #FAF6ED 0%, #F5F0E6 50%, #E8DCC8 100%);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: linear-gradient(135deg, #FAFAF5 0%, #F5F0E6 50%, #E8DCC8 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -45,7 +45,7 @@
             font-size: 1.8rem;
             font-weight: 700;
             margin-bottom: 1.5rem;
-            font-family: 'DM Serif Display', serif;
+            font-family: 'Outfit', sans-serif;
         }
 
         .form-group {
@@ -100,7 +100,7 @@
         #legal-modal-body .updated { font-size:0.8rem; color:#9ca3af; margin-bottom:1.5rem; display:block; }
         #legal-modal-body .back { display:none; }
         #legal-modal-body strong { color:#111827; font-weight:600; }
-        .heading-font { font-family: 'DM Serif Display', serif; }
+        .heading-font { font-family: 'Outfit', sans-serif; }
         .btn-loading { pointer-events:none; opacity:0.7; }
         .btn-loading::after { content:''; display:inline-block; width:16px; height:16px; border:2px solid rgba(255,255,255,0.3); border-top-color:#fff; border-radius:50%; animation:spin 0.6s linear infinite; margin-left:8px; vertical-align:middle; }
     </style>

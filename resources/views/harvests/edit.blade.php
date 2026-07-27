@@ -3,23 +3,23 @@
 <div class="w-full max-w-2xl">
 
     <header class="pt-8 mb-8">
-        <a href="{{ route('harvests.index') }}" class="text-sm text-gray-400 hover:text-gray-650 dark:text-slate-400 dark:hover:text-slate-300 mb-4 inline-block font-semibold">
+        <a href="{{ route('harvests.index') }}" class="text-sm text-slate-400 hover:text-slate-600 dark:text-slate-400 dark:hover:text-slate-300 mb-4 inline-block font-semibold">
             ← Back to My Posts
         </a>
-        <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Edit Harvest</h1>
-        <p class="text-gray-500 dark:text-slate-400 font-medium">Update your crop details for <strong>{{ $harvest->crop_type }}</strong>.</p>
+        <h1 class="text-3xl font-bold text-slate-900 dark:text-white mb-2">Edit Harvest</h1>
+        <p class="text-slate-500 dark:text-slate-400 font-medium">Update your crop details for <strong>{{ $harvest->crop_type }}</strong>.</p>
     </header>
 
     {{-- Status Banner --}}
     @if(in_array($harvest->status, ['completed', 'cancelled', 'negotiating', 'sold', 'assigned']))
-        <div class="mb-6 bg-amber-50 border border-amber-200 dark:bg-amber-955/20 dark:border-amber-500/20 rounded-xl px-5 py-4 flex gap-3 items-start">
+        <div class="mb-6 bg-amber-50 border border-amber-200 dark:bg-amber-950/20 dark:border-amber-500/20 rounded-xl px-5 py-4 flex gap-3 items-start">
             <span class="text-lg">🔒</span>
             <p class="text-sm text-amber-700 dark:text-amber-400 font-medium">
                 This harvest post is <strong>{{ ucfirst($harvest->status) }}</strong> and can no longer be edited.
             </p>
         </div>
     @elseif($harvest->status === 'partially_sold' && (float) ($harvest->remaining_quantity_kg ?? 0) <= 0)
-        <div class="mb-6 bg-amber-50 border border-amber-200 dark:bg-amber-955/20 dark:border-amber-500/20 rounded-xl px-5 py-4 flex gap-3 items-start">
+        <div class="mb-6 bg-amber-50 border border-amber-200 dark:bg-amber-950/20 dark:border-amber-500/20 rounded-xl px-5 py-4 flex gap-3 items-start">
             <span class="text-lg">🔒</span>
             <p class="text-sm text-amber-700 dark:text-amber-400 font-medium">
                 This harvest is fully sold and can no longer be edited.
@@ -28,7 +28,7 @@
     @endif
 
     @if ($harvest->poolingJobs()->where('pooling_jobs.status', 'in', ['pending', 'confirmed', 'in_progress'])->exists())
-        <div class="mb-6 bg-amber-50 border border-amber-200 dark:bg-amber-955/20 dark:border-amber-500/20 rounded-xl px-5 py-4 flex gap-3 items-start">
+        <div class="mb-6 bg-amber-50 border border-amber-200 dark:bg-amber-950/20 dark:border-amber-500/20 rounded-xl px-5 py-4 flex gap-3 items-start">
             <span class="text-lg">📦</span>
             <p class="text-sm text-amber-700 dark:text-amber-400 font-medium">
                 This harvest has an active logistics proposal. Editing is locked until the proposal is resolved.
@@ -38,7 +38,7 @@
 
     {{-- Validation Errors --}}
     @if ($errors->any())
-        <div class="mb-6 bg-red-50 border border-red-200 dark:bg-red-955/20 dark:border-red-500/20 text-red-700 dark:text-red-450 rounded-xl px-5 py-4 text-sm font-semibold">
+        <div class="mb-6 bg-red-50 border border-red-200 dark:bg-red-950/20 dark:border-red-500/20 text-red-700 dark:text-red-400 rounded-xl px-5 py-4 text-sm font-semibold">
             <p class="font-semibold mb-1">Please fix the following:</p>
             <ul class="list-disc list-inside space-y-1">
                 @foreach ($errors->all() as $error)
@@ -48,20 +48,20 @@
         </div>
     @endif
 
-    <div class="bg-white dark:bg-slate-800/80 rounded-2xl border border-gray-200 dark:border-slate-700/60 shadow-sm p-8">
+    <div class="bg-white dark:bg-slate-800/80 rounded-2xl border border-slate-200 dark:border-slate-700/60 shadow-sm p-8">
         <form method="POST" action="{{ route('harvests.update', $harvest->id) }}">
             @csrf
             @method('PUT')
 
             {{-- Crop --}}
             <div class="mb-6">
-                <label class="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-2">
+                <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                     Crop Type <span class="text-red-400">*</span>
                 </label>
                 <select
                     name="crop_id"
                     id="crop_id"
-                    class="w-full border border-gray-300 dark:border-slate-700 rounded-xl px-4 py-3 text-sm bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-[#2D8A37] focus:border-transparent transition"
+                    class="w-full border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-sm bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-[#2D8A37] focus:border-transparent transition"
                     onchange="handleCropChange(this.value)"
                     required
                 >
@@ -79,7 +79,7 @@
                     id="custom_crop_name"
                     value="{{ old('custom_crop_name') }}"
                     placeholder="Enter crop name (e.g. Dragon Fruit)"
-                    class="mt-2 w-full border border-gray-300 dark:border-slate-700 rounded-xl px-4 py-3 text-sm bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-[#2D8A37] focus:border-transparent transition {{ old('crop_id') === 'other' ? '' : 'hidden' }}"
+                    class="mt-2 w-full border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-sm bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-[#2D8A37] focus:border-transparent transition {{ old('crop_id') === 'other' ? '' : 'hidden' }}"
                 />
                 @error('crop_id')
                     <p class="mt-2 text-xs text-red-500">{{ $message }}</p>
@@ -91,13 +91,13 @@
 
             {{-- Variety (cascading) --}}
             <div class="mb-6" id="variety_wrapper">
-                <label class="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-2">
+                <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                     Variety <span class="text-red-400">*</span>
                 </label>
                 <select
                     name="crop_variety_id"
                     id="crop_variety_id"
-                    class="w-full border border-gray-300 dark:border-slate-700 rounded-xl px-4 py-3 text-sm bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-[#2D8A37] focus:border-transparent transition"
+                    class="w-full border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-sm bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-[#2D8A37] focus:border-transparent transition"
                     onchange="handleVarietyChange(this.value)"
                     required
                 >
@@ -109,7 +109,7 @@
                     id="custom_variety_name"
                     value="{{ old('custom_variety_name') }}"
                     placeholder="Enter variety name (e.g. Red Lady)"
-                    class="mt-2 w-full border border-gray-300 dark:border-slate-700 rounded-xl px-4 py-3 text-sm bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-[#2D8A37] focus:border-transparent transition {{ old('crop_variety_id') === 'other' ? '' : 'hidden' }}"
+                    class="mt-2 w-full border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-sm bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-[#2D8A37] focus:border-transparent transition {{ old('crop_variety_id') === 'other' ? '' : 'hidden' }}"
                 />
                 @error('crop_variety_id')
                     <p class="mt-2 text-xs text-red-500">{{ $message }}</p>
@@ -121,7 +121,7 @@
 
             {{-- Quantity --}}
             <div class="mb-6">
-                <label class="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-2">
+                <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                     Quantity (kg) <span class="text-red-400">*</span>
                 </label>
                 @php
@@ -138,11 +138,11 @@
                     min="0.01"
                     max="999999.99"
                     step="0.01"
-                    class="w-full border border-gray-300 dark:border-slate-700 rounded-xl px-4 py-3 text-sm bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-[#2D8A37] focus:border-transparent transition"
+                    class="w-full border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-sm bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-[#2D8A37] focus:border-transparent transition"
                     oninput="validateQuantity(this)"
                     required
                 />
-                <p class="mt-1 text-xs text-gray-400 dark:text-slate-500 font-medium">Actual weight confirmed at pickup.</p>
+                <p class="mt-1 text-xs text-slate-400 dark:text-slate-500 font-medium">Actual weight confirmed at pickup.</p>
                 <p id="quantity_warning" class="hidden mt-2 text-xs text-amber-600 dark:text-amber-400 font-bold">
                     ⚠ That quantity seems unrealistic. Max allowed is 999,999.99 kg.
                 </p>
@@ -153,8 +153,8 @@
 
             {{-- Suggested Price --}}
             <div class="mb-6">
-                <label class="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-2">
-                    Your Suggested Price (₱/kg) <span class="text-gray-400 dark:text-slate-500 font-normal">(optional)</span>
+                <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                    Your Suggested Price (₱/kg) <span class="text-slate-400 dark:text-slate-500 font-normal">(optional)</span>
                 </label>
                 <input
                     type="number"
@@ -165,9 +165,9 @@
                     min="0"
                     max="99999.99"
                     step="0.01"
-                    class="w-full border border-gray-300 dark:border-slate-700 rounded-xl px-4 py-3 text-sm bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-[#2D8A37] focus:border-transparent transition"
+                    class="w-full border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-sm bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-[#2D8A37] focus:border-transparent transition"
                 />
-                <p class="mt-1 text-xs text-gray-400 dark:text-slate-500 font-medium">Buyers will see this as your asking price. Leave blank if open to negotiation.</p>
+                <p class="mt-1 text-xs text-slate-400 dark:text-slate-500 font-medium">Buyers will see this as your asking price. Leave blank if open to negotiation.</p>
                 @error('suggested_price_per_kg')
                     <p class="mt-2 text-xs text-red-500">{{ $message }}</p>
                 @enderror
@@ -175,73 +175,32 @@
 
             {{-- Harvest Date --}}
             <div class="mb-6">
-                <label class="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-2">
-                    Harvest Date <span class="text-gray-400 dark:text-slate-500 font-normal">(optional)</span>
+                <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                    Harvest Date <span class="text-slate-400 dark:text-slate-500 font-normal">(optional)</span>
                 </label>
                 <input
                     type="date"
                     name="harvest_date"
                     value="{{ old('harvest_date', $harvest->harvest_date?->format('Y-m-d')) }}"
-                    max="{{ date('Y-m-d') }}"
-                    class="w-full border border-gray-300 dark:border-slate-700 rounded-xl px-4 py-3 text-sm bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-[#2D8A37] focus:border-transparent transition"
+                    max="{{ date('Y-m-d', strtotime('+1 day')) }}"
+                    min="{{ date('Y-m-d') }}"
+                    class="w-full border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-sm bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-[#2D8A37] focus:border-transparent transition"
                 />
                 @error('harvest_date')
                     <p class="mt-2 text-xs text-red-500">{{ $message }}</p>
                 @enderror
             </div>
 
-            {{-- Quality Grade --}}
-            <div class="mb-6">
-                <label class="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-2">
-                    Quality Grade <span class="text-gray-400 dark:text-slate-500 font-normal">(optional)</span>
-                </label>
-                <select
-                    name="quality_grade"
-                    class="w-full border border-gray-300 dark:border-slate-700 rounded-xl px-4 py-3 text-sm bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-[#2D8A37] focus:border-transparent transition"
-                >
-                    <option value="" {{ old('quality_grade', $harvest->quality_grade) ? '' : 'selected' }}>— Select grade —</option>
-                    <option value="Grade AA" {{ old('quality_grade', $harvest->quality_grade) === 'Grade AA' ? 'selected' : '' }}>Grade AA — Export Quality</option>
-                    <option value="Grade A"  {{ old('quality_grade', $harvest->quality_grade) === 'Grade A'  ? 'selected' : '' }}>Grade A — Commercial Quality</option>
-                    <option value="Grade B"  {{ old('quality_grade', $harvest->quality_grade) === 'Grade B'  ? 'selected' : '' }}>Grade B — Local Market Quality</option>
-                    <option value="Reject / Processing Grade" {{ old('quality_grade', $harvest->quality_grade) === 'Reject / Processing Grade' ? 'selected' : '' }}>Reject / Processing Grade</option>
-                </select>
-                @error('quality_grade')
-                    <p class="mt-2 text-xs text-red-500">{{ $message }}</p>
-                @enderror
-            </div>
-
-            {{-- Packaging Type --}}
-            <div class="mb-6">
-                <label class="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-2">
-                    Packaging Type <span class="text-gray-400 dark:text-slate-500 font-normal">(optional)</span>
-                </label>
-                <select
-                    name="packaging_type"
-                    class="w-full border border-gray-300 dark:border-slate-700 rounded-xl px-4 py-3 text-sm bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-[#2D8A37] focus:border-transparent transition"
-                >
-                    <option value="" {{ old('packaging_type', $harvest->packaging_type) ? '' : 'selected' }}>— Select packaging —</option>
-                    <option value="Bulk / Loose"                    {{ old('packaging_type', $harvest->packaging_type) === 'Bulk / Loose'                    ? 'selected' : '' }}>Bulk / Loose</option>
-                    <option value="Bamboo/Rattan Basket"            {{ old('packaging_type', $harvest->packaging_type) === 'Bamboo/Rattan Basket'            ? 'selected' : '' }}>Bamboo / Rattan Basket</option>
-                    <option value="Plastic Crate"                   {{ old('packaging_type', $harvest->packaging_type) === 'Plastic Crate'                   ? 'selected' : '' }}>Plastic Crate</option>
-                    <option value="Corrugated Fibreboard Box (CFB)" {{ old('packaging_type', $harvest->packaging_type) === 'Corrugated Fibreboard Box (CFB)' ? 'selected' : '' }}>Corrugated Fibreboard Box (CFB)</option>
-                    <option value="Plastic Sack / Net Bag"          {{ old('packaging_type', $harvest->packaging_type) === 'Plastic Sack / Net Bag'          ? 'selected' : '' }}>Plastic Sack / Net Bag</option>
-                    <option value="Styrofoam Box"                   {{ old('packaging_type', $harvest->packaging_type) === 'Styrofoam Box'                   ? 'selected' : '' }}>Styrofoam Box</option>
-                </select>
-                @error('packaging_type')
-                    <p class="mt-2 text-xs text-red-500">{{ $message }}</p>
-                @enderror
-            </div>
-
             {{-- Notes --}}
             <div class="mb-8">
-                <label class="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-2">
-                    Pickup Notes <span class="text-gray-400 dark:text-slate-500 font-normal">(optional)</span>
+                <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                    Pickup Notes <span class="text-slate-400 dark:text-slate-500 font-normal">(optional)</span>
                 </label>
                 <textarea
                     name="notes"
                     rows="4"
                     placeholder="e.g. Use the side gate, available after 8am, call before arrival"
-                    class="w-full border border-gray-300 dark:border-slate-700 rounded-xl px-4 py-3 text-sm bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-[#2D8A37] focus:border-transparent resize-none transition"
+                    class="w-full border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-sm bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-[#2D8A37] focus:border-transparent resize-none transition"
                 >{{ old('notes', $harvest->notes) }}</textarea>
             </div>
 
@@ -252,7 +211,7 @@
                     Save Changes
                 </button>
                 <a href="{{ route('harvests.index') }}"
-                    class="flex-1 text-center bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-250 font-bold py-3 rounded-xl transition">
+                    class="flex-1 text-center bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 font-bold py-3 rounded-xl transition">
                     Cancel
                 </a>
             </div>
@@ -337,11 +296,11 @@
         if (value > 999999.99 || value <= 0) {
             warning.classList.remove('hidden');
             input.classList.add('border-amber-400');
-            input.classList.remove('border-gray-300', 'dark:border-slate-700');
+            input.classList.remove('border-slate-300', 'dark:border-slate-700');
         } else {
             warning.classList.add('hidden');
             input.classList.remove('border-amber-400');
-            input.classList.add('border-gray-300', 'dark:border-slate-700');
+            input.classList.add('border-slate-300', 'dark:border-slate-700');
         }
     }
 

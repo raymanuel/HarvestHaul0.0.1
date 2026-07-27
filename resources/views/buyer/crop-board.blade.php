@@ -5,13 +5,13 @@
     <div class="relative z-10">
         <header class="mb-8 pt-6">
             <div class="flex items-center gap-2 mb-2">
-                <a href="{{ route('dashboard') }}" class="text-xs font-bold text-violet-600 dark:text-violet-400 hover:underline flex items-center gap-1">
+                <a href="{{ route('dashboard') }}" class="text-xs font-bold text-harvest dark:text-harvest hover:underline flex items-center gap-1">
                     ← Dashboard
                 </a>
             </div>
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <span class="text-[10px] font-bold uppercase tracking-widest text-violet-600 dark:text-violet-400 bg-violet-500/10 dark:bg-violet-400/10 px-3 py-1 rounded-full border border-violet-500/20">B2B Crop Board</span>
+                    <span class="text-[10px] font-bold uppercase tracking-widest text-harvest dark:text-harvest bg-harvest/10 dark:bg-harvest/10 px-3 py-1 rounded-full border border-harvest/20">B2B Crop Board</span>
                     <h1 class="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight heading-font mt-3">Available Posts</h1>
                     <p class="text-sm text-slate-500 dark:text-slate-400 mt-1 font-medium">Browse verified independent farmer posts and initiate direct B2B negotiations.</p>
                 </div>
@@ -30,16 +30,16 @@
                         $isNegotiating = in_array($post->id, $allNegotiatingIds);
                         $isMyNegotiation = in_array($post->id, $negotiatingHarvestIds);
                     @endphp
-                    <div class="bg-white dark:bg-slate-800/80 backdrop-blur border border-slate-200/60 dark:border-slate-700/60 rounded-3xl {{ $isNegotiating && !$isMyNegotiation ? 'opacity-60 grayscale hover:none pointer-events-none' : 'hover:-translate-y-1.5 hover:shadow-xl hover:shadow-violet-500/5 hover:border-violet-500/30 dark:hover:border-violet-500/30' }} transition-all duration-300 group flex flex-col relative overflow-hidden">
-                        <div class="h-28 relative overflow-hidden flex items-center justify-center @if(!empty($post->crop_photos)) bg-slate-100 dark:bg-slate-900 @else bg-gradient-to-br from-violet-500/20 to-indigo-500/10 dark:from-violet-600/20 dark:to-indigo-600/10 @endif">
+                    <div class="bg-white dark:bg-slate-800/80 backdrop-blur border border-slate-200/60 dark:border-slate-700/60 rounded-3xl {{ $isNegotiating && !$isMyNegotiation ? 'opacity-60 grayscale hover:none pointer-events-none' : 'hover:-translate-y-1.5 hover:shadow-xl hover:shadow-harvest/5 hover:border-harvest/30 dark:hover:border-harvest/30' }} transition-all duration-300 group flex flex-col relative overflow-hidden">
+                        <div class="h-28 relative overflow-hidden flex items-center justify-center @if(!empty($post->crop_photos)) bg-slate-100 dark:bg-slate-900 @else bg-gradient-to-br from-harvest/20 to-brand/10 dark:from-harvest/20 dark:to-brand/10 @endif">
                             @if(!empty($post->crop_photos))
                                 <img src="{{ asset('storage/' . $post->crop_photos[0]) }}" alt="{{ $post->crop->name ?? $post->crop_type }}" class="w-full h-full object-cover">
                             @else
-                                <svg class="w-12 h-12 text-violet-400/40 dark:text-violet-500/30" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
+                                <svg class="w-12 h-12 text-harvest/40 dark:text-harvest/30" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12M6 12h12M3 6h3M18 6h3M3 18h3M18 18h3M6 3v3M6 18v3M18 3v3M18 18v3" />
                                 </svg>
                             @endif
-                            <span class="absolute top-3 left-3 text-[9px] font-extrabold uppercase tracking-widest text-violet-600 dark:text-violet-400 bg-white/70 dark:bg-slate-900/70 backdrop-blur-sm px-2 py-0.5 rounded border border-violet-500/20">PRODUCT #{{ $post->id }}</span>
+                            <span class="absolute top-3 left-3 text-[9px] font-extrabold uppercase tracking-widest text-harvest dark:text-harvest bg-white/70 dark:bg-slate-900/70 backdrop-blur-sm px-2 py-0.5 rounded border border-harvest/20">PRODUCT #{{ $post->id }}</span>
                         </div>
                         <div class="p-5 flex flex-col flex-1">
                             <div class="flex items-start justify-between gap-2 mb-1">
@@ -65,12 +65,6 @@
                             @endif
 
                             <div class="mt-3 flex items-center gap-2 flex-wrap">
-                                @php
-                                    $grade = $post->quality_grade ?? 'Standard';
-                                    $gradeColors = ['Premium' => 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/30 border-amber-200/50 dark:border-amber-700/30', 'Standard' => 'text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700', 'Budget' => 'text-[#3A7D44] dark:text-[#3A7D44] bg-[#3A7D44]/10 dark:bg-[#3A7D44]/10 border-[#3A7D44]/20 dark:border-[#3A7D44]/20'];
-                                    $colorClass = $gradeColors[$grade] ?? $gradeColors['Standard'];
-                                @endphp
-                                <span class="text-[9px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded border {{ $colorClass }}">{{ $grade }}</span>
                                 @if($isNegotiating && !$isMyNegotiation)
                                     <span class="text-[9px] font-bold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-600">UNDER NEGOTIATION</span>
                                 @elseif($post->status === 'partially_sold')
@@ -93,8 +87,8 @@
 
                             <div class="mt-auto pt-4 border-t border-slate-100 dark:border-slate-700/50">
                                 <div class="flex items-center gap-2 mb-3">
-                                    <div class="w-6 h-6 rounded-full bg-violet-100 dark:bg-violet-900/50 flex items-center justify-center">
-                                        <svg class="w-3 h-3 text-violet-600 dark:text-violet-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <div class="w-6 h-6 rounded-full bg-harvest/10 dark:bg-harvest/50 flex items-center justify-center">
+                                        <svg class="w-3 h-3 text-harvest dark:text-harvest" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                         </svg>
                                     </div>
@@ -128,7 +122,7 @@
                                     <form action="{{ route('negotiations.start') }}" method="POST">
                                         @csrf
                                         <input type="hidden" name="harvest_id" value="{{ $post->id }}">
-                                        <button type="submit" class="w-full flex items-center justify-center gap-2 py-2.5 bg-violet-600 hover:bg-violet-700 dark:bg-violet-500 dark:hover:bg-violet-600 text-white font-bold rounded-xl text-xs transition-colors shadow-sm shadow-violet-500/10 cursor-pointer">
+                                        <button type="submit" class="w-full flex items-center justify-center gap-2 py-2.5 bg-harvest hover:bg-harvest-dark dark:bg-harvest dark:hover:bg-harvest-dark text-white font-bold rounded-xl text-xs transition-colors shadow-sm shadow-harvest/10 cursor-pointer">
                                             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12M6 12h12" />
                                             </svg>

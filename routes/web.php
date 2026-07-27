@@ -46,6 +46,7 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\BuyerController;
 use App\Http\Controllers\NegotiationController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 
@@ -109,6 +110,13 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
     Route::post('api/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
     Route::post('api/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.read-all');
 
+    // Notification Preferences
+    Route::get('settings/notifications', [\App\Http\Controllers\NotificationPreferenceController::class, 'index'])->name('notifications.preferences');
+    Route::put('settings/notifications', [\App\Http\Controllers\NotificationPreferenceController::class, 'update'])->name('notifications.preferences.update');
+
+    // Market Price API
+    Route::get('api/market-price/{cropName}', [\App\Http\Controllers\MarketPriceController::class, 'getMarketPrice'])->name('api.market-price');
+
     /*
     | Email Verification Core
     |----------------------------------------------------------------------
@@ -138,7 +146,7 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
     |----------------------------------------------------------------------
     | All routes below require an active account and verified email address.
     */
-    Route::middleware('verified')->group(function () {
+    Route::middleware(['verified', 'farmer.location'])->group(function () {
 
         /*
         | 1.0 Farmer Platform Modules
@@ -147,6 +155,8 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
         Route::middleware(EnsureUserIsFarmer::class)->group(function () {
             // Harvest Posts Management
             Route::resource('harvests', HarvestController::class)->except(['show']);
+            Route::post('harvests/{harvest}/mark-as-sold', [HarvestController::class, 'markAsSold'])->name('harvests.mark-as-sold');
+            Route::post('harvests/{harvest}/request-logistics', [HarvestController::class, 'requestLogistics'])->name('harvests.request-logistics');
 
             // FIXED: Changed path and name to prevent collision with Logistics group
             Route::get('/farmer/proposals', [PoolingJobController::class, 'farmerProposals'])
@@ -167,7 +177,13 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
 
             // Farmer Negotiations List
             Route::get('/farmer/negotiations', [NegotiationController::class, 'farmerNegotiations'])->name('farmer.negotiations');
+
+            // Farmer Reports
+            Route::get('/farmer/reports/profit-expense', [ReportController::class, 'farmerProfitExpense'])->name('farmer.reports.profit-expense');
         });
+
+        // Full Market Prices Page (accessible to all verified users)
+        Route::get('/market-prices', [\App\Http\Controllers\DashboardController::class, 'fullPrices'])->name('prices.full');
 
         /*
         |------------------------------------------------------------------
@@ -179,6 +195,9 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
             // Optimization Hub
             Route::get('/route-optimization', [RouteOptimizationController::class, 'index'])->name('route.optimization');
             Route::get('/logistics/analytics', [CostLedgerController::class, 'fleetAnalytics'])->name('logistics.analytics');
+
+            // Logistics Reports
+            Route::get('/logistics/reports/trips', [ReportController::class, 'logisticsTrips'])->name('logistics.reports.trips');
 
             // Business Compliance Records
             Route::get('/business-documents', [LogisticsDocumentController::class, 'index'])->name('logistics.documents');

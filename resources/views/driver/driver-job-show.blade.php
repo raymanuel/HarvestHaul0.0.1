@@ -1,31 +1,4 @@
-﻿<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" content="#059669" />
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Job #{{ $job->id }} — HarvestHaul</title>
-
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <style>
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: #F8FAFC;
-        }
-        .heading-font {
-            font-family: 'Outfit', sans-serif;
-        }
-    </style>
-</head>
-<body class="text-slate-800 antialiased min-h-screen">
+﻿<x-driver-layout title="Job #{{ $job->id }} — HarvestHaul" themeColor="#059669">
 
     <!-- Top Header Panel -->
     <header class="bg-gradient-to-tr from-[#3A7D44] to-[#2E6336] text-white px-5 pt-6 pb-5 sticky top-0 z-20 shadow-md">
@@ -319,79 +292,7 @@
         </div>
     </div>
 
-    {{-- SweetAlert Global Flash Handler --}}
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            @if(session('success'))
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Success',
-                    text: @json(session('success')),
-                    timer: 3000,
-                    timerProgressBar: true,
-                    showConfirmButton: false,
-                    toast: true,
-                    position: 'top-end',
-                    background: document.documentElement.classList.contains('dark') ? '#1e293b' : '#fff',
-                    color: document.documentElement.classList.contains('dark') ? '#e2e8f0' : '#1e293b',
-                    iconColor: '#3A7D44',
-                    customClass: { popup: 'rounded-xl shadow-lg border border-[#3A7D44]/20' }
-                });
-            @endif
-            @if(session('error'))
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: @json(session('error')),
-                    timer: 4500,
-                    timerProgressBar: true,
-                    showConfirmButton: true,
-                    confirmButtonText: 'OK',
-                    confirmButtonColor: '#ef4444',
-                    toast: false,
-                    background: document.documentElement.classList.contains('dark') ? '#1e293b' : '#fff',
-                    color: document.documentElement.classList.contains('dark') ? '#e2e8f0' : '#1e293b',
-                    customClass: { popup: 'rounded-xl shadow-lg' }
-                });
-            @endif
-        });
-
-        function swalConfirm(formOrCallback, opts = {}) {
-            const defaults = {
-                title: opts.title || 'Are you sure?',
-                text: opts.text || 'This action cannot be undone.',
-                icon: opts.icon || 'warning',
-                confirmText: opts.confirmText || 'Yes, proceed',
-                cancelText: opts.cancelText || 'Cancel',
-                confirmColor: opts.confirmColor || '#3A7D44',
-                cancelColor: opts.cancelColor || '#64748b'
-            };
-
-            Swal.fire({
-                title: defaults.title,
-                text: defaults.text,
-                icon: defaults.icon,
-                showCancelButton: true,
-                confirmButtonText: defaults.confirmText,
-                cancelButtonText: defaults.cancelText,
-                confirmButtonColor: defaults.confirmColor,
-                cancelButtonColor: defaults.cancelColor,
-                background: document.documentElement.classList.contains('dark') ? '#1e293b' : '#fff',
-                color: document.documentElement.classList.contains('dark') ? '#e2e8f0' : '#1e293b',
-                customClass: { popup: 'rounded-xl shadow-2xl' },
-                reverseButtons: true
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    if (typeof formOrCallback === 'function') {
-                        formOrCallback();
-                    } else if (formOrCallback && formOrCallback.submit) {
-                        formOrCallback.submit();
-                    }
-                }
-            });
-        }
-    </script>
-
+    @push('scripts')
     <script>
     (function () {
         const jobStatus  = '{{ $job->status }}';
@@ -601,5 +502,6 @@
         }
     })();
     </script>
-</body>
-</html>
+    @endpush
+
+</x-driver-layout>

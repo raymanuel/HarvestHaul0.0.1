@@ -6,8 +6,8 @@
         animation: none;
     }
     @keyframes neg-pulse-glow {
-        0%, 100% { box-shadow: 0 0 24px rgba(14, 165, 233, 0.5), 0 0 80px rgba(14, 165, 233, 0.15); }
-        50% { box-shadow: 0 0 40px rgba(14, 165, 233, 0.7), 0 0 100px rgba(14, 165, 233, 0.25); }
+        0%, 100% { box-shadow: 0 0 24px rgba(58, 125, 68, 0.5), 0 0 80px rgba(58, 125, 68, 0.15); }
+        50% { box-shadow: 0 0 40px rgba(58, 125, 68, 0.7), 0 0 100px rgba(58, 125, 68, 0.25); }
     }
     .dark .neg-glow {
         animation: neg-pulse-glow-dark 2.5s ease-in-out infinite;
@@ -16,8 +16,8 @@
         animation: none;
     }
     @keyframes neg-pulse-glow-dark {
-        0%, 100% { box-shadow: 0 0 24px rgba(56, 189, 248, 0.3), 0 0 80px rgba(14, 165, 233, 0.12); }
-        50% { box-shadow: 0 0 40px rgba(56, 189, 248, 0.5), 0 0 100px rgba(14, 165, 233, 0.2); }
+        0%, 100% { box-shadow: 0 0 24px rgba(58, 125, 68, 0.4), 0 0 80px rgba(58, 125, 68, 0.15); }
+        50% { box-shadow: 0 0 40px rgba(58, 125, 68, 0.6), 0 0 100px rgba(58, 125, 68, 0.2); }
     }
     .neg-badge-ping {
         animation: neg-ping 1.5s ease-in-out infinite;
@@ -176,13 +176,13 @@
         list.innerHTML = '';
         items.forEach(item => {
             const statusClass = item.status === 'OPEN'
-                ? 'text-violet-700 dark:text-violet-400 bg-violet-500/10 border border-violet-500/10'
+                ? 'text-harvest-700 dark:text-harvest bg-harvest/10 border border-harvest/10'
                 : item.status === 'AGREED'
                 ? 'text-[#3A7D44] dark:text-[#3A7D44] bg-[#3A7D44]/10 border border-[#3A7D44]/10'
                 : 'text-[#1F4D25] dark:text-[#1F4D25] bg-[#1F4D25]/10 border border-[#1F4D25]/10';
             const initial = item.counterpart_name ? item.counterpart_name.charAt(0).toUpperCase() : '?';
             const avatarBg = item.is_buyer
-                ? 'bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400'
+                ? 'bg-harvest/10 dark:bg-harvest/20 text-harvest dark:text-harvest'
                 : 'bg-[#3A7D44]/10 dark:bg-[#3A7D44]/10 text-[#3A7D44] dark:text-[#3A7D44]';
             const volume = item.volume ? '· ' + Number(item.volume).toLocaleString() + ' kg' : '';
 
@@ -217,7 +217,7 @@
     }
 
     fetchList();
-    pollTimer = setInterval(fetchList, 1000);
+    pollTimer = setInterval(fetchList, 10000);
 
     toggle.addEventListener('click', togglePopup);
     closeBtn.addEventListener('click', closePopup);

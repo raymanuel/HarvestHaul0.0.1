@@ -18,6 +18,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'driver' => \App\Http\Middleware\EnsureUserIsDriver::class,
             'admin' => \App\Http\Middleware\EnsureUserIsAdmin::class,
             'role' => \App\Http\Middleware\CheckRole::class,
+            'farmer.location' => \App\Http\Middleware\EnsureFarmerHasLocation::class,
         ]);
     })->create();
 

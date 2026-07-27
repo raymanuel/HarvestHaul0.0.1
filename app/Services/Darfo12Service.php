@@ -63,6 +63,7 @@ class Darfo12Service
         'gutnous rice'               => 'Glutinous Rice',
         'wel miles'                  => 'Well Milled Rice',
         'regu miled'                 => 'Regular Milled Rice',
+        'ropu mies'                  => 'Regular Milled Rice',
         'miled'                      => 'Regular Milled Rice',
         'miles'                      => 'Well Milled Rice',
         'jasponica'                  => 'Jasponica Rice',
@@ -70,6 +71,7 @@ class Darfo12Service
         'sinandomeng'                => 'Sinandomeng Rice',
         'sinandomagi'                => 'Sinandomeng Rice',
         'other special rice'         => 'Other Special Rice',
+        'other special ice'          => 'Other Special Rice',
         'premium'                    => 'Premium Rice',
 
         // Corn — specific sub-types first (OCR mangles: com, cor, corn)
@@ -78,6 +80,7 @@ class Darfo12Service
         'com cracked (yeon, feed grade)'    => 'Corn Cracked (Yellow, Feed Grade)',
         'com cracked (yellow feed grade)'   => 'Corn Cracked (Yellow, Feed Grade)',
         'com cracked (yellow, feed grade)'  => 'Corn Cracked (Yellow, Feed Grade)',
+        'com cracked (yelow feedrade)'      => 'Corn Cracked (Yellow, Feed Grade)',
         'corn grits (yellow food grade)'    => 'Corn Grits (Yellow, Food Grade)',
         'corn grits (yellow, food grade)'   => 'Corn Grits (Yellow, Food Grade)',
         'com gris (yelow, food grade)'      => 'Corn Grits (Yellow, Food Grade)',
@@ -91,9 +94,12 @@ class Darfo12Service
         'corn grits (feed grade)'           => 'Corn Grits (Feed Grade)',
         'com gits (feed grade)'             => 'Corn Grits (Feed Grade)',
         'com grits (feed grade)'            => 'Corn Grits (Feed Grade)',
+        'com gets feed grade'               => 'Corn Grits (Feed Grade)',
         'cor grits (feed grade)'            => 'Corn Grits (Feed Grade)',
+        'corn, white'                       => 'Corn, White',
         'cor (white)'                       => 'Corn, White',
         'com white'                         => 'Corn, White',
+        'corn, yellow'                      => 'Corn, Yellow',
         'com (yeon)'                        => 'Corn, Yellow',
         'com (yellow)'                      => 'Corn, Yellow',
         'com ('                             => 'Corn',
@@ -102,6 +108,8 @@ class Darfo12Service
 
         // Eggplant
         'eoopant'                    => 'Eggplant',
+        'talong'                     => 'Eggplant',
+        'soe ate'                     => 'Soy Sauce',
 
         // String Beans
         'pole stao'                  => 'String Beans (Sitaw)',
@@ -112,10 +120,13 @@ class Darfo12Service
         'bel pepper (red), local'    => 'Bell Pepper (Red)',
         'bel pepper (red)'           => 'Bell Pepper (Red)',
         'bel pepper'                 => 'Bell Pepper',
+        'ba pepper (green, local'    => 'Bell Pepper (Green)',
+        'chl red), local'            => 'Chili (Red)',
         'chit '                      => 'Chili',
         'hobichuelasboquio beans'    => 'Hobichuelas (Boquio Beans)',
-        'hobichuelas'                => 'Hobichuelas (Boquio Beans)',
         'native pechay'              => 'Pechay',
+        'parparo, local'             => 'Patola (Local)',
+        'patola'                     => 'Patola',
 
         // Root Crops
         'camote'                     => 'Sweet Potato',
@@ -130,12 +141,29 @@ class Darfo12Service
         'pechay'                     => 'Pechay',
         'labanos'                    => 'Radish',
         'oebers'                     => 'Lettuce (OEbers)',
+        'broczh local'               => 'Broccoli (Local)',
+        'broccoli local'             => 'Broccoli (Local)',
+        'broccoli'                   => 'Broccoli',
+        'cauitiower, local'          => 'Cauliflower (Local)',
+        'cauliflower local'          => 'Cauliflower (Local)',
+        'cauliflower'                => 'Cauliflower',
+        'cars, local'                => 'Carrots (Local)',
+        'carrots local'              => 'Carrots (Local)',
+        'carrots'                    => 'Carrots',
+        'lettuce (caber)'            => 'Lettuce',
 
         // Spices
         'sibuyas'                    => 'Red Onion',
         'bawang'                     => 'Garlic',
         'luya'                       => 'Ginger',
         'luyang dilaw'               => 'Turmeric',
+        'gari, ported'               => 'Garlic (Imported)',
+        'garlic, ported'             => 'Garlic (Imported)',
+        'red orion, imported'        => 'Red Onion (Imported)',
+        'red onion, imported'        => 'Red Onion (Imported)',
+        'white orion imported'       => 'White Onion (Imported)',
+        'white onion, imported'      => 'White Onion (Imported)',
+        'galunogor, local'           => 'Green Onion (Local)',
 
         // Legumes
         'monggo'                     => 'Mung Bean',
@@ -150,6 +178,8 @@ class Darfo12Service
         'kalamansi'                  => 'Calamansi',
         'claman'                     => 'Calamansi',
         'pakwan'                     => 'Watermelon',
+        'watermelon'                 => 'Watermelon',
+        'watermeton'                 => 'Watermelon',
         'bayabas'                    => 'Guava',
         'lanzones'                   => 'Lanzones',
         'lansones'                   => 'Lanzones',
@@ -159,6 +189,8 @@ class Darfo12Service
         'siniguelas'                 => 'Siniguelas',
         'sineguelas'                 => 'Siniguelas',
         'duhat'                      => 'Duhat',
+        'ampaloya'                   => 'Ampalaya (Bitter Gourd)',
+        'ampalaya'                   => 'Ampalaya (Bitter Gourd)',
 
         // Coconut
         'niyog'                      => 'Coconut',
@@ -170,11 +202,11 @@ class Darfo12Service
         'goma'                       => 'Rubber',
         'asukal'                     => 'Sugar',
         'kamatis'                    => 'Tomato',
-        'talong'                     => 'Eggplant',
-        'ampalaya'                   => 'Ampalaya (Bitter Gourd)',
         'kalabasa'                   => 'Squash',
         'mustard'                    => 'Mustard Leaves',
         'kadiwa'                     => 'Kadiwa',
+        'melon'                      => 'Melon',
+        'pomelo'                     => 'Pomelo',
     ];
 
     // Non-crop commodities to skip entirely — includes OCR-mangled variants
@@ -587,7 +619,7 @@ class Darfo12Service
         exec($cmd . ' 2>&1', $output, $exitCode);
 
         if ($exitCode !== 0) {
-            Log::warning('DA RFO12 PDF: pdftoppm failed.', ['output' => implode("\n", $output)]);
+            Log::warning('DA RFO12 PDF: pdftoppm failed (binary may be missing).', ['binary' => $pdftoppm, 'output' => implode("\n", $output)]);
             return [];
         }
 
@@ -603,6 +635,7 @@ class Darfo12Service
         exec($cmd, $output, $exitCode);
 
         if ($exitCode !== 0 || empty($output)) {
+            Log::warning('DA RFO12 PDF: Tesseract OCR failed (binary may be missing).', ['binary' => $tesseract, 'exit_code' => $exitCode]);
             return null;
         }
 
@@ -904,10 +937,15 @@ class Darfo12Service
 
     public function getScraperStatus(): array
     {
-        $lastRun = DB::table('scraper_status')
-            ->where('scraper_name', 'darfo12')
-            ->latest()
-            ->first();
+        try {
+            $lastRun = DB::table('scraper_status')
+                ->where('scraper_name', 'darfo12')
+                ->latest()
+                ->first();
+        } catch (\Exception $e) {
+            Log::error('DA RFO12: Could not read scraper_status table.', ['error' => $e->getMessage()]);
+            return ['status' => 'error', 'message' => 'Database unavailable: ' . $e->getMessage(), 'last_run_at' => null, 'source_date' => null, 'stale' => true, 'records_matched' => 0];
+        }
 
         if (!$lastRun) {
             return ['status' => 'never_run', 'message' => 'Scraper has never been executed.', 'last_run_at' => null, 'source_date' => null];

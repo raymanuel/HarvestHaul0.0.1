@@ -143,7 +143,7 @@
                     </div>
                 </div>
                 <div style="padding:1.5rem 2rem 2rem;">
-                    <div id="legal-modal-body" style="font-family:'Source Sans 3',sans-serif;font-size:0.9rem;line-height:1.7;color:#374151;text-align:justify;"></div>
+                    <div id="legal-modal-body" style="font-family:'Plus Jakarta Sans',sans-serif;font-size:0.9rem;line-height:1.7;color:#374151;text-align:justify;"></div>
                 </div>
             </div>
         </div>

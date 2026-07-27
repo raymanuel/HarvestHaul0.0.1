@@ -53,7 +53,6 @@
                             @php
                                 $badge = match($harvest->status) {
                                     'active'    => ['bg-[#3A7D44]/10 dark:bg-[#3A7D44]/10 text-[#3A7D44] dark:text-[#3A7D44]', '●'],
-                                    'pending'   => ['bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-400', '●'],
                                     'completed' => ['bg-[#1F4D25]/10 dark:bg-[#1F4D25]/10 text-[#1F4D25] dark:text-[#1F4D25]', '●'],
                                     'cancelled' => ['bg-red-50 dark:bg-red-950/20 text-red-600 dark:text-red-400', '●'],
                                     default     => ['bg-slate-100 dark:bg-slate-900/50 text-slate-600 dark:text-slate-400', '●'],

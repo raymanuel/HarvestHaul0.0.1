@@ -7,10 +7,10 @@
     <title>HarvestHaul — Welcome</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Source+Sans+3:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
         <style>
         * { margin:0; padding:0; box-sizing:border-box; }
-        html, body { height:100%; overflow:hidden; font-family:'Source Sans 3',sans-serif; }
+        html, body { height:100%; overflow:hidden; font-family:'Plus Jakarta Sans',sans-serif; }
 
         .btn-loading { pointer-events:none; opacity:0.7; }
         .btn-loading::after { content:''; display:inline-block; width:16px; height:16px; border:2px solid rgba(255,255,255,0.3); border-top-color:#fff; border-radius:50%; animation:spin 0.6s linear infinite; margin-left:8px; vertical-align:middle; }
@@ -42,10 +42,10 @@
     <div class="auth-split" style="display:flex; min-height:100vh; width:100%; position:relative;">
 
         {{-- ====== LEFT: WELCOME PANEL ====== --}}
-        <div class="auth-left" style="flex:1; display:flex; flex-direction:column; justify-content:space-between; padding:3rem 4rem; position:relative; overflow:hidden; background:#1A2E1A;">
+        <div class="auth-left" style="flex:1; display:flex; flex-direction:column; justify-content:space-between; padding:3rem 4rem; position:relative; overflow:hidden; background:#1a2e1a;">
             {{-- Background texture --}}
             <div style="position:absolute; inset:0; background-image:url('/images/login-bg.png'); background-size:cover; background-position:center; opacity:0.25;"></div>
-            <div style="position:absolute; inset:0; background:linear-gradient(160deg, #1A2E1A 0%, rgba(26,46,26,0.4) 40%, rgba(58,125,68,0.15) 100%);"></div>
+            <div style="position:absolute; inset:0; background:linear-gradient(160deg, #1a2e1a 0%, rgba(26,46,26,0.4) 40%, rgba(45,90,39,0.15) 100%);"></div>
 
             {{-- Decorative elements --}}
             <div style="position:absolute; top:-80px; right:-80px; width:300px; height:300px; border-radius:50%; background:radial-gradient(circle, rgba(58,125,68,0.12) 0%, transparent 70%);"></div>
@@ -53,7 +53,7 @@
 
             {{-- Top: Logo --}}
             <div style="position:relative; z-index:1; display:flex; align-items:center; gap:10px;">
-                <div style="width:36px; height:36px; border-radius:10px; background:linear-gradient(135deg,#3A7D44,#2E6336); display:flex; align-items:center; justify-content:center;">
+                <div style="width:36px; height:36px; border-radius:10px; background:linear-gradient(135deg,#2D5A27,#3A7D44); display:flex; align-items:center; justify-content:center;">
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8a13 13 0 0 1-10 10Z"/>
                     </svg>
@@ -66,9 +66,9 @@
                 <div style="display:inline-block; padding:4px 14px; border-radius:100px; background:rgba(58,125,68,0.15); border:1px solid rgba(58,125,68,0.2); margin-bottom:20px;">
                     <span style="font-size:11px; font-weight:700; color:#3A7D44; letter-spacing:0.04em; text-transform:uppercase;">Mindanao Agri-Logistics</span>
                 </div>
-                <h1 style="font-size:2.5rem; font-weight:800; color:white; line-height:1.15; letter-spacing:-0.03em; margin-bottom:16px; font-family:'DM Serif Display',serif;">
+                <h1 style="font-size:2.5rem; font-weight:800; color:white; line-height:1.15; letter-spacing:-0.03em; margin-bottom:16px; font-family:'Outfit',sans-serif;">
                     Bridge the<br>
-                    <span style="color:#D4A520;">Supply Chain</span>
+                    <span style="color:#C8A415;">Supply Chain</span>
                 </h1>
                 <p style="font-size:0.9rem; color:rgba(255,255,255,0.6); line-height:1.7; font-weight:500; max-width:400px;">
                     Connect growers with haulers and buyers across Southern Mindanao. 
@@ -78,15 +78,15 @@
                 {{-- Feature bullets --}}
                 <div style="margin-top:28px; display:flex; flex-direction:column; gap:12px;">
                     <div style="display:flex; align-items:center; gap:10px;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3A7D44" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2D5A27" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                         <span style="font-size:13px; color:rgba(255,255,255,0.65); font-weight:500;">Post & discover harvest listings</span>
                     </div>
                     <div style="display:flex; align-items:center; gap:10px;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3A7D44" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2D5A27" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                         <span style="font-size:13px; color:rgba(255,255,255,0.65); font-weight:500;">Pool logistics & share fleet resources</span>
                     </div>
                     <div style="display:flex; align-items:center; gap:10px;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3A7D44" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2D5A27" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                         <span style="font-size:13px; color:rgba(255,255,255,0.65); font-weight:500;">Negotiate & close deals in real-time</span>
                     </div>
                 </div>
@@ -110,7 +110,7 @@
         </div>
 
         {{-- ====== RIGHT: AUTH PANELS CONTAINER ====== --}}
-        <div class="auth-right" style="flex:1; display:flex; align-items:center; justify-content:center; padding:3rem; background:#FAF6ED; position:relative; overflow-y:auto;">
+        <div class="auth-right" style="flex:1; display:flex; align-items:center; justify-content:center; padding:3rem; background:#FAFAF5; position:relative; overflow-y:auto;">
 
             {{-- Panel wrapper for slide transitions --}}
             <div class="auth-right-inner" style="position:relative; width:100%; max-width:420px;">
@@ -151,7 +151,7 @@
                         <div style="margin-bottom:16px;">
                             <label style="display:block; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:#8a8a8a; margin-bottom:6px;">Password</label>
                             <div style="position:relative;">
-                                <input type="password" id="login-password" name="password" placeholder="Enter your password" required autocomplete="current-password"
+                                <input type="password" id="login-password" name="password" placeholder="Enter your password" required autocomplete="new-password"
                                     style="width:100%; padding:12px 44px 12px 16px; border-radius:12px; border:1.5px solid #e2e0dc; background:white; font-size:14px; color:#1a1a1a; transition:all 0.2s; font-family:inherit;"
                                     onfocus="this.style.borderColor='#3A7D44'; this.style.boxShadow='0 0 0 4px rgba(58,125,68,0.08)'"
                                     onblur="this.style.borderColor='#e2e0dc'; this.style.boxShadow='none'">
@@ -175,9 +175,9 @@
                                onmouseover="this.style.color='#2E6336'" onmouseout="this.style.color='#3A7D44'">Forgot password?</a>
                         </div>
 
-                        <button type="submit" id="login-submit" style="width:100%; padding:13px; border:none; border-radius:12px; background:linear-gradient(135deg,#3A7D44,#2E6336); color:white; font-size:14px; font-weight:700; cursor:pointer; transition:all 0.2s; font-family:inherit; box-shadow:0 4px 12px rgba(58,125,68,0.15);"
-                            onmouseover="this.style.boxShadow='0 6px 20px rgba(58,125,68,0.25)'; this.style.transform='translateY(-1px)'"
-                            onmouseout="this.style.boxShadow='0 4px 12px rgba(58,125,68,0.15)'; this.style.transform='none'"
+                        <button type="submit" id="login-submit" style="width:100%; padding:13px; border:none; border-radius:12px; background:linear-gradient(135deg,#2D5A27,#3A7D44); color:white; font-size:14px; font-weight:700; cursor:pointer; transition:all 0.2s; font-family:inherit; box-shadow:0 4px 12px rgba(45,90,39,0.15);"
+                            onmouseover="this.style.boxShadow='0 6px 20px rgba(45,90,39,0.25)'; this.style.transform='translateY(-1px)'"
+                            onmouseout="this.style.boxShadow='0 4px 12px rgba(45,90,39,0.15)'; this.style.transform='none'"
                             onmousedown="this.style.transform='translateY(0)'">
                             Sign In
                         </button>
@@ -308,9 +308,9 @@
                             </label>
                         </div>
 
-                        <button type="submit" style="width:100%; padding:12px; border:none; border-radius:10px; background:linear-gradient(135deg,#3A7D44,#2E6336); color:white; font-size:13px; font-weight:700; cursor:pointer; transition:all 0.2s; font-family:inherit; box-shadow:0 4px 12px rgba(58,125,68,0.15);"
-                            onmouseover="this.style.boxShadow='0 6px 20px rgba(58,125,68,0.25)'; this.style.transform='translateY(-1px)'"
-                            onmouseout="this.style.boxShadow='0 4px 12px rgba(58,125,68,0.15)'; this.style.transform='none'"
+                        <button type="submit" style="width:100%; padding:12px; border:none; border-radius:10px; background:linear-gradient(135deg,#2D5A27,#3A7D44); color:white; font-size:13px; font-weight:700; cursor:pointer; transition:all 0.2s; font-family:inherit; box-shadow:0 4px 12px rgba(45,90,39,0.15);"
+                            onmouseover="this.style.boxShadow='0 6px 20px rgba(45,90,39,0.25)'; this.style.transform='translateY(-1px)'"
+                            onmouseout="this.style.boxShadow='0 4px 12px rgba(45,90,39,0.15)'; this.style.transform='none'"
                             onmousedown="this.style.transform='translateY(0)'">
                             Create Account
                         </button>
@@ -332,7 +332,7 @@
     {{-- Legal Modal --}}
     <div id="legal-modal-overlay" style="position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(4px);" onclick="if(event.target===this)closeLegalModal()">
         <div onclick="event.stopPropagation()" style="background:#fff;border-radius:1.5rem;max-width:640px;width:100%;max-height:80vh;overflow-y:auto;position:relative;box-shadow:0 25px 50px -12px rgba(0,0,0,0.3);">
-            <div style="position:sticky;top:0;z-index:10;background:linear-gradient(135deg,#3A7D44,#2E6336);border-radius:1.5rem 1.5rem 0 0;padding:1.25rem 2rem 1rem;">
+            <div style="position:sticky;top:0;z-index:10;background:linear-gradient(135deg,#2D5A27,#3A7D44);border-radius:1.5rem 1.5rem 0 0;padding:1.25rem 2rem 1rem;">
                 <div style="display:flex;align-items:center;justify-content:space-between;">
                     <div>
                         <span style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.7);">HarvestHaul</span>
@@ -342,7 +342,7 @@
                 </div>
             </div>
             <div style="padding:1.5rem 2rem 2rem;">
-                <div id="legal-modal-body" style="font-family:'Source Sans 3',sans-serif;font-size:0.9rem;line-height:1.7;color:#374151;text-align:justify;"></div>
+                <div id="legal-modal-body" style="font-family:'Plus Jakarta Sans',sans-serif;font-size:0.9rem;line-height:1.7;color:#374151;text-align:justify;"></div>
             </div>
         </div>
     </div>

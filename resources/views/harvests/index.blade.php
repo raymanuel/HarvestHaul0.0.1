@@ -116,10 +116,11 @@
                             <td class="px-6 py-4 text-slate-400 dark:text-slate-500 text-xs font-semibold whitespace-nowrap">{{ $harvest->created_at->format('M d, Y') }}</td>
                             <td class="px-6 py-4">
                                 @php
-                                    $canEdit = $harvest->status === 'active';
+                                    $canEdit = $harvest->status->value === 'active';
+                                    $canMarkSold = in_array($harvest->status->value, ['active', 'partially_sold']) && $harvest->visibility === 'buyers_only';
                                 @endphp
-                                @if($canEdit)
-                                    <div class="flex items-center gap-2">
+                                <div class="flex items-center gap-2">
+                                    @if($canEdit)
                                         <a href="{{ route('harvests.edit', $harvest->id) }}"
                                             class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-[#3A7D44]/10 text-[#3A7D44] hover:bg-[#3A7D44]/15 dark:bg-[#3A7D44]/10 dark:hover:bg-[#3A7D44]/15 dark:text-[#3A7D44] transition"
                                             title="Edit Harvest">
@@ -139,10 +140,34 @@
                                                 </svg>
                                             </button>
                                         </form>
-                                    </div>
-                                @else
-                                    <span class="text-slate-350 dark:text-slate-600 text-xs select-none">—</span>
-                                @endif
+                                    @endif
+                                    @if($canMarkSold)
+                                        <form method="POST" action="{{ route('harvests.mark-as-sold', $harvest->id) }}" class="inline">
+                                            @csrf
+                                            <button type="button"
+                                                onclick="swalConfirm(this.closest('form'), {title: 'Mark as Sold?', text: 'This harvest was sold outside the platform. It will be hidden from buyers and shown to logistics partners.', confirmText: 'Yes, mark as sold', icon: 'info', confirmColor: '#3A7D44'})"
+                                                class="inline-flex items-center gap-1 text-[10px] font-bold text-[#3A7D44] dark:text-[#3A7D44] bg-[#3A7D44]/10 hover:bg-[#3A7D44]/15 dark:bg-[#3A7D44]/10 dark:hover:bg-[#3A7D44]/15 px-2.5 py-1.5 rounded-lg transition active:scale-[0.97]"
+                                                title="Mark as Sold">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                                                </svg>
+                                                Sold
+                                            </button>
+                                        </form>
+                                        <button type="button"
+                                            onclick="showLogisticsRequest({{ $harvest->id }}, '{{ $harvest->crop->name ?? $harvest->crop_type }}')"
+                                            class="inline-flex items-center gap-1 text-[10px] font-bold text-amber-700 dark:text-amber-400 bg-amber-50 hover:bg-amber-100 dark:bg-amber-950/20 dark:hover:bg-amber-950/40 px-2.5 py-1.5 rounded-lg transition active:scale-[0.97]"
+                                            title="Request Logistics">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                                            </svg>
+                                            Haul
+                                        </button>
+                                    @endif
+                                    @if(!$canEdit && !$canMarkSold)
+                                        <span class="text-slate-350 dark:text-slate-600 text-xs select-none">—</span>
+                                    @endif
+                                </div>
                             </td>
                         </tr>
                         @endforeach
@@ -153,4 +178,32 @@
     @endif
 
 </div>
+
+<script>
+function showLogisticsRequest(harvestId, cropName) {
+    Swal.fire({
+        title: 'Request Logistics',
+        html: '<p class="text-xs text-slate-500 mb-3">Request hauling for <strong>' + cropName + '</strong></p>' +
+            '<input id="swal-date" type="date" class="swal2-input text-xs" placeholder="Preferred pickup date" style="font-size:12px">' +
+            '<textarea id="swal-notes" class="swal2-textarea text-xs" placeholder="Notes for logistics partner (optional)" rows="2" style="font-size:12px"></textarea>',
+        showCancelButton: true,
+        confirmButtonText: 'Submit Request',
+        confirmButtonColor: '#C8A415',
+        customClass: { popup: 'rounded-2xl' },
+        preConfirm: function() {
+            var date = document.getElementById('swal-date').value;
+            var notes = document.getElementById('swal-notes').value;
+            var form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/harvests/' + harvestId + '/request-logistics';
+            var csrf = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            form.innerHTML = '<input type="hidden" name="_token" value="' + csrf + '">' +
+                '<input type="hidden" name="preferred_date" value="' + date + '">' +
+                '<input type="hidden" name="notes" value="' + notes + '">';
+            document.body.appendChild(form);
+            form.submit();
+        }
+    });
+}
+</script>
 </x-layout>

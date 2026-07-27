@@ -8,7 +8,7 @@
                 <h1 class="text-2xl font-extrabold text-slate-800 dark:text-white heading-font tracking-tight">Logistics Verification</h1>
                 <p class="text-sm text-slate-400 dark:text-slate-500 mt-1 font-semibold">Approve or reject logistics partner accounts</p>
             </div>
-            <span class="text-[10px] font-bold uppercase tracking-widest text-violet-700 dark:text-violet-400 bg-violet-50 dark:bg-violet-950/20 px-3 py-1.5 rounded-lg border border-violet-500/10 dark:border-violet-500/20 self-start">{{ $partners->count() }} Partners</span>
+            <span class="text-[10px] font-bold uppercase tracking-widest text-harvest dark:text-harvest bg-harvest/10 dark:bg-harvest/20 px-3 py-1.5 rounded-lg border border-harvest/10 dark:border-harvest/20 self-start">{{ $partners->count() }} Partners</span>
         </div>
     </header>
 
@@ -37,7 +37,7 @@
                     <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-900/40 transition">
                         <td class="px-4 py-3">
                             <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-violet-100 to-violet-50 dark:from-violet-950/20 dark:to-violet-900/20 border border-violet-200/50 dark:border-violet-800/30 flex items-center justify-center text-[10px] font-extrabold text-violet-700 dark:text-violet-400 uppercase">{{ substr($partner->name, 0, 2) }}</div>
+                                <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-harvest/20 to-harvest/10 dark:from-harvest/20 dark:to-harvest/10 border border-harvest/20 dark:border-harvest/20 flex items-center justify-center text-[10px] font-extrabold text-harvest dark:text-harvest uppercase">{{ substr($partner->name, 0, 2) }}</div>
                                 <span class="font-bold text-slate-800 dark:text-slate-200 text-sm">{{ $partner->name }}</span>
                             </div>
                         </td>

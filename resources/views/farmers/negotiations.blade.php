@@ -65,10 +65,10 @@
                                     </td>
                                     <td class="p-5 text-center whitespace-nowrap">
                                         <span class="text-[9px] font-extrabold uppercase tracking-widest px-2.5 py-1 rounded border
-                                            @if($negotiation->status === 'OPEN') text-violet-750 bg-violet-500/10 border-violet-500/10
-                                            @elseif($negotiation->status === 'AGREED') text-[#3A7D44] bg-[#3A7D44]/10 border-[#3A7D44]/10
-                                            @elseif($negotiation->status === 'COMPLETED') text-[#1F4D25] bg-[#1F4D25]/10 border-[#1F4D25]/10
-                                            @else text-slate-500 bg-slate-500/10 border-slate-500/10 @endif">
+                                            @if($negotiation->status === 'OPEN') text-harvest-700 bg-harvest/10 border-harvest/10 dark:text-harvest dark:bg-harvest/20 dark:border-harvest/20
+                                            @elseif($negotiation->status === 'AGREED') text-[#3A7D44] bg-[#3A7D44]/10 border-[#3A7D44]/10 dark:text-[#3A7D44] dark:bg-[#3A7D44]/20 dark:border-[#3A7D44]/20
+                                            @elseif($negotiation->status === 'COMPLETED') text-[#1F4D25] bg-[#1F4D25]/10 border-[#1F4D25]/10 dark:text-[#3A7D44] dark:bg-[#3A7D44]/20 dark:border-[#3A7D44]/20
+                                            @else text-slate-500 bg-slate-500/10 border-slate-500/10 dark:text-slate-400 dark:bg-slate-500/20 dark:border-slate-500/20 @endif">
                                             {{ $negotiation->status }}
                                         </span>
                                     </td>

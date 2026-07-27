@@ -17,7 +17,11 @@ class ETAService
     private const TERRAIN_SPEED_MULTIPLIER = 0.85; // rural PH roads avg 85% of nominal speed
     private const STOP_SPEED_THRESHOLD_KMH = 1;
 
-    public function calculateETA(PoolingJob $job): array
+    public function __construct(
+        private ?WeatherService $weatherService = null,
+    ) {}
+
+    public function calculateETA(PoolingJob $job, bool $adjustWeather = true): array
     {
         $latestRecords = TrackingRecord::where('pooling_job_id', $job->id)
             ->latest('id')
@@ -60,6 +64,33 @@ class ETAService
 
             // Apply terrain multiplier for rural PH roads
             $currentSpeed *= self::TERRAIN_SPEED_MULTIPLIER;
+
+            // Apply weather multiplier if enabled and weather service available
+            $weatherMultiplier = 1.0;
+            if ($adjustWeather && $this->weatherService) {
+                $weatherCondition = $job->weather_condition;
+                $weatherWind = $job->weather_wind_speed;
+                $weatherTemp = $job->weather_temperature;
+
+                if (!$weatherCondition && $latestRecords->isNotEmpty()) {
+                    $newest = $latestRecords->first();
+                    $lastWeatherCheck = $job->weather_checked_at;
+                    if ($lastWeatherCheck && $lastWeatherCheck->diffInMinutes(now()) < 30) {
+                        $weatherCondition = $job->weather_condition;
+                        $weatherWind = $job->weather_wind_speed;
+                        $weatherTemp = $job->weather_temperature;
+                    }
+                }
+
+                if ($weatherCondition) {
+                    $weatherMultiplier = $this->weatherService->getWeatherSpeedMultiplier(
+                        $weatherCondition,
+                        $weatherWind ? (float) $weatherWind : null,
+                        $weatherTemp ? (float) $weatherTemp : null,
+                    );
+                    $currentSpeed *= $weatherMultiplier;
+                }
+            }
 
             $newest = $latestRecords->first();
             $currentLat = (float) $newest->latitude;
@@ -114,6 +145,9 @@ class ETAService
             'data_quality' => $dataQuality,
             'total_gps_pings' => $totalRecords,
             'last_ping_seconds_ago' => $recencySeconds,
+            'weather_adjusted' => $adjustWeather && isset($weatherMultiplier) && $weatherMultiplier < 1.0,
+            'weather_multiplier' => round($weatherMultiplier ?? 1.0, 2),
+            'weather_condition' => $job->weather_condition ?? null,
         ];
     }
 

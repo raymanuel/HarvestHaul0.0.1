@@ -87,7 +87,7 @@
 
                 <button type="submit"
                     class="bg-gradient-to-tr from-[#3A7D44] to-[#2E6336] dark:from-[#3A7D44] dark:to-[#2E6336] text-white dark:text-white text-sm font-bold px-6 py-3.5 rounded-xl border border-[#3A7D44]/20 dark:border-[#3A7D44]/25 shadow-md shadow-[#3A7D44]/15 dark:shadow-[#3A7D44]/30 hover:shadow-lg hover:shadow-[#3A7D44]/25 dark:hover:shadow-[#3A7D44]/30 hover:translate-y-[-1px] active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/30 dark:focus:ring-[#3A7D44]/40 transition-all duration-200"
-                    style="background-color: #059669; text-shadow: 0 1px 2px rgba(0,0,0,0.15);">
+                    >
                     Upload Document
                 </button>
             </form>

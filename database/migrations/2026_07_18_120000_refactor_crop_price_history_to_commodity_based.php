@@ -9,10 +9,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('crop_price_history', function (Blueprint $table) {
-            // Step 1: Drop FK constraint first (MySQL requires this before modifying indexed columns)
-            $table->dropForeign(['crop_id']);
+            // Step 1: Drop FK constraint if it exists (may already be dropped)
+            try {
+                $table->dropForeign(['crop_id']);
+            } catch (\Exception $e) {
+                // FK already dropped or never existed
+            }
 
-            // Step 2: Drop old unique constraint (depends on FK being dropped)
+            // Step 2: Drop old unique constraint
             $table->dropUnique(['crop_id', 'source', 'source_date']);
 
             // Step 3: Make crop_id nullable

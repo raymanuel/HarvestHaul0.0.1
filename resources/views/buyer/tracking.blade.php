@@ -20,12 +20,12 @@
 
         {{-- Flash Messages --}}
         @if(session('success'))
-            <div class="bg-[#3A7D44]/10 border border-[#3A7D44]/20 text-[#1A2E1A] text-xs font-bold heading-font rounded-xl px-4 py-3 mb-6">
+            <div class="bg-[#3A7D44]/10 dark:bg-[#3A7D44]/20 border border-[#3A7D44]/20 dark:border-[#3A7D44]/30 text-[#1A2E1A] dark:text-[#8BC49E] text-xs font-bold heading-font rounded-xl px-4 py-3 mb-6">
                 ✅ {{ session('success') }}
             </div>
         @endif
         @if(session('error'))
-            <div class="bg-rose-50 border border-rose-200/60 text-rose-800 text-xs font-bold heading-font rounded-xl px-4 py-3 mb-6">
+            <div class="bg-rose-50 dark:bg-rose-950/30 border border-rose-200/60 dark:border-rose-800/30 text-rose-800 dark:text-rose-300 text-xs font-bold heading-font rounded-xl px-4 py-3 mb-6">
                 ⚠️ {{ session('error') }}
             </div>
         @endif
@@ -59,7 +59,7 @@
                                 $statusBadge = match($delivery->status) {
                                     'in_progress'             => ['bg-[#1F4D25]/10 text-[#1F4D25] border-[#1F4D25]/20 dark:bg-[#1F4D25]/10 dark:text-[#1F4D25]', 'In Transit'],
                                     'awaiting_confirmation'   => ['bg-amber-50 text-amber-700 border-amber-200/50 dark:bg-amber-950/30 dark:text-amber-400', 'Awaiting Your Confirmation'],
-                                    default                   => ['bg-slate-50 text-slate-500 border-slate-200/50', ucfirst($delivery->status)],
+                                    default                   => ['bg-slate-50 dark:bg-slate-700 text-slate-500 dark:text-slate-400 border-slate-200/50 dark:border-slate-600', ucfirst($delivery->status)],
                                 };
                             @endphp
                             <span class="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-md border {{ $statusBadge[0] }}">
@@ -129,26 +129,27 @@
                 <p class="text-slate-400 text-sm font-semibold">No completed deliveries yet.</p>
             </div>
         @else
-            <div class="bg-white dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700/60 rounded-2xl overflow-hidden shadow-sm">
+            <div class="bg-white dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700/60 rounded-2xl shadow-sm">
+                <div class="overflow-x-auto rounded-2xl">
                 <table class="w-full text-xs">
                     <thead>
                         <tr class="bg-slate-50 dark:bg-slate-900/30 border-b border-slate-100 dark:border-slate-700/60">
-                            <th class="px-5 py-3 text-left text-[10px] font-bold text-slate-400 uppercase tracking-widest">Route</th>
-                            <th class="px-5 py-3 text-left text-[10px] font-bold text-slate-400 uppercase tracking-widest">Cargo</th>
-                            <th class="px-5 py-3 text-left text-[10px] font-bold text-slate-400 uppercase tracking-widest">Truck</th>
-                            <th class="px-5 py-3 text-left text-[10px] font-bold text-slate-400 uppercase tracking-widest">Status</th>
+                            <th class="px-5 py-3 text-left text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Route</th>
+                            <th class="px-5 py-3 text-left text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Cargo</th>
+                            <th class="px-5 py-3 text-left text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Truck</th>
+                            <th class="px-5 py-3 text-left text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Status</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100 dark:divide-slate-700/40">
                         @foreach($completedDeliveries as $delivery)
                             <tr class="hover:bg-slate-50/40 dark:hover:bg-slate-900/10 transition">
                                 <td class="px-5 py-3 font-bold text-slate-700 dark:text-slate-300">#{{ $delivery->id }}</td>
-                                <td class="px-5 py-3 text-slate-500">
+                                <td class="px-5 py-3 text-slate-500 dark:text-slate-400">
                                     @foreach($delivery->harvests as $h)
                                         {{ $h->crop->name ?? '—' }}{{ !$loop->last ? ', ' : '' }}
                                     @endforeach
                                 </td>
-                                <td class="px-5 py-3 font-mono text-slate-400">{{ $delivery->truck->plate_number ?? '—' }}</td>
+                                <td class="px-5 py-3 font-mono text-slate-400 dark:text-slate-500">{{ $delivery->truck->plate_number ?? '—' }}</td>
                                 <td class="px-5 py-3">
                                     <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md border bg-[#3A7D44]/10 text-[#3A7D44] border-[#3A7D44]/20 bg-[#3A7D44]/10 dark:bg-[#3A7D44]/10 text-[#3A7D44] dark:text-[#3A7D44]">
                                         Completed
@@ -158,6 +159,7 @@
                         @endforeach
                     </tbody>
                 </table>
+                </div>
             </div>
         @endif
 

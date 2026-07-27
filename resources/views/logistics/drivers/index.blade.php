@@ -8,7 +8,7 @@
             </a>
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <span class="text-xs font-bold uppercase tracking-wider text-violet-750 dark:text-violet-400 bg-violet-50 dark:bg-violet-950/20 px-3 py-1.5 rounded-lg border border-violet-500/10 dark:border-violet-500/20 inline-block mb-2">Driver Fleet</span>
+                    <span class="text-xs font-bold uppercase tracking-wider text-harvest dark:text-harvest bg-harvest/10 dark:bg-harvest/20 px-3 py-1.5 rounded-lg border border-harvest/10 dark:border-harvest/20 inline-block mb-2">Driver Fleet</span>
                     <h1 class="text-3xl font-bold text-slate-900 dark:text-white tracking-tight heading-font">Manage Driver Accounts</h1>
                     <p class="text-slate-500 dark:text-slate-400 mt-1 font-medium">Create driver credentials and monitor vehicle profiles within your fleet.</p>
                 </div>
@@ -81,13 +81,13 @@
                                 <tr>
                                     <td class="py-4 pr-3">
                                         <div class="flex items-center gap-3">
-                                            <div class="w-10 h-10 rounded-xl bg-violet-50 dark:bg-violet-950/20 border border-violet-100/50 dark:border-violet-800/30 flex items-center justify-center text-violet-600 dark:text-violet-400 font-extrabold uppercase text-sm select-none">
+                                            <div class="w-10 h-10 rounded-xl bg-harvest/10 dark:bg-harvest/20 border border-harvest/20 dark:border-harvest/20 flex items-center justify-center text-harvest dark:text-harvest font-extrabold uppercase text-sm select-none">
                                                 {{ substr($driver->user->name, 0, 2) }}
                                             </div>
                                             <div>
                                                 <p class="font-bold text-slate-800 dark:text-slate-200 text-sm">{{ $driver->user->name }}</p>
                                                 <p class="text-xs text-slate-400 dark:text-slate-500 font-medium mt-0.5">{{ $driver->user->email }}</p>
-                                                <p class="text-[10px] text-slate-400 dark:text-slate-550 font-mono mt-0.5">{{ $driver->phone }}</p>
+                                                <p class="text-[10px] text-slate-400 dark:text-slate-400 font-mono mt-0.5">{{ $driver->phone }}</p>
                                             </div>
                                         </div>
                                     </td>

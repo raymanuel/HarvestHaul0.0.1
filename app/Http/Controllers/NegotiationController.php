@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Actions\FinalizeDealAction;
+use App\Exceptions\NegotiationException;
 use App\Http\Requests\StartNegotiationRequest;
 use App\Http\Requests\SendMessageRequest;
 use App\Http\Requests\ProposeTermsRequest;
@@ -32,6 +33,9 @@ class NegotiationController extends Controller
     {
         $validated = $request->validated();
         $buyer = Auth::user();
+        if (!$buyer->relationLoaded('logisticsProfile')) {
+            $buyer->load('logisticsProfile');
+        }
         $isCoopLogistics = $buyer->role === 'logistics_partner' 
             && $buyer->logisticsProfile 
             && $buyer->logisticsProfile->isCooperative();
@@ -55,8 +59,22 @@ class NegotiationController extends Controller
         $harvest = Harvest::findOrFail($validated['harvest_id']);
 
         // Check harvest has pickup coordinates (before lock — lightweight check)
+        // Fall back to farmer profile coordinates if harvest coords are missing
+        // (harvest coords are copied from profile at creation time, but may be
+        //  null if the farmer's profile didn't have lat/lng when harvest was created)
+        $pickupLat = $harvest->latitude ?? $harvest->farmer?->farmerProfile?->latitude;
+        $pickupLng = $harvest->longitude ?? $harvest->farmer?->farmerProfile?->longitude;
+
+        if (is_null($pickupLat) || is_null($pickupLng)) {
+            return back()->with('error', 'This product has no pickup coordinates and cannot be negotiated. The farmer must set their farm location first.');
+        }
+
+        // Backfill harvest coordinates from farmer profile if missing
         if (is_null($harvest->latitude) || is_null($harvest->longitude)) {
-            return back()->with('error', 'This product has no pickup coordinates and cannot be negotiated.');
+            $harvest->update([
+                'latitude'  => $pickupLat,
+                'longitude' => $pickupLng,
+            ]);
         }
 
         // Avoid duplicate active negotiations for the same harvest (before lock)
@@ -71,59 +89,69 @@ class NegotiationController extends Controller
         }
 
         // Lock harvest row to prevent two buyers claiming it simultaneously
-        $transactionFailed = false;
-        $cooperativeId = $isCoopLogistics ? $buyer->logisticsProfile->id : null;
-        $negotiation = DB::transaction(function () use ($harvest, $buyer, $isCoopLogistics, $cooperativeId, &$transactionFailed) {
-            $locked = Harvest::lockForUpdate()->find($harvest->id);
+        $logisticsProfileId = $isCoopLogistics ? $buyer->logisticsProfile->id : null;
+        try {
+            $negotiation = DB::transaction(function () use ($harvest, $buyer, $isCoopLogistics, $logisticsProfileId) {
+                $cooperativeId = $logisticsProfileId;
+                $locked = Harvest::lockForUpdate()->find($harvest->id);
 
-            if (!in_array($locked->status, HarvestStatus::buyerAvailable())) {
-                $transactionFailed = true;
-                return null;
-            }
-
-            // Verify harvest visibility and farmer affiliation match buyer's scope
-            if (!$locked->user?->farmerProfile) {
-                $transactionFailed = true;
-                return null;
-            }
-            $farmerProfile = $locked->user->farmerProfile;
-            $farmerAffiliation = $farmerProfile->affiliation_type;
-            $isVisible = in_array($locked->visibility, ['buyers_only', 'both']);
-            if (!$isVisible) {
-                $transactionFailed = true;
-                return null;
-            }
-            if ($isCoopLogistics) {
-                // Cooperative buyer can only see cooperative farmers in their cooperative
-                if ($farmerAffiliation !== 'cooperative' || $farmerProfile->cooperative_id !== $cooperativeId) {
-                    $transactionFailed = true;
-                    return null;
+                if (!in_array($locked->status, HarvestStatus::buyerAvailable())) {
+                    throw new NegotiationException(
+                        "This product (status: {$locked->status->value}) is no longer available for negotiation."
+                    );
                 }
-            } else {
-                // Independent buyer can only see independent farmers
-                if ($farmerAffiliation !== 'independent') {
-                    $transactionFailed = true;
-                    return null;
+
+                // Verify harvest visibility and farmer affiliation match buyer's scope
+                if (!$locked->user?->farmerProfile) {
+                    throw new NegotiationException(
+                        'The farmer has not completed their profile. This product cannot be negotiated.'
+                    );
                 }
-            }
+                $farmerProfile = $locked->user->farmerProfile;
+                $farmerAffiliation = $farmerProfile->affiliation_type;
+                $isVisible = in_array($locked->visibility, ['buyers_only', 'both']);
+                if (!$isVisible) {
+                    throw new NegotiationException(
+                        'This product is not visible to buyers.'
+                    );
+                }
+                if ($isCoopLogistics) {
+                    // Cooperative buyer can only see cooperative farmers in their cooperative
+                    if ($farmerAffiliation !== 'cooperative' || $farmerProfile->cooperative_id !== $cooperativeId) {
+                        throw new NegotiationException(
+                            "This farmer is not a member of your cooperative. " .
+                            "(Farmer cooperative_id: {$farmerProfile->cooperative_id}, Your cooperative_id: {$cooperativeId})"
+                        );
+                    }
+                } else {
+                    // Independent buyer can only see independent farmers
+                    if ($farmerAffiliation !== 'independent') {
+                        throw new NegotiationException(
+                            'This farmer is affiliated with a cooperative and cannot be negotiated by independent buyers.'
+                        );
+                    }
+                }
 
-            // Mark harvest as under negotiation (keep visibility for partial sales)
-            $locked->update([
-                'status' => 'negotiating',
-            ]);
+                // Mark harvest as under negotiation (keep visibility for partial sales)
+                $locked->update([
+                    'status' => 'negotiating',
+                ]);
 
-            // Create new negotiation
-            return Negotiation::create([
-                'buyer_id'          => $buyer->id,
-                'farmer_id'         => $locked->user_id,
-                'harvest_id'        => $locked->id,
-                'negotiated_price'  => null,
-                'negotiated_volume' => $locked->remaining_quantity_kg ?? $locked->quantity_kg,
-                'status'            => 'OPEN',
-            ]);
-        });
+                // Create new negotiation
+                return Negotiation::create([
+                    'buyer_id'          => $buyer->id,
+                    'farmer_id'         => $locked->user_id,
+                    'harvest_id'        => $locked->id,
+                    'negotiated_price'  => null,
+                    'negotiated_volume' => $locked->remaining_quantity_kg ?? $locked->quantity_kg,
+                    'status'            => 'OPEN',
+                ]);
+            });
+        } catch (NegotiationException $e) {
+            return back()->with('error', $e->getMessage());
+        }
 
-        if ($transactionFailed || is_null($negotiation)) {
+        if (is_null($negotiation)) {
             return back()->with('error', 'This product is no longer available for negotiation.');
         }
 
@@ -450,11 +478,11 @@ class NegotiationController extends Controller
                   ->orWhere('farmer_id', $userId);
             })
             ->with([
-                'buyer',
-                'farmer',
-                'harvest.crop',
-                'harvest.cropVariety',
-                'messages' => fn($q) => $q->latest()->take(1),
+                'buyer:id,name,role',
+                'farmer:id,name,role',
+                'harvest:id,crop_type,variety,crop_id,crop_variety_id',
+                'harvest.crop:id,name',
+                'harvest.cropVariety:id,name',
             ])
             ->addSelect(['unread_count' => NegotiationMessage::selectRaw('COUNT(*)')
                 ->whereColumn('negotiation_id', 'negotiations.id')

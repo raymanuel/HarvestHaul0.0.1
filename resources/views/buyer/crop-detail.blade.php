@@ -3,7 +3,7 @@
 
     <header class="mb-8 pt-6">
         <div class="flex items-center gap-2 mb-4">
-            <a href="{{ route('buyer.crop-board') }}" class="text-xs font-bold text-violet-600 dark:text-violet-400 hover:underline flex items-center gap-1">
+            <a href="{{ route('buyer.crop-board') }}" class="text-xs font-bold text-harvest dark:text-harvest hover:underline flex items-center gap-1">
                 ← Back to Crop Board
             </a>
         </div>
@@ -12,15 +12,15 @@
     <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
         <div class="lg:col-span-3 space-y-6">
             <div class="bg-white dark:bg-slate-800/80 backdrop-blur border border-slate-200/60 dark:border-slate-700/60 rounded-3xl overflow-hidden">
-                <div class="h-64 sm:h-80 relative flex items-center justify-center @if(!empty($harvest->crop_photos)) bg-slate-100 dark:bg-slate-900 @else bg-gradient-to-br from-violet-500/20 via-indigo-500/10 to-[#3A7D44]/10 dark:from-violet-600/20 dark:via-indigo-600/10 dark:to-[#3A7D44]/10 @endif">
+                <div class="h-64 sm:h-80 relative flex items-center justify-center @if(!empty($harvest->crop_photos)) bg-slate-100 dark:bg-slate-900 @else bg-gradient-to-br from-harvest/20 via-brand/10 to-brand/10 dark:from-harvest/20 dark:via-brand/10 dark:to-brand/10 @endif">
                     @if(!empty($harvest->crop_photos))
                         <img src="{{ asset('storage/' . $harvest->crop_photos[0]) }}" alt="{{ $harvest->crop->name ?? $harvest->crop_type }}" class="w-full h-full object-cover">
                     @else
-                        <svg class="w-24 h-24 text-violet-400/30 dark:text-violet-500/20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
+                        <svg class="w-24 h-24 text-harvest/30 dark:text-harvest/20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12M6 12h12M3 6h3M18 6h3M3 18h3M18 18h3M6 3v3M6 18v3M18 3v3M18 18v3" />
                         </svg>
                     @endif
-                    <span class="absolute top-4 left-4 text-[10px] font-extrabold uppercase tracking-widest text-violet-600 dark:text-violet-400 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm px-3 py-1 rounded-full border border-violet-500/20">PRODUCT #{{ $harvest->id }}</span>
+                    <span class="absolute top-4 left-4 text-[10px] font-extrabold uppercase tracking-widest text-harvest dark:text-harvest bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm px-3 py-1 rounded-full border border-harvest/20">PRODUCT #{{ $harvest->id }}</span>
                     @if($harvest->status === 'active')
                         <span class="absolute top-4 right-4 text-[10px] font-extrabold uppercase tracking-widest text-[#3A7D44] dark:text-[#3A7D44] bg-[#3A7D44]/10 dark:bg-[#3A7D44]/10 backdrop-blur-sm px-3 py-1 rounded-full border border-[#3A7D44]/20">Available</span>
                     @endif
@@ -46,15 +46,6 @@
                 </div>
 
                 <div class="flex flex-wrap items-center gap-2 mb-6">
-                    @php
-                        $grade = $harvest->quality_grade ?? 'Standard';
-                        $gradeColors = ['Premium' => 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/30 border-amber-200/50 dark:border-amber-700/30', 'Standard' => 'text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700', 'Budget' => 'text-[#3A7D44] dark:text-[#3A7D44] bg-[#3A7D44]/10 dark:bg-[#3A7D44]/10 border-[#3A7D44]/20 dark:border-[#3A7D44]/20'];
-                        $colorClass = $gradeColors[$grade] ?? $gradeColors['Standard'];
-                    @endphp
-                    <span class="text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded border {{ $colorClass }}">{{ $grade }}</span>
-                    @if($harvest->packaging_type)
-                        <span class="text-[10px] font-bold text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded border border-slate-200 dark:border-slate-700">{{ $harvest->packaging_type }}</span>
-                    @endif
                     @if($harvest->harvest_date)
                         @php $daysAgo = $harvest->harvest_date->diffInDays(now()); @endphp
                         @if($daysAgo <= 7)
@@ -91,7 +82,7 @@
                         <p class="text-lg font-extrabold text-green-700 dark:text-green-400 font-mono">₱{{ number_format($harvest->suggested_price_per_kg, 2) }} <span class="text-sm font-bold text-green-600/70 dark:text-green-400/70">/ kg</span></p>
                     </div>
                 @else
-                    <div class="mt-4 p-4 bg-slate-50 dark:bg-slate-700/30 border border-slate-200/50 dark:border-slate-600/30 rounded-2xl">
+                    <div class="mt-4 p-4 bg-slate-50 dark:bg-slate-700/50 border border-slate-200/50 dark:border-slate-600/30 rounded-2xl">
                         <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Farmer's Price</span>
                         <p class="text-sm font-bold text-slate-500 dark:text-slate-400">Open to Negotiation</p>
                     </div>
@@ -103,8 +94,8 @@
             <div class="bg-white dark:bg-slate-800/80 backdrop-blur border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6">
                 <h2 class="text-sm font-extrabold text-slate-900 dark:text-white heading-font mb-4">Farmer</h2>
                 <div class="flex items-center gap-3 mb-4">
-                    <div class="w-10 h-10 rounded-full bg-violet-100 dark:bg-violet-900/50 flex items-center justify-center">
-                        <svg class="w-5 h-5 text-violet-600 dark:text-violet-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <div class="w-10 h-10 rounded-full bg-harvest/10 dark:bg-harvest/50 flex items-center justify-center">
+                        <svg class="w-5 h-5 text-harvest dark:text-harvest" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                         </svg>
                     </div>
@@ -152,7 +143,7 @@
                     <form action="{{ route('negotiations.start') }}" method="POST">
                         @csrf
                         <input type="hidden" name="harvest_id" value="{{ $harvest->id }}">
-                        <button type="submit" class="w-full flex items-center justify-center gap-2 py-3 bg-violet-600 hover:bg-violet-700 dark:bg-violet-500 dark:hover:bg-violet-600 text-white font-bold rounded-2xl text-sm transition-colors shadow-sm shadow-violet-500/10 cursor-pointer">
+                        <button type="submit" class="w-full flex items-center justify-center gap-2 py-3 bg-harvest hover:bg-harvest-dark dark:bg-harvest dark:hover:bg-harvest-dark text-white font-bold rounded-2xl text-sm transition-colors shadow-sm shadow-harvest/10 cursor-pointer">
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12M6 12h12" />
                             </svg>

@@ -4,10 +4,11 @@ namespace App\Notifications;
 
 use App\Models\Invoice;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
 use Illuminate\Notifications\Messages\MailMessage;
 
-class InvoiceReady extends Notification
+class InvoiceReady extends Notification implements ShouldQueue
 {
     use Queueable;
 
@@ -38,6 +39,7 @@ class InvoiceReady extends Notification
             'title' => "Invoice #{$this->invoice->invoice_number} Ready",
             'message' => "Invoice #{$this->invoice->invoice_number} for ₱" . number_format($this->invoice->total_amount, 2) . ' is ready for download.',
             'link' => "/invoices/{$this->invoice->invoice_number}/download",
+            'category' => 'payments',
         ];
     }
 }

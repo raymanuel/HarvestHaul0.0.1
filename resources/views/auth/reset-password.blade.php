@@ -7,10 +7,10 @@
     <title>HarvestHaul — Reset Password</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Source+Sans+3:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
     <style>
         * { margin:0; padding:0; box-sizing:border-box; }
-        html, body { height:100%; font-family:'Source Sans 3',sans-serif; }
+        html, body { height:100%; font-family:'Plus Jakarta Sans',sans-serif; }
         input { outline: none; }
         input:focus { outline: none; }
     </style>
@@ -33,9 +33,9 @@
             </div>
 
             <div style="position:relative; z-index:1; max-width:480px;">
-                <h1 style="font-size:2.5rem; font-weight:800; color:white; line-height:1.15; letter-spacing:-0.03em; margin-bottom:16px; font-family:'DM Serif Display',serif;">
+                <h1 style="font-size:2.5rem; font-weight:800; color:white; line-height:1.15; letter-spacing:-0.03em; margin-bottom:16px; font-family:'Outfit',sans-serif;">
                     Create New<br>
-                    <span style="color:#D4A520;">Password</span>
+                    <span style="color:#C8A415;">Password</span>
                 </h1>
                 <p style="font-size:0.9rem; color:rgba(255,255,255,0.6); line-height:1.7; font-weight:500; max-width:400px;">
                     Choose a strong password for your account.
@@ -52,7 +52,7 @@
         </div>
 
         {{-- Right Panel --}}
-        <div style="flex:1; display:flex; align-items:center; justify-content:center; padding:3rem; background:#FAF6ED;">
+        <div style="flex:1; display:flex; align-items:center; justify-content:center; padding:3rem; background:#FAFAF5;">
             <div style="width:100%; max-width:420px;">
 
                 <div style="margin-bottom:28px;">

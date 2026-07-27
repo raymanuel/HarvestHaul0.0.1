@@ -4,6 +4,7 @@ namespace App\Traits;
 
 use App\Models\AuditLog;
 use App\Models\Notification;
+use App\Models\NotificationPreference;
 use Illuminate\Support\Facades\Log;
 
 trait Notifiable
@@ -11,6 +12,10 @@ trait Notifiable
     protected static function sendNotification(int $userId, string $title, string $message, string $link = null, string $type = null, string $category = null): void
     {
         try {
+            if ($category && !NotificationPreference::isEnabled($userId, $category)) {
+                return;
+            }
+
             Notification::create(array_filter([
                 'user_id'  => $userId,
                 'title'    => $title,

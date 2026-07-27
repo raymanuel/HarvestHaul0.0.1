@@ -1,130 +1,68 @@
 ﻿<x-layout>
 <div class="w-full max-w-7xl mx-auto pb-12">
-    <!-- Ambient glow decoration -->
-    <div class="absolute top-0 right-1/4 w-96 h-96 rounded-full bg-[#3A7D44]/5 blur-[120px] pointer-events-none z-0"></div>
-    <div class="absolute top-1/3 left-1/3 w-[500px] h-[500px] rounded-full bg-[#2E6336]/5 blur-[150px] pointer-events-none z-0"></div>
+    <x-ambient-glow color="brand" />
 
     <div class="relative z-10">
-        <!-- Page Header -->
-        <header class="mb-8 pt-6">
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <div>
-                    <span class="text-[10px] font-bold uppercase tracking-widest text-[#3A7D44] dark:text-[#3A7D44] bg-[#3A7D44]/10 dark:bg-[#3A7D44]/10 px-3 py-1 rounded-full border border-[#3A7D44]/20">System Admin</span>
-                    <h1 class="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight heading-font mt-3">Welcome back, Admin</h1>
-                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-1 font-medium">Orchestrator Console — Manage platform credentials, verify cooperative documents, and inspect activity trails.</p>
-                </div>
-                <div class="flex items-center gap-3">
-                    <span class="text-xs font-bold font-mono text-slate-400 dark:text-slate-500">{{ now()->format('l, M d, Y') }}</span>
-                </div>
-            </div>
-        </header>
+        <x-page-header
+            portal="System Admin"
+            title="Welcome back, Admin"
+            subtitle="Orchestrator Console — Manage platform credentials, verify cooperative documents, and inspect activity trails."
+            :showDate="true"
+        />
 
-        @if (session('success'))
-            <div class="mb-6 bg-[#3A7D44]/10 border border-[#3A7D44]/20 text-[#3A7D44] dark:text-[#3A7D44] rounded-2xl p-5 text-sm font-semibold flex items-center gap-3 shadow-sm">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-[#3A7D44] dark:text-[#3A7D44] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                {{ session('success') }}
-            </div>
-        @endif
+        <x-flash-success />
 
-        {{-- ── PLATFORM OVERVIEW STATS ── --}}
-        <div class="mb-4 flex items-center justify-between">
-            <h2 class="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">System Overview</h2>
-            <span class="w-20 h-px bg-slate-200 dark:bg-slate-700/80"></span>
-        </div>
+        <x-section-label title="System Overview" />
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <x-stat-card
+                accent="brand-dark"
+                badge="Active Accounts"
+                title="Total Users"
+                :value="$totalUsers"
+                height="h-56"
+                :subBadges="['Farmers' => $totalFarmers, 'Logistics' => $totalLogistics, 'Drivers' => $totalDrivers, 'Buyers' => $totalBuyers]"
+                href="{{ route('admin.users') }}"
+                linkText="Manage Users"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+            </x-stat-card>
 
-            {{-- Total Users --}}
-            <div class="bg-white dark:bg-slate-800/80 backdrop-blur border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6 hover:-translate-y-1 hover:shadow-xl hover:shadow-[#1F4D25]/5 hover:border-[#1F4D25]/20 dark:hover:border-[#1F4D25]/20 transition-all duration-300 group flex flex-col justify-between h-56 relative overflow-hidden">
-                <div class="absolute -right-6 -bottom-6 w-24 h-24 bg-[#1F4D25]/5 rounded-full group-hover:scale-150 transition-all duration-500"></div>
-                <div>
-                    <div class="flex items-start justify-between mb-4">
-                        <div class="w-12 h-12 rounded-2xl bg-[#1F4D25]/10 border border-[#1F4D25]/15 flex items-center justify-center text-[#1F4D25] dark:text-[#1F4D25] shrink-0 shadow-sm">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                            </svg>
-                        </div>
-                        <span class="text-[9px] font-extrabold uppercase tracking-widest text-[#1F4D25] dark:text-[#1F4D25] bg-[#1F4D25]/10 px-2 py-0.5 rounded border border-[#1F4D25]/10">Active Accounts</span>
-                    </div>
-                    <h3 class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest leading-none">Total Users</h3>
-                    <p class="text-3xl font-extrabold text-slate-800 dark:text-white tracking-tight heading-font mt-2">{{ $totalUsers }}</p>
-                    <div class="flex flex-wrap gap-1.5 mt-3">
-                        <span class="text-[9px] font-semibold text-slate-600 dark:text-slate-350 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700/80 px-2 py-0.5 rounded-md">{{ $totalFarmers }} Farmers</span>
-                        <span class="text-[9px] font-semibold text-slate-600 dark:text-slate-350 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700/80 px-2 py-0.5 rounded-md">{{ $totalLogistics }} Logistics</span>
-                        <span class="text-[9px] font-semibold text-slate-600 dark:text-slate-350 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700/80 px-2 py-0.5 rounded-md">{{ $totalDrivers }} Drivers</span>
-                        <span class="text-[9px] font-semibold text-slate-600 dark:text-slate-350 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700/80 px-2 py-0.5 rounded-md">{{ $totalBuyers }} Buyers</span>
-                    </div>
-                </div>
-                <div class="pt-4 border-t border-slate-100 dark:border-slate-700/60">
-                    <a href="{{ route('admin.users') }}" class="text-[#1F4D25] dark:text-[#1F4D25] font-bold text-xs hover:underline transition inline-flex items-center gap-1">
-                        Manage Users <span>→</span>
-                    </a>
-                </div>
-            </div>
+            <x-stat-card
+                accent="brand"
+                badge="Marketplace"
+                title="Active Harvests"
+                :value="$activeHarvests"
+                height="h-56"
+                href="{{ route('admin.harvests') }}"
+                linkText="View Posts"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                </svg>
+            </x-stat-card>
 
-            {{-- Active Harvests --}}
-            <div class="bg-white dark:bg-slate-800/80 backdrop-blur border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6 hover:-translate-y-1 hover:shadow-xl hover:shadow-[#3A7D44]/5 hover:border-[#3A7D44]/30 dark:hover:border-[#3A7D44]/30 transition-all duration-300 group flex flex-col justify-between h-56 relative overflow-hidden">
-                <div class="absolute -right-6 -bottom-6 w-24 h-24 bg-[#3A7D44]/5 rounded-full group-hover:scale-150 transition-all duration-500"></div>
-                <div>
-                    <div class="flex items-start justify-between mb-4">
-                        <div class="w-12 h-12 rounded-2xl bg-[#3A7D44]/10 border border-[#3A7D44]/15 flex items-center justify-center text-[#3A7D44] dark:text-[#3A7D44] shrink-0 shadow-sm">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                            </svg>
-                        </div>
-                        <span class="text-[9px] font-extrabold uppercase tracking-widest text-[#3A7D44] dark:text-[#3A7D44] bg-[#3A7D44]/10 px-2 py-0.5 rounded border border-[#3A7D44]/10">Marketplace</span>
-                    </div>
-                    <h3 class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest leading-none">Active Harvests</h3>
-                    <p class="text-3xl font-extrabold text-slate-800 dark:text-white tracking-tight heading-font mt-2">{{ $activeHarvests }}</p>
-                    <div class="flex flex-wrap gap-2 mt-3">
-                        <span class="text-[9px] font-semibold text-amber-700 dark:text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-md">{{ $pendingHarvests }} pending approval</span>
-                    </div>
-                </div>
-                <div class="pt-4 border-t border-slate-100 dark:border-slate-700/60">
-                    <a href="{{ route('admin.harvests') }}" class="text-[#3A7D44] dark:text-[#3A7D44] font-bold text-xs hover:underline transition inline-flex items-center gap-1">
-                        View Posts <span>→</span>
-                    </a>
-                </div>
-            </div>
-
-            {{-- Pending Verifications --}}
-            <div class="bg-white dark:bg-slate-800/80 backdrop-blur border rounded-3xl p-6 hover:-translate-y-1 hover:shadow-xl transition-all duration-300 group flex flex-col justify-between h-56 relative overflow-hidden {{ ($pendingFarmers > 0 || $pendingLogistics > 0) ? 'border-amber-250/30 dark:border-amber-900/30 shadow-amber-500/5' : 'border-slate-200/60 dark:border-slate-700/60' }}">
-                <div class="absolute -right-6 -bottom-6 w-24 h-24 bg-amber-500/5 rounded-full group-hover:scale-150 transition-all duration-500"></div>
-                <div>
-                    <div class="flex items-start justify-between mb-4">
-                        <div class="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/15 flex items-center justify-center text-amber-600 dark:text-amber-450 shrink-0 shadow-sm">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                        </div>
-                        @if($pendingFarmers > 0 || $pendingLogistics > 0 || $pendingBuyers > 0)
-                            <span class="text-[9px] font-extrabold uppercase tracking-widest text-amber-700 dark:text-amber-400 bg-amber-500/10 border border-amber-500/15 px-2 py-0.5 rounded-lg animate-pulse">Action Required</span>
-                        @else
-                            <span class="text-[9px] font-extrabold uppercase tracking-widest text-[#3A7D44] dark:text-[#3A7D44] bg-[#3A7D44]/10 border border-[#3A7D44]/15 px-2 py-0.5 rounded-lg">Clear</span>
-                        @endif
-                    </div>
-                    <h3 class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest leading-none">Pending Verifications</h3>
-                    <p class="text-3xl font-extrabold text-slate-800 dark:text-white tracking-tight heading-font mt-2">{{ $pendingFarmers + $pendingLogistics + $pendingBuyers }}</p>
-                    <div class="flex flex-wrap gap-1.5 mt-3">
-                        <span class="text-[9px] font-semibold text-slate-650 dark:text-slate-350 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700/80 px-2 py-0.5 rounded-md">{{ $pendingFarmers }} Farmers</span>
-                        <span class="text-[9px] font-semibold text-slate-650 dark:text-slate-350 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700/80 px-2 py-0.5 rounded-md">{{ $pendingLogistics }} Logistics</span>
-                        <span class="text-[9px] font-semibold text-slate-650 dark:text-slate-350 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700/80 px-2 py-0.5 rounded-md">{{ $pendingBuyers }} Buyers</span>
-                    </div>
-                </div>
-                <div class="pt-4 border-t border-slate-100 dark:border-slate-700/60 flex gap-4">
-                    <a href="{{ route('admin.farmers') }}" class="text-[#3A7D44] dark:text-[#3A7D44] font-bold text-xs hover:underline transition inline-flex items-center gap-1">Farmers <span>→</span></a>
-                    <a href="{{ route('admin.logistics') }}" class="text-violet-650 dark:text-violet-400 font-bold text-xs hover:underline transition inline-flex items-center gap-1">Logistics <span>→</span></a>
-                    <a href="{{ route('admin.buyers') }}" class="text-[#1F4D25] dark:text-[#1F4D25] font-bold text-xs hover:underline transition inline-flex items-center gap-1">Buyers <span>→</span></a>
-                </div>
-            </div>
+            <x-stat-card
+                accent="amber-500"
+                title="Pending Verifications"
+                :value="$pendingFarmers + $pendingLogistics + $pendingBuyers"
+                height="h-56"
+                :subBadges="['Farmers' => $pendingFarmers, 'Logistics' => $pendingLogistics, 'Buyers' => $pendingBuyers]"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                @if($pendingFarmers > 0 || $pendingLogistics > 0 || $pendingBuyers > 0)
+                    <span class="text-[9px] font-extrabold uppercase tracking-widest text-amber-700 dark:text-amber-400 bg-amber-500/10 border border-amber-500/15 px-2 py-0.5 rounded-lg animate-pulse">Action Required</span>
+                @else
+                    <span class="text-[9px] font-extrabold uppercase tracking-widest text-brand dark:text-brand bg-brand/10 border border-brand/15 px-2 py-0.5 rounded-lg">Clear</span>
+                @endif
+            </x-stat-card>
         </div>
 
-        {{-- ── ACTION QUEUES ── --}}
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
-
-            {{-- COLUMN 1: Account Verifications Queue --}}
             <div class="bg-white dark:bg-slate-800/80 backdrop-blur border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6 shadow-sm flex flex-col justify-between">
                 <div>
                     <h3 class="text-lg font-bold text-slate-800 dark:text-white heading-font mb-2">Account Verifications</h3>
@@ -138,13 +76,12 @@
                         </div>
                     @else
                         <div class="space-y-4 max-h-[400px] overflow-y-auto pr-1">
-                            {{-- Farmers --}}
                             @foreach($pendingFarmersList as $farmer)
                                 <div class="bg-slate-50/50 dark:bg-slate-900/40 border border-slate-200/50 dark:border-slate-700 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                                     <div>
                                         <div class="flex items-center gap-2">
                                             <span class="font-bold text-slate-800 dark:text-slate-200 text-xs">{{ $farmer->name }}</span>
-                                            <span class="text-[8px] font-extrabold uppercase tracking-widest text-[#3A7D44] dark:text-[#3A7D44] bg-[#3A7D44]/10 px-2 py-0.5 rounded border border-[#3A7D44]/10">Farmer</span>
+                                            <span class="text-[8px] font-extrabold uppercase tracking-widest text-brand dark:text-brand bg-brand/10 px-2 py-0.5 rounded border border-brand/10">Farmer</span>
                                         </div>
                                         <p class="text-[10px] text-slate-455 dark:text-slate-450 mt-1">
                                             Location: {{ $farmer->farmerProfile->farm_location ?? 'Not set' }}
@@ -156,7 +93,7 @@
                                     <div class="flex items-center gap-2 shrink-0">
                                         <form action="{{ route('admin.farmers.verify', $farmer->id) }}" method="POST">
                                             @csrf
-                                            <button type="submit" class="bg-[#3A7D44] hover:bg-[#2E6336] text-white text-[10px] font-bold px-3 py-1.5 rounded-lg transition">
+                                            <button type="submit" class="bg-brand hover:bg-brand-dark text-white text-[10px] font-bold px-3 py-1.5 rounded-lg transition">
                                                 Approve
                                             </button>
                                         </form>
@@ -170,13 +107,12 @@
                                 </div>
                             @endforeach
 
-                            {{-- Buyers --}}
                             @foreach($pendingBuyersList as $buyer)
                                 <div class="bg-slate-50/50 dark:bg-slate-900/40 border border-slate-200/50 dark:border-slate-700 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                                     <div>
                                         <div class="flex items-center gap-2">
                                             <span class="font-bold text-slate-800 dark:text-slate-200 text-xs">{{ $buyer->name }}</span>
-                                            <span class="text-[8px] font-extrabold uppercase tracking-widest text-[#1F4D25] dark:text-[#1F4D25] bg-[#1F4D25]/10 px-2 py-0.5 rounded border border-[#1F4D25]/10">Buyer</span>
+                                            <span class="text-[8px] font-extrabold uppercase tracking-widest text-brand-dark dark:text-brand bg-brand-50 px-2 py-0.5 rounded border border-brand-200">Buyer</span>
                                         </div>
                                         <p class="text-[10px] text-slate-455 dark:text-slate-450 mt-1">
                                             Email: {{ $buyer->email }}
@@ -188,7 +124,7 @@
                                     <div class="flex items-center gap-2 shrink-0">
                                         <form action="{{ route('admin.buyers.verify', $buyer->id) }}" method="POST">
                                             @csrf
-                                            <button type="submit" class="bg-[#3A7D44] hover:bg-[#2E6336] text-white text-[10px] font-bold px-3 py-1.5 rounded-lg transition">
+                                            <button type="submit" class="bg-brand hover:bg-brand-dark text-white text-[10px] font-bold px-3 py-1.5 rounded-lg transition">
                                                 Approve
                                             </button>
                                         </form>
@@ -202,13 +138,12 @@
                                 </div>
                             @endforeach
 
-                            {{-- Logistics Partners --}}
                             @foreach($pendingLogisticsList as $partner)
                                 <div class="bg-slate-50/50 dark:bg-slate-900/40 border border-slate-200/50 dark:border-slate-700 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                                     <div>
                                         <div class="flex items-center gap-2">
                                             <span class="font-bold text-slate-800 dark:text-slate-200 text-xs">{{ $partner->name }}</span>
-                                            <span class="text-[8px] font-extrabold uppercase tracking-widest text-violet-750 dark:text-violet-400 bg-violet-500/10 px-2 py-0.5 rounded border border-violet-500/10">Logistics</span>
+                                            <span class="text-[8px] font-extrabold uppercase tracking-widest text-harvest dark:text-harvest bg-harvest/10 px-2 py-0.5 rounded border border-harvest/10">Logistics</span>
                                         </div>
                                         <p class="text-[10px] text-slate-455 dark:text-slate-455 mt-1 font-semibold">
                                             Company: {{ $partner->logisticsProfile->company_name ?? 'Not set' }}
@@ -220,7 +155,7 @@
                                     <div class="flex items-center gap-2 shrink-0">
                                         <form action="{{ route('admin.logistics.verify', $partner->id) }}" method="POST">
                                             @csrf
-                                            <button type="submit" class="bg-[#3A7D44] hover:bg-[#2E6336] text-white text-[10px] font-bold px-3 py-1.5 rounded-lg transition">
+                                            <button type="submit" class="bg-brand hover:bg-brand-dark text-white text-[10px] font-bold px-3 py-1.5 rounded-lg transition">
                                                 Approve
                                             </button>
                                         </form>
@@ -238,7 +173,6 @@
                 </div>
             </div>
 
-            {{-- COLUMN 2: Pending Documents Review Queue --}}
             <div class="bg-white dark:bg-slate-800/80 backdrop-blur border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6 shadow-sm flex flex-col justify-between">
                 <div>
                     <h3 class="text-lg font-bold text-slate-800 dark:text-white heading-font mb-2">Pending Documents</h3>
@@ -252,18 +186,17 @@
                         </div>
                     @else
                         <div class="space-y-4 max-h-[400px] overflow-y-auto pr-1">
-                            {{-- Farmer Documents --}}
                             @foreach($pendingFarmerDocsList as $doc)
                                 <div class="bg-slate-50/50 dark:bg-slate-900/40 border border-slate-200/50 dark:border-slate-700 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                                     <div>
                                         <div class="flex items-center gap-2">
                                             <span class="font-bold text-slate-800 dark:text-slate-200 text-xs">{{ $doc->document_type }}</span>
-                                            <span class="text-[8px] font-extrabold uppercase tracking-widest text-[#3A7D44] dark:text-[#3A7D44] bg-[#3A7D44]/10 px-2 py-0.5 rounded border border-[#3A7D44]/10">Farmer</span>
+                                            <span class="text-[8px] font-extrabold uppercase tracking-widest text-brand dark:text-brand bg-brand/10 px-2 py-0.5 rounded border border-brand/10">Farmer</span>
                                         </div>
                                         <p class="text-[10px] text-slate-455 mt-1">
                                             User: {{ $doc->user->name ?? 'Unknown' }}
                                         </p>
-                                        <a href="{{ asset('storage/' . $doc->file_path) }}" target="_blank" class="text-[10px] text-[#1F4D25] dark:text-[#1F4D25] hover:underline mt-1 font-bold inline-block">
+                                        <a href="{{ asset('storage/' . $doc->file_path) }}" target="_blank" class="text-[10px] text-brand-dark dark:text-brand hover:underline mt-1 font-bold inline-block">
                                             View Uploaded Document ↗
                                         </a>
                                     </div>
@@ -271,7 +204,7 @@
                                         <form action="{{ route('admin.farmer-documents.approve', $doc->id) }}" method="POST">
                                             @csrf
                                             @method('PATCH')
-                                            <button type="submit" class="bg-[#3A7D44] hover:bg-[#2E6336] text-white text-[10px] font-bold px-3 py-1.5 rounded-lg transition">
+                                            <button type="submit" class="bg-brand hover:bg-brand-dark text-white text-[10px] font-bold px-3 py-1.5 rounded-lg transition">
                                                 Approve
                                             </button>
                                         </form>
@@ -286,18 +219,17 @@
                                 </div>
                             @endforeach
 
-                            {{-- Logistics Documents --}}
                             @foreach($pendingLogisticsDocsList as $doc)
                                 <div class="bg-slate-50/50 dark:bg-slate-900/40 border border-slate-200/50 dark:border-slate-700 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                                     <div>
                                         <div class="flex items-center gap-2">
                                             <span class="font-bold text-slate-800 dark:text-slate-200 text-xs">{{ $doc->document_type }}</span>
-                                            <span class="text-[8px] font-extrabold uppercase tracking-widest text-violet-755 dark:text-violet-400 bg-violet-500/10 px-2 py-0.5 rounded border border-violet-500/10">Logistics</span>
+                                            <span class="text-[8px] font-extrabold uppercase tracking-widest text-harvest dark:text-harvest bg-harvest/10 px-2 py-0.5 rounded border border-harvest/10">Logistics</span>
                                         </div>
                                         <p class="text-[10px] text-slate-455 mt-1 font-semibold">
                                             User: {{ $doc->user->name ?? 'Unknown' }}
                                         </p>
-                                        <a href="{{ asset('storage/' . $doc->file_path) }}" target="_blank" class="text-[10px] text-[#1F4D25] dark:text-[#1F4D25] hover:underline mt-1 font-bold inline-block">
+                                        <a href="{{ asset('storage/' . $doc->file_path) }}" target="_blank" class="text-[10px] text-brand-dark dark:text-brand hover:underline mt-1 font-bold inline-block">
                                             View Uploaded Document ↗
                                         </a>
                                     </div>
@@ -305,7 +237,7 @@
                                         <form action="{{ route('admin.logistics-documents.approve', $doc->id) }}" method="POST">
                                             @csrf
                                             @method('PATCH')
-                                            <button type="submit" class="bg-[#3A7D44] hover:bg-[#2E6336] text-white text-[10px] font-bold px-3 py-1.5 rounded-lg transition">
+                                            <button type="submit" class="bg-brand hover:bg-brand-dark text-white text-[10px] font-bold px-3 py-1.5 rounded-lg transition">
                                                 Approve
                                             </button>
                                         </form>
@@ -323,21 +255,16 @@
                     @endif
                 </div>
             </div>
-
         </div>
 
-        {{-- ── MARKET PRICES ── --}}
         <div class="mb-10">
-            <div class="mb-4 flex items-center justify-between">
-                <h2 class="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">DA RFO12 Market Prices</h2>
-            </div>
+            <x-section-label title="DA RFO12 Market Prices" />
             <x-market-prices-card :daPrices="$daPrices" :priceTrends="$priceTrends" :latestDate="$latestDaDate" :scraperStatus="$scraperStatus" />
         </div>
 
-        {{-- ── RECENT ACTIVITY ── --}}
         <div class="mb-4 flex items-center justify-between">
             <h2 class="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">Security Audit Trail</h2>
-            <a href="{{ route('admin.audit-logs') }}" class="text-[#3A7D44] dark:text-[#3A7D44] font-bold text-xs hover:underline transition inline-flex items-center gap-1">View all <span>→</span></a>
+            <a href="{{ route('admin.audit-logs') }}" class="text-brand dark:text-brand font-bold text-xs hover:underline transition inline-flex items-center gap-1">View all <span>→</span></a>
         </div>
 
         <div class="bg-white dark:bg-slate-800/80 backdrop-blur border border-slate-200/60 dark:border-slate-700/60 rounded-3xl shadow-sm overflow-hidden mb-10">

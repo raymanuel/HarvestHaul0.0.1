@@ -35,4 +35,20 @@ class CropPriceHistory extends Model
     {
         return $this->belongsTo(Crop::class);
     }
+
+    /**
+     * Get the latest market price for a crop by name (LIKE match).
+     */
+    public static function getLatestForCrop(string $cropName): ?self
+    {
+        $latestDate = static::where('source', 'da_rfo12')->max('source_date');
+        if (!$latestDate) {
+            return null;
+        }
+
+        return static::where('source', 'da_rfo12')
+            ->where('source_date', $latestDate)
+            ->where('commodity_name', 'LIKE', '%' . $cropName . '%')
+            ->first();
+    }
 }

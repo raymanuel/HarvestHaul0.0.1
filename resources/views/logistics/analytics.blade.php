@@ -27,19 +27,19 @@
             <!-- Overall Financial & Fuel Metrics Summary -->
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
                 <div class="bg-white dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700/80 rounded-2xl p-5 shadow-sm">
-                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Total Trips Completed</p>
+                    <p class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">Total Trips Completed</p>
                     <p class="text-2xl font-black text-slate-900 dark:text-white">{{ $truckAnalytics->sum('completed_trips') }}</p>
                 </div>
                 <div class="bg-white dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700/80 rounded-2xl p-5 shadow-sm">
-                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Cumulative Revenue</p>
+                    <p class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">Cumulative Revenue</p>
                     <p class="text-2xl font-black text-[#3A7D44] dark:text-[#3A7D44]">₱{{ number_format($totalRevenue, 2) }}</p>
                 </div>
                 <div class="bg-white dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700/80 rounded-2xl p-5 shadow-sm">
-                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Total Fuel Expense</p>
+                    <p class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">Total Fuel Expense</p>
                     <p class="text-2xl font-black text-rose-500">₱{{ number_format($totalFuelCost, 2) }}</p>
                 </div>
                 <div class="bg-white dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700/80 rounded-2xl p-5 shadow-sm">
-                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Net Fleet Earnings</p>
+                    <p class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">Net Fleet Earnings</p>
                     @php
                         $netFleet = $totalRevenue - $totalFuelCost;
                     @endphp
@@ -53,20 +53,20 @@
             <div class="bg-white dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700/80 rounded-2xl shadow-sm overflow-hidden mb-8">
                 <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-700/60 flex items-center justify-between">
                     <h2 class="text-sm font-bold text-slate-800 dark:text-slate-200 heading-font">Revenue & Efficiency per Vehicle</h2>
-                    <span class="text-[10px] font-bold text-slate-400 bg-slate-50 dark:bg-slate-900/50 px-2.5 py-1 rounded-lg border border-slate-200/60 dark:border-slate-700">
+                    <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-slate-900/50 px-2.5 py-1 rounded-lg border border-slate-200/60 dark:border-slate-700">
                         Operational Breakdown
                     </span>
                 </div>
 
                 @if($truckAnalytics->isEmpty())
                     <div class="p-12 text-center">
-                        <p class="text-slate-400 text-sm font-semibold">No trucks currently registered.</p>
+                        <p class="text-slate-400 dark:text-slate-500 text-sm font-semibold">No trucks currently registered.</p>
                     </div>
                 @else
                     <div class="overflow-x-auto">
                         <table class="w-full text-sm">
                             <thead>
-                                <tr class="bg-slate-55 dark:bg-slate-900/30 border-b border-slate-100 dark:border-slate-700/60">
+                                <tr class="bg-slate-50 dark:bg-slate-900/30 border-b border-slate-100 dark:border-slate-700/60">
                                     <th class="px-5 py-3 text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider">Truck details</th>
                                     <th class="px-5 py-3 text-center text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Refuels</th>
                                     <th class="px-5 py-3 text-right text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Liters</th>
@@ -84,10 +84,10 @@
                                             <p class="font-bold text-slate-800 dark:text-slate-200">{{ $analytics['truck_name'] }}</p>
                                             <p class="font-mono text-[10px] text-slate-400 mt-0.5">{{ $analytics['plate_number'] }}</p>
                                         </td>
-                                        <td class="px-5 py-4 text-center font-semibold text-slate-700 dark:text-slate-350">
+                                        <td class="px-5 py-4 text-center font-semibold text-slate-700 dark:text-slate-300">
                                             {{ $analytics['total_refuels'] }}
                                         </td>
-                                        <td class="px-5 py-4 text-right font-semibold text-slate-700 dark:text-slate-350">
+                                        <td class="px-5 py-4 text-right font-semibold text-slate-700 dark:text-slate-300">
                                             {{ number_format($analytics['total_fuel_liters'], 1) }} L
                                         </td>
                                         <td class="px-5 py-4 text-center">
@@ -103,10 +103,10 @@
                                                     {{ $analytics['kpl'] }} km/L
                                                 </span>
                                             @else
-                                                <span class="text-xs text-slate-400 italic">Not enough logs</span>
+                                                <span class="text-xs text-slate-400 dark:text-slate-500 italic">Not enough logs</span>
                                             @endif
                                         </td>
-                                        <td class="px-5 py-4 text-center font-semibold text-slate-700 dark:text-slate-350">
+                                        <td class="px-5 py-4 text-center font-semibold text-slate-700 dark:text-slate-300">
                                             {{ $analytics['completed_trips'] }}
                                         </td>
                                         <td class="px-5 py-4 text-right font-extrabold text-slate-800 dark:text-slate-200">
@@ -132,20 +132,20 @@
             <div class="bg-white dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700/80 rounded-2xl shadow-sm overflow-hidden">
                 <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-700/60 flex items-center justify-between">
                     <h2 class="text-sm font-bold text-slate-800 dark:text-slate-200 heading-font">Recent Fuel Purchase Logs</h2>
-                    <span class="text-[10px] font-bold text-slate-400 bg-slate-50 dark:bg-slate-900/50 px-2.5 py-1 rounded-lg border border-slate-200/60 dark:border-slate-700">
+                    <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-slate-900/50 px-2.5 py-1 rounded-lg border border-slate-200/60 dark:border-slate-700">
                         Driver Refuel Records
                     </span>
                 </div>
 
                 @if($fuelLogs->isEmpty())
                     <div class="p-12 text-center">
-                        <p class="text-slate-400 text-sm font-semibold">No refuels logged yet.</p>
+                        <p class="text-slate-400 dark:text-slate-500 text-sm font-semibold">No refuels logged yet.</p>
                     </div>
                 @else
                     <div class="overflow-x-auto">
                         <table class="w-full text-sm">
                             <thead>
-                                <tr class="bg-slate-55 dark:bg-slate-900/30 border-b border-slate-100 dark:border-slate-700/60">
+                                <tr class="bg-slate-50 dark:bg-slate-900/30 border-b border-slate-100 dark:border-slate-700/60">
                                     <th class="px-5 py-3 text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider">Date</th>
                                     <th class="px-5 py-3 text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider">Vehicle</th>
                                     <th class="px-5 py-3 text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider">Driver</th>
@@ -167,7 +167,7 @@
                                         <td class="px-5 py-4 text-slate-700 dark:text-slate-300 font-semibold">
                                             {{ $log->driver->name ?? '—' }}
                                         </td>
-                                        <td class="px-5 py-4 text-right font-semibold text-slate-700 dark:text-slate-350">
+                                        <td class="px-5 py-4 text-right font-semibold text-slate-700 dark:text-slate-300">
                                             {{ number_format($log->fuel_liters, 2) }} L
                                         </td>
                                         <td class="px-5 py-4 text-right font-extrabold text-[#3A7D44] dark:text-[#3A7D44]">

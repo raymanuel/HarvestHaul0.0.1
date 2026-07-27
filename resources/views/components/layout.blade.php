@@ -47,7 +47,7 @@
     <style>
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: #F8FAFC;
+            background-color: #FAFAF5;
         }
         .heading-font {
             font-family: 'Outfit', sans-serif;
@@ -156,14 +156,33 @@
             padding-left: 0;
         }
 
+        /* Focus-visible rings for accessibility */
+        .nav-link:focus-visible,
+        button:focus-visible,
+        a:focus-visible {
+            outline: 2px solid #3A7D44;
+            outline-offset: 2px;
+            border-radius: 8px;
+        }
+
+        /* Increase touch targets on sidebar nav links */
+        .nav-link {
+            min-height: 44px;
+        }
+
+        /* Body text line height for readability */
+        p, .text-sm, .text-xs {
+            line-height: 1.6;
+        }
+
         /* Dark Mode overrides for Admin Layout */
         html.dark body {
-            background-color: #0f172a;
+            background-color: #111318;
             color: #f1f5f9;
         }
         html.dark #top-navbar {
-            background-color: #1e293b;
-            border-color: #334155;
+            background-color: #1a1d24;
+            border-color: #2a2d35;
         }
         html.dark #top-navbar h2 {
             color: #e2e8f0;
@@ -190,6 +209,11 @@
 </head>
 <body class="text-slate-800 antialiased min-h-screen">
 
+    <!-- Skip to content link for keyboard accessibility -->
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:bg-brand focus:text-white focus:px-4 focus:py-2 focus:rounded-lg focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-harvest">
+        Skip to main content
+    </a>
+
     <!-- Mobile Top Header (Nice Admin Style) -->
     <header class="lg:hidden sticky top-0 z-50 bg-[#111827] text-white px-5 py-4 flex justify-between items-center border-b border-slate-800 shadow-md">
         <a href="/dashboard" class="flex items-center gap-2 group">
@@ -213,7 +237,7 @@
     <div class="flex">
 
         <!-- Sidebar Navigation Drawer (Collapsible) -->
-        <aside id="sidebar-nav" class="fixed inset-y-0 left-0 z-40 w-64 bg-[#111827] text-slate-300 border-r border-slate-800 flex flex-col justify-between transform -translate-x-full lg:translate-x-0 shadow-2xl lg:shadow-none">
+        <aside id="sidebar-nav" class="fixed inset-y-0 left-0 z-40 w-64 bg-[#111827] text-slate-300 border-r border-slate-800 flex flex-col justify-between transform -translate-x-full lg:translate-x-0 shadow-2xl lg:shadow-none grain-texture">
             
             <!-- Sidebar Header & Logo -->
             <div class="px-5 py-5 border-b border-slate-800 shrink-0 flex items-center logo-container">
@@ -232,7 +256,7 @@
                 
                 <!-- Base Dashboard Node -->
                 <div class="space-y-1.5">
-                    <a href="/dashboard" data-tooltip="Dashboard" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->is('dashboard') ? (Auth::check() && Auth::user()->role === 'buyer' ? 'bg-violet-600 text-white shadow-md shadow-violet-600/10' : 'bg-[#3A7D44] text-white shadow-md shadow-[#3A7D44]/10') : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
+                    <a href="/dashboard" data-tooltip="Dashboard" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->is('dashboard') ? (Auth::check() && Auth::user()->role === 'buyer' ? 'bg-harvest text-white shadow-md shadow-harvest/10' : 'bg-[#3A7D44] text-white shadow-md shadow-[#3A7D44]/10') : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
                         <span class="nav-icon shrink-0">
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
@@ -286,6 +310,15 @@
                             <span class="nav-label">Regulatory Documents</span>
                         </a>
 
+                        <a href="{{ route('farmer.reports.profit-expense') }}" data-tooltip="Profit & Expense" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->routeIs('farmer.reports.*') ? 'bg-[#3A7D44] text-white shadow-md shadow-[#3A7D44]/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
+                            <span class="nav-icon shrink-0">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                </svg>
+                            </span>
+                            <span class="nav-label">Profit & Expense</span>
+                        </a>
+
                         <a href="{{ route('profile.show') }}" data-tooltip="My Profile" class="nav-link lg:hidden flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->routeIs('profile.*') ? 'bg-[#3A7D44] text-white shadow-md shadow-[#3A7D44]/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
                             <span class="nav-icon shrink-0">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -298,11 +331,11 @@
                 @endif
 
                 <!-- ROLE 5: BUYER VIEW NODES -->
-                @if(Auth::check() && (Auth::user()->role === 'buyer' || (Auth::user()->role === 'logistics_partner' && Auth::user()->logisticsProfile && Auth::user()->logisticsProfile->isCooperative())))
+                @if(Auth::check() && (Auth::user()->role === 'buyer' || (Auth::user()->role === 'logistics_partner' && $authUser->logisticsProfile && $authUser->logisticsProfile->isCooperative())))
                     <div class="space-y-1.5">
                         <p class="section-label text-[10px] font-bold text-slate-500 uppercase tracking-widest px-4">Buyer Workspace</p>
                         
-                        <a href="{{ route('buyer.crop-board') }}" data-tooltip="Crop Board" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->routeIs('buyer.crop-board') ? 'bg-violet-600 text-white shadow-md shadow-violet-600/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
+                        <a href="{{ route('buyer.crop-board') }}" data-tooltip="Crop Board" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->routeIs('buyer.crop-board') ? (Auth::user()->role === 'buyer' ? 'bg-harvest text-white shadow-md shadow-harvest/10' : 'bg-[#3A7D44] text-white shadow-md shadow-[#3A7D44]/10') : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
                             <span class="nav-icon shrink-0">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z" />
@@ -313,7 +346,7 @@
 
                         {{-- My Negotiations moved to floating widget --}}
 
-                        <a href="{{ route('buyer.tracking') }}" data-tooltip="Delivery Tracking" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->routeIs('buyer.tracking') ? 'bg-violet-600 text-white shadow-md shadow-violet-600/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
+                        <a href="{{ route('buyer.tracking') }}" data-tooltip="Delivery Tracking" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->routeIs('buyer.tracking') ? (Auth::user()->role === 'buyer' ? 'bg-harvest text-white shadow-md shadow-harvest/10' : 'bg-[#3A7D44] text-white shadow-md shadow-[#3A7D44]/10') : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
                             <span class="nav-icon shrink-0">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -323,7 +356,7 @@
                             <span class="nav-label">Delivery Tracking</span>
                         </a>
 
-                        <a href="{{ route('profile.show') }}" data-tooltip="My Profile" class="nav-link lg:hidden flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->routeIs('profile.*') ? 'bg-violet-600 text-white shadow-md shadow-violet-600/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
+                        <a href="{{ route('profile.show') }}" data-tooltip="My Profile" class="nav-link lg:hidden flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->routeIs('profile.*') ? (Auth::user()->role === 'buyer' ? 'bg-harvest text-white shadow-md shadow-harvest/10' : 'bg-[#3A7D44] text-white shadow-md shadow-[#3A7D44]/10') : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
                             <span class="nav-icon shrink-0">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -556,6 +589,15 @@
                             <span class="nav-label">Fleet Analytics</span>
                         </a>
 
+                        <a href="{{ route('logistics.reports.trips') }}" data-tooltip="Trip Report" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->routeIs('logistics.reports.*') ? 'bg-[#3A7D44] text-white shadow-md shadow-[#3A7D44]/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
+                            <span class="nav-icon shrink-0">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                                </svg>
+                            </span>
+                            <span class="nav-label">Trip Report</span>
+                        </a>
+
                         <a href="{{ route('logistics.documents') }}" data-tooltip="Business License Docs" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->routeIs('logistics.documents*') ? 'bg-[#3A7D44] text-white shadow-md shadow-[#3A7D44]/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
                             <span class="nav-icon shrink-0">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -600,7 +642,7 @@
                     <div class="space-y-1.5">
                         <p class="section-label text-[10px] font-bold text-slate-500 uppercase tracking-widest px-4">Freight Mobile Portal</p>
                         
-                        <a href="#" data-tooltip="Route Navigation" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-400 hover:text-white hover:bg-slate-800/60 transition">
+                        <a href="{{ route('driver.dashboard') }}" data-tooltip="Route Navigation" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->routeIs('driver.*') ? 'bg-[#3A7D44] text-white shadow-md shadow-[#3A7D44]/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
                             <span class="nav-icon shrink-0">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
@@ -609,7 +651,7 @@
                             </span>
                             <span class="nav-label">Route Navigation</span>
                         </a>
-                        <a href="#" data-tooltip="Delivery Confirmations" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-400 hover:text-white hover:bg-slate-800/60 transition">
+                        <a href="{{ route('driver.dashboard') }}" data-tooltip="Delivery Confirmations" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->routeIs('driver.jobs.*') ? 'bg-[#3A7D44] text-white shadow-md shadow-[#3A7D44]/10' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
                             <span class="nav-icon shrink-0">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
@@ -628,7 +670,7 @@
         </aside>
 
         <!-- Main Display Content Shell Wrapper (Offset on desktop) -->
-        <div id="main-wrapper" class="main-wrapper flex-1 lg:pl-64 min-w-0 flex flex-col min-h-screen">
+        <div id="main-content" tabindex="-1" class="main-wrapper flex-1 lg:pl-64 min-w-0 flex flex-col min-h-screen outline-none">
 
             <!-- Horizontal Desktop Navbar (Nice Admin Layout) -->
             <nav id="top-navbar" class="top-navbar hidden lg:flex sticky top-0 z-30 h-20 bg-white border-b border-slate-200/80 px-8 items-center justify-between shadow-sm">
@@ -642,36 +684,18 @@
                     </button>
                     <div>
                         <span class="text-xs font-bold uppercase tracking-wider text-slate-400">HarvestHaul Operations Workspace</span>
-                        <h2 class="text-sm font-bold text-slate-700 mt-0.5">Role Domain: <span class="{{ Auth::user()->role === 'buyer' ? 'text-violet-650 dark:text-violet-400' : 'text-[#3A7D44]' }} uppercase font-black">{{ Auth::user()->role }}</span></h2>
+                        <h2 class="text-sm font-bold text-slate-700 mt-0.5">Role Domain: <span class="{{ Auth::user()->role === 'buyer' ? 'text-harvest dark:text-harvest' : 'text-[#3A7D44]' }} uppercase font-black">{{ Auth::user()->role }}</span></h2>
                     </div>
                 </div>
 
                 <!-- User profile and avatar menu -->
                 <div class="flex items-center gap-6 select-none">
                     <!-- Notifications Dropdown -->
-                    <div class="relative" id="notifications-menu">
-                        <button onclick="toggleNotificationsDropdown()" class="relative w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-700 border border-slate-100 dark:border-slate-650 flex items-center justify-center text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white transition cursor-pointer">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                            </svg>
-                            <span id="notification-badge" class="hidden absolute top-1.5 right-1.5 w-2.5 h-2.5 rounded-full bg-red-500 border border-white dark:border-slate-850"></span>
-                        </button>
-
-                        <!-- Dropdown Menu -->
-                        <div id="notifications-dropdown" class="hidden absolute right-0 mt-2 w-80 bg-white dark:bg-slate-800 border border-slate-200/85 dark:border-slate-700 rounded-2xl shadow-xl z-50 overflow-hidden">
-                            <div class="px-4 py-3 bg-slate-50 dark:bg-slate-900/40 border-b border-slate-150 dark:border-slate-700/60 flex items-center justify-between">
-                                <span class="text-[10px] font-bold text-slate-700 dark:text-slate-350 uppercase tracking-wider">Notifications</span>
-                                <button onclick="markAllNotificationsAsRead()" class="text-[9px] text-[#3A7D44] dark:text-[#3A7D44] font-bold hover:underline">Mark all read</button>
-                            </div>
-                            <div id="notifications-list" class="max-h-64 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-700">
-                                <p class="text-center text-xs text-slate-400 dark:text-slate-500 py-6">No notifications</p>
-                            </div>
-                        </div>
-                    </div>
+                    <x-notification-dropdown />
 
                     <!-- Dark Mode Toggle (Admin, Farmer, Logistics & Buyer) -->
                     @if(Auth::check() && (Auth::user()->role === 'admin' || Auth::user()->role === 'farmer' || Auth::user()->role === 'logistics_partner' || Auth::user()->role === 'buyer'))
-                        <button onclick="toggleDarkMode()" class="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-500 hover:text-slate-800 transition cursor-pointer" title="Toggle dark mode">
+                        <button onclick="toggleDarkMode()" class="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-700 border border-slate-100 dark:border-slate-600 flex items-center justify-center text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white transition cursor-pointer" title="Toggle dark mode">
                             <!-- Moon Icon (shown in light mode) -->
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 block dark:hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
@@ -708,6 +732,12 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                     </svg>
                                     Profile Settings
+                                </a>
+                                <a href="{{ route('notifications.preferences') }}" class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/40 hover:text-[#3A7D44] dark:hover:text-[#3A7D44] transition-all">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-400 dark:text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                                    </svg>
+                                    Notification Settings
                                 </a>
                             @endif
                             <form method="POST" action="{{ route('logout') }}" class="w-full" id="logout-form">
@@ -754,7 +784,7 @@
         // Desktop sidebar collapse toggle
         function toggleSidebarCollapse() {
             var sidebar = document.getElementById('sidebar-nav');
-            var mainWrapper = document.getElementById('main-wrapper');
+            var mainWrapper = document.querySelector('.main-wrapper');
             var isCollapsed = sidebar.classList.contains('sidebar-collapsed');
 
             if (isCollapsed) {
@@ -779,10 +809,10 @@
                 var saved = localStorage.getItem('sidebar-collapsed');
                 if (saved === 'true') {
                     var sidebar = document.getElementById('sidebar-nav');
-                    var mainWrapper = document.getElementById('main-wrapper');
-                    sidebar.classList.add('sidebar-collapsed');
-                    sidebar.style.width = '4.5rem';
-                    mainWrapper.style.paddingLeft = '4.5rem';
+                var mainWrapper = document.querySelector('.main-wrapper');
+                sidebar.classList.add('sidebar-collapsed');
+                sidebar.style.width = '4.5rem';
+                mainWrapper.style.paddingLeft = '4.5rem';
                 }
             }
         })();
@@ -790,7 +820,7 @@
         // Trust & Verification dropdown toggle
         function toggleTrustVerification() {
             var sidebar = document.getElementById('sidebar-nav');
-            var mainWrapper = document.getElementById('main-wrapper');
+            var mainWrapper = document.querySelector('.main-wrapper');
             var isCollapsed = sidebar.classList.contains('sidebar-collapsed');
 
             // If collapsed, expand first so content is visible
@@ -817,7 +847,7 @@
         // Agricultural Matrix dropdown toggle
         function toggleAgriculturalMatrix() {
             var sidebar = document.getElementById('sidebar-nav');
-            var mainWrapper = document.getElementById('main-wrapper');
+            var mainWrapper = document.querySelector('.main-wrapper');
             var isCollapsed = sidebar.classList.contains('sidebar-collapsed');
 
             // If collapsed, expand first so content is visible
@@ -844,7 +874,7 @@
         // Governance dropdown toggle
         function toggleGovernance() {
             var sidebar = document.getElementById('sidebar-nav');
-            var mainWrapper = document.getElementById('main-wrapper');
+            var mainWrapper = document.querySelector('.main-wrapper');
             var isCollapsed = sidebar.classList.contains('sidebar-collapsed');
 
             // If collapsed, expand first so content is visible
@@ -888,12 +918,6 @@
 
         // Close dropdown when clicking outside
         window.addEventListener('click', function(e) {
-            var notifDropdown = document.getElementById('notifications-dropdown');
-            var notifMenu = document.getElementById('notifications-menu');
-            if (notifDropdown && notifMenu && !notifMenu.contains(e.target)) {
-                notifDropdown.classList.add('hidden');
-            }
-
             var profileDropdown = document.getElementById('profile-dropdown');
             var profileMenu = document.getElementById('profile-menu');
             if (profileDropdown && profileMenu && !profileMenu.contains(e.target)) {
@@ -901,112 +925,6 @@
             }
         });
 
-        // Fetch Notifications (with SweetAlert toast for new ones)
-        var fetchNotifications = (function () {
-            var prevUnread = 0;
-            var knownIds = {};
-
-            return function () {
-                fetch('/api/notifications')
-                    .then(function (r) { return r.json(); })
-                    .then(function (data) {
-                        var badge = document.getElementById('notification-badge');
-                        if (data.unread_count > 0) {
-                            badge.classList.remove('hidden');
-                        } else {
-                            badge.classList.add('hidden');
-                        }
-
-                        // Show SweetAlert toast for new unread notifications
-                        if (data.unread_count > prevUnread && data.notifications.length > 0) {
-                            var newest = data.notifications[0];
-                            if (!knownIds[newest.id]) {
-                                knownIds[newest.id] = true;
-                                Swal.fire({
-                                    icon: null,
-                                    title: newest.title,
-                                    text: newest.message,
-                                    timer: 4000,
-                                    timerProgressBar: true,
-                                    showConfirmButton: false,
-                                    toast: true,
-                                    position: 'top-end',
-                                    background: document.documentElement.classList.contains('dark') ? '#1e293b' : '#fff',
-                                    color: document.documentElement.classList.contains('dark') ? '#e2e8f0' : '#1e293b',
-                                    customClass: { popup: 'rounded-xl shadow-lg border border-[#3A7D44]/20 text-xs' }
-                                });
-                            }
-                        }
-                        prevUnread = data.unread_count;
-
-                        var list = document.getElementById('notifications-list');
-                        if (data.notifications.length === 0) {
-                            list.innerHTML = '<p class="text-center text-xs text-slate-400 dark:text-slate-500 py-6">No notifications</p>';
-                            return;
-                        }
-
-                        var html = '';
-                        data.notifications.forEach(function (n) {
-                            knownIds[n.id] = true;
-                            var isUnread = !n.read_at;
-                            var bgClass = isUnread ? 'bg-[#3A7D44]/5 dark:bg-[#3A7D44]/5' : '';
-                            var indicator = isUnread ? '<span class="w-1.5 h-1.5 rounded-full bg-[#3A7D44] shrink-0"></span>' : '';
-                            var link = n.link ? n.link : '#';
-                            
-                            html += '<div class="px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition flex items-start justify-between gap-3 ' + bgClass + '" onclick="markNotificationRead(' + n.id + ', \'' + link + '\')">';
-                            html += '<div class="flex-1 cursor-pointer">';
-                            html += '<p class="text-xs font-bold text-slate-800 dark:text-slate-200">' + escapeHtml(n.title) + '</p>';
-                            html += '<p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">' + escapeHtml(n.message) + '</p>';
-                            html += '<span class="text-[9px] text-slate-400 dark:text-slate-500 mt-1 block">' + new Date(n.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) + '</span>';
-                            html += '</div>';
-                            html += indicator;
-                            html += '</div>';
-                        });
-                        list.innerHTML = html;
-                    });
-            };
-        })();
-
-        function escapeHtml(str) {
-            var div = document.createElement('div');
-            div.appendChild(document.createTextNode(str));
-            return div.innerHTML;
-        }
-
-        // Mark a notification as read and redirect
-        function markNotificationRead(id, link) {
-            fetch(`/api/notifications/${id}/read`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                    'Content-Type': 'application/json'
-                }
-            }).then(() => {
-                fetchNotifications();
-                if (link && link !== '#') {
-                    window.location.href = link;
-                }
-            });
-        }
-
-        // Mark all as read
-        function markAllNotificationsAsRead() {
-            fetch('/api/notifications/read-all', {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                    'Content-Type': 'application/json'
-                }
-            }).then(() => {
-                fetchNotifications();
-            });
-        }
-
-        // Initialize and poll
-        document.addEventListener('DOMContentLoaded', function() {
-            fetchNotifications();
-            setInterval(fetchNotifications, 15000);
-        });
     </script>
 
     {{-- SweetAlert Global Flash Handler --}}
@@ -1025,7 +943,8 @@
                     background: document.documentElement.classList.contains('dark') ? '#1e293b' : '#fff',
                     color: document.documentElement.classList.contains('dark') ? '#e2e8f0' : '#1e293b',
                     iconColor: '#3A7D44',
-                    customClass: { popup: 'rounded-xl shadow-lg border border-[#3A7D44]/20' }
+                    customClass: { popup: 'rounded-xl shadow-lg border border-[#3A7D44]/20' },
+                    ariaLive: 'polite'
                 });
             @endif
             @if(session('error'))
@@ -1041,7 +960,8 @@
                     toast: false,
                     background: document.documentElement.classList.contains('dark') ? '#1e293b' : '#fff',
                     color: document.documentElement.classList.contains('dark') ? '#e2e8f0' : '#1e293b',
-                    customClass: { popup: 'rounded-xl shadow-lg' }
+                    customClass: { popup: 'rounded-xl shadow-lg' },
+                    ariaLive: 'assertive'
                 });
             @endif
             @if(session('warning'))
@@ -1057,7 +977,8 @@
                     toast: false,
                     background: document.documentElement.classList.contains('dark') ? '#1e293b' : '#fff',
                     color: document.documentElement.classList.contains('dark') ? '#e2e8f0' : '#1e293b',
-                    customClass: { popup: 'rounded-xl shadow-lg' }
+                    customClass: { popup: 'rounded-xl shadow-lg' },
+                    ariaLive: 'assertive'
                 });
             @endif
         });
@@ -1102,11 +1023,82 @@
         }
     </script>
 
+    {{-- Inline form validation on blur --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('form').forEach(function(form) {
+                form.querySelectorAll('input[required], input[type="email"], input[type="password"], textarea[required]').forEach(function(input) {
+                    input.addEventListener('blur', function() {
+                        validateField(this);
+                    });
+                    input.addEventListener('input', function() {
+                        if (this.classList.contains('border-red-500')) {
+                            validateField(this);
+                        }
+                    });
+                });
+
+                form.addEventListener('submit', function(e) {
+                    var fields = form.querySelectorAll('input[required], input[type="email"], input[type="password"], textarea[required]');
+                    var firstInvalid = null;
+                    fields.forEach(function(field) {
+                        validateField(field);
+                        if (field.classList.contains('border-red-500') && !firstInvalid) {
+                            firstInvalid = field;
+                        }
+                    });
+                    if (firstInvalid) {
+                        e.preventDefault();
+                        firstInvalid.focus();
+                    }
+                });
+            });
+
+            function validateField(field) {
+                var errorId = field.name + '-error';
+                var existing = document.getElementById(errorId);
+                var valid = true;
+                var message = '';
+
+                if (field.hasAttribute('required') && !field.value.trim()) {
+                    valid = false;
+                    message = 'This field is required';
+                } else if (field.type === 'email' && field.value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(field.value)) {
+                    valid = false;
+                    message = 'Please enter a valid email address';
+                } else if (field.type === 'password' && field.value && field.value.length < 8) {
+                    valid = false;
+                    message = 'Password must be at least 8 characters';
+                }
+
+                field.setAttribute('aria-invalid', valid ? 'false' : 'true');
+
+                if (valid) {
+                    field.classList.remove('border-red-500', 'dark:border-red-400');
+                    field.classList.add('border-green-500', 'dark:border-green-400');
+                    field.removeAttribute('aria-describedby');
+                    if (existing) existing.remove();
+                } else {
+                    field.classList.remove('border-green-500', 'dark:border-green-400');
+                    field.classList.add('border-red-500', 'dark:border-red-400');
+                    if (!existing) {
+                        var err = document.createElement('p');
+                        err.id = errorId;
+                        err.className = 'mt-1 text-xs text-red-500 dark:text-red-400';
+                        err.textContent = message;
+                        field.parentNode.insertBefore(err, field.nextSibling);
+                    }
+                    field.setAttribute('aria-describedby', errorId);
+                }
+            }
+        });
+    </script>
+
     {{-- Stack for page-specific JS (Leaflet, Turf, init code) --}}
     @stack('scripts')
 
     {{-- Floating Negotiations Widget --}}
-    @if(Auth::check() && (Auth::user()->role === 'farmer' || Auth::user()->role === 'buyer' || (Auth::user()->role === 'logistics_partner' && Auth::user()->logisticsProfile && Auth::user()->logisticsProfile->isCooperative())))
+    @if(Auth::check() && (Auth::user()->role === 'farmer' || Auth::user()->role === 'buyer' || (Auth::user()->role === 'logistics_partner' && $authUser->logisticsProfile && $authUser->logisticsProfile->isCooperative())))
         <x-negotiations-widget />
     @endif
 

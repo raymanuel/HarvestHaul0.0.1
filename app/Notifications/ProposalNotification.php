@@ -4,10 +4,11 @@ namespace App\Notifications;
 
 use App\Models\PoolingJob;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
 use Illuminate\Notifications\Messages\MailMessage;
 
-class ProposalNotification extends Notification
+class ProposalNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
@@ -57,6 +58,7 @@ class ProposalNotification extends Notification
             'title' => "{$title} — Route #{$this->job->id}",
             'message' => $this->message,
             'link' => "/pooling-jobs/{$this->job->id}",
+            'category' => 'logistics',
         ];
     }
 }

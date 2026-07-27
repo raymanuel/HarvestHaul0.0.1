@@ -136,4 +136,17 @@ class DashboardController extends Controller
             default => abort(403),
         };
     }
+
+    public function fullPrices()
+    {
+        $daService = app(Darfo12Service::class);
+        ['latestDate' => $latestDaDate, 'daPrices' => $daPrices, 'priceTrends' => $priceTrends, 'scraperStatus' => $scraperStatus] = $daService->getDashboardData();
+
+        return view('prices.full', [
+            'daPrices'      => $daPrices,
+            'priceTrends'   => $priceTrends,
+            'latestDate'    => $latestDaDate,
+            'scraperStatus' => $scraperStatus,
+        ]);
+    }
 }

@@ -49,7 +49,7 @@
 
         {{-- Flash Messages --}}
         @if (session('success'))
-            <div class="mb-6 bg-[#3A7D44]/10 border border-[#3A7D44]/20 text-[#3A7D44] dark:text-[#3A7D44] rounded-2xl p-5 text-sm font-semibold flex items-center gap-3 shadow-sm">
+            <div class="mb-6 bg-[#3A7D44]/10 dark:bg-[#3A7D44]/10 border border-[#3A7D44]/20 dark:border-[#3A7D44]/30 text-[#3A7D44] dark:text-[#3A7D44] rounded-2xl p-5 text-sm font-semibold flex items-center gap-3 shadow-sm">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-[#3A7D44] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
@@ -58,7 +58,7 @@
         @endif
 
         @if (session('password_success'))
-            <div class="mb-6 bg-[#3A7D44]/10 border border-[#3A7D44]/20 text-[#3A7D44] dark:text-[#3A7D44] rounded-2xl p-5 text-sm font-semibold flex items-center gap-3 shadow-sm">
+            <div class="mb-6 bg-[#3A7D44]/10 dark:bg-[#3A7D44]/10 border border-[#3A7D44]/20 dark:border-[#3A7D44]/30 text-[#3A7D44] dark:text-[#3A7D44] rounded-2xl p-5 text-sm font-semibold flex items-center gap-3 shadow-sm">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-[#3A7D44] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
@@ -67,7 +67,7 @@
         @endif
 
         @if ($errors->any())
-            <div class="mb-6 bg-red-500/10 border border-red-500/20 text-red-700 dark:text-red-400 rounded-2xl p-5 text-sm font-semibold">
+            <div class="mb-6 bg-red-500/10 dark:bg-red-500/10 border border-red-500/20 dark:border-red-500/30 text-red-700 dark:text-red-400 rounded-2xl p-5 text-sm font-semibold">
                 <ul class="list-disc list-inside space-y-1">
                     @foreach ($errors->all() as $error)
                         <li>{{ $error }}</li>
@@ -77,14 +77,14 @@
         @endif
 
         @if (session('profile_complete'))
-            <div style="margin-bottom:24px; padding:16px 20px; border-radius:16px; background:linear-gradient(135deg,#EFF2E9,#f0f7f0); border:1px solid #3A7D44/20;">
-                <div style="display:flex; align-items:flex-start; gap:12px;">
-                    <div style="width:36px; height:36px; border-radius:10px; background:#3A7D44; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+            <div class="mb-6 p-5 rounded-2xl bg-gradient-to-r from-[#3A7D44]/10 to-[#2E6336]/5 dark:from-[#3A7D44]/20 dark:to-[#2E6336]/10 border border-[#3A7D44]/20 dark:border-[#3A7D44]/30 text-[#1a3a1a] dark:text-[#8BC49E]">
+                <div class="flex items-start gap-3">
+                    <div class="w-9 h-9 rounded-[10px] bg-[#3A7D44] flex items-center justify-center shrink-0">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                     </div>
                     <div>
-                        <h3 style="font-size:14px; font-weight:800; color:#1a3a1a; margin-bottom:2px;">Welcome to HarvestHaul!</h3>
-                        <p style="font-size:12px; color:#4a6a4a; line-height:1.5; font-weight:500;">Please complete your business details below to start managing fleet and coordinating shipments.</p>
+                        <h3 class="text-sm font-extrabold mb-0.5">Welcome to HarvestHaul!</h3>
+                        <p class="text-xs text-[#4a6a4a] dark:text-[#6a9a6a] leading-relaxed font-medium">Please complete your business details below to start managing fleet and coordinating shipments.</p>
                     </div>
                 </div>
             </div>
@@ -228,7 +228,7 @@
 
             <div class="bg-white dark:bg-slate-800/80 backdrop-blur border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6 sm:p-8 shadow-sm">
                 <div class="flex items-center gap-3 mb-6">
-                    <div class="w-10 h-10 rounded-2xl bg-violet-500/10 border border-violet-500/15 flex items-center justify-center text-violet-600 dark:text-violet-400 shrink-0">
+                    <div class="w-10 h-10 rounded-2xl bg-brand/10 border border-brand/15 flex items-center justify-center text-brand dark:text-brand-light shrink-0">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                         </svg>
@@ -243,22 +243,22 @@
                     <div>
                         <label class="text-xs font-bold text-slate-600 dark:text-slate-400 block mb-1.5">Current Password</label>
                         <input type="password" name="current_password" required
-                            class="px-4 py-3 w-full bg-white/80 dark:bg-slate-700/50 border border-slate-200/80 dark:border-slate-600/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition text-sm">
+                            class="px-4 py-3 w-full bg-white/80 dark:bg-slate-700/50 border border-slate-200/80 dark:border-slate-600/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition text-sm">
                     </div>
                     <div>
                         <label class="text-xs font-bold text-slate-600 dark:text-slate-400 block mb-1.5">New Password</label>
                         <input type="password" name="password" required
-                            class="px-4 py-3 w-full bg-white/80 dark:bg-slate-700/50 border border-slate-200/80 dark:border-slate-600/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition text-sm">
+                            class="px-4 py-3 w-full bg-white/80 dark:bg-slate-700/50 border border-slate-200/80 dark:border-slate-600/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition text-sm">
                     </div>
                     <div>
                         <label class="text-xs font-bold text-slate-600 dark:text-slate-400 block mb-1.5">Confirm New Password</label>
                         <input type="password" name="password_confirmation" required
-                            class="px-4 py-3 w-full bg-white/80 dark:bg-slate-700/50 border border-slate-200/80 dark:border-slate-600/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition text-sm">
+                            class="px-4 py-3 w-full bg-white/80 dark:bg-slate-700/50 border border-slate-200/80 dark:border-slate-600/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition text-sm">
                     </div>
                 </div>
 
                 <div class="flex justify-end mt-6">
-                    <button type="submit" class="px-6 py-2.5 bg-violet-600 hover:bg-violet-700 text-white font-bold rounded-xl text-xs shadow-md shadow-violet-600/15 transition duration-200 cursor-pointer inline-flex items-center gap-2">
+                    <button type="submit" class="px-6 py-2.5 bg-brand hover:bg-brand-dark text-white font-bold rounded-xl text-xs shadow-md shadow-brand/15 transition duration-200 cursor-pointer inline-flex items-center gap-2">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
                         </svg>

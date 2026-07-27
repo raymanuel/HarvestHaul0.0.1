@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Harvest;
 use App\Models\HarvestStatus;
 use App\Models\NegotiationStatus;
+use App\Models\LogisticsRequest;
 use App\Models\Crop;
 use App\Models\CropVariety;
 use App\Services\CropResolverService;
@@ -122,8 +123,6 @@ class HarvestController extends Controller
             'unit'                  => 'kg',
             'notes'                 => $validated['notes'] ?? null,
             'harvest_date'          => $validated['harvest_date'] ?? null,
-            'quality_grade'         => $validated['quality_grade'] ?? null,
-            'packaging_type'        => $validated['packaging_type'] ?? null,
             'latitude'              => $farmerProfile?->latitude,
             'longitude'             => $farmerProfile?->longitude,
             'destination_id'        => $validated['destination_id'] ?? null,
@@ -216,8 +215,6 @@ class HarvestController extends Controller
             'suggested_price_per_kg'=> $validated['suggested_price_per_kg'] ?? null,
             'notes'                 => $validated['notes'] ?? null,
             'harvest_date'          => $validated['harvest_date'] ?? null,
-            'quality_grade'         => $validated['quality_grade'] ?? null,
-            'packaging_type'        => $validated['packaging_type'] ?? null,
         ];
 
         if ($harvest->status === HarvestStatus::ACTIVE) {
@@ -257,5 +254,63 @@ class HarvestController extends Controller
             "Farmer " . Auth::user()->name . " deleted harvest post for {$harvest->crop_type} ({$harvest->quantity_kg} kg).");
 
         return back()->with('success', 'Harvest post removed.');
+    }
+
+    public function markAsSold(Harvest $harvest)
+    {
+        $this->authorizeFarmer();
+
+        if ($harvest->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        if (!in_array($harvest->status->value, ['active', 'partially_sold'])) {
+            return back()->with('error', 'This harvest cannot be marked as sold in its current status.');
+        }
+
+        if ($harvest->visibility !== 'buyers_only') {
+            return back()->with('error', 'This harvest is already visible to logistics.');
+        }
+
+        $harvest->update([
+            'status' => HarvestStatus::SOLD,
+            'remaining_quantity_kg' => 0,
+            'visibility' => 'logistics_only',
+        ]);
+
+        self::logAudit(Auth::id(), 'marked_harvest_as_sold', 'harvest', $harvest->id,
+            "Farmer " . Auth::user()->name . " marked harvest {$harvest->crop_type} as sold externally.");
+
+        return back()->with('success', 'Harvest marked as sold. It is now visible to logistics partners.');
+    }
+
+    public function requestLogistics(Request $request, Harvest $harvest)
+    {
+        $this->authorizeFarmer();
+
+        if ($harvest->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        if (!in_array($harvest->status->value, ['active', 'partially_sold'])) {
+            return back()->with('error', 'This harvest cannot request logistics in its current status.');
+        }
+
+        $validated = $request->validate([
+            'preferred_date' => ['nullable', 'date', 'after_or_equal:today'],
+            'notes'          => ['nullable', 'string', 'max:500'],
+        ]);
+
+        LogisticsRequest::create([
+            'harvest_id'     => $harvest->id,
+            'user_id'        => Auth::id(),
+            'preferred_date' => $validated['preferred_date'] ?? null,
+            'notes'          => $validated['notes'] ?? null,
+        ]);
+
+        self::logAudit(Auth::id(), 'requested_logistics', 'harvest', $harvest->id,
+            "Farmer " . Auth::user()->name . " requested logistics for harvest {$harvest->crop_type}.");
+
+        return back()->with('success', 'Logistics request submitted. Partners will be notified.');
     }
 }

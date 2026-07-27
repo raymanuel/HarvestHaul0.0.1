@@ -87,7 +87,6 @@ class AdminController extends Controller
             'pendingLogistics'         => $pendingLogisticsList->count(),
             'pendingBuyers'            => $pendingBuyersList->count(),
             'activeHarvests'           => $harvestCounts->get('active', 0),
-            'pendingHarvests'          => $harvestCounts->get('pending', 0),
             'recentLogs'               => AuditLog::with('admin')->latest()->take(5)->get(),
             'pendingFarmersList'       => $pendingFarmersList,
             'pendingLogisticsList'     => $pendingLogisticsList,

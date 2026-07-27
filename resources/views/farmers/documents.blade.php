@@ -152,7 +152,7 @@
                                     {{ $doc->status }}
                                 </span>
                                 <a href="{{ Storage::url($doc->file_path) }}" target="_blank"
-                                    class="text-violet-600 dark:text-violet-400 hover:text-violet-850 dark:hover:text-violet-300 text-xs font-bold hover:underline transition">
+                                    class="text-brand dark:text-brand-light hover:text-brand-dark dark:hover:text-brand-light text-xs font-bold hover:underline transition">
                                     View
                                 </a>
                                 @if($doc->status !== 'approved')

@@ -5,21 +5,21 @@
     <header class="mb-8">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-                <h1 class="text-2xl font-extrabold text-slate-800 heading-font tracking-tight">Crop Manager</h1>
-                <p class="text-sm text-slate-400 mt-1 font-semibold">Manage crop categories, crops, and variety pricing</p>
+                <h1 class="text-2xl font-extrabold text-slate-800 dark:text-white heading-font tracking-tight">Crop Manager</h1>
+                <p class="text-sm text-slate-400 dark:text-slate-500 mt-1 font-semibold">Manage crop categories, crops, and variety pricing</p>
             </div>
-            <span class="text-[10px] font-bold uppercase tracking-widest text-[#3A7D44] bg-[#3A7D44]/10 px-3 py-1.5 rounded-lg border border-[#3A7D44]/10 self-start">{{ $categories->count() }} Categories</span>
+            <span class="text-[10px] font-bold uppercase tracking-widest text-[#3A7D44] dark:text-[#3A7D44] bg-[#3A7D44]/10 dark:bg-[#3A7D44]/15 px-3 py-1.5 rounded-lg border border-[#3A7D44]/10 dark:border-[#3A7D44]/20 self-start">{{ $categories->count() }} Categories</span>
         </div>
     </header>
 
     {{-- Flash Messages --}}
     @if (session('success'))
-        <div class="mb-6 bg-[#3A7D44]/10 border border-[#3A7D44]/20 text-[#3A7D44] rounded-xl px-5 py-4 text-sm font-semibold flex items-center gap-2">
+        <div class="mb-6 bg-[#3A7D44]/10 dark:bg-[#3A7D44]/15 border border-[#3A7D44]/20 dark:border-[#3A7D44]/30 text-[#3A7D44] dark:text-[#3A7D44] rounded-xl px-5 py-4 text-sm font-semibold flex items-center gap-2">
             <span>✅</span> {{ session('success') }}
         </div>
     @endif
     @if (session('error'))
-        <div class="mb-6 bg-red-50 border border-red-200 text-red-700 rounded-xl px-5 py-4 text-sm font-semibold flex items-center gap-2">
+        <div class="mb-6 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800/30 text-red-700 dark:text-red-400 rounded-xl px-5 py-4 text-sm font-semibold flex items-center gap-2">
             <span>❌</span> {{ session('error') }}
         </div>
     @endif
@@ -30,17 +30,17 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-8">
 
         {{-- Add Category --}}
-        <div class="bg-white border border-slate-200/70 rounded-2xl shadow-sm p-6">
-            <h2 class="text-xs font-extrabold text-slate-500 uppercase tracking-widest mb-4">Add Category</h2>
+        <div class="bg-white dark:bg-slate-800/80 border border-slate-200/70 dark:border-slate-700/60 rounded-2xl shadow-sm p-6">
+            <h2 class="text-xs font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-4">Add Category</h2>
             <form method="POST" action="{{ route('admin.crops.categories.store') }}" class="flex flex-col gap-3">
                 @csrf
                 <input type="text" name="name" placeholder="Category name (e.g. Fruits)"
-                    class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/20 focus:border-[#3A7D44] bg-slate-50/50 text-slate-800 placeholder-slate-400 transition"
+                    class="w-full border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/20 focus:border-[#3A7D44] bg-slate-50/50 dark:bg-slate-700/50 text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 transition"
                     required />
                 <input type="text" name="description" placeholder="Description (optional)"
-                    class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/20 focus:border-[#3A7D44] bg-slate-50/50 text-slate-800 placeholder-slate-400 transition" />
+                    class="w-full border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/20 focus:border-[#3A7D44] bg-slate-50/50 dark:bg-slate-700/50 text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 transition" />
                 <button type="submit"
-                    class="w-full bg-slate-800 text-white text-xs font-bold px-5 py-2.5 rounded-xl hover:bg-slate-700 transition shadow-sm">
+                    class="w-full bg-slate-800 dark:bg-slate-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl hover:bg-slate-700 dark:hover:bg-slate-600 transition shadow-sm">
                     Add Category
                 </button>
             </form>
@@ -48,12 +48,12 @@
         </div>
 
         {{-- Add Crop --}}
-        <div class="bg-white border border-slate-200/70 rounded-2xl shadow-sm p-6">
-            <h2 class="text-xs font-extrabold text-slate-500 uppercase tracking-widest mb-4">Add Crop</h2>
+        <div class="bg-white dark:bg-slate-800/80 border border-slate-200/70 dark:border-slate-700/60 rounded-2xl shadow-sm p-6">
+            <h2 class="text-xs font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-4">Add Crop</h2>
             <form method="POST" action="{{ route('admin.crops.store') }}" class="flex flex-col gap-3">
                 @csrf
                 <select name="crop_category_id"
-                    class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/20 focus:border-[#3A7D44] bg-slate-50/50 text-slate-800 transition"
+                    class="w-full border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/20 focus:border-[#3A7D44] bg-slate-50/50 dark:bg-slate-700/50 text-slate-800 dark:text-white transition"
                     required>
                     <option value="" disabled selected>Select category</option>
                     @foreach ($categories as $cat)
@@ -61,22 +61,22 @@
                     @endforeach
                 </select>
                 <input type="text" name="name" placeholder="Crop name (e.g. Pineapple)"
-                    class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/20 focus:border-[#3A7D44] bg-slate-50/50 text-slate-800 placeholder-slate-400 transition"
+                    class="w-full border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/20 focus:border-[#3A7D44] bg-slate-50/50 dark:bg-slate-700/50 text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 transition"
                     required />
                 <button type="submit"
-                    class="w-full bg-slate-800 text-white text-xs font-bold px-5 py-2.5 rounded-xl hover:bg-slate-700 transition shadow-sm">
+                    class="w-full bg-slate-800 dark:bg-slate-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl hover:bg-slate-700 dark:hover:bg-slate-600 transition shadow-sm">
                     Add Crop
                 </button>
             </form>
         </div>
 
         {{-- Add Variety --}}
-        <div class="bg-white border border-slate-200/70 rounded-2xl shadow-sm p-6">
-            <h2 class="text-xs font-extrabold text-slate-500 uppercase tracking-widest mb-4">Add Variety & Price</h2>
+        <div class="bg-white dark:bg-slate-800/80 border border-slate-200/70 dark:border-slate-700/60 rounded-2xl shadow-sm p-6">
+            <h2 class="text-xs font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-4">Add Variety & Price</h2>
             <form method="POST" action="{{ route('admin.crops.varieties.store') }}" class="flex flex-col gap-3">
                 @csrf
                 <select name="crop_id"
-                    class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/20 focus:border-[#3A7D44] bg-slate-50/50 text-slate-800 transition"
+                    class="w-full border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/20 focus:border-[#3A7D44] bg-slate-50/50 dark:bg-slate-700/50 text-slate-800 dark:text-white transition"
                     required>
                     <option value="" disabled selected>Select crop</option>
                     @foreach ($categories as $cat)
@@ -88,10 +88,10 @@
                     @endforeach
                 </select>
                 <input type="text" name="name" placeholder="Variety (e.g. Cavendish)"
-                    class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/20 focus:border-[#3A7D44] bg-slate-50/50 text-slate-800 placeholder-slate-400 transition"
+                    class="w-full border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/20 focus:border-[#3A7D44] bg-slate-50/50 dark:bg-slate-700/50 text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 transition"
                     required />
                 <input type="number" name="price_per_kg" placeholder="Price/kg (₱)" step="0.01" min="0"
-                    class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/20 focus:border-[#3A7D44] bg-slate-50/50 text-slate-800 placeholder-slate-400 transition"
+                    class="w-full border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/20 focus:border-[#3A7D44] bg-slate-50/50 dark:bg-slate-700/50 text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 transition"
                     required />
                 <button type="submit"
                     class="w-full bg-[#3A7D44] text-white text-xs font-bold px-5 py-2.5 rounded-xl hover:bg-[#2E6336] transition shadow-sm">
@@ -105,16 +105,16 @@
     {{-- CATEGORIES + CROPS + VARIETIES TABLE --}}
     {{-- ================================================ --}}
     @foreach ($categories as $category)
-    <div class="mb-6 bg-white border border-slate-200/70 rounded-2xl shadow-sm overflow-hidden">
+    <div class="mb-6 bg-white dark:bg-slate-800/80 border border-slate-200/70 dark:border-slate-700/60 rounded-2xl shadow-sm overflow-hidden">
 
         {{-- Category Header --}}
-        <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/50">
+        <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-700/60 bg-slate-50/50 dark:bg-slate-900/30">
             <div class="flex items-center gap-3">
                 <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-[#3A7D44]/15 to-[#3A7D44]/10 border border-[#3A7D44]/20 flex items-center justify-center text-[10px] font-extrabold text-[#3A7D44] uppercase">{{ substr($category->name, 0, 2) }}</div>
                 <div>
-                    <span class="text-sm font-extrabold text-slate-800 uppercase tracking-widest">{{ $category->name }}</span>
+                    <span class="text-sm font-extrabold text-slate-800 dark:text-white uppercase tracking-widest">{{ $category->name }}</span>
                     @if ($category->description)
-                        <span class="ml-2 text-[10px] text-slate-400 font-semibold">— {{ $category->description }}</span>
+                        <span class="ml-2 text-[10px] text-slate-400 dark:text-slate-500 font-semibold">— {{ $category->description }}</span>
                     @endif
                 </div>
             </div>
@@ -142,13 +142,13 @@
 
         {{-- Crops & Varieties --}}
         @foreach ($category->crops as $crop)
-        <div class="px-6 py-5 border-b border-slate-50 last:border-0">
+        <div class="px-6 py-5 border-b border-slate-50 dark:border-slate-700/40 last:border-0">
 
             {{-- Crop Row --}}
             <div class="flex items-center justify-between mb-4">
                 <div class="flex items-center gap-3">
-                    <span class="text-sm font-bold text-slate-700">{{ $crop->name }}</span>
-                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-lg uppercase tracking-wide {{ $crop->is_active ? 'bg-[#3A7D44]/10 text-[#3A7D44]' : 'bg-slate-100 text-slate-400' }}">
+                    <span class="text-sm font-bold text-slate-700 dark:text-slate-300">{{ $crop->name }}</span>
+                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-lg uppercase tracking-wide {{ $crop->is_active ? 'bg-[#3A7D44]/10 text-[#3A7D44]' : 'bg-slate-100 dark:bg-slate-700 text-slate-400 dark:text-slate-500' }}">
                         {{ $crop->is_active ? 'Active' : 'Inactive' }}
                     </span>
                 </div>
@@ -176,23 +176,23 @@
 
             {{-- Variety Rows --}}
             @if ($crop->varieties->count())
-            <div class="bg-slate-50/50 rounded-xl border border-slate-100 overflow-hidden">
+            <div class="bg-slate-50/50 dark:bg-slate-700/30 rounded-xl border border-slate-100 dark:border-slate-600/50 overflow-hidden">
                 <table class="w-full text-sm">
                     <thead>
-                        <tr class="border-b border-slate-100">
-                            <th class="text-left px-4 py-2.5 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Variety</th>
-                            <th class="text-left px-4 py-2.5 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Price/kg</th>
-                            <th class="text-left px-4 py-2.5 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Status</th>
-                            <th class="text-right px-4 py-2.5 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Actions</th>
+                        <tr class="border-b border-slate-100 dark:border-slate-600/50">
+                            <th class="text-left px-4 py-2.5 text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Variety</th>
+                            <th class="text-left px-4 py-2.5 text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Price/kg</th>
+                            <th class="text-left px-4 py-2.5 text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Status</th>
+                            <th class="text-right px-4 py-2.5 text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach ($crop->varieties as $variety)
-                        <tr class="border-b border-slate-50 last:border-0 hover:bg-white/50 transition">
-                            <td class="px-4 py-2.5 text-slate-700 font-semibold text-sm">{{ $variety->name }}</td>
-                            <td class="px-4 py-2.5 text-slate-700 font-mono text-sm font-bold">₱{{ number_format($variety->price_per_kg, 2) }}</td>
+                        <tr class="border-b border-slate-50 dark:border-slate-600/40 last:border-0 hover:bg-white/50 dark:hover:bg-slate-700/30 transition">
+                            <td class="px-4 py-2.5 text-slate-700 dark:text-slate-300 font-semibold text-sm">{{ $variety->name }}</td>
+                            <td class="px-4 py-2.5 text-slate-700 dark:text-slate-300 font-mono text-sm font-bold">₱{{ number_format($variety->price_per_kg, 2) }}</td>
                             <td class="px-4 py-2.5">
-                                <span class="text-[10px] font-bold px-2 py-0.5 rounded-lg uppercase tracking-wide {{ $variety->is_active ? 'bg-[#3A7D44]/10 text-[#3A7D44]' : 'bg-slate-100 text-slate-400' }}">
+                                <span class="text-[10px] font-bold px-2 py-0.5 rounded-lg uppercase tracking-wide {{ $variety->is_active ? 'bg-[#3A7D44]/10 text-[#3A7D44]' : 'bg-slate-100 dark:bg-slate-700 text-slate-400 dark:text-slate-500' }}">
                                     {{ $variety->is_active ? 'Active' : 'Inactive' }}
                                 </span>
                             </td>
@@ -222,38 +222,38 @@
 
                         {{-- Edit Variety Modal --}}
                         <div id="edit-variety-{{ $variety->id }}" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 backdrop-blur-sm">
-                            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-7 border border-slate-100">
-                                <h3 class="text-base font-extrabold text-slate-800 heading-font mb-5">Edit Variety — {{ $variety->name }}</h3>
+                            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-md p-7 border border-slate-100 dark:border-slate-700/60">
+                                <h3 class="text-base font-extrabold text-slate-800 dark:text-white heading-font mb-5">Edit Variety — {{ $variety->name }}</h3>
                                 <form method="POST" action="{{ route('admin.crops.varieties.update', $variety) }}">
                                     @csrf @method('PUT')
                                     <div class="mb-4">
-                                        <label class="block text-[10px] font-extrabold text-slate-500 uppercase tracking-widest mb-1.5">Variety Name</label>
+                                        <label class="block text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Variety Name</label>
                                         <input type="text" name="name" value="{{ $variety->name }}"
-                                            class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/20 focus:border-[#3A7D44] bg-slate-50/50 text-slate-800 transition"
+                                            class="w-full border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/20 focus:border-[#3A7D44] bg-slate-50/50 dark:bg-slate-700/50 text-slate-800 dark:text-white transition"
                                             required />
                                     </div>
                                     <div class="mb-4">
-                                        <label class="block text-[10px] font-extrabold text-slate-500 uppercase tracking-widest mb-1.5">Price per kg (₱)</label>
+                                        <label class="block text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Price per kg (₱)</label>
                                         <input type="number" name="price_per_kg" value="{{ $variety->price_per_kg }}"
                                             step="0.01" min="0"
-                                            class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/20 focus:border-[#3A7D44] bg-slate-50/50 text-slate-800 transition"
+                                            class="w-full border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/20 focus:border-[#3A7D44] bg-slate-50/50 dark:bg-slate-700/50 text-slate-800 dark:text-white transition"
                                             required />
                                     </div>
                                     <div class="mb-6">
-                                        <label class="block text-[10px] font-extrabold text-slate-500 uppercase tracking-widest mb-1.5">Status</label>
+                                        <label class="block text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Status</label>
                                         <select name="is_active"
-                                            class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/20 focus:border-[#3A7D44] bg-slate-50/50 text-slate-800 transition">
+                                            class="w-full border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/20 focus:border-[#3A7D44] bg-slate-50/50 dark:bg-slate-700/50 text-slate-800 dark:text-white transition">
                                             <option value="1" {{ $variety->is_active ? 'selected' : '' }}>Active</option>
                                             <option value="0" {{ !$variety->is_active ? 'selected' : '' }}>Inactive</option>
                                         </select>
                                     </div>
                                     <div class="flex gap-3">
                                         <button type="submit"
-                                            class="flex-1 bg-slate-800 text-white text-xs font-bold py-2.5 rounded-xl hover:bg-slate-700 transition shadow-sm">
+                                            class="flex-1 bg-slate-800 dark:bg-slate-700 text-white text-xs font-bold py-2.5 rounded-xl hover:bg-slate-700 dark:hover:bg-slate-600 transition shadow-sm">
                                             Save Changes
                                         </button>
                                         <button type="button" onclick="toggleModal('edit-variety-{{ $variety->id }}')"
-                                            class="flex-1 bg-slate-100 text-slate-700 text-xs font-bold py-2.5 rounded-xl hover:bg-slate-200 transition">
+                                            class="flex-1 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-bold py-2.5 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-600 transition">
                                             Cancel
                                         </button>
                                     </div>
@@ -265,20 +265,20 @@
                 </table>
             </div>
             @else
-                <p class="text-xs text-slate-400 font-semibold mt-1 italic">No varieties added yet.</p>
+                <p class="text-xs text-slate-400 dark:text-slate-500 font-semibold mt-1 italic">No varieties added yet.</p>
             @endif
         </div>
 
         {{-- Edit Crop Modal --}}
         <div id="edit-crop-{{ $crop->id }}" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 backdrop-blur-sm">
-            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-7 border border-slate-100">
-                <h3 class="text-base font-extrabold text-slate-800 heading-font mb-5">Edit Crop — {{ $crop->name }}</h3>
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-md p-7 border border-slate-100 dark:border-slate-700/60">
+                <h3 class="text-base font-extrabold text-slate-800 dark:text-white heading-font mb-5">Edit Crop — {{ $crop->name }}</h3>
                 <form method="POST" action="{{ route('admin.crops.update', $crop) }}">
                     @csrf @method('PUT')
                     <div class="mb-4">
-                        <label class="block text-[10px] font-extrabold text-slate-500 uppercase tracking-widest mb-1.5">Category</label>
+                        <label class="block text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Category</label>
                         <select name="crop_category_id"
-                            class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/20 focus:border-[#3A7D44] bg-slate-50/50 text-slate-800 transition"
+                            class="w-full border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/20 focus:border-[#3A7D44] bg-slate-50/50 dark:bg-slate-700/50 text-slate-800 dark:text-white transition"
                             required>
                             @foreach ($categories as $cat)
                                 <option value="{{ $cat->id }}" {{ $crop->crop_category_id === $cat->id ? 'selected' : '' }}>
@@ -288,26 +288,26 @@
                         </select>
                     </div>
                     <div class="mb-4">
-                        <label class="block text-[10px] font-extrabold text-slate-500 uppercase tracking-widest mb-1.5">Crop Name</label>
+                        <label class="block text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Crop Name</label>
                         <input type="text" name="name" value="{{ $crop->name }}"
-                            class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/20 focus:border-[#3A7D44] bg-slate-50/50 text-slate-800 transition"
+                            class="w-full border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/20 focus:border-[#3A7D44] bg-slate-50/50 dark:bg-slate-700/50 text-slate-800 dark:text-white transition"
                             required />
                     </div>
                     <div class="mb-6">
-                        <label class="block text-[10px] font-extrabold text-slate-500 uppercase tracking-widest mb-1.5">Status</label>
+                        <label class="block text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Status</label>
                         <select name="is_active"
-                            class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/20 focus:border-[#3A7D44] bg-slate-50/50 text-slate-800 transition">
+                            class="w-full border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/20 focus:border-[#3A7D44] bg-slate-50/50 dark:bg-slate-700/50 text-slate-800 dark:text-white transition">
                             <option value="1" {{ $crop->is_active ? 'selected' : '' }}>Active</option>
                             <option value="0" {{ !$crop->is_active ? 'selected' : '' }}>Inactive</option>
                         </select>
                     </div>
                     <div class="flex gap-3">
                         <button type="submit"
-                            class="flex-1 bg-slate-800 text-white text-xs font-bold py-2.5 rounded-xl hover:bg-slate-700 transition shadow-sm">
+                            class="flex-1 bg-slate-800 dark:bg-slate-700 text-white text-xs font-bold py-2.5 rounded-xl hover:bg-slate-700 dark:hover:bg-slate-600 transition shadow-sm">
                             Save Changes
                         </button>
                         <button type="button" onclick="toggleModal('edit-crop-{{ $crop->id }}')"
-                            class="flex-1 bg-slate-100 text-slate-700 text-xs font-bold py-2.5 rounded-xl hover:bg-slate-200 transition">
+                            class="flex-1 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-bold py-2.5 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-600 transition">
                             Cancel
                         </button>
                     </div>
@@ -318,28 +318,28 @@
 
         {{-- Edit Category Modal --}}
         <div id="edit-category-{{ $category->id }}" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 backdrop-blur-sm">
-            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-7 border border-slate-100">
-                <h3 class="text-base font-extrabold text-slate-800 heading-font mb-5">Edit Category — {{ $category->name }}</h3>
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-md p-7 border border-slate-100 dark:border-slate-700/60">
+                <h3 class="text-base font-extrabold text-slate-800 dark:text-white heading-font mb-5">Edit Category — {{ $category->name }}</h3>
                 <form method="POST" action="{{ route('admin.crops.categories.update', $category) }}">
                     @csrf @method('PUT')
                     <div class="mb-4">
-                        <label class="block text-[10px] font-extrabold text-slate-500 uppercase tracking-widest mb-1.5">Category Name</label>
+                        <label class="block text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Category Name</label>
                         <input type="text" name="name" value="{{ $category->name }}"
-                            class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/20 focus:border-[#3A7D44] bg-slate-50/50 text-slate-800 transition"
+                            class="w-full border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/20 focus:border-[#3A7D44] bg-slate-50/50 dark:bg-slate-700/50 text-slate-800 dark:text-white transition"
                             required />
                     </div>
                     <div class="mb-6">
-                        <label class="block text-[10px] font-extrabold text-slate-500 uppercase tracking-widest mb-1.5">Description</label>
+                        <label class="block text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Description</label>
                         <input type="text" name="description" value="{{ $category->description }}"
-                            class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/20 focus:border-[#3A7D44] bg-slate-50/50 text-slate-800 transition" />
+                            class="w-full border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/20 focus:border-[#3A7D44] bg-slate-50/50 dark:bg-slate-700/50 text-slate-800 dark:text-white transition" />
                     </div>
                     <div class="flex gap-3">
                         <button type="submit"
-                            class="flex-1 bg-slate-800 text-white text-xs font-bold py-2.5 rounded-xl hover:bg-slate-700 transition shadow-sm">
+                            class="flex-1 bg-slate-800 dark:bg-slate-700 text-white text-xs font-bold py-2.5 rounded-xl hover:bg-slate-700 dark:hover:bg-slate-600 transition shadow-sm">
                             Save Changes
                         </button>
                         <button type="button" onclick="toggleModal('edit-category-{{ $category->id }}')"
-                            class="flex-1 bg-slate-100 text-slate-700 text-xs font-bold py-2.5 rounded-xl hover:bg-slate-200 transition">
+                            class="flex-1 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-bold py-2.5 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-600 transition">
                             Cancel
                         </button>
                     </div>

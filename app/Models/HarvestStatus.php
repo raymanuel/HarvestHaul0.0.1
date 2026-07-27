@@ -12,7 +12,6 @@ enum HarvestStatus: string
     case IN_PROGRESS = 'in_progress';
     case COMPLETED = 'completed';
     case CANCELLED = 'cancelled';
-    case PENDING = 'pending';
 
     /** Statuses where the harvest is visible to buyers for negotiation. */
     public static function buyerAvailable(): array
@@ -50,7 +49,6 @@ enum HarvestStatus: string
             self::IN_PROGRESS    => 'In Transit',
             self::COMPLETED      => 'Completed',
             self::CANCELLED      => 'Cancelled',
-            self::PENDING        => 'Pending',
         };
     }
 
@@ -66,7 +64,6 @@ enum HarvestStatus: string
             self::IN_PROGRESS    => 'orange',
             self::COMPLETED      => 'gray',
             self::CANCELLED      => 'red',
-            self::PENDING        => 'gray',
         };
     }
 }

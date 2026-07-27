@@ -75,14 +75,14 @@
 
             {{-- Map --}}
             <div class="lg:col-span-2">
-                <div id="routing-map" class="w-full rounded-2xl border border-slate-200 dark:border-slate-700 relative z-10 shadow-sm" style="height: 600px;"></div>
+                <div id="routing-map" class="w-full rounded-2xl border border-slate-200 dark:border-slate-700 relative z-10 shadow-sm h-[400px] sm:h-[600px]"></div>
                 <p class="text-xs text-slate-400 dark:text-slate-500 mt-3 flex items-center gap-1">
                     <span>💡</span> <b>Click map to plot custom Start (Logistics hub) and End (Drop-off Terminal) points.</b>
                 </p>
             </div>
 
             {{-- Sidebar --}}
-            <div class="bg-slate-50 dark:bg-slate-900/40 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 p-5 flex flex-col h-[600px]">
+            <div class="bg-slate-50 dark:bg-slate-900/40 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 p-5 flex flex-col h-[400px] sm:h-[600px]">
                 <h3 class="text-sm font-bold text-slate-800 dark:text-slate-250 heading-font mb-4 flex items-center gap-2">
                     <span class="text-[#3A7D44]">📍</span> Route Pickups
                 </h3>
@@ -206,6 +206,7 @@
     @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            const isDark = document.documentElement.classList.contains('dark');
             // Initialize the Leaflet map centered on Southern Mindanao (GenSan coordinates)
             const map = L.map('routing-map').setView([6.1164, 125.1716], 11);
             
@@ -414,21 +415,21 @@
 
                     const harvestList = farm.harvests.length
                         ? farm.harvests.map(h => `<li>🌾 ${h.crop} — ${h.quantity} kg</li>`).join('')
-                        : '<li class="text-gray-400">No active posts</li>';
+                        : '<li class="text-slate-400">No active posts</li>';
 
                     const destinationHtml = farm.destination
-                        ? `<div style="margin-top:8px;padding-top:8px;border-top:1px solid #e2e8f0;">
-                            <b style="font-size:11px;color:#64748b;letter-spacing:0.05em;text-transform:uppercase;">Destination</b>
-                            <p style="margin:4px 0 0;font-size:12px;font-weight:700;color:#1e293b;">📦 ${farm.destination.name}</p>
-                            <p style="margin:2px 0 0;font-size:11px;color:#64748b;">${farm.destination.address}</p>
+                        ? `<div style="margin-top:8px;padding-top:8px;border-top:1px solid ${isDark ? '#334155' : '#e2e8f0'};">
+                            <b style="font-size:11px;color:${isDark ? '#94a3b8' : '#64748b'};letter-spacing:0.05em;text-transform:uppercase;">Destination</b>
+                            <p style="margin:4px 0 0;font-size:12px;font-weight:700;color:${isDark ? '#e2e8f0' : '#1e293b'};">📦 ${farm.destination.name}</p>
+                            <p style="margin:2px 0 0;font-size:11px;color:${isDark ? '#94a3b8' : '#64748b'};">${farm.destination.address}</p>
                            </div>`
                         : farm.destination_address
-                            ? `<div style="margin-top:8px;padding-top:8px;border-top:1px solid #e2e8f0;">
-                                <b style="font-size:11px;color:#64748b;letter-spacing:0.05em;text-transform:uppercase;">Destination</b>
-                                <p style="margin:4px 0 0;font-size:12px;font-weight:700;color:#1e293b;">📍 ${farm.destination_address}</p>
+                            ? `<div style="margin-top:8px;padding-top:8px;border-top:1px solid ${isDark ? '#334155' : '#e2e8f0'};">
+                                <b style="font-size:11px;color:${isDark ? '#94a3b8' : '#64748b'};letter-spacing:0.05em;text-transform:uppercase;">Destination</b>
+                                <p style="margin:4px 0 0;font-size:12px;font-weight:700;color:${isDark ? '#e2e8f0' : '#1e293b'};">📍 ${farm.destination_address}</p>
                                </div>`
-                            : `<div style="margin-top:8px;padding-top:8px;border-top:1px solid #e2e8f0;">
-                                <p style="font-size:11px;color:#94a3b8;">No destination set.</p>
+                            : `<div style="margin-top:8px;padding-top:8px;border-top:1px solid ${isDark ? '#334155' : '#e2e8f0'};">
+                                <p style="font-size:11px;color:${isDark ? '#cbd5e1' : '#94a3b8'};">No destination set.</p>
                                </div>`;
 
                     const hasDestination = farm.destination_latitude && farm.destination_longitude;
@@ -437,17 +438,17 @@
                             style="margin-top:10px;width:100%;background:linear-gradient(to top right, #059669, #14b8a6);color:white;border:none;border-radius:8px;padding:8px 0;font-size:12px;font-weight:700;cursor:pointer;box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
                             🗺️ Plot Route
                            </button>`
-                        : `<button disabled style="margin-top:10px;width:100%;background:#f1f5f9;color:#94a3b8;border:none;border-radius:8px;padding:8px 0;font-size:12px;font-weight:700;cursor:not-allowed;">
+                        : `<button disabled style="margin-top:10px;width:100%;background:${isDark ? '#334155' : '#f1f5f9'};color:${isDark ? '#64748b' : '#94a3b8'};border:none;border-radius:8px;padding:8px 0;font-size:12px;font-weight:700;cursor:not-allowed;">
                             No destination set
                            </button>`;
 
                     marker.bindPopup(`
                         <div style="min-width:200px;font-family:'Plus Jakarta Sans',sans-serif;">
-                            <b style="font-size:14px;color:#0f172a;">${farm.name}</b>
-                            <br><span style="color:#64748b;font-size:12px;">📍 ${farm.farmer_profile.farm_location}</span>
-                            <hr style="margin:8px 0;border:0;border-top:1px solid #f1f5f9;">
-                            <b style="font-size:11px;color:#64748b;letter-spacing:0.05em;text-transform:uppercase;">Active Harvests</b>
-                            <ul style="margin:4px 0 0;padding-left:14px;font-size:12px;color:#334155;list-style-type:square;">${harvestList}</ul>
+                            <b style="font-size:14px;color:${isDark ? '#e2e8f0' : '#0f172a'};">${farm.name}</b>
+                            <br><span style="color:${isDark ? '#94a3b8' : '#64748b'};font-size:12px;">📍 ${farm.farmer_profile.farm_location}</span>
+                            <hr style="margin:8px 0;border:0;border-top:1px solid ${isDark ? '#334155' : '#f1f5f9'};">
+                            <b style="font-size:11px;color:${isDark ? '#94a3b8' : '#64748b'};letter-spacing:0.05em;text-transform:uppercase;">Active Harvests</b>
+                            <ul style="margin:4px 0 0;padding-left:14px;font-size:12px;color:${isDark ? '#cbd5e1' : '#334155'};list-style-type:square;">${harvestList}</ul>
                             ${destinationHtml}
                             ${plotButtonHtml}
                         </div>
@@ -527,7 +528,7 @@
                 queueContainer.innerHTML = '';
 
                 if (nearbyFarms.length === 0) {
-                    queueContainer.innerHTML = `<div class="text-center text-gray-400 mt-10">No farms detected within ${currentRadius}km of this route.</div>`;
+                    queueContainer.innerHTML = `<div class="text-center text-slate-400 mt-10">No farms detected within ${currentRadius}km of this route.</div>`;
                     return;
                 }
 
@@ -701,7 +702,7 @@
                 startMarker = null; endMarker = null; currentRouteGeoJSON = null; baseRouteGeoJSON = null; lastNearbyFarms = [];
                 farmMarkers.forEach(item => item.marker.setIcon(defaultIcon));
                 destinationMarkers.forEach(function (dm) { dm.marker.setOpacity(1); });
-                document.getElementById('pickup-queue').innerHTML = '<div class="text-center text-gray-400 mt-10 italic">Awaiting route coordinates...</div>';
+                document.getElementById('pickup-queue').innerHTML = '<div class="text-center text-slate-400 mt-10 italic">Awaiting route coordinates...</div>';
                 document.getElementById('plan-panel').classList.add('hidden');
                 btnGenerate.disabled = true; this.classList.add('hidden');
             });

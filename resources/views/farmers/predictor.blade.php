@@ -23,7 +23,7 @@
                         Estimated next harvest windows based on your historical planting cycles
                     </p>
                 </div>
-                <span class="text-xs font-semibold uppercase tracking-wider text-violet-700 dark:text-violet-400 bg-violet-50 dark:bg-violet-950/20 px-3 py-1.5 rounded-lg border border-violet-500/10 dark:border-violet-500/20 self-start">
+                <span class="text-xs font-semibold uppercase tracking-wider text-brand dark:text-brand-light bg-brand/10 dark:bg-brand/20 px-3 py-1.5 rounded-lg border border-brand/10 dark:border-brand/20 self-start">
                     Yield Predictor
                 </span>
             </div>
@@ -32,15 +32,15 @@
         {{-- Overview Cards --}}
         <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-8">
             <div class="bg-white dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700/80 rounded-2xl p-5 shadow-sm">
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Active Posts</p>
+                <p class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">Active Posts</p>
                 <p class="text-2xl font-bold text-[#3A7D44] dark:text-[#3A7D44]">{{ $activeCount }}</p>
             </div>
             <div class="bg-white dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700/80 rounded-2xl p-5 shadow-sm">
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Completed Hauls</p>
+                <p class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">Completed Hauls</p>
                 <p class="text-2xl font-bold text-slate-800 dark:text-slate-200">{{ $completedCount }}</p>
             </div>
             <div class="bg-white dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700/80 rounded-2xl p-5 shadow-sm col-span-2 sm:col-span-1">
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Crops Tracked</p>
+                <p class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">Crops Tracked</p>
                 <p class="text-2xl font-bold text-slate-800 dark:text-slate-200">{{ $predictions->count() }}</p>
             </div>
         </div>
@@ -48,8 +48,8 @@
         @if($predictions->isEmpty())
             {{-- Empty State --}}
             <div class="bg-white dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700/80 rounded-2xl p-12 text-center shadow-sm">
-                <div class="w-14 h-14 rounded-2xl bg-violet-50 dark:bg-violet-950/20 flex items-center justify-center mx-auto mb-4">
-                    <svg class="w-7 h-7 text-violet-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <div class="w-14 h-14 rounded-2xl bg-brand/10 dark:bg-brand/20 flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-7 h-7 text-brand-light" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
                     </svg>
                 </div>
@@ -101,22 +101,22 @@
                                     <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Next Estimated Window</p>
                                     <p class="text-xl font-extrabold {{ $urgency[1] }} mt-0.5">{{ $pred['next_estimate'] }}</p>
                                     @if($pred['days_until'] !== null)
-                                        <p class="text-xs font-bold text-slate-400 mt-0.5">
+                                        <p class="text-xs font-bold text-slate-400 dark:text-slate-500 mt-0.5">
                                             {{ $pred['days_until'] > 0 ? 'in ' . $pred['days_until'] . ' days' : 'Today or overdue' }}
                                         </p>
                                     @endif
                                 </div>
                             @else
                                 <div class="text-left sm:text-right shrink-0">
-                                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Prediction</p>
-                                    <p class="text-sm font-bold text-slate-400 italic mt-1">Need more data</p>
-                                    <p class="text-[10px] text-slate-400 mt-0.5">Log 2+ harvests to predict</p>
+                                    <p class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Prediction</p>
+                                    <p class="text-sm font-bold text-slate-400 dark:text-slate-500 italic mt-1">Need more data</p>
+                                    <p class="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">Log 2+ harvests to predict</p>
                                 </div>
                             @endif
                         </div>
 
                         {{-- Stats row --}}
-                        <div class="grid grid-cols-3 gap-3 mt-4 pt-4 border-t border-slate-100 dark:border-slate-700/60">
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-4 pt-4 border-t border-slate-100 dark:border-slate-700/60">
                             <div>
                                 <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Avg Cycle</p>
                                 <p class="text-sm font-bold text-slate-700 dark:text-slate-300 mt-0.5">

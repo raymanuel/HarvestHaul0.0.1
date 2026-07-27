@@ -67,7 +67,7 @@
                                     $statusColor = match($vehicle->status) {
                                         'available' => 'text-[#3A7D44] dark:text-[#3A7D44] bg-[#3A7D44]/10 dark:bg-[#3A7D44]/10 border-[#3A7D44]/10 dark:border-[#3A7D44]/20',
                                         'in_transit' => 'text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/20 border-blue-500/10 dark:border-blue-500/20',
-                                        'maintenance' => 'text-red-750 dark:text-red-400 bg-red-50 dark:bg-red-950/20 border-red-500/10 dark:border-red-500/20',
+                                        'maintenance' => 'text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-950/20 border-red-500/10 dark:border-red-500/20',
                                         default => 'text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700',
                                     };
                                 @endphp
@@ -97,13 +97,13 @@
                                     <td class="py-4 px-3">
                                         @if($vehicle->driver)
                                             <div class="flex items-center gap-2">
-                                                <div class="w-6 h-6 rounded-lg bg-violet-50 dark:bg-violet-950/30 border border-violet-100/30 dark:border-violet-800/30 flex items-center justify-center text-violet-600 dark:text-violet-400 font-bold uppercase text-[10px] select-none shrink-0">
+                                                <div class="w-6 h-6 rounded-lg bg-harvest/10 dark:bg-harvest/20 border border-harvest/20 dark:border-harvest/20 flex items-center justify-center text-harvest dark:text-harvest font-bold uppercase text-[10px] select-none shrink-0">
                                                     {{ substr($vehicle->driver->name, 0, 2) }}
                                                 </div>
                                                 <span class="text-xs font-bold text-slate-800 dark:text-slate-250">{{ $vehicle->driver->name }}</span>
                                             </div>
                                         @else
-                                            <span class="text-xs text-slate-405 dark:text-slate-500 italic">No driver assigned</span>
+                                            <span class="text-xs text-slate-400 dark:text-slate-500 italic">No driver assigned</span>
                                         @endif
                                     </td>
                                     <td class="py-4 pl-3">

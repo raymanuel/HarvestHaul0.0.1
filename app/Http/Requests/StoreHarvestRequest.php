@@ -17,7 +17,15 @@ class StoreHarvestRequest extends FormRequest
 
         $farmerProfile = $user->farmerProfile;
 
-        return $farmerProfile && $farmerProfile->is_verified;
+        if (!$farmerProfile || !$farmerProfile->is_verified) {
+            return false;
+        }
+
+        if (is_null($farmerProfile->latitude) || is_null($farmerProfile->longitude)) {
+            return false;
+        }
+
+        return true;
     }
 
     public function rules(): array
@@ -41,9 +49,7 @@ class StoreHarvestRequest extends FormRequest
             'quantity_kg'           => ['required', 'numeric', 'min:0.01', 'max:999999.99'],
             'suggested_price_per_kg'=> ['nullable', 'numeric', 'min:0.01', 'max:99999.99'],
             'notes'                 => ['nullable', 'string', 'max:1000'],
-            'harvest_date'          => ['nullable', 'date', 'before_or_equal:today'],
-            'quality_grade'         => ['nullable', 'string', 'max:100'],
-            'packaging_type'        => ['nullable', 'string', 'max:100'],
+            'harvest_date'          => ['nullable', 'date', 'after_or_equal:today', 'before_or_equal:tomorrow'],
             'destination_id'        => ['nullable', 'exists:destinations,id'],
             'destination_address'   => ['required', 'string', 'max:500'],
             'destination_latitude'  => ['required', 'numeric', 'between:-90,90'],
@@ -63,7 +69,8 @@ class StoreHarvestRequest extends FormRequest
             'quantity_kg.max'               => 'Quantity cannot exceed 999,999.99 kg.',
             'quantity_kg.min'               => 'Quantity must be at least 0.01 kg.',
             'quantity_kg.numeric'           => 'Quantity must be a valid number.',
-            'harvest_date.before_or_equal'  => 'Harvest date cannot be in the future.',
+            'harvest_date.before_or_equal'  => 'Harvest date cannot be more than 1 day in the future.',
+            'harvest_date.after_or_equal'   => 'Harvest date cannot be in the past.',
             'destination_address.required'  => 'Please select or pin a delivery destination.',
             'destination_latitude.required' => 'Please select or pin a delivery destination.',
             'suggested_price_per_kg.max'    => 'Suggested price cannot exceed 99,999.99.',

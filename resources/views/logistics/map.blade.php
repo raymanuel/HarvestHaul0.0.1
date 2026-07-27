@@ -2,16 +2,16 @@
     <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
         <div class="mb-6 flex justify-between items-end">
             <div>
-                <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Logistics Routing</h1>
-                <p class="text-sm text-gray-500 mt-1">General Santos City — K-Means Cluster Map</p>
+                <h1 class="text-2xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">Logistics Routing</h1>
+                <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">General Santos City — K-Means Cluster Map</p>
             </div>
-            <button class="bg-gray-900 text-white px-4 py-2 text-sm font-medium rounded hover:bg-gray-800 transition-colors">
+            <button class="bg-slate-900 dark:bg-slate-700 text-white px-4 py-2 text-sm font-medium rounded hover:bg-slate-800 dark:hover:bg-slate-600 transition-colors">
                 Run Clustering
             </button>
         </div>
 
-        <div class="bg-white border border-gray-200 rounded shadow-sm overflow-hidden">
-            <div id="routingMap" class="w-full h-[650px] z-10"></div>
+        <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded shadow-sm overflow-hidden">
+            <div id="routingMap" class="w-full h-[400px] sm:h-[650px] z-10"></div>
         </div>
     </div>
 

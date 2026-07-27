@@ -28,6 +28,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             LogisticsSeeder::class,  // must run first — farmers reference coop ID
             FarmerSeeder::class,
+            BuyerSeeder::class,
             DestinationSeeder::class,
             CropSeeder::class,
             DriverSeeder::class,

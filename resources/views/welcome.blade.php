@@ -7,7 +7,7 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Source+Sans+3:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
@@ -18,16 +18,16 @@
             --leaf: #3A7D44;
             --leaf-dark: #2E6336;
             --leaf-deep: #1F4D25;
-            --wheat: #D4A520;
-            --wheat-dim: #B8911A;
-            --parchment: #FAF6ED;
+            --wheat: #C8A415;
+            --wheat-dim: #9A7D10;
+            --parchment: #FAFAF5;
             --terracotta: #C1694F;
             --dust: #E8DCC8;
             --dust-dark: #D4C8B0;
         }
 
-        body { font-family: 'Source Sans 3', sans-serif; }
-        .font-display { font-family: 'DM Serif Display', serif; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .font-display { font-family: 'Outfit', sans-serif; }
         .font-mono { font-family: 'JetBrains Mono', monospace; }
 
         .route-path {
@@ -113,7 +113,7 @@
         }
     </style>
 </head>
-<body class="bg-[#FAF6ED] text-[#1A2E1A] antialiased">
+<body class="bg-[#FAFAF5] text-[#1A2E1A] antialiased">
 
     <!-- Header -->
     <header id="main-header" class="fixed top-0 left-0 right-0 z-50 transition-all duration-300">
@@ -138,7 +138,7 @@
             <div class="hidden md:flex items-center gap-3">
                 @if (Route::has('login'))
                     @auth
-                        <a href="{{ url('/dashboard') }}" class="px-4 py-2 bg-[#D4A520] text-[#1A2E1A] rounded-lg text-sm font-bold hover:bg-[#D4A520]/90 transition">
+                        <a href="{{ url('/dashboard') }}" class="px-4 py-2 bg-[#C8A415] text-[#1A2E1A] rounded-lg text-sm font-bold hover:bg-[#C8A415]/90 transition">
                             Dashboard
                         </a>
                     @else
@@ -146,7 +146,7 @@
                             Log in
                         </a>
                         @if (Route::has('register'))
-                            <a href="{{ route('login') }}" class="px-4 py-2 bg-[#D4A520] text-[#1A2E1A] rounded-lg text-sm font-bold hover:bg-[#D4A520]/90 transition">
+                            <a href="{{ route('login') }}" class="px-4 py-2 bg-[#C8A415] text-[#1A2E1A] rounded-lg text-sm font-bold hover:bg-[#C8A415]/90 transition">
                                 Get Started
                             </a>
                         @endif
@@ -168,9 +168,9 @@
             <a href="#faq" onclick="toggleMobileMenu()" class="block text-sm font-medium text-white/70 hover:text-white py-2">FAQ</a>
             <div class="pt-3 border-t border-white/10">
                 @guest
-                    <a href="{{ route('login') }}" class="block w-full text-center px-4 py-2.5 bg-[#D4A520] text-[#1A2E1A] rounded-lg font-bold text-sm">Get Started</a>
+                    <a href="{{ route('login') }}" class="block w-full text-center px-4 py-2.5 bg-[#C8A415] text-[#1A2E1A] rounded-lg font-bold text-sm">Get Started</a>
                 @else
-                    <a href="{{ url('/dashboard') }}" class="block w-full text-center px-4 py-2.5 bg-[#D4A520] text-[#1A2E1A] rounded-lg font-bold text-sm">Dashboard</a>
+                    <a href="{{ url('/dashboard') }}" class="block w-full text-center px-4 py-2.5 bg-[#C8A415] text-[#1A2E1A] rounded-lg font-bold text-sm">Dashboard</a>
                 @endguest
             </div>
         </div>
@@ -194,19 +194,19 @@
 
         <!-- Animated route overlay -->
         <svg class="absolute inset-0 w-full h-full opacity-[0.08]" viewBox="0 0 1200 800" preserveAspectRatio="none">
-            <path d="M-100 600 Q 200 400 400 500 T 800 350 T 1300 450" fill="none" stroke="#D4A520" stroke-width="2" class="route-path"/>
+            <path d="M-100 600 Q 200 400 400 500 T 800 350 T 1300 450" fill="none" stroke="#C8A415" stroke-width="2" class="route-path"/>
             <path d="M-50 700 Q 300 500 500 550 T 900 400 T 1350 500" fill="none" stroke="#3A7D44" stroke-width="1.5" class="route-path" style="animation-delay: 0.5s"/>
         </svg>
 
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 py-32 lg:py-40">
             <div class="max-w-3xl">
-                <div class="hero-animate hero-animate-delay-1 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#D4A520]/10 border border-[#D4A520]/20 mb-6">
-                    <span class="w-1.5 h-1.5 rounded-full bg-[#D4A520] animate-pulse"></span>
-                    <span class="text-xs font-semibold text-[#D4A520] uppercase tracking-wider">Southern Mindanao Logistics Network</span>
+                <div class="hero-animate hero-animate-delay-1 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#C8A415]/10 border border-[#C8A415]/20 mb-6">
+                    <span class="w-1.5 h-1.5 rounded-full bg-[#C8A415] animate-pulse"></span>
+                    <span class="text-xs font-semibold text-[#C8A415] uppercase tracking-wider">Southern Mindanao Logistics Network</span>
                 </div>
 
                 <h1 class="hero-animate hero-animate-delay-2 text-4xl sm:text-5xl lg:text-6xl font-display text-white leading-[1.1] mb-6">
-                    Your harvest deserves a <span class="text-[#D4A520]">coordinated</span> route to market
+                    Your harvest deserves a <span class="text-[#C8A415]">coordinated</span> route to market
                 </h1>
 
                 <p class="hero-animate hero-animate-delay-3 text-lg text-white/60 leading-relaxed max-w-xl mb-10">
@@ -215,14 +215,14 @@
 
                 <div class="hero-animate hero-animate-delay-4 flex flex-wrap gap-4">
                     @guest
-                        <a href="{{ route('login') }}" class="px-6 py-3.5 bg-[#D4A520] text-[#1A2E1A] rounded-xl font-bold text-sm hover:bg-[#D4A520]/90 transition shadow-lg gold-glow">
+                        <a href="{{ route('login') }}" class="px-6 py-3.5 bg-[#C8A415] text-[#1A2E1A] rounded-xl font-bold text-sm hover:bg-[#C8A415]/90 transition shadow-lg gold-glow">
                             Post Your Harvest
                         </a>
                         <a href="#solution" class="px-6 py-3.5 border border-white/20 text-white rounded-xl font-semibold text-sm hover:bg-white/5 transition">
                             See How It Works
                         </a>
                     @else
-                        <a href="{{ route('dashboard') }}" class="px-6 py-3.5 bg-[#D4A520] text-[#1A2E1A] rounded-xl font-bold text-sm hover:bg-[#D4A520]/90 transition shadow-lg gold-glow">
+                        <a href="{{ route('dashboard') }}" class="px-6 py-3.5 bg-[#C8A415] text-[#1A2E1A] rounded-xl font-bold text-sm hover:bg-[#C8A415]/90 transition shadow-lg gold-glow">
                             Open Dashboard
                         </a>
                     @endguest
@@ -232,19 +232,19 @@
             <!-- Stats strip -->
             <div class="mt-16 grid grid-cols-2 sm:grid-cols-4 gap-6 max-w-2xl">
                 <div>
-                    <p class="font-mono text-2xl font-bold text-[#D4A520]">3</p>
+                    <p class="font-mono text-2xl font-bold text-[#C8A415]">3</p>
                     <p class="text-xs text-white/40 mt-1">Hub Corridors</p>
                 </div>
                 <div>
-                    <p class="font-mono text-2xl font-bold text-[#D4A520]">92%</p>
+                    <p class="font-mono text-2xl font-bold text-[#C8A415]">92%</p>
                     <p class="text-xs text-white/40 mt-1">Space Utilization</p>
                 </div>
                 <div>
-                    <p class="font-mono text-2xl font-bold text-[#D4A520]">₱3.4k</p>
+                    <p class="font-mono text-2xl font-bold text-[#C8A415]">₱3.4k</p>
                     <p class="text-xs text-white/40 mt-1">Avg. Fuel Saved</p>
                 </div>
                 <div>
-                    <p class="font-mono text-2xl font-bold text-[#D4A520]">48h</p>
+                    <p class="font-mono text-2xl font-bold text-[#C8A415]">48h</p>
                     <p class="text-xs text-white/40 mt-1">Max Delivery</p>
                 </div>
             </div>
@@ -265,7 +265,7 @@
     </section>
 
     <!-- Problem Statement -->
-    <section id="problem" class="py-24 bg-[#FAF6ED] scroll-mt-20">
+    <section id="problem" class="py-24 bg-[#FAFAF5] scroll-mt-20">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="max-w-3xl">
                 <span class="text-xs font-bold uppercase tracking-widest text-[#C1694F]">The Problem</span>
@@ -302,7 +302,7 @@
         </div>
         <div class="relative z-10 h-full flex items-center justify-center text-center px-4">
             <div class="max-w-xl">
-                <p class="text-xs font-bold uppercase tracking-widest text-[#D4A520] mb-3">From Soil to Sale</p>
+                <p class="text-xs font-bold uppercase tracking-widest text-[#C8A415] mb-3">From Soil to Sale</p>
                 <h2 class="text-2xl sm:text-3xl font-display text-white leading-snug">
                     Every road connects a farmer's field to a buyer's table
                 </h2>
@@ -314,18 +314,18 @@
     <section id="solution" class="py-24 bg-[#1F4D25] scroll-mt-20">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center max-w-2xl mx-auto mb-16">
-                <span class="text-xs font-bold uppercase tracking-widest text-[#D4A520]">The Solution</span>
+                <span class="text-xs font-bold uppercase tracking-widest text-[#C8A415]">The Solution</span>
                 <h2 class="text-3xl sm:text-4xl font-display text-white mt-4">Three steps to coordinated shipping</h2>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
                 <!-- Connector line -->
-                <div class="hidden md:block absolute top-12 left-[16%] right-[16%] h-px bg-gradient-to-r from-transparent via-[#D4A520]/30 to-transparent"></div>
+                <div class="hidden md:block absolute top-12 left-[16%] right-[16%] h-px bg-gradient-to-r from-transparent via-[#C8A415]/30 to-transparent"></div>
 
                 <!-- Step 1 -->
                 <div class="relative z-10 text-center">
-                    <div class="w-14 h-14 rounded-2xl bg-[#D4A520]/10 border border-[#D4A520]/20 flex items-center justify-center mx-auto mb-6">
-                        <span class="font-mono text-lg font-bold text-[#D4A520]">01</span>
+                    <div class="w-14 h-14 rounded-2xl bg-[#C8A415]/10 border border-[#C8A415]/20 flex items-center justify-center mx-auto mb-6">
+                        <span class="font-mono text-lg font-bold text-[#C8A415]">01</span>
                     </div>
                     <h3 class="text-lg font-bold text-white font-display">Post Your Harvest</h3>
                     <p class="text-sm text-white/50 mt-3 leading-relaxed max-w-xs mx-auto">
@@ -335,8 +335,8 @@
 
                 <!-- Step 2 -->
                 <div class="relative z-10 text-center">
-                    <div class="w-14 h-14 rounded-2xl bg-[#D4A520]/10 border border-[#D4A520]/20 flex items-center justify-center mx-auto mb-6">
-                        <span class="font-mono text-lg font-bold text-[#D4A520]">02</span>
+                    <div class="w-14 h-14 rounded-2xl bg-[#C8A415]/10 border border-[#C8A415]/20 flex items-center justify-center mx-auto mb-6">
+                        <span class="font-mono text-lg font-bold text-[#C8A415]">02</span>
                     </div>
                     <h3 class="text-lg font-bold text-white font-display">Route Gets Built</h3>
                     <p class="text-sm text-white/50 mt-3 leading-relaxed max-w-xs mx-auto">
@@ -346,8 +346,8 @@
 
                 <!-- Step 3 -->
                 <div class="relative z-10 text-center">
-                    <div class="w-14 h-14 rounded-2xl bg-[#D4A520]/10 border border-[#D4A520]/20 flex items-center justify-center mx-auto mb-6">
-                        <span class="font-mono text-lg font-bold text-[#D4A520]">03</span>
+                    <div class="w-14 h-14 rounded-2xl bg-[#C8A415]/10 border border-[#C8A415]/20 flex items-center justify-center mx-auto mb-6">
+                        <span class="font-mono text-lg font-bold text-[#C8A415]">03</span>
                     </div>
                     <h3 class="text-lg font-bold text-white font-display">Track & Save</h3>
                     <p class="text-sm text-white/50 mt-3 leading-relaxed max-w-xs mx-auto">
@@ -359,7 +359,7 @@
     </section>
 
     <!-- Role Portals -->
-    <section id="roles" class="py-24 bg-[#FAF6ED] scroll-mt-20">
+    <section id="roles" class="py-24 bg-[#FAFAF5] scroll-mt-20">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center max-w-2xl mx-auto mb-12">
                 <span class="text-xs font-bold uppercase tracking-widest text-[#3A7D44]">Role-Based Portals</span>
@@ -388,17 +388,17 @@
                             Submit your harvest. Our engine finds other farms along your highway corridor and groups your crops into a single optimized truckload. You pay only for the space you use.
                         </p>
                         <div class="grid grid-cols-2 gap-4">
-                            <div class="p-4 rounded-xl bg-[#FAF6ED] border border-[#3A7D44]/5">
+                            <div class="p-4 rounded-xl bg-[#FAFAF5] border border-[#3A7D44]/5">
                                 <p class="text-sm font-bold text-[#1A2E1A]">Corridor Matching</p>
                                 <p class="text-xs text-[#1A2E1A]/40 mt-1">Grouped with nearby farms</p>
                             </div>
-                            <div class="p-4 rounded-xl bg-[#FAF6ED] border border-[#3A7D44]/5">
+                            <div class="p-4 rounded-xl bg-[#FAFAF5] border border-[#3A7D44]/5">
                                 <p class="text-sm font-bold text-[#1A2E1A]">Fair Pricing</p>
                                 <p class="text-xs text-[#1A2E1A]/40 mt-1">Pay only for your space</p>
                             </div>
                         </div>
                     </div>
-                    <div class="bg-[#FAF6ED] p-6 rounded-2xl border border-[#3A7D44]/5">
+                    <div class="bg-[#FAFAF5] p-6 rounded-2xl border border-[#3A7D44]/5">
                         <div class="bg-white border border-[#1A2E1A]/5 rounded-xl p-5 shadow-sm space-y-4">
                             <div class="flex justify-between items-center pb-3 border-b border-[#1A2E1A]/5">
                                 <p class="text-sm font-bold text-[#1A2E1A]">New Harvest Posting</p>
@@ -439,31 +439,31 @@
                             View regional farm posts, select compatible harvests, and generate sequential pickup routes. Track truck capacity and assign drivers instantly.
                         </p>
                         <div class="grid grid-cols-2 gap-4">
-                            <div class="p-4 rounded-xl bg-[#FAF6ED] border border-[#3A7D44]/5">
+                            <div class="p-4 rounded-xl bg-[#FAFAF5] border border-[#3A7D44]/5">
                                 <p class="text-sm font-bold text-[#1A2E1A]">Sequential Routing</p>
                                 <p class="text-xs text-[#1A2E1A]/40 mt-1">Optimal multi-stop lines</p>
                             </div>
-                            <div class="p-4 rounded-xl bg-[#FAF6ED] border border-[#3A7D44]/5">
+                            <div class="p-4 rounded-xl bg-[#FAFAF5] border border-[#3A7D44]/5">
                                 <p class="text-sm font-bold text-[#1A2E1A]">Fleet Monitoring</p>
                                 <p class="text-xs text-[#1A2E1A]/40 mt-1">Track truck space & drivers</p>
                             </div>
                         </div>
                     </div>
-                    <div class="bg-[#FAF6ED] p-6 rounded-2xl border border-[#3A7D44]/5">
+                    <div class="bg-[#FAFAF5] p-6 rounded-2xl border border-[#3A7D44]/5">
                         <div class="bg-white border border-[#1A2E1A]/5 rounded-xl p-5 shadow-sm space-y-3">
                             <div class="flex justify-between items-center pb-3 border-b border-[#1A2E1A]/5">
                                 <p class="text-sm font-bold text-[#1A2E1A]">Dispatch Optimizer</p>
-                                <span class="px-2 py-0.5 text-[10px] bg-[#D4A520]/10 text-[#B8911A] rounded font-bold uppercase">Route Ready</span>
+                                <span class="px-2 py-0.5 text-[10px] bg-[#C8A415]/10 text-[#9A7D10] rounded font-bold uppercase">Route Ready</span>
                             </div>
                             <div class="space-y-2">
-                                <div class="p-3 bg-[#FAF6ED] rounded-lg flex justify-between items-center text-xs">
+                                <div class="p-3 bg-[#FAFAF5] rounded-lg flex justify-between items-center text-xs">
                                     <div class="flex items-center gap-2">
-                                        <span class="w-2 h-2 rounded-full bg-[#D4A520]"></span>
+                                        <span class="w-2 h-2 rounded-full bg-[#C8A415]"></span>
                                         <span class="font-semibold text-[#1A2E1A]">Stop 1: Tupi Co-op</span>
                                     </div>
                                     <span class="text-[#1A2E1A]/40">4.8T</span>
                                 </div>
-                                <div class="p-3 bg-[#FAF6ED] rounded-lg flex justify-between items-center text-xs">
+                                <div class="p-3 bg-[#FAFAF5] rounded-lg flex justify-between items-center text-xs">
                                     <div class="flex items-center gap-2">
                                         <span class="w-2 h-2 rounded-full bg-[#3A7D44]"></span>
                                         <span class="font-semibold text-[#1A2E1A]">Stop 2: Polomolok</span>
@@ -472,10 +472,10 @@
                                 </div>
                                 <div class="p-3 bg-[#1F4D25] text-white rounded-lg flex justify-between items-center text-xs">
                                     <div class="flex items-center gap-2">
-                                        <span class="w-2 h-2 rounded-full bg-[#D4A520]"></span>
+                                        <span class="w-2 h-2 rounded-full bg-[#C8A415]"></span>
                                         <span class="font-semibold">GenSan Terminal</span>
                                     </div>
-                                    <span class="text-[#D4A520] font-bold">8.0T / 10T</span>
+                                    <span class="text-[#C8A415] font-bold">8.0T / 10T</span>
                                 </div>
                             </div>
                             <button class="w-full bg-[#3A7D44] text-white rounded-lg py-2.5 text-xs font-bold hover:bg-[#2E6336] transition">
@@ -495,11 +495,11 @@
                             Drivers use a lightweight PWA. View stops, tap milestones as you load, and broadcast GPS — no app install needed.
                         </p>
                         <div class="grid grid-cols-2 gap-4">
-                            <div class="p-4 rounded-xl bg-[#FAF6ED] border border-[#3A7D44]/5">
+                            <div class="p-4 rounded-xl bg-[#FAFAF5] border border-[#3A7D44]/5">
                                 <p class="text-sm font-bold text-[#1A2E1A]">Mobile PWA</p>
                                 <p class="text-xs text-[#1A2E1A]/40 mt-1">Works in low signal</p>
                             </div>
-                            <div class="p-4 rounded-xl bg-[#FAF6ED] border border-[#3A7D44]/5">
+                            <div class="p-4 rounded-xl bg-[#FAFAF5] border border-[#3A7D44]/5">
                                 <p class="text-sm font-bold text-[#1A2E1A]">Live Telemetry</p>
                                 <p class="text-xs text-[#1A2E1A]/40 mt-1">Browser GPS broadcast</p>
                             </div>
@@ -515,10 +515,10 @@
                                 </div>
                                 <div class="space-y-2 text-left">
                                     <div class="p-2.5 rounded-xl bg-[#3A7D44]/15 border border-[#3A7D44]/20 flex gap-2">
-                                        <span class="text-[#D4A520] font-bold text-[10px]">✓</span>
+                                        <span class="text-[#C8A415] font-bold text-[10px]">✓</span>
                                         <div>
                                             <p class="text-[10px] font-bold text-white">Tupi Hub</p>
-                                            <p class="text-[8px] text-[#D4A520] font-semibold">4.8T loaded</p>
+                                            <p class="text-[8px] text-[#C8A415] font-semibold">4.8T loaded</p>
                                         </div>
                                     </div>
                                     <div class="p-2.5 rounded-xl bg-white/5 border border-white/10 flex gap-2">
@@ -526,7 +526,7 @@
                                         <div class="flex-1">
                                             <p class="text-[10px] font-bold text-white">Polomolok</p>
                                             <p class="text-[8px] text-white/40">3.2T pending</p>
-                                            <button class="w-full mt-1.5 bg-[#D4A520] text-[#1A2E1A] rounded py-1 text-[9px] font-bold">Mark Loaded</button>
+                                            <button class="w-full mt-1.5 bg-[#C8A415] text-[#1A2E1A] rounded py-1 text-[9px] font-bold">Mark Loaded</button>
                                         </div>
                                     </div>
                                     <div class="p-2.5 rounded-xl bg-white/5 border border-white/10 opacity-50 flex gap-2">
@@ -540,7 +540,7 @@
                                 <div class="bg-white/5 p-2 rounded-xl border border-white/10 flex items-center justify-between">
                                     <div>
                                         <p class="text-[8px] text-white/40 uppercase font-bold">GPS</p>
-                                        <p class="text-[9px] text-[#D4A520] font-bold">Active</p>
+                                        <p class="text-[9px] text-[#C8A415] font-bold">Active</p>
                                     </div>
                                     <div class="w-7 h-3.5 rounded-full bg-[#3A7D44] p-0.5 flex justify-end">
                                         <div class="w-2.5 h-2.5 rounded-full bg-white"></div>
@@ -555,24 +555,24 @@
     </section>
 
     <!-- Stats -->
-    <section class="py-16 bg-[#FAF6ED]">
+    <section class="py-16 bg-[#FAFAF5]">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="bg-[#1F4D25] rounded-3xl p-8 sm:p-12 border border-white/5">
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-8 divide-x divide-white/5">
                     <div class="text-center md:text-left px-4 first:pl-0">
-                        <p class="font-mono text-3xl font-bold text-[#D4A520]">₱3,450</p>
+                        <p class="font-mono text-3xl font-bold text-[#C8A415]">₱3,450</p>
                         <p class="text-xs text-white/40 mt-2 uppercase tracking-wider font-semibold">Avg. Fuel Saved Per Trip</p>
                     </div>
                     <div class="text-center md:text-left px-4">
-                        <p class="font-mono text-3xl font-bold text-[#D4A520]">92.6%</p>
+                        <p class="font-mono text-3xl font-bold text-[#C8A415]">92.6%</p>
                         <p class="text-xs text-white/40 mt-2 uppercase tracking-wider font-semibold">Truck Space Utilized</p>
                     </div>
                     <div class="text-center md:text-left px-4">
-                        <p class="font-mono text-3xl font-bold text-[#D4A520]">48h</p>
+                        <p class="font-mono text-3xl font-bold text-[#C8A415]">48h</p>
                         <p class="text-xs text-white/40 mt-2 uppercase tracking-wider font-semibold">Farm to Terminal Max</p>
                     </div>
                     <div class="text-center md:text-left px-4">
-                        <p class="font-mono text-3xl font-bold text-[#D4A520]">2 min</p>
+                        <p class="font-mono text-3xl font-bold text-[#C8A415]">2 min</p>
                         <p class="text-xs text-white/40 mt-2 uppercase tracking-wider font-semibold">Harvest Posting Time</p>
                     </div>
                 </div>
@@ -581,7 +581,7 @@
     </section>
 
     <!-- FAQ -->
-    <section id="faq" class="py-24 bg-[#FAF6ED] scroll-mt-20">
+    <section id="faq" class="py-24 bg-[#FAFAF5] scroll-mt-20">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="max-w-2xl mx-auto mb-12">
                 <span class="text-xs font-bold uppercase tracking-widest text-[#3A7D44]">FAQ</span>
@@ -592,7 +592,7 @@
                 <div class="bg-white rounded-2xl border border-[#1A2E1A]/5 overflow-hidden">
                     <button onclick="toggleFaq(0)" aria-expanded="false" class="w-full px-6 py-5 flex items-center justify-between text-left">
                         <span class="text-sm font-bold text-[#1A2E1A]">How does route-pooling work?</span>
-                        <span id="faq-icon-0" class="text-[#D4A520] font-bold text-lg transition-transform duration-300">+</span>
+                        <span id="faq-icon-0" class="text-[#C8A415] font-bold text-lg transition-transform duration-300">+</span>
                     </button>
                     <div id="faq-0" class="faq-content px-6 pb-5">
                         <p class="text-sm text-[#1A2E1A]/50 leading-relaxed">We aggregate crop dimensions and pickup dates from local cooperatives. The routing engine sequences these farm locations along a single path, matching them to a high-capacity freight truck.</p>
@@ -602,7 +602,7 @@
                 <div class="bg-white rounded-2xl border border-[#1A2E1A]/5 overflow-hidden">
                     <button onclick="toggleFaq(1)" aria-expanded="false" class="w-full px-6 py-5 flex items-center justify-between text-left">
                         <span class="text-sm font-bold text-[#1A2E1A]">Is GPS tracking secure?</span>
-                        <span id="faq-icon-1" class="text-[#D4A520] font-bold text-lg transition-transform duration-300">+</span>
+                        <span id="faq-icon-1" class="text-[#C8A415] font-bold text-lg transition-transform duration-300">+</span>
                     </button>
                     <div id="faq-1" class="faq-content px-6 pb-5">
                         <p class="text-sm text-[#1A2E1A]/50 leading-relaxed">Yes. Drivers broadcast location only while their route is active. Broadcasters disconnect automatically upon route completion.</p>
@@ -612,7 +612,7 @@
                 <div class="bg-white rounded-2xl border border-[#1A2E1A]/5 overflow-hidden">
                     <button onclick="toggleFaq(2)" aria-expanded="false" class="w-full px-6 py-5 flex items-center justify-between text-left">
                         <span class="text-sm font-bold text-[#1A2E1A]">Is there a registration fee?</span>
-                        <span id="faq-icon-2" class="text-[#D4A520] font-bold text-lg transition-transform duration-300">+</span>
+                        <span id="faq-icon-2" class="text-[#C8A415] font-bold text-lg transition-transform duration-300">+</span>
                     </button>
                     <div id="faq-2" class="faq-content px-6 pb-5">
                         <p class="text-sm text-[#1A2E1A]/50 leading-relaxed">Onboarding is open for cooperatives and freight operators in Mindanao. Core coordination is accessible to support regional agriculture.</p>
@@ -622,7 +622,7 @@
                 <div class="bg-white rounded-2xl border border-[#1A2E1A]/5 overflow-hidden">
                     <button onclick="toggleFaq(3)" aria-expanded="false" class="w-full px-6 py-5 flex items-center justify-between text-left">
                         <span class="text-sm font-bold text-[#1A2E1A]">How are fuel costs split?</span>
-                        <span id="faq-icon-3" class="text-[#D4A520] font-bold text-lg transition-transform duration-300">+</span>
+                        <span id="faq-icon-3" class="text-[#C8A415] font-bold text-lg transition-transform duration-300">+</span>
                     </button>
                     <div id="faq-3" class="faq-content px-6 pb-5">
                         <p class="text-sm text-[#1A2E1A]/50 leading-relaxed">HARVEST calculates proportional costs based on crop weight (tons) and pickup-to-hub distance (km) registered during scheduling.</p>
@@ -641,14 +641,14 @@
             </p>
             <div class="mt-10 flex flex-wrap justify-center gap-4">
                 @guest
-                    <a href="{{ route('login') }}" class="px-8 py-4 bg-[#D4A520] text-[#1A2E1A] rounded-xl font-bold hover:bg-[#D4A520]/90 transition shadow-lg gold-glow">
+                    <a href="{{ route('login') }}" class="px-8 py-4 bg-[#C8A415] text-[#1A2E1A] rounded-xl font-bold hover:bg-[#C8A415]/90 transition shadow-lg gold-glow">
                         Register Your Organization
                     </a>
                     <a href="{{ route('login') }}" class="px-8 py-4 bg-white/10 text-white rounded-xl font-semibold hover:bg-white/15 border border-white/20 transition">
                         Access Portal
                     </a>
                 @else
-                    <a href="{{ url('/dashboard') }}" class="px-8 py-4 bg-[#D4A520] text-[#1A2E1A] rounded-xl font-bold hover:bg-[#D4A520]/90 transition shadow-lg gold-glow">
+                    <a href="{{ url('/dashboard') }}" class="px-8 py-4 bg-[#C8A415] text-[#1A2E1A] rounded-xl font-bold hover:bg-[#C8A415]/90 transition shadow-lg gold-glow">
                         Open Dashboard
                     </a>
                 @endguest

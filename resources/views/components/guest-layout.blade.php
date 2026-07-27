@@ -7,13 +7,13 @@
     <title>HarvestHaul</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Source+Sans+3:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
 
     <style>
         body {
             margin: 0; padding: 0;
-            font-family: 'Source Sans 3', sans-serif;
-            background: linear-gradient(135deg, #FAF6ED 0%, #F5F0E6 50%, #E8DCC8 100%);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: linear-gradient(135deg, #FAFAF5 0%, #F5F0E6 50%, #E8DCC8 100%);
             min-height: 100vh;
             display: flex; align-items: center; justify-content: center;
             padding: 2rem 1rem;
@@ -75,7 +75,7 @@
         button[type="submit"]:active {
             transform: translateY(1px);
         }
-        .heading-font { font-family: 'DM Serif Display', serif; }
+        .heading-font { font-family: 'Outfit', sans-serif; }
     </style>
 </head>
 <body>

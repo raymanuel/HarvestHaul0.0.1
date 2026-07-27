@@ -9,13 +9,13 @@
         $user = Auth::user();
         $role = $user->role;
         $isBuyer = ($role === 'buyer') || ($role === 'logistics_partner' && $user->logisticsProfile && $user->logisticsProfile->isCooperative());
-        $themeColor = $isBuyer ? 'violet' : 'emerald';
+        $themeColor = $isBuyer ? 'harvest' : 'brand';
         
-        $accentText = $isBuyer ? 'text-violet-600 dark:text-violet-400' : 'text-[#3A7D44] dark:text-[#3A7D44]';
-        $accentBg = $isBuyer ? 'bg-violet-600 hover:bg-violet-700 dark:bg-violet-500 dark:hover:bg-violet-600' : 'bg-[#3A7D44] hover:bg-[#2E6336] dark:bg-[#3A7D44]/100 dark:hover:bg-[#3A7D44]';
-        $accentBorder = $isBuyer ? 'border-violet-500/20' : 'border-[#3A7D44]/20';
-        $accentBadge = $isBuyer ? 'bg-violet-500/10' : 'bg-[#3A7D44]/10';
-        $shadowColor = $isBuyer ? 'shadow-violet-500/10' : 'shadow-[#3A7D44]/10';
+        $accentText = $isBuyer ? 'text-harvest dark:text-harvest' : 'text-[#3A7D44] dark:text-[#3A7D44]';
+        $accentBg = $isBuyer ? 'bg-harvest hover:bg-harvest-dark dark:bg-harvest dark:hover:bg-harvest-dark' : 'bg-[#3A7D44] hover:bg-[#2E6336] dark:bg-[#3A7D44]/100 dark:hover:bg-[#3A7D44]';
+        $accentBorder = $isBuyer ? 'border-harvest/20' : 'border-[#3A7D44]/20';
+        $accentBadge = $isBuyer ? 'bg-harvest/10' : 'bg-[#3A7D44]/10';
+        $shadowColor = $isBuyer ? 'shadow-harvest/10' : 'shadow-[#3A7D44]/10';
     @endphp
 
     <!-- Ambient glow decoration -->
@@ -39,7 +39,7 @@
                 </div>
                 <div>
                     <span id="deal-status-badge" class="text-[10px] font-extrabold uppercase tracking-widest px-3 py-1.5 rounded-full border
-                        @if($negotiation->status === 'OPEN') text-violet-700 bg-violet-500/10 border-violet-500/10
+                        @if($negotiation->status === 'OPEN') text-harvest-700 bg-harvest/10 border-harvest/10
                         @elseif($negotiation->status === 'AGREED') text-[#3A7D44] bg-[#3A7D44]/10 border-[#3A7D44]/10
                         @elseif($negotiation->status === 'COMPLETED') text-[#1F4D25] bg-[#1F4D25]/10 border-[#1F4D25]/10
                         @else text-slate-500 bg-slate-500/10 border-slate-500/10 @endif shadow-sm">
@@ -93,7 +93,7 @@
                                     <!-- Bubble -->
                                     <div class="px-4 py-3 rounded-2xl text-xs leading-relaxed shadow-sm font-medium
                                         @if($isMine)
-                                            {{ $isBuyer ? 'bg-violet-600 dark:bg-violet-500 text-white rounded-br-none' : 'bg-[#3A7D44] dark:bg-[#3A7D44]/100 text-white rounded-br-none' }}
+                                            {{ $isBuyer ? 'bg-harvest dark:bg-harvest text-white rounded-br-none' : 'bg-[#3A7D44] dark:bg-[#3A7D44]/100 text-white rounded-br-none' }}
                                         @else
                                             bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-bl-none border border-slate-200/40 dark:border-slate-700/60
                                         @endif">
@@ -196,7 +196,7 @@
                             <div class="flex justify-between items-center py-2 border-b border-slate-100 dark:border-slate-700/40">
                                 <span class="text-slate-400 dark:text-slate-500">Type:</span>
                                 @if($isCoopBuyer)
-                                    <span class="font-bold text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-950/20 px-2 py-0.5 rounded-md">Cooperative</span>
+                                    <span class="font-bold text-harvest dark:text-harvest bg-harvest/10 dark:bg-harvest/20 px-2 py-0.5 rounded-md">Cooperative</span>
                                 @elseif($counterparty->role === 'logistics_partner')
                                     <span class="font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/20 px-2 py-0.5 rounded-md">Logistics Company</span>
                                 @else
@@ -228,7 +228,7 @@
                             <div class="flex justify-between items-center py-2 border-b border-slate-100 dark:border-slate-700/40">
                                 <span class="text-slate-400 dark:text-slate-500">Affiliation:</span>
                                 @if($fp && $fp->affiliation_type === 'cooperative')
-                                    <span class="font-bold text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-950/20 px-2 py-0.5 rounded-md">Cooperative Member</span>
+                                    <span class="font-bold text-harvest dark:text-harvest bg-harvest/10 dark:bg-harvest/20 px-2 py-0.5 rounded-md">Cooperative Member</span>
                                 @else
                                     <span class="font-bold text-[#3A7D44] dark:text-[#3A7D44] bg-[#3A7D44]/10 px-2 py-0.5 rounded-md">Independent</span>
                                 @endif
@@ -312,7 +312,7 @@
                 <!-- Finalize Deal Drop-off Panel (Buyer Only when status is AGREED) -->
                 @if($isBuyer && $negotiation->status === 'AGREED')
                     <div class="bg-white dark:bg-slate-800/80 backdrop-blur border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6 shadow-sm">
-                        <h3 class="text-sm font-extrabold text-slate-850 dark:text-white heading-font mb-2 uppercase tracking-wider text-violet-650 dark:text-violet-400">Finalize & Submit Drop-off</h3>
+                        <h3 class="text-sm font-extrabold text-slate-850 dark:text-white heading-font mb-2 uppercase tracking-wider text-harvest dark:text-harvest">Finalize & Submit Drop-off</h3>
                         <p class="text-[11px] text-slate-505 dark:text-slate-400 mb-4 leading-relaxed font-semibold">Terms are agreed. Submit your custom delivery drop-off location coordinates below to lock the transaction deal.</p>
 
                         <form action="{{ route('negotiations.finalize', $negotiation->id) }}" method="POST" class="space-y-4">
@@ -320,7 +320,7 @@
                             <div>
                                 <label class="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1.5">Drop-off Street Address</label>
                                 <input type="text" name="destination_address" id="destination_address" required placeholder="e.g. Dadiangas Wholesale Market Hub"
-                                    class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500/10 focus:border-violet-500 transition">
+                                    class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-harvest/10 focus:border-harvest transition">
                             </div>
 
                             <div>
@@ -333,7 +333,7 @@
                             <input type="hidden" name="destination_latitude" id="destination_latitude">
                             <input type="hidden" name="destination_longitude" id="destination_longitude">
 
-                            <button type="submit" class="w-full py-3 bg-gradient-to-r from-violet-650 to-indigo-600 hover:brightness-105 text-white font-bold rounded-xl text-xs transition duration-200 shadow-md shadow-violet-600/10 cursor-pointer">
+                            <button type="submit" class="w-full py-3 bg-gradient-to-r from-harvest to-harvest-dark hover:brightness-105 text-white font-bold rounded-xl text-xs transition duration-200 shadow-md shadow-harvest/10 cursor-pointer">
                                 Close Deal & Create Haul Request
                             </button>
                         </form>
@@ -414,7 +414,7 @@
         var isMine = msg.sender_id === userId;
         var align = isMine ? 'justify-end items-end' : 'justify-start items-start';
         var bubble = isMine
-            ? (isBuyer ? 'bg-violet-600 dark:bg-violet-500 text-white rounded-br-none' : 'bg-[#3A7D44] dark:bg-[#3A7D44]/100 text-white rounded-br-none')
+            ? (isBuyer ? 'bg-harvest dark:bg-harvest text-white rounded-br-none' : 'bg-[#3A7D44] dark:bg-[#3A7D44]/100 text-white rounded-br-none')
             : 'bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-bl-none border border-slate-200/40 dark:border-slate-700/60';
         var name = (msg.sender && msg.sender.name) ? msg.sender.name : 'Unknown';
 
@@ -473,11 +473,11 @@
         }).catch(function (err) { console.error('refreshChat:', err); });
     }
 
-    // ── Poll loop every 5s ──
+    // ── Poll loop every 3s ──
     (function pollLoop() {
         setTimeout(function () {
             refreshChat().then(pollLoop).catch(pollLoop);
-        }, 5000);
+        }, 3000);
     })();
 
     // ── Send Message (AJAX, direct append — no full refresh) ──

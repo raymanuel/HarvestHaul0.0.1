@@ -63,7 +63,7 @@
                             License Number <span class="text-red-500">*</span>
                         </label>
                         <input type="text" name="license_number" value="{{ old('license_number') }}" required placeholder="e.g. D01-23-456789"
-                            class="w-full px-4 py-3 border border-slate-200 dark:border-slate-600 rounded-xl text-sm text-slate-850 dark:text-slate-200 bg-white dark:bg-slate-900/60 focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/30 dark:focus:ring-[#3A7D44]/30 focus:border-[#3A7D44] dark:focus:border-[#3A7D44] transition font-mono uppercase">
+                            class="w-full px-4 py-3 border border-slate-200 dark:border-slate-600 rounded-xl text-sm text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-900/60 focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/30 dark:focus:ring-[#3A7D44]/30 focus:border-[#3A7D44] dark:focus:border-[#3A7D44] transition font-mono uppercase">
                         @error('license_number')
                             <p class="text-red-500 dark:text-red-400 text-xs mt-1.5 font-medium">{{ $message }}</p>
                         @enderror
@@ -114,7 +114,7 @@
                 <div class="flex items-center gap-3">
                     <button type="submit"
                         class="bg-gradient-to-tr from-[#3A7D44] to-[#2E6336] hover:from-[#3A7D44] hover:to-[#2E6336] text-white text-sm font-bold px-6 py-3.5 rounded-xl border border-[#3A7D44]/20 dark:border-[#3A7D44]/25 shadow-md shadow-[#3A7D44]/15 dark:shadow-[#3A7D44]/30 hover:shadow-lg hover:translate-y-[-1px] active:translate-y-0 transition-all duration-200"
-                        style="background-color: #059669; text-shadow: 0 1px 2px rgba(0,0,0,0.15);">
+                        >
                         Create Account
                     </button>
                     <a href="{{ route('logistics.drivers.index') }}" 

@@ -3,10 +3,11 @@
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
 use Illuminate\Notifications\Messages\MailMessage;
 
-class DelayAlert extends Notification
+class DelayAlert extends Notification implements ShouldQueue
 {
     use Queueable;
 
@@ -42,6 +43,7 @@ class DelayAlert extends Notification
             'title' => $this->title,
             'message' => $this->message,
             'link' => $this->link,
+            'category' => 'delays',
         ];
     }
 }

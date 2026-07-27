@@ -102,7 +102,10 @@ class BuyerController extends Controller
         }
 
         // All negotiating harvest IDs visible to this buyer (same scope as crop board)
-        $allNegotiatingIds = $this->scopedHarvestQuery()
+        // Must pass true to include 'negotiating' status in the base query,
+        // otherwise ->where('status', 'negotiating') contradicts the default
+        // buyerAvailable() filter and returns zero rows.
+        $allNegotiatingIds = $this->scopedHarvestQuery(true)
             ->where('status', 'negotiating')
             ->pluck('id')
             ->toArray();

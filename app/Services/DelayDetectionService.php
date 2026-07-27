@@ -18,6 +18,14 @@ class DelayDetectionService
     private const ETA_SLIP_THRESHOLD_MINUTES = 30;
     private const CRITICAL_ESCALATION_MINUTES = 60;
 
+    // Speed degradation detection thresholds
+    private const SPEED_DEGRADATION_WINDOW_MINUTES = 10;
+    private const SPEED_DEGRADATION_THRESHOLD_RATIO = 0.5;
+    private const EXPECTED_SPEED_KMH = 30;
+    private const SPEED_DEGRADATION_MIN_SPEED = 1;
+    private const SPEED_DEGRADATION_CRITICAL_RATIO = 0.3;
+    private const SPEED_DEGRADATION_CRITICAL_MINUTES = 10;
+
     private array $activeAlerts = []; // tracks active alerts to detect resolution
 
     public function checkAllActiveJobs(): array
@@ -67,16 +75,24 @@ class DelayDetectionService
             $this->sendDelayNotification($job, $darkAlert['message']);
         }
 
-        // 5. Auto-escalation for critical delays
+        // 5. Speed degradation (moving but too slowly)
+        $speedDegradationAlert = $this->detectSpeedDegradation($job);
+        if ($speedDegradationAlert) {
+            $alerts[] = $speedDegradationAlert;
+            $this->sendDelayNotification($job, $speedDegradationAlert['message']);
+        }
+
+        // 6. Auto-escalation for critical delays
         $this->autoEscalate($job, $alerts);
 
-        // 6. Resolution detection
+        // 7. Resolution detection
         $this->detectResolution($job, $alerts);
 
         // Track current alerts for resolution detection next cycle
         $this->activeAlerts[$job->id] = [
             'has_stall' => !is_null($stallAlert),
             'has_dark' => !is_null($darkAlert),
+            'has_speed_degradation' => !is_null($speedDegradationAlert),
             'checked_at' => now(),
         ];
 
@@ -208,6 +224,63 @@ class DelayDetectionService
         return null;
     }
 
+    private function detectSpeedDegradation(PoolingJob $job): ?array
+    {
+        $recentRecords = TrackingRecord::where('pooling_job_id', $job->id)
+            ->where('posted_at', '>=', now()->subMinutes(self::SPEED_DEGRADATION_WINDOW_MINUTES))
+            ->orderBy('posted_at', 'desc')
+            ->take(10)
+            ->get();
+
+        if ($recentRecords->count() < 3) return null;
+
+        $speeds = [];
+        foreach ($recentRecords as $record) {
+            if ($record->speed_kmh !== null && $record->speed_kmh > self::SPEED_DEGRADATION_MIN_SPEED) {
+                $speeds[] = (float) $record->speed_kmh;
+            }
+        }
+
+        if (count($speeds) < 3) return null;
+
+        $avgSpeed = array_sum($speeds) / count($speeds);
+        $expectedSpeed = self::EXPECTED_SPEED_KMH;
+
+        if ($job->weather_condition && in_array(strtolower($job->weather_condition), ['heavy rain', 'thunderstorm'])) {
+            $expectedSpeed *= 0.7;
+        } elseif ($job->weather_condition && in_array(strtolower($job->weather_condition), ['moderate rain', 'light rain'])) {
+            $expectedSpeed *= 0.85;
+        }
+
+        $ratio = $avgSpeed / $expectedSpeed;
+
+        if ($ratio >= self::SPEED_DEGRADATION_THRESHOLD_RATIO) return null;
+
+        $windowMinutes = $recentRecords->first()->posted_at->diffInMinutes($recentRecords->last()->posted_at);
+        $severity = 'warning';
+
+        if ($ratio < self::SPEED_DEGRADATION_CRITICAL_RATIO && $windowMinutes >= self::SPEED_DEGRADATION_CRITICAL_MINUTES) {
+            $severity = 'critical';
+        }
+
+        $weatherNote = '';
+        if ($job->weather_condition) {
+            $weatherNote = " (Weather: {$job->weather_condition})";
+        }
+
+        return [
+            'type' => 'speed_degradation',
+            'pooling_job_id' => $job->id,
+            'driver_name' => $job->driver?->name ?? 'Unknown',
+            'average_speed_kmh' => round($avgSpeed, 1),
+            'expected_speed_kmh' => $expectedSpeed,
+            'speed_ratio' => round($ratio, 2),
+            'window_minutes' => $windowMinutes,
+            'message' => "Driver {$job->driver?->name} moving slowly on Route #{$job->id}. Avg speed: " . round($avgSpeed) . " km/h (expected: {$expectedSpeed} km/h).{$weatherNote}",
+            'severity' => $severity,
+        ];
+    }
+
     private function autoEscalate(PoolingJob $job, array $alerts): void
     {
         foreach ($alerts as $alert) {
@@ -269,6 +342,21 @@ class DelayDetectionService
 
             if (!$stillDark) {
                 $this->sendDelayResolvedNotification($job, 'GPS signal restored.');
+            }
+        }
+
+        // Check if speed degradation resolved
+        if ($prevAlert['has_speed_degradation'] ?? false) {
+            $stillDegraded = false;
+            foreach ($currentAlerts as $a) {
+                if ($a['type'] === 'speed_degradation') {
+                    $stillDegraded = true;
+                    break;
+                }
+            }
+
+            if (!$stillDegraded) {
+                $this->sendDelayResolvedNotification($job, 'Driver speed has normalized. Speed degradation resolved.');
             }
         }
     }
