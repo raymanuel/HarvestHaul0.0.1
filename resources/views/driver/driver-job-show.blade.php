@@ -18,16 +18,8 @@
     <main class="max-w-lg mx-auto px-4 py-6 space-y-5">
 
         <!-- Flash Messages -->
-        @if(session('success'))
-            <div class="bg-[#3A7D44]/10 border border-[#3A7D44]/20 text-[#1A2E1A] text-xs font-bold heading-font rounded-xl px-4 py-3">
-                ✅ {{ session('success') }}
-            </div>
-        @endif
-        @if(session('error'))
-            <div class="bg-rose-50 border border-rose-200/60 text-rose-800 text-xs font-bold heading-font rounded-xl px-4 py-3">
-                ⚠️ {{ session('error') }}
-            </div>
-        @endif
+        <x-flash-success />
+        <x-flash-error />
 
         <!-- Job Summary Card -->
         <div class="bg-white rounded-2xl border border-slate-200/80 overflow-hidden shadow-sm">
@@ -53,7 +45,7 @@
             </div>
 
             <div class="px-5 py-4 text-xs text-slate-500 flex items-center gap-1.5 font-semibold">
-                <span class="text-slate-400">🚛 Assigned Fleet:</span>
+                <span class="text-slate-400">Assigned Fleet:</span>
                 <span class="text-slate-700 font-bold bg-slate-100 px-2 py-0.5 rounded-md">{{ $job->truck->plate_number ?? '—' }}</span>
                 @if($job->truck->vehicle_type ?? false)
                     <span class="text-slate-300">&middot;</span>
@@ -65,7 +57,7 @@
         <!-- Coordinator Instructions -->
         @if($job->notes)
             <div class="bg-amber-50/60 border border-amber-200/80 rounded-2xl p-5 shadow-sm">
-                <p class="text-[10px] font-bold text-amber-700 uppercase tracking-widest mb-2 flex items-center gap-1"><span>📝</span> Dispatch Instructions</p>
+                <p class="text-[10px] font-bold text-amber-700 uppercase tracking-widest mb-2 flex items-center gap-1"><x-icon name="document" class="w-3 h-3" /> Dispatch Instructions</p>
                 <p class="text-xs text-amber-800 leading-relaxed font-semibold">{{ $job->notes }}</p>
             </div>
         @endif
@@ -74,7 +66,7 @@
         @if($job->status === 'in_progress')
             <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm">
                 <h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-1">
-                    ⛽ Log Fuel Purchase
+                    <x-icon name="fuel" class="w-3 h-3" /> Log Fuel Purchase
                 </h3>
                 <form method="POST" action="{{ route('driver.jobs.fuel-log', $job) }}" class="space-y-3">
                     @csrf
@@ -117,16 +109,16 @@
                 @csrf @method('PATCH')
                 @if($job->status === 'confirmed')
                     <button type="submit" class="w-full py-4 bg-gradient-to-tr from-[#1F4D25] to-[#2E6336] hover:shadow-[#1F4D25]/10 rounded-2xl text-xs font-bold text-white transition-all shadow-md active:scale-[0.98]">
-                        🚛 Start Job — Mark In Transit
+                        Start Job — Mark In Transit
                     </button>
                 @else
                     @if($allStopsDelivered)
                         <button type="submit" class="w-full py-4 bg-gradient-to-tr from-[#3A7D44] to-[#2E6336] hover:shadow-[#3A7D44]/10 rounded-2xl text-xs font-bold text-white transition-all shadow-md active:scale-[0.98]">
-                            ✅ Finalize Job — Mark Completed
+                            Finalize Job — Mark Completed
                         </button>
                     @else
                         <button type="button" disabled class="w-full py-4 bg-slate-200 text-slate-400 rounded-2xl text-xs font-bold cursor-not-allowed">
-                            ⏳ Complete Stop Deliveries to Finalize Job
+                            Complete Stop Deliveries to Finalize Job
                         </button>
                     @endif
                 @endif
@@ -150,7 +142,7 @@
                                 {{ $harvest->farmer->name ?? 'Unknown Farmer' }}
                             </p>
                             <p class="text-[11px] text-slate-400 font-semibold mt-0.5">
-                                📍 {{ $harvest->farmer->farmerProfile->barangay ?? 'No barangay on record' }}
+                                <span class="text-slate-400"><x-icon name="pin" class="w-3 h-3 inline" /> {{ $harvest->farmer->farmerProfile->barangay ?? 'No barangay on record' }}</span>
                               </p>
                           </div>
                       </div>
@@ -158,7 +150,7 @@
                     <!-- Stop Details -->
                     <div class="px-5 py-4 space-y-2 text-xs text-slate-500 font-semibold">
                         <div class="flex justify-between items-center py-1 border-b border-slate-50">
-                            <span class="text-slate-400">🌾 Crop Type</span>
+                            <span class="text-slate-400">Crop Type</span>
                             <span class="text-slate-800 font-bold">
                                 {{ $harvest->crop->name ?? $harvest->crop_type ?? '—' }}
                                 @if($harvest->variety)
@@ -167,18 +159,18 @@
                             </span>
                         </div>
                         <div class="flex justify-between items-center py-1 border-b border-slate-50">
-                            <span class="text-slate-400">⚖️ Est. Weight</span>
+                            <span class="text-slate-400"><x-icon name="gauge" class="w-3 h-3 inline" /> Est. Weight</span>
                             <span class="text-slate-800 font-bold bg-slate-100 px-2 py-0.5 rounded-md">{{ number_format($harvest->quantity_kg, 1) }} kg</span>
                         </div>
                         @if($harvest->latitude && $harvest->longitude)
                             <div class="flex justify-between items-center py-1 border-b border-slate-50">
-                                <span class="text-slate-400">🗺️ Coordinates</span>
+                                <span class="text-slate-400"><x-icon name="map" class="w-3 h-3 inline" /> Coordinates</span>
                                 <span class="font-mono text-[10px] text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-100">{{ $harvest->latitude }}, {{ $harvest->longitude }}</span>
                             </div>
                         @endif
                         @if($harvest->destination_label !== '—')
                             <div class="flex justify-between items-start py-1">
-                                <span class="text-slate-400">📦 Drop-off Terminal</span>
+                                <span class="text-slate-400">Drop-off Terminal</span>
                                 <span class="text-slate-700 font-bold max-w-[180px] text-right truncate">{{ $harvest->destination_label }}</span>
                             </div>
                         @endif
@@ -204,7 +196,7 @@
                                     @csrf @method('PATCH')
                                     <input type="hidden" name="status" value="arrived">
                                     <button type="submit" class="w-full py-2.5 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold rounded-xl shadow-sm transition cursor-pointer">
-                                        📍 Mark Arrived at Pick-up
+                                        <x-icon name="pin" class="w-4 h-4 inline" /> Mark Arrived at Pick-up
                                     </button>
                                 </form>
                             @elseif($harvest->pivot->status === 'arrived')
@@ -226,7 +218,7 @@
                                     </div>
                                     
                                     <button type="submit" class="w-full py-2.5 bg-[#1F4D25]/100 hover:bg-[#1F4D25] text-white text-xs font-bold rounded-xl shadow-sm transition cursor-pointer">
-                                        ⚖️ Confirm Cargo & Mark Loaded
+                                        <x-icon name="gauge" class="w-4 h-4 inline" /> Confirm Cargo & Mark Loaded
                                     </button>
                                 </form>
                             @elseif($harvest->pivot->status === 'loaded')
@@ -241,20 +233,20 @@
                                     </div>
 
                                     <button type="submit" class="w-full py-2.5 bg-[#3A7D44] hover:bg-[#2E6336] text-white text-xs font-bold rounded-xl shadow-sm transition cursor-pointer">
-                                        📸 Mark Delivered & Upload Photo of Goods
+                                        <x-icon name="camera" class="w-4 h-4 inline" /> Mark Delivered & Upload Photo of Goods
                                     </button>
                                 </form>
                             @elseif($harvest->pivot->status === 'delivered')
                                 <div class="space-y-2 mt-2">
                                     @if($harvest->pivot->loaded_quantity_kg)
                                         <div class="flex justify-between items-center text-xs">
-                                            <span class="text-slate-400">⚖️ Actual Weight Loaded:</span>
+                                            <span class="text-slate-400"><x-icon name="gauge" class="w-3 h-3 inline" /> Actual Weight Loaded:</span>
                                             <span class="text-slate-800 font-bold font-mono">{{ number_format($harvest->pivot->loaded_quantity_kg, 1) }} kg</span>
                                         </div>
                                     @endif
                                     @if($harvest->pivot->delivery_receipt_path)
                                         <div class="text-[10px] text-slate-400 font-bold flex items-center gap-1">
-                                            <span>📎</span> Goods Photo Uploaded: 
+                                            <x-icon name="paperclip" class="w-3 h-3 inline" /> Goods Photo Uploaded: 
                                             <a href="{{ Storage::url($harvest->pivot->delivery_receipt_path) }}" target="_blank" class="text-[#3A7D44] hover:underline">View Photo</a>
                                         </div>
                                     @endif
@@ -287,7 +279,7 @@
         </div>
         <div id="synced-badge"
              class="hidden bg-[#3A7D44] text-white text-xs font-bold px-4 py-3 rounded-2xl shadow-xl flex items-center gap-2.5 border border-[#3A7D44]">
-            <span>✅</span>
+            <span class="text-[#3A7D44]"><svg class="w-4 h-4 inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span>
             <span id="synced-text">All pings synced successfully</span>
         </div>
     </div>
@@ -355,7 +347,7 @@
                 }
                 if (type === 'sync-complete') {
                     if (synced > 0) {
-                        showBadge('synced', `${synced} ping${synced > 1 ? 's' : ''} synced ✓`);
+                        showBadge('synced', `${synced} ping${synced > 1 ? 's' : ''} synced`);
                     } else {
                         hideBanner();
                     }

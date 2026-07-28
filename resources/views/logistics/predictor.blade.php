@@ -163,7 +163,7 @@
 
         {{-- Disclaimer --}}
         <div class="bg-slate-50 dark:bg-slate-800/40 border border-slate-200/60 dark:border-slate-700/60 rounded-xl px-5 py-4 text-xs text-slate-400 dark:text-slate-500 font-semibold">
-            ℹ️ Fleet forecast is a heuristic estimate using average kg per completed job. Actual requirements depend on route distance, pickup density, and cargo type.
+            <svg class="w-4 h-4 inline -mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg> Fleet forecast is a heuristic estimate using average kg per completed job. Actual requirements depend on route distance, pickup density, and cargo type.
         </div>
     </div>
 </x-layout>

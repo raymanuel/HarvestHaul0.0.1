@@ -16,9 +16,9 @@
 
     <div class="w-full pb-12">
         <header class="pt-8 mb-6 border-b border-slate-200/80 dark:border-slate-700/80 pb-5">
-            <span class="text-xs font-bold uppercase tracking-wider text-[#3A7D44] dark:text-[#3A7D44] bg-[#3A7D44]/10 dark:bg-[#3A7D44]/10 px-3 py-1.5 rounded-lg border border-[#3A7D44]/10 dark:border-[#3A7D44]/20 self-start">Logistics Engine</span>
-            <h1 class="text-3xl font-bold text-slate-900 dark:text-white heading-font mt-2">Route Optimization Engine</h1>
-            <p class="text-slate-500 dark:text-slate-400 mt-1">Plan consolidated multi-stop pickup routes and optimize empty fleet capacities.</p>
+            <span class="text-xs font-bold uppercase tracking-wider text-[#3A7D44] dark:text-[#3A7D44] bg-[#3A7D44]/10 dark:bg-[#3A7D44]/10 px-3 py-1.5 rounded-lg border border-[#3A7D44]/10 dark:border-[#3A7D44]/20 self-start">Routing</span>
+            <h1 class="text-3xl font-bold text-slate-900 dark:text-white heading-font mt-2">Route Planning</h1>
+            <p class="text-slate-500 dark:text-slate-400 mt-1">Plan multi-stop pickup routes.</p>
         </header>
 
         {{-- ─── Truck Selector + Generate Plan Bar ─── --}}
@@ -33,8 +33,8 @@
                                     data-capacity="{{ $truck['capacity_kg'] }}"
                                     data-driver="{{ $truck['driver'] }}"
                                     @if($suggestedTruckId === $truck['id']) selected @endif>
-                                🚛 {{ $truck['label'] }} ({{ number_format($truck['capacity_kg']) }} kg)
-                                @if($suggestedTruckId === $truck['id']) ⚡ Recommended @endif
+                                {{ $truck['label'] }} ({{ number_format($truck['capacity_kg']) }} kg)
+                                @if($suggestedTruckId === $truck['id']) <x-icon name="sun" class="w-4 h-4" /> Recommended @endif
                             </option>
                         @empty
                             <option disabled>No available trucks</option>
@@ -53,20 +53,20 @@
 
             @if($suggestedTruckId)
                 <div id="recommendation-badge" class="text-xs text-[#3A7D44] dark:text-[#3A7D44] bg-[#3A7D44]/10 dark:bg-[#3A7D44]/10 border border-[#3A7D44]/20 dark:border-[#3A7D44]/15 rounded-xl px-4 py-2.5 font-semibold flex items-center gap-2">
-                    <span>⚡</span> Auto-Recommended
+                    <span><x-icon name="sun" class="w-4 h-4" /></span> Auto-Recommended
                 </div>
             @endif
 
             @if($nearestDriver)
                 <div class="text-xs text-[#1F4D25] dark:text-[#1F4D25] bg-[#1F4D25]/10 dark:bg-[#1F4D25]/10 border border-[#1F4D25]/20 dark:border-[#1F4D25]/10 rounded-xl px-4 py-2.5 font-semibold flex items-center gap-2">
-                    <span>📍</span> Nearest Driver: {{ $nearestDriver['driver']->name }} ({{ $nearestDriver['distance_km'] }} km)
+                    <span><x-icon name="pin" class="w-4 h-4" /></span> Nearest Driver: {{ $nearestDriver['driver']->name }} ({{ $nearestDriver['distance_km'] }} km)
                 </div>
             @endif
 
             <button id="btn-generate-plan"
                     disabled
                     class="bg-gradient-to-tr from-[#3A7D44] to-[#2E6336] dark:bg-[#3A7D44]/100 dark:bg-none dark:hover:bg-[#3A7D44] text-white font-bold px-6 py-3.5 rounded-xl text-sm hover:shadow-lg hover:shadow-[#3A7D44]/10 dark:hover:shadow-[#3A7D44]/20 hover:translate-y-[-1px] transition-all disabled:opacity-40 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none flex items-center gap-2">
-                <span>⚙️</span> Generate Route Plan
+                <span><x-icon name="calculator" class="w-4 h-4" /></span> Generate Route Plan
             </button>
         </div>
 
@@ -77,14 +77,14 @@
             <div class="lg:col-span-2">
                 <div id="routing-map" class="w-full rounded-2xl border border-slate-200 dark:border-slate-700 relative z-10 shadow-sm h-[400px] sm:h-[600px]"></div>
                 <p class="text-xs text-slate-400 dark:text-slate-500 mt-3 flex items-center gap-1">
-                    <span>💡</span> <b>Click map to plot custom Start (Logistics hub) and End (Drop-off Terminal) points.</b>
+                    <span><x-icon name="sun" class="w-4 h-4" /></span> <b>Click map to plot custom Start (Logistics hub) and End (Drop-off Terminal) points.</b>
                 </p>
             </div>
 
             {{-- Sidebar --}}
             <div class="bg-slate-50 dark:bg-slate-900/40 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 p-5 flex flex-col h-[400px] sm:h-[600px]">
                 <h3 class="text-sm font-bold text-slate-800 dark:text-slate-250 heading-font mb-4 flex items-center gap-2">
-                    <span class="text-[#3A7D44]">📍</span> Route Pickups
+                    <span class="text-[#3A7D44]"><x-icon name="pin" class="w-4 h-4" /></span> Route Pickups
                 </h3>
 
                 <div class="mb-4 bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200/60 dark:border-slate-700/60 shadow-sm">
@@ -108,7 +108,7 @@
                 {{-- Weather Widget --}}
                 <div id="weather-widget" class="hidden mb-4 bg-white dark:bg-slate-800 p-3 rounded-xl border border-slate-200/60 dark:border-slate-700/60 shadow-sm">
                     <div class="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">
-                        <span>🌤️</span> Weather at Route Origin
+                        <span><x-icon name="cloud-sun" class="w-4 h-4" /></span> Weather at Route Origin
                     </div>
                     <div class="flex items-center gap-3">
                         <span id="weather-icon" class="text-2xl">—</span>
@@ -133,7 +133,7 @@
         {{-- ─── Pooling Plan Panel ─── --}}
         <div id="plan-panel" class="hidden mt-8 bg-white dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700/80 rounded-2xl shadow-sm p-6">
             <div class="flex items-center justify-between mb-6">
-                <h2 class="text-lg font-bold text-slate-800 dark:text-slate-200 heading-font">🧮 Consolidated Pooling Plan</h2>
+                <h2 class="text-lg font-bold text-slate-800 dark:text-slate-200 heading-font"><x-icon name="calculator" class="w-5 h-5" /> Consolidated Pooling Plan</h2>
                 <span id="plan-status-badge" class="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-md bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-400 border border-amber-200/50 dark:border-amber-900/30">Unconfirmed</span>
             </div>
 
@@ -194,7 +194,7 @@
                 </div>
                 <button id="btn-confirm-plan"
                         class="bg-gradient-to-tr from-[#3A7D44] to-[#2E6336] dark:bg-[#3A7D44]/100 dark:bg-none dark:hover:bg-[#3A7D44] text-white font-bold px-6 py-3.5 rounded-xl text-sm hover:shadow-lg hover:shadow-[#3A7D44]/10 dark:hover:shadow-[#3A7D44]/20 hover:translate-y-[-1px] transition-all flex items-center gap-2">
-                    <span>📩</span> Create Delivery Proposal
+                    <span><x-icon name="inbox" class="w-4 h-4" /></span> Create Delivery Proposal
                 </button>
             </div>
 
@@ -258,14 +258,14 @@
                 const isDriverAssigned = driverValue !== '' && driverValue !== 'No driver assigned';
 
                 if (!isDriverAssigned) {
-                    document.getElementById('truck-info-driver').textContent   = '⚠️ ' + driverValue;
+                    document.getElementById('truck-info-driver').textContent   = driverValue;
                     document.getElementById('truck-info-capacity').textContent = 'Requires driver assignment.';
                     truckInfo.className = 'text-xs text-amber-705 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/20 border border-amber-250/50 dark:border-amber-900/30 rounded-xl px-4 py-3.5 font-bold flex items-center gap-2';
                     truckInfo.classList.remove('hidden');
                     btnGenerate.disabled = true;
                 } else {
-                    document.getElementById('truck-info-driver').innerHTML     = '👤 Driver: <b>' + driverValue + '</b>';
-                    document.getElementById('truck-info-capacity').textContent = '⚖️ ' + Number(opt.dataset.capacity).toLocaleString() + ' kg limit';
+                    document.getElementById('truck-info-driver').innerHTML     = '<svg class="w-4 h-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg> Driver: <b>' + driverValue + '</b>';
+                    document.getElementById('truck-info-capacity').textContent = Number(opt.dataset.capacity).toLocaleString() + ' kg limit';
                     truckInfo.className = 'text-xs text-slate-650 dark:text-slate-300 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3.5 font-semibold flex items-center gap-2';
                     truckInfo.classList.remove('hidden');
 
@@ -414,19 +414,19 @@
                     const marker = L.marker([farm.farmer_profile.latitude, farm.farmer_profile.longitude], { icon: defaultIcon }).addTo(map);
 
                     const harvestList = farm.harvests.length
-                        ? farm.harvests.map(h => `<li>🌾 ${h.crop} — ${h.quantity} kg</li>`).join('')
+                        ? farm.harvests.map(h => `<li><svg class="w-4 h-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 22V8m0 0c-2-4-6-4-6-4s1 4 6 4m0 0c2-4 6-4 6-4s-1 4-6 4M8 18c-2-4-6-4-6-4s1 4 6 4m8 0c2-4 6-4 6-4s-1 4-6 4"/></svg> ${h.crop} — ${h.quantity} kg</li>`).join('')
                         : '<li class="text-slate-400">No active posts</li>';
 
                     const destinationHtml = farm.destination
                         ? `<div style="margin-top:8px;padding-top:8px;border-top:1px solid ${isDark ? '#334155' : '#e2e8f0'};">
                             <b style="font-size:11px;color:${isDark ? '#94a3b8' : '#64748b'};letter-spacing:0.05em;text-transform:uppercase;">Destination</b>
-                            <p style="margin:4px 0 0;font-size:12px;font-weight:700;color:${isDark ? '#e2e8f0' : '#1e293b'};">📦 ${farm.destination.name}</p>
+                            <p style="margin:4px 0 0;font-size:12px;font-weight:700;color:${isDark ? '#e2e8f0' : '#1e293b'};"><svg class="w-4 h-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg> ${farm.destination.name}</p>
                             <p style="margin:2px 0 0;font-size:11px;color:${isDark ? '#94a3b8' : '#64748b'};">${farm.destination.address}</p>
                            </div>`
                         : farm.destination_address
                             ? `<div style="margin-top:8px;padding-top:8px;border-top:1px solid ${isDark ? '#334155' : '#e2e8f0'};">
                                 <b style="font-size:11px;color:${isDark ? '#94a3b8' : '#64748b'};letter-spacing:0.05em;text-transform:uppercase;">Destination</b>
-                                <p style="margin:4px 0 0;font-size:12px;font-weight:700;color:${isDark ? '#e2e8f0' : '#1e293b'};">📍 ${farm.destination_address}</p>
+                                <p style="margin:4px 0 0;font-size:12px;font-weight:700;color:${isDark ? '#e2e8f0' : '#1e293b'};"><svg class="w-4 h-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg> ${farm.destination_address}</p>
                                </div>`
                             : `<div style="margin-top:8px;padding-top:8px;border-top:1px solid ${isDark ? '#334155' : '#e2e8f0'};">
                                 <p style="font-size:11px;color:${isDark ? '#cbd5e1' : '#94a3b8'};">No destination set.</p>
@@ -436,16 +436,16 @@
                     const plotButtonHtml = hasDestination
                         ? `<button onclick="plotFarmRoute(${farm.farmer_profile.latitude},${farm.farmer_profile.longitude},${farm.destination_latitude},${farm.destination_longitude})"
                             style="margin-top:10px;width:100%;background:linear-gradient(to top right, #059669, #14b8a6);color:white;border:none;border-radius:8px;padding:8px 0;font-size:12px;font-weight:700;cursor:pointer;box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
-                            🗺️ Plot Route
+                            <svg class="w-4 h-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg> Plot Route
                            </button>`
                         : `<button disabled style="margin-top:10px;width:100%;background:${isDark ? '#334155' : '#f1f5f9'};color:${isDark ? '#64748b' : '#94a3b8'};border:none;border-radius:8px;padding:8px 0;font-size:12px;font-weight:700;cursor:not-allowed;">
                             No destination set
                            </button>`;
 
                     marker.bindPopup(`
-                        <div style="min-width:200px;font-family:'Plus Jakarta Sans',sans-serif;">
+                        <div style="min-width:200px;font-family:'DM Sans',sans-serif;">
                             <b style="font-size:14px;color:${isDark ? '#e2e8f0' : '#0f172a'};">${farm.name}</b>
-                            <br><span style="color:${isDark ? '#94a3b8' : '#64748b'};font-size:12px;">📍 ${farm.farmer_profile.farm_location}</span>
+                            <br><span style="color:${isDark ? '#94a3b8' : '#64748b'};font-size:12px;"><svg class="w-4 h-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg> ${farm.farmer_profile.farm_location}</span>
                             <hr style="margin:8px 0;border:0;border-top:1px solid ${isDark ? '#334155' : '#f1f5f9'};">
                             <b style="font-size:11px;color:${isDark ? '#94a3b8' : '#64748b'};letter-spacing:0.05em;text-transform:uppercase;">Active Harvests</b>
                             <ul style="margin:4px 0 0;padding-left:14px;font-size:12px;color:${isDark ? '#cbd5e1' : '#334155'};list-style-type:square;">${harvestList}</ul>
@@ -470,8 +470,8 @@
                     var marker = L.marker([dlat, dlng], { icon: destinationMarkerIcon })
                         .addTo(map)
                         .bindPopup(
-                            '<div style="font-family:\'Plus Jakarta Sans\',sans-serif;font-size:12px;">' +
-                            '<b>📦 Drop-off Terminal</b><br>' +
+                            '<div style="font-family:\'DM Sans\',sans-serif;font-size:12px;">' +
+                            '<b><svg class="w-4 h-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg> Drop-off Terminal</b><br>' +
                             '<span style="color:gray;">' + farm.name + ' → ' + label + '</span>' +
                             '</div>'
                         );
@@ -544,15 +544,15 @@
                         : 'bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-100/70 dark:border-slate-700/80 border-l-4 border-l-[#3A7D44] shadow-sm hover:shadow-md transition-shadow relative overflow-hidden';
 
                     const capacityBadge = exceedsCapacity
-                        ? `<span class="inline-block mt-2 text-[9px] font-bold uppercase tracking-wider bg-rose-50 dark:bg-rose-950/20 text-rose-600 dark:text-rose-400 border border-rose-250/50 dark:border-rose-900/30 px-2 py-0.5 rounded-md">⚠️ Over Limit</span>`
+                        ? `<span class="inline-block mt-2 text-[9px] font-bold uppercase tracking-wider bg-rose-50 dark:bg-rose-950/20 text-rose-600 dark:text-rose-400 border border-rose-250/50 dark:border-rose-900/30 px-2 py-0.5 rounded-md"><svg class="w-4 h-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg> Over Limit</span>`
                         : '';
 
                     queueContainer.innerHTML += `
                         <div class="${cardClass}">
                             <strong class="text-sm ${exceedsCapacity ? 'text-slate-450 dark:text-slate-550 line-through' : 'text-slate-800 dark:text-slate-200 heading-font'}">${item.data.name}</strong>
-                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1.5 flex items-center gap-1"><span>📍</span> ${item.data.farmer_profile.farm_location}</p>
-                            <p class="text-xs text-slate-404 dark:text-slate-500 mt-1">🚗 ${item.distance.toFixed(2)} km off-route</p>
-                            <p class="text-xs mt-1.5 ${exceedsCapacity ? 'text-rose-600 dark:text-rose-450 font-bold' : 'text-slate-650 dark:text-slate-350 font-semibold'}">⚖️ ${totalKg.toLocaleString()} kg payload</p>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1.5 flex items-center gap-1"><span><svg class="w-4 h-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg></span> ${item.data.farmer_profile.farm_location}</p>
+                            <p class="text-xs text-slate-404 dark:text-slate-500 mt-1"><svg class="w-4 h-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 17h.01M16 17h.01M3 11l1.5-5A2 2 0 016.4 4h11.2a2 2 0 011.9 1.4L21 11M3 11h18M3 11v6a1 1 0 001 1h1a1 1 0 001-1v-1h12v1a1 1 0 001 1h1a1 1 0 001-1v-6"/></svg> ${item.distance.toFixed(2)} km off-route</p>
+                            <p class="text-xs mt-1.5 ${exceedsCapacity ? 'text-rose-600 dark:text-rose-450 font-bold' : 'text-slate-650 dark:text-slate-350 font-semibold'}"><svg class="w-4 h-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"/></svg> ${totalKg.toLocaleString()} kg payload</p>
                             ${capacityBadge}
                         </div>
                     `;
@@ -576,7 +576,7 @@
                     if (wind > 25) advisory.push(`Strong winds (${wind} km/h).`);
                     if (temp > 40) advisory.push('Extreme heat. Ensure crop refrigeration.');
                     if (!advisory.length) advisory.push('Conditions favorable.');
-                    document.getElementById('weather-icon').textContent = icon.includes('n') ? '🌙' : '☀️';
+                    document.getElementById('weather-icon').innerHTML = icon.includes('n') ? '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>' : '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>';
                     document.getElementById('weather-condition').textContent = `${condition} — ${desc}`;
                     document.getElementById('weather-temp').textContent = `${Math.round(temp)}°C · Wind ${wind} km/h`;
                     document.getElementById('weather-advisory').textContent = advisory.join(' ');
@@ -589,7 +589,7 @@
             btnGenerate.addEventListener('click', async function () {
                 const harvestIds = lastNearbyFarms.flatMap(f => f.data.harvests.map(h => h.id));
                 btnGenerate.disabled = true;
-                btnGenerate.textContent = '⏳ Generating...';
+                btnGenerate.textContent = 'Generating...';
 
                 try {
                     const res = await fetch('{{ route("pooling.plan") }}', {
@@ -614,7 +614,7 @@
                     console.error(err);
                 } finally {
                     btnGenerate.disabled = false;
-                    btnGenerate.textContent = '⚙️ Generate Route Plan';
+                    btnGenerate.textContent = 'Generate Route Plan';
                 }
             });
 
@@ -650,7 +650,7 @@
             }
 
             document.getElementById('btn-confirm-plan').addEventListener('click', async function () {
-                this.disabled = true; this.textContent = '⏳ Creating Proposal...';
+                this.disabled = true; this.textContent = 'Creating Proposal...';
                 const harvestIds = lastNearbyFarms.flatMap(f => f.data.harvests.map(h => h.id));
 
                 try {
@@ -678,12 +678,12 @@
                     if (res.ok && result.success) {
                         document.getElementById('plan-status-badge').textContent = 'Proposal Created';
                         feedback.className = 'mt-4 p-4 rounded-xl bg-[#3A7D44]/10 dark:bg-[#3A7D44]/10 text-[#1A2E1A] dark:text-[#3A7D44] border border-[#3A7D44]/20 dark:border-[#3A7D44]/15 font-bold flex items-center gap-2';
-                        feedback.innerHTML = '<span>📩</span> Proposal pipeline open. Room linked to Job #' + result.pooling_job_id;
-                        this.innerHTML = '<span>📩</span> Proposal Sent';
+                        feedback.innerHTML = '<span><svg class="w-4 h-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></span> Proposal pipeline open. Room linked to Job #' + result.pooling_job_id;
+                        this.innerHTML = '<span><svg class="w-4 h-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></span> Proposal Sent';
                     } else {
                         feedback.className = 'mt-4 p-4 rounded-xl bg-rose-50 dark:bg-rose-950/20 text-rose-800 dark:text-rose-455 border border-rose-200/60 dark:border-rose-900/30 font-bold flex items-center gap-2';
-                        feedback.innerHTML = '<span>❌</span> ' + result.error;
-                        this.disabled = false; this.innerHTML = '<span>📩</span> Create Delivery Proposal';
+                        feedback.innerHTML = '<span><svg class="w-4 h-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></span> ' + result.error;
+                        this.disabled = false; this.innerHTML = '<span><svg class="w-4 h-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></span> Create Delivery Proposal';
                     }
                 } catch (err) { console.error(err); }
             });

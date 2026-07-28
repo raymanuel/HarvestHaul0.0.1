@@ -25,7 +25,7 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script src="https://cdn.tailwindcss.com"></script>
@@ -46,7 +46,7 @@
     </script>
     <style>
         body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-family: 'DM Sans', sans-serif;
             background: radial-gradient(circle at 50% 0%, #FAFAF5 0%, #F0EFE8 100%);
             transition: background 0.3s ease, color 0.3s ease;
         }
@@ -54,7 +54,7 @@
             background: radial-gradient(circle at 50% 0%, #111318 0%, #0a0c10 100%);
         }
         .heading-font {
-            font-family: 'Outfit', sans-serif;
+            font-family: 'Instrument Serif', sans-serif;
         }
         .glass-card {
             background: rgba(255, 255, 255, 0.75);

@@ -678,9 +678,10 @@ class PoolingJobController extends Controller
     {
         $this->authorize('update', $poolingJob);
 
-        // Verify logistics partner is verified
-        if (!$logisticsProfile->is_verified) {
-            return back()->with('error', 'Your account is pending verification. Counter-proposals are not available until approved.');
+        $logisticsProfile = Auth::user()->logisticsProfile;
+
+        if (!$logisticsProfile) {
+            return back()->with('error', 'No logistics profile found.');
         }
 
         if ($poolingJob->status !== PoolingJobStatus::PENDING) {

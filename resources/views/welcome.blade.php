@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-smooth">
 <head>
     <meta charset="utf-8">
@@ -7,7 +7,7 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
@@ -21,37 +21,11 @@
             --wheat: #C8A415;
             --wheat-dim: #9A7D10;
             --parchment: #FAFAF5;
-            --terracotta: #C1694F;
-            --dust: #E8DCC8;
-            --dust-dark: #D4C8B0;
         }
 
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
-        .font-display { font-family: 'Outfit', sans-serif; }
+        body { font-family: 'DM Sans', sans-serif; }
+        .font-display { font-family: 'Instrument Serif', sans-serif; }
         .font-mono { font-family: 'JetBrains Mono', monospace; }
-
-        .route-path {
-            stroke-dasharray: 8 4;
-            animation: dash 2s linear infinite;
-        }
-        @keyframes dash {
-            to { stroke-dashoffset: -24; }
-        }
-
-        .stat-counter {
-            transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        .role-card {
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .role-card:hover {
-            transform: translateY(-4px);
-        }
-        .role-card.active {
-            border-color: var(--wheat);
-            box-shadow: 0 0 0 1px var(--wheat), 0 20px 40px -12px rgba(212, 165, 32, 0.15);
-        }
 
         .faq-content {
             max-height: 0;
@@ -60,14 +34,6 @@
         }
         .faq-content.open {
             max-height: 200px;
-        }
-
-        .hero-gradient {
-            background: linear-gradient(160deg, #1A2E1A 0%, #243524 40%, #1F4D25 100%);
-        }
-
-        .gold-glow {
-            box-shadow: 0 0 60px -12px rgba(212, 165, 32, 0.3);
         }
 
         .scroll-reveal {
@@ -80,26 +46,6 @@
             transform: translateY(0);
         }
 
-        .topo-lines {
-            opacity: 0.06;
-        }
-
-        @keyframes topo-drift {
-            0%, 100% { transform: translateX(0) translateY(0); }
-            50% { transform: translateX(8px) translateY(-4px); }
-        }
-        .topo-lines { animation: topo-drift 20s ease-in-out infinite; }
-
-        @keyframes hero-fade-up {
-            from { opacity: 0; transform: translateY(24px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .hero-animate { animation: hero-fade-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) both; }
-        .hero-animate-delay-1 { animation-delay: 0.1s; }
-        .hero-animate-delay-2 { animation-delay: 0.2s; }
-        .hero-animate-delay-3 { animation-delay: 0.3s; }
-        .hero-animate-delay-4 { animation-delay: 0.4s; }
-
         .role-panel { transition: opacity 0.3s ease, transform 0.3s ease; }
 
         @media (prefers-reduced-motion: reduce) {
@@ -109,7 +55,6 @@
                 transition-duration: 0.01ms !important;
             }
             .scroll-reveal { opacity: 1; transform: none; }
-            .hero-animate { opacity: 1; transform: none; }
         }
     </style>
 </head>
@@ -129,8 +74,8 @@
             </a>
 
             <nav class="hidden md:flex items-center gap-6">
-                <a href="#problem" class="text-sm font-medium text-white/70 hover:text-white transition">Problem</a>
-                <a href="#solution" class="text-sm font-medium text-white/70 hover:text-white transition">How It Works</a>
+                <a href="#about" class="text-sm font-medium text-white/70 hover:text-white transition">About</a>
+                <a href="#services" class="text-sm font-medium text-white/70 hover:text-white transition">Services</a>
                 <a href="#roles" class="text-sm font-medium text-white/70 hover:text-white transition">Portals</a>
                 <a href="#faq" class="text-sm font-medium text-white/70 hover:text-white transition">FAQ</a>
             </nav>
@@ -162,8 +107,8 @@
         </div>
 
         <div id="mobileMenu" class="hidden md:hidden bg-[#1F4D25]/95 backdrop-blur-xl border-t border-white/10 px-6 py-4 space-y-3">
-            <a href="#problem" onclick="toggleMobileMenu()" class="block text-sm font-medium text-white/70 hover:text-white py-2">Problem</a>
-            <a href="#solution" onclick="toggleMobileMenu()" class="block text-sm font-medium text-white/70 hover:text-white py-2">How It Works</a>
+            <a href="#about" onclick="toggleMobileMenu()" class="block text-sm font-medium text-white/70 hover:text-white py-2">About</a>
+            <a href="#services" onclick="toggleMobileMenu()" class="block text-sm font-medium text-white/70 hover:text-white py-2">Services</a>
             <a href="#roles" onclick="toggleMobileMenu()" class="block text-sm font-medium text-white/70 hover:text-white py-2">Portals</a>
             <a href="#faq" onclick="toggleMobileMenu()" class="block text-sm font-medium text-white/70 hover:text-white py-2">FAQ</a>
             <div class="pt-3 border-t border-white/10">
@@ -177,189 +122,147 @@
     </header>
 
     <!-- Hero -->
-    <section class="hero-gradient relative min-h-screen flex items-center overflow-hidden">
-        <!-- Topographic contour lines -->
-        <svg class="topo-lines absolute inset-0 w-full h-full" viewBox="0 0 1200 800" preserveAspectRatio="none" fill="none" stroke="white" stroke-width="1.2">
-            <path d="M0 620 Q 150 580 300 600 T 600 560 T 900 590 T 1200 550"/>
-            <path d="M0 560 Q 200 520 400 540 T 800 500 T 1200 520"/>
-            <path d="M0 500 Q 180 460 360 480 T 720 440 T 1080 460 T 1200 450"/>
-            <path d="M0 440 Q 220 400 440 420 T 880 380 T 1200 400"/>
-            <path d="M0 380 Q 160 340 320 360 T 640 320 T 960 340 T 1200 330"/>
-            <path d="M0 320 Q 200 280 400 300 T 800 260 T 1200 280"/>
-            <path d="M0 260 Q 180 220 360 240 T 720 200 T 1080 220 T 1200 210"/>
-            <path d="M0 200 Q 220 160 440 180 T 880 140 T 1200 160"/>
-            <path d="M0 140 Q 160 100 320 120 T 640 80 T 960 100 T 1200 90"/>
-            <path d="M0 80 Q 200 40 400 60 T 800 20 T 1200 40"/>
-        </svg>
+    <section class="relative min-h-[90vh] flex items-center overflow-hidden">
+        <div class="absolute inset-0">
+            <img src="{{ asset('images/hero-bg.png') }}" alt="Lush farmlands of Mindanao" class="w-full h-full object-cover">
+            <div class="absolute inset-0 bg-gradient-to-r from-[#1A2E1A]/85 via-[#1A2E1A]/60 to-[#1A2E1A]/40"></div>
+        </div>
 
-        <!-- Animated route overlay -->
-        <svg class="absolute inset-0 w-full h-full opacity-[0.08]" viewBox="0 0 1200 800" preserveAspectRatio="none">
-            <path d="M-100 600 Q 200 400 400 500 T 800 350 T 1300 450" fill="none" stroke="#C8A415" stroke-width="2" class="route-path"/>
-            <path d="M-50 700 Q 300 500 500 550 T 900 400 T 1350 500" fill="none" stroke="#3A7D44" stroke-width="1.5" class="route-path" style="animation-delay: 0.5s"/>
-        </svg>
-
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 py-32 lg:py-40">
-            <div class="max-w-3xl">
-                <div class="hero-animate hero-animate-delay-1 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#C8A415]/10 border border-[#C8A415]/20 mb-6">
-                    <span class="w-1.5 h-1.5 rounded-full bg-[#C8A415] animate-pulse"></span>
-                    <span class="text-xs font-semibold text-[#C8A415] uppercase tracking-wider">Southern Mindanao Logistics Network</span>
-                </div>
-
-                <h1 class="hero-animate hero-animate-delay-2 text-4xl sm:text-5xl lg:text-6xl font-display text-white leading-[1.1] mb-6">
-                    Your harvest deserves a <span class="text-[#C8A415]">coordinated</span> route to market
+        <div class="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-32 lg:py-40">
+            <div class="max-w-2xl">
+                <h1 class="text-4xl sm:text-5xl lg:text-6xl font-display text-white leading-[1.1] mb-6">
+                    B2B Crop Distribution & Logistics
                 </h1>
 
-                <p class="hero-animate hero-animate-delay-3 text-lg text-white/60 leading-relaxed max-w-xl mb-10">
-                    HarvestHaul connects small farms in Tupi, Polomolok, and General Santos with shared logistics — so you ship full loads, split costs, and arrive on time.
+                <p class="text-lg text-white/70 leading-relaxed max-w-xl mb-10">
+                    A web-based platform connecting farmers, logistics coordinators, and drivers in General Santos City and Polomolok for route-planned pickup consolidation and real-time delivery tracking.
                 </p>
 
-                <div class="hero-animate hero-animate-delay-4 flex flex-wrap gap-4">
+                <div class="flex flex-wrap gap-4">
                     @guest
-                        <a href="{{ route('login') }}" class="px-6 py-3.5 bg-[#C8A415] text-[#1A2E1A] rounded-xl font-bold text-sm hover:bg-[#C8A415]/90 transition shadow-lg gold-glow">
-                            Post Your Harvest
+                        <a href="{{ route('login') }}" class="px-6 py-3.5 bg-[#C8A415] text-[#1A2E1A] rounded-xl font-bold text-sm hover:bg-[#C8A415]/90 transition shadow-lg">
+                            Get Started
                         </a>
-                        <a href="#solution" class="px-6 py-3.5 border border-white/20 text-white rounded-xl font-semibold text-sm hover:bg-white/5 transition">
-                            See How It Works
+                        <a href="#about" class="px-6 py-3.5 border border-white/20 text-white rounded-xl font-semibold text-sm hover:bg-white/5 transition">
+                            Learn More
                         </a>
                     @else
-                        <a href="{{ route('dashboard') }}" class="px-6 py-3.5 bg-[#C8A415] text-[#1A2E1A] rounded-xl font-bold text-sm hover:bg-[#C8A415]/90 transition shadow-lg gold-glow">
+                        <a href="{{ url('/dashboard') }}" class="px-6 py-3.5 bg-[#C8A415] text-[#1A2E1A] rounded-xl font-bold text-sm hover:bg-[#C8A415]/90 transition shadow-lg">
                             Open Dashboard
                         </a>
                     @endguest
                 </div>
             </div>
-
-            <!-- Stats strip -->
-            <div class="mt-16 grid grid-cols-2 sm:grid-cols-4 gap-6 max-w-2xl">
-                <div>
-                    <p class="font-mono text-2xl font-bold text-[#C8A415]">3</p>
-                    <p class="text-xs text-white/40 mt-1">Hub Corridors</p>
-                </div>
-                <div>
-                    <p class="font-mono text-2xl font-bold text-[#C8A415]">92%</p>
-                    <p class="text-xs text-white/40 mt-1">Space Utilization</p>
-                </div>
-                <div>
-                    <p class="font-mono text-2xl font-bold text-[#C8A415]">₱3.4k</p>
-                    <p class="text-xs text-white/40 mt-1">Avg. Fuel Saved</p>
-                </div>
-                <div>
-                    <p class="font-mono text-2xl font-bold text-[#C8A415]">48h</p>
-                    <p class="text-xs text-white/40 mt-1">Max Delivery</p>
-                </div>
-            </div>
         </div>
     </section>
 
-    <!-- Logos -->
-    <section class="py-8 bg-[#1F4D25] border-t border-white/5">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-6">
-            <span class="text-[10px] font-bold uppercase tracking-widest text-white/30">Trusted by cooperatives across Mindanao</span>
-            <div class="flex flex-wrap items-center justify-center gap-x-8 gap-y-3">
-                <span class="text-xs font-semibold text-white/40 hover:text-white/60 transition">Tupi Agri-Coop</span>
-                <span class="text-xs font-semibold text-white/40 hover:text-white/60 transition">GenSan Freight Alliance</span>
-                <span class="text-xs font-semibold text-white/40 hover:text-white/60 transition">Polomolok Growers</span>
-                <span class="text-xs font-semibold text-white/40 hover:text-white/60 transition">Matutum Transit</span>
-            </div>
-        </div>
-    </section>
-
-    <!-- Problem Statement -->
-    <section id="problem" class="py-24 bg-[#FAFAF5] scroll-mt-20">
+    <!-- About -->
+    <section id="about" class="py-24 bg-[#FAFAF5] scroll-mt-20">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="max-w-3xl">
-                <span class="text-xs font-bold uppercase tracking-widest text-[#C1694F]">The Problem</span>
+                <span class="text-xs font-bold uppercase tracking-widest text-[#C8A415]">About</span>
                 <h2 class="text-3xl sm:text-4xl font-display text-[#1A2E1A] mt-4 leading-tight">
-                    Small farms lose money because logistics companies demand massive minimums
+                    A localized digital solution for crop distribution and logistics coordination
                 </h2>
                 <p class="text-[#1A2E1A]/60 mt-6 text-lg leading-relaxed">
-                    A farmer with 4 tons of pineapples can't fill a 10-ton truck. So they either pay for empty space or wait until they have enough — and their harvest spoils. Meanwhile, trucks run half-empty between farm hubs.
+                    HarvestHaul addresses the challenges of fragmented communication, underutilized vehicles, and limited delivery visibility in agricultural transport. By integrating mapping, route planning, tracking, and reporting into one web-based platform, we aim to support a more organized and efficient transport process for registered stakeholders in General Santos City and Polomolok.
                 </p>
             </div>
-
-            <div class="mt-16 grid grid-cols-1 sm:grid-cols-3 gap-8">
-                <div class="p-6 rounded-2xl bg-white border border-[#C1694F]/10">
-                    <p class="font-mono text-3xl font-bold text-[#C1694F]">40%</p>
-                    <p class="text-sm text-[#1A2E1A]/50 mt-2">of small farm transport runs half-empty</p>
-                </div>
-                <div class="p-6 rounded-2xl bg-white border border-[#C1694F]/10">
-                    <p class="font-mono text-3xl font-bold text-[#C1694F]">₱8.5k</p>
-                    <p class="text-sm text-[#1A2E1A]/50 mt-2">average wasted fuel per cooperative per month</p>
-                </div>
-                <div class="p-6 rounded-2xl bg-white border border-[#C1694F]/10">
-                    <p class="font-mono text-3xl font-bold text-[#C1694F]">3-5 days</p>
-                    <p class="text-sm text-[#1A2E1A]/50 mt-2">lost coordinating between farms and freight</p>
-                </div>
-            </div>
         </div>
     </section>
 
-    <!-- Hero Image Break -->
-    <section class="relative h-72 sm:h-96 overflow-hidden">
-        <div class="absolute inset-0">
-            <img src="{{ asset('images/hero-bg.png') }}" alt="Farm road through lush Mindanao countryside" class="w-full h-full object-cover">
-            <div class="absolute inset-0 bg-gradient-to-r from-[#1A2E1A]/80 via-[#1A2E1A]/40 to-[#1A2E1A]/80"></div>
-        </div>
-        <div class="relative z-10 h-full flex items-center justify-center text-center px-4">
-            <div class="max-w-xl">
-                <p class="text-xs font-bold uppercase tracking-widest text-[#C8A415] mb-3">From Soil to Sale</p>
-                <h2 class="text-2xl sm:text-3xl font-display text-white leading-snug">
-                    Every road connects a farmer's field to a buyer's table
-                </h2>
-            </div>
-        </div>
-    </section>
-
-    <!-- Solution: How It Works -->
-    <section id="solution" class="py-24 bg-[#1F4D25] scroll-mt-20">
+    <!-- Services -->
+    <section id="services" class="py-24 bg-[#FAFAF5] scroll-mt-20">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center max-w-2xl mx-auto mb-16">
-                <span class="text-xs font-bold uppercase tracking-widest text-[#C8A415]">The Solution</span>
-                <h2 class="text-3xl sm:text-4xl font-display text-white mt-4">Three steps to coordinated shipping</h2>
+                <span class="text-xs font-bold uppercase tracking-widest text-[#C8A415]">What We Do</span>
+                <h2 class="text-3xl sm:text-4xl font-display text-[#1A2E1A] mt-4">Our Services</h2>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
-                <!-- Connector line -->
-                <div class="hidden md:block absolute top-12 left-[16%] right-[16%] h-px bg-gradient-to-r from-transparent via-[#C8A415]/30 to-transparent"></div>
-
-                <!-- Step 1 -->
-                <div class="relative z-10 text-center">
-                    <div class="w-14 h-14 rounded-2xl bg-[#C8A415]/10 border border-[#C8A415]/20 flex items-center justify-center mx-auto mb-6">
-                        <span class="font-mono text-lg font-bold text-[#C8A415]">01</span>
+            <div class="space-y-0 divide-y divide-[#1A2E1A]/5">
+                <!-- Service 01 -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 py-10 items-start">
+                    <div class="lg:col-span-1">
+                        <span class="font-mono text-sm font-bold text-[#C8A415]">01</span>
                     </div>
-                    <h3 class="text-lg font-bold text-white font-display">Post Your Harvest</h3>
-                    <p class="text-sm text-white/50 mt-3 leading-relaxed max-w-xs mx-auto">
-                        Farmers submit crop type, volume, and pickup location. Takes 2 minutes.
-                    </p>
+                    <div class="lg:col-span-4">
+                        <h3 class="text-xl font-display text-[#1A2E1A]">Route-Pooling Logistics</h3>
+                    </div>
+                    <div class="lg:col-span-4">
+                        <p class="text-[#1A2E1A]/60 leading-relaxed">
+                            We aggregate crop dimensions and pickup dates from local cooperatives. The routing engine sequences farm locations along a single path, matching them to high-capacity freight trucks.
+                        </p>
+                    </div>
+                    <div class="lg:col-span-3">
+                        <div class="w-full h-32 rounded-2xl bg-[#1F4D25]/5 flex items-center justify-center">
+                            <svg class="w-10 h-10 text-[#3A7D44]" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M6 38 L18 22 L30 28 L42 12"/>
+                                <circle cx="6" cy="38" r="3" fill="#3A7D44"/>
+                                <circle cx="18" cy="22" r="3" fill="#C8A415"/>
+                                <circle cx="30" cy="28" r="3" fill="#C8A415"/>
+                                <circle cx="42" cy="12" r="3" fill="#3A7D44"/>
+                            </svg>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- Step 2 -->
-                <div class="relative z-10 text-center">
-                    <div class="w-14 h-14 rounded-2xl bg-[#C8A415]/10 border border-[#C8A415]/20 flex items-center justify-center mx-auto mb-6">
-                        <span class="font-mono text-lg font-bold text-[#C8A415]">02</span>
+                <!-- Service 02 -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 py-10 items-start">
+                    <div class="lg:col-span-1">
+                        <span class="font-mono text-sm font-bold text-[#C8A415]">02</span>
                     </div>
-                    <h3 class="text-lg font-bold text-white font-display">Route Gets Built</h3>
-                    <p class="text-sm text-white/50 mt-3 leading-relaxed max-w-xs mx-auto">
-                        Our system groups your harvest with nearby farms along the same corridor into one full truckload.
-                    </p>
+                    <div class="lg:col-span-4">
+                        <h3 class="text-xl font-display text-[#1A2E1A]">Real-Time GPS Tracking</h3>
+                    </div>
+                    <div class="lg:col-span-4">
+                        <p class="text-[#1A2E1A]/60 leading-relaxed">
+                            Drivers broadcast GPS location live. You see your crop move from farm to hub to buyer in real time, with delay detection and weather-aware ETA predictions.
+                        </p>
+                    </div>
+                    <div class="lg:col-span-3">
+                        <div class="w-full h-32 rounded-2xl bg-[#1F4D25]/5 flex items-center justify-center">
+                            <svg class="w-10 h-10 text-[#3A7D44]" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="24" cy="20" r="14" opacity="0.3"/>
+                                <circle cx="24" cy="20" r="8"/>
+                                <path d="M24 6V2M24 38v-4M10 20H6M42 20h-4"/>
+                                <circle cx="24" cy="20" r="3" fill="#C8A415"/>
+                                <path d="M24 34 L18 44 L24 40 L30 44 Z" fill="#3A7D44"/>
+                            </svg>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- Step 3 -->
-                <div class="relative z-10 text-center">
-                    <div class="w-14 h-14 rounded-2xl bg-[#C8A415]/10 border border-[#C8A415]/20 flex items-center justify-center mx-auto mb-6">
-                        <span class="font-mono text-lg font-bold text-[#C8A415]">03</span>
+                <!-- Service 03 -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 py-10 items-start">
+                    <div class="lg:col-span-1">
+                        <span class="font-mono text-sm font-bold text-[#C8A415]">03</span>
                     </div>
-                    <h3 class="text-lg font-bold text-white font-display">Track & Save</h3>
-                    <p class="text-sm text-white/50 mt-3 leading-relaxed max-w-xs mx-auto">
-                        Drivers broadcast GPS live. You see your crop move from farm to hub to buyer in real time.
-                    </p>
+                    <div class="lg:col-span-4">
+                        <h3 class="text-xl font-display text-[#1A2E1A]">Cost-Split Management</h3>
+                    </div>
+                    <div class="lg:col-span-4">
+                        <p class="text-[#1A2E1A]/60 leading-relaxed">
+                            Proportional cost allocation based on crop weight and distance. Automated invoicing, receipt tracking, and payment verification between all parties.
+                        </p>
+                    </div>
+                    <div class="lg:col-span-3">
+                        <div class="w-full h-32 rounded-2xl bg-[#1F4D25]/5 flex items-center justify-center">
+                            <svg class="w-10 h-10 text-[#3A7D44]" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="8" y="8" width="32" height="32" rx="4"/>
+                                <path d="M8 18h32"/>
+                                <path d="M18 8v32"/>
+                                <circle cx="30" cy="30" r="6" fill="#C8A415" opacity="0.3" stroke="#C8A415"/>
+                                <path d="M28 30h4M30 28v4" stroke="#C8A415" stroke-width="2"/>
+                            </svg>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- Role Portals -->
-    <section id="roles" class="py-24 bg-[#FAFAF5] scroll-mt-20">
+    <section id="roles" class="py-24 bg-white scroll-mt-20">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center max-w-2xl mx-auto mb-12">
                 <span class="text-xs font-bold uppercase tracking-widest text-[#3A7D44]">Role-Based Portals</span>
@@ -380,173 +283,88 @@
             </div>
 
             <!-- Farmer Panel -->
-            <div id="role-farmer" role="tabpanel" aria-labelledby="role-btn-farmer" class="role-panel bg-white rounded-3xl border border-[#3A7D44]/10 p-8 sm:p-12 shadow-sm">
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                    <div class="space-y-6">
-                        <h3 class="text-2xl font-display text-[#1A2E1A]">Ship full loads without meeting minimums</h3>
-                        <p class="text-[#1A2E1A]/60 leading-relaxed">
+            <div id="role-farmer" role="tabpanel" aria-labelledby="role-btn-farmer" class="role-panel bg-[#FAFAF5] rounded-3xl border border-[#1A2E1A]/5 overflow-hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-2">
+                    <div class="p-8 sm:p-12 flex flex-col justify-center">
+                        <h3 class="text-2xl font-display text-[#1A2E1A] mb-4">Ship full loads without meeting minimums</h3>
+                        <p class="text-[#1A2E1A]/60 leading-relaxed mb-6">
                             Submit your harvest. Our engine finds other farms along your highway corridor and groups your crops into a single optimized truckload. You pay only for the space you use.
                         </p>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div class="p-4 rounded-xl bg-[#FAFAF5] border border-[#3A7D44]/5">
-                                <p class="text-sm font-bold text-[#1A2E1A]">Corridor Matching</p>
-                                <p class="text-xs text-[#1A2E1A]/40 mt-1">Grouped with nearby farms</p>
-                            </div>
-                            <div class="p-4 rounded-xl bg-[#FAFAF5] border border-[#3A7D44]/5">
-                                <p class="text-sm font-bold text-[#1A2E1A]">Fair Pricing</p>
-                                <p class="text-xs text-[#1A2E1A]/40 mt-1">Pay only for your space</p>
-                            </div>
+                        <div class="flex flex-wrap gap-3">
+                            <span class="px-3 py-1.5 rounded-full bg-[#3A7D44]/10 text-[#3A7D44] text-xs font-semibold">Corridor Matching</span>
+                            <span class="px-3 py-1.5 rounded-full bg-[#3A7D44]/10 text-[#3A7D44] text-xs font-semibold">Proportional Cost Split</span>
+                            <span class="px-3 py-1.5 rounded-full bg-[#3A7D44]/10 text-[#3A7D44] text-xs font-semibold">Quick Crop Posting</span>
                         </div>
                     </div>
-                    <div class="bg-[#FAFAF5] p-6 rounded-2xl border border-[#3A7D44]/5">
-                        <div class="bg-white border border-[#1A2E1A]/5 rounded-xl p-5 shadow-sm space-y-4">
-                            <div class="flex justify-between items-center pb-3 border-b border-[#1A2E1A]/5">
-                                <p class="text-sm font-bold text-[#1A2E1A]">New Harvest Posting</p>
-                                <span class="px-2 py-0.5 text-[10px] bg-[#3A7D44]/10 text-[#3A7D44] rounded font-bold uppercase">Ready</span>
-                            </div>
-                            <div class="grid grid-cols-2 gap-3 text-xs">
-                                <div>
-                                    <p class="text-[#1A2E1A]/40">Crop</p>
-                                    <p class="font-bold text-[#1A2E1A] mt-0.5">Pineapples</p>
-                                </div>
-                                <div>
-                                    <p class="text-[#1A2E1A]/40">Volume</p>
-                                    <p class="font-bold text-[#1A2E1A] mt-0.5">4.8 Metric Tons</p>
-                                </div>
-                                <div>
-                                    <p class="text-[#1A2E1A]/40">Pickup</p>
-                                    <p class="font-bold text-[#1A2E1A] mt-0.5">Tupi Highway Hub</p>
-                                </div>
-                                <div>
-                                    <p class="text-[#1A2E1A]/40">Dispatch</p>
-                                    <p class="font-bold text-[#1A2E1A] mt-0.5">May 30, 2026</p>
-                                </div>
-                            </div>
-                            <button class="w-full bg-[#3A7D44] text-white rounded-lg py-2.5 text-xs font-bold hover:bg-[#2E6336] transition">
-                                Publish to Logistics Board
-                            </button>
+                    <div class="bg-[#1F4D25] flex items-center justify-center p-8 sm:p-12">
+                        <div class="text-center">
+                            <svg class="w-16 h-16 text-[#C8A415] mx-auto mb-4" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M32 8 C20 8 12 16 12 28 C12 40 32 56 32 56 C32 56 52 40 52 28 C52 16 44 8 32 8Z" opacity="0.2" fill="#C8A415"/>
+                                <path d="M32 8 C20 8 12 16 12 28 C12 40 32 56 32 56 C32 56 52 40 52 28 C52 16 44 8 32 8Z"/>
+                                <circle cx="32" cy="26" r="8"/>
+                                <path d="M24 40 L32 34 L40 40"/>
+                            </svg>
+                            <p class="text-white/60 text-sm">Post harvest, get matched, ship full</p>
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- Logistics Panel -->
-            <div id="role-logistics" role="tabpanel" aria-labelledby="role-btn-logistics" class="role-panel hidden bg-white rounded-3xl border border-[#3A7D44]/10 p-8 sm:p-12 shadow-sm">
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                    <div class="space-y-6">
-                        <h3 class="text-2xl font-display text-[#1A2E1A]">Build optimized multi-stop routes in one screen</h3>
-                        <p class="text-[#1A2E1A]/60 leading-relaxed">
+            <div id="role-logistics" role="tabpanel" aria-labelledby="role-btn-logistics" class="role-panel hidden bg-[#FAFAF5] rounded-3xl border border-[#1A2E1A]/5 overflow-hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-2">
+                    <div class="p-8 sm:p-12 flex flex-col justify-center">
+                        <h3 class="text-2xl font-display text-[#1A2E1A] mb-4">Build optimized multi-stop routes in one screen</h3>
+                        <p class="text-[#1A2E1A]/60 leading-relaxed mb-6">
                             View regional farm posts, select compatible harvests, and generate sequential pickup routes. Track truck capacity and assign drivers instantly.
                         </p>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div class="p-4 rounded-xl bg-[#FAFAF5] border border-[#3A7D44]/5">
-                                <p class="text-sm font-bold text-[#1A2E1A]">Sequential Routing</p>
-                                <p class="text-xs text-[#1A2E1A]/40 mt-1">Optimal multi-stop lines</p>
-                            </div>
-                            <div class="p-4 rounded-xl bg-[#FAFAF5] border border-[#3A7D44]/5">
-                                <p class="text-sm font-bold text-[#1A2E1A]">Fleet Monitoring</p>
-                                <p class="text-xs text-[#1A2E1A]/40 mt-1">Track truck space & drivers</p>
-                            </div>
+                        <div class="flex flex-wrap gap-3">
+                            <span class="px-3 py-1.5 rounded-full bg-[#C8A415]/10 text-[#9A7D10] text-xs font-semibold">Sequential Routing</span>
+                            <span class="px-3 py-1.5 rounded-full bg-[#C8A415]/10 text-[#9A7D10] text-xs font-semibold">Fleet Monitoring</span>
+                            <span class="px-3 py-1.5 rounded-full bg-[#C8A415]/10 text-[#9A7D10] text-xs font-semibold">Knapsack Optimization</span>
                         </div>
                     </div>
-                    <div class="bg-[#FAFAF5] p-6 rounded-2xl border border-[#3A7D44]/5">
-                        <div class="bg-white border border-[#1A2E1A]/5 rounded-xl p-5 shadow-sm space-y-3">
-                            <div class="flex justify-between items-center pb-3 border-b border-[#1A2E1A]/5">
-                                <p class="text-sm font-bold text-[#1A2E1A]">Dispatch Optimizer</p>
-                                <span class="px-2 py-0.5 text-[10px] bg-[#C8A415]/10 text-[#9A7D10] rounded font-bold uppercase">Route Ready</span>
-                            </div>
-                            <div class="space-y-2">
-                                <div class="p-3 bg-[#FAFAF5] rounded-lg flex justify-between items-center text-xs">
-                                    <div class="flex items-center gap-2">
-                                        <span class="w-2 h-2 rounded-full bg-[#C8A415]"></span>
-                                        <span class="font-semibold text-[#1A2E1A]">Stop 1: Tupi Co-op</span>
-                                    </div>
-                                    <span class="text-[#1A2E1A]/40">4.8T</span>
-                                </div>
-                                <div class="p-3 bg-[#FAFAF5] rounded-lg flex justify-between items-center text-xs">
-                                    <div class="flex items-center gap-2">
-                                        <span class="w-2 h-2 rounded-full bg-[#3A7D44]"></span>
-                                        <span class="font-semibold text-[#1A2E1A]">Stop 2: Polomolok</span>
-                                    </div>
-                                    <span class="text-[#1A2E1A]/40">3.2T</span>
-                                </div>
-                                <div class="p-3 bg-[#1F4D25] text-white rounded-lg flex justify-between items-center text-xs">
-                                    <div class="flex items-center gap-2">
-                                        <span class="w-2 h-2 rounded-full bg-[#C8A415]"></span>
-                                        <span class="font-semibold">GenSan Terminal</span>
-                                    </div>
-                                    <span class="text-[#C8A415] font-bold">8.0T / 10T</span>
-                                </div>
-                            </div>
-                            <button class="w-full bg-[#3A7D44] text-white rounded-lg py-2.5 text-xs font-bold hover:bg-[#2E6336] transition">
-                                Deploy Route
-                            </button>
+                    <div class="bg-[#1F4D25] flex items-center justify-center p-8 sm:p-12">
+                        <div class="text-center">
+                            <svg class="w-16 h-16 text-[#C8A415] mx-auto mb-4" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M8 48 Q20 32 32 36 T56 28" stroke-dasharray="4 3"/>
+                                <circle cx="8" cy="48" r="5" fill="#3A7D44" stroke="white" stroke-width="2"/>
+                                <circle cx="32" cy="36" r="4" fill="#C8A415" stroke="white" stroke-width="2"/>
+                                <circle cx="56" cy="28" r="5" fill="#C8A415" stroke="white" stroke-width="2"/>
+                                <rect x="20" y="18" width="24" height="14" rx="3" opacity="0.3" fill="#C8A415"/>
+                                <path d="M26 18 L32 10 L38 18"/>
+                            </svg>
+                            <p class="text-white/60 text-sm">Plan routes, assign trucks, deploy</p>
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- Driver Panel -->
-            <div id="role-driver" role="tabpanel" aria-labelledby="role-btn-driver" class="role-panel hidden bg-white rounded-3xl border border-[#3A7D44]/10 p-8 sm:p-12 shadow-sm">
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                    <div class="space-y-6">
-                        <h3 class="text-2xl font-display text-[#1A2E1A]">Mobile-first dispatch with live GPS</h3>
-                        <p class="text-[#1A2E1A]/60 leading-relaxed">
-                            Drivers use a lightweight PWA. View stops, tap milestones as you load, and broadcast GPS — no app install needed.
+            <div id="role-driver" role="tabpanel" aria-labelledby="role-btn-driver" class="role-panel hidden bg-[#FAFAF5] rounded-3xl border border-[#1A2E1A]/5 overflow-hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-2">
+                    <div class="p-8 sm:p-12 flex flex-col justify-center">
+                        <h3 class="text-2xl font-display text-[#1A2E1A] mb-4">Mobile-first dispatch with live GPS</h3>
+                        <p class="text-[#1A2E1A]/60 leading-relaxed mb-6">
+                            Drivers use a lightweight PWA. View stops, tap milestones as you load, and broadcast GPS — no app install needed. Works offline in low-signal areas.
                         </p>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div class="p-4 rounded-xl bg-[#FAFAF5] border border-[#3A7D44]/5">
-                                <p class="text-sm font-bold text-[#1A2E1A]">Mobile PWA</p>
-                                <p class="text-xs text-[#1A2E1A]/40 mt-1">Works in low signal</p>
-                            </div>
-                            <div class="p-4 rounded-xl bg-[#FAFAF5] border border-[#3A7D44]/5">
-                                <p class="text-sm font-bold text-[#1A2E1A]">Live Telemetry</p>
-                                <p class="text-xs text-[#1A2E1A]/40 mt-1">Browser GPS broadcast</p>
-                            </div>
+                        <div class="flex flex-wrap gap-3">
+                            <span class="px-3 py-1.5 rounded-full bg-[#3A7D44]/10 text-[#3A7D44] text-xs font-semibold">Mobile PWA</span>
+                            <span class="px-3 py-1.5 rounded-full bg-[#3A7D44]/10 text-[#3A7D44] text-xs font-semibold">Live Telemetry</span>
+                            <span class="px-3 py-1.5 rounded-full bg-[#3A7D44]/10 text-[#3A7D44] text-xs font-semibold">Offline Support</span>
                         </div>
                     </div>
-                    <div class="flex justify-center">
-                        <div class="w-56 bg-[#1A2E1A] border-[5px] border-[#3D2517] rounded-[32px] p-4 text-white aspect-[9/18] shadow-2xl">
-                            <div class="absolute top-2 left-1/2 -translate-x-1/2 w-16 h-3.5 rounded-full bg-[#3D2517]"></div>
-                            <div class="pt-4 space-y-3">
-                                <div class="text-center">
-                                    <p class="text-[9px] text-white/40 font-bold uppercase tracking-wider">Active Route</p>
-                                    <p class="text-xs font-bold text-white mt-0.5">#HH-409</p>
-                                </div>
-                                <div class="space-y-2 text-left">
-                                    <div class="p-2.5 rounded-xl bg-[#3A7D44]/15 border border-[#3A7D44]/20 flex gap-2">
-                                        <span class="text-[#C8A415] font-bold text-[10px]">✓</span>
-                                        <div>
-                                            <p class="text-[10px] font-bold text-white">Tupi Hub</p>
-                                            <p class="text-[8px] text-[#C8A415] font-semibold">4.8T loaded</p>
-                                        </div>
-                                    </div>
-                                    <div class="p-2.5 rounded-xl bg-white/5 border border-white/10 flex gap-2">
-                                        <span class="w-3 h-3 rounded-full bg-white/10 flex items-center justify-center text-[8px] text-white/40">2</span>
-                                        <div class="flex-1">
-                                            <p class="text-[10px] font-bold text-white">Polomolok</p>
-                                            <p class="text-[8px] text-white/40">3.2T pending</p>
-                                            <button class="w-full mt-1.5 bg-[#C8A415] text-[#1A2E1A] rounded py-1 text-[9px] font-bold">Mark Loaded</button>
-                                        </div>
-                                    </div>
-                                    <div class="p-2.5 rounded-xl bg-white/5 border border-white/10 opacity-50 flex gap-2">
-                                        <span class="w-3 h-3 rounded-full bg-white/10 flex items-center justify-center text-[8px] text-white/40">3</span>
-                                        <div>
-                                            <p class="text-[10px] font-bold text-white/60">GenSan</p>
-                                            <p class="text-[8px] text-white/30">Final drop-off</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="bg-white/5 p-2 rounded-xl border border-white/10 flex items-center justify-between">
-                                    <div>
-                                        <p class="text-[8px] text-white/40 uppercase font-bold">GPS</p>
-                                        <p class="text-[9px] text-[#C8A415] font-bold">Active</p>
-                                    </div>
-                                    <div class="w-7 h-3.5 rounded-full bg-[#3A7D44] p-0.5 flex justify-end">
-                                        <div class="w-2.5 h-2.5 rounded-full bg-white"></div>
-                                    </div>
-                                </div>
-                            </div>
+                    <div class="bg-[#1F4D25] flex items-center justify-center p-8 sm:p-12">
+                        <div class="text-center">
+                            <svg class="w-16 h-16 text-[#C8A415] mx-auto mb-4" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <rect x="18" y="6" width="28" height="52" rx="6" stroke-width="2"/>
+                                <rect x="22" y="14" width="20" height="32" rx="2" opacity="0.2" fill="#C8A415"/>
+                                <circle cx="32" cy="52" r="2"/>
+                                <path d="M28 22 L32 18 L36 22" stroke="#C8A415" stroke-width="2"/>
+                                <path d="M26 34 L30 30 L34 34 L38 28" stroke="#3A7D44" stroke-width="2"/>
+                                <circle cx="30" cy="40" r="2" fill="#C8A415"/>
+                            </svg>
+                            <p class="text-white/60 text-sm">View stops, track GPS, mark delivered</p>
                         </div>
                     </div>
                 </div>
@@ -554,26 +372,24 @@
         </div>
     </section>
 
+
+
     <!-- Stats -->
     <section class="py-16 bg-[#FAFAF5]">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="bg-[#1F4D25] rounded-3xl p-8 sm:p-12 border border-white/5">
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-8 divide-x divide-white/5">
-                    <div class="text-center md:text-left px-4 first:pl-0">
-                        <p class="font-mono text-3xl font-bold text-[#C8A415]">₱3,450</p>
-                        <p class="text-xs text-white/40 mt-2 uppercase tracking-wider font-semibold">Avg. Fuel Saved Per Trip</p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 divide-y md:divide-y-0 md:divide-x divide-white/5">
+                    <div class="text-center px-6 pt-6 md:pt-0 first:pt-0">
+                        <p class="font-mono text-3xl font-bold text-[#C8A415]">4</p>
+                        <p class="text-xs text-white/40 mt-2 uppercase tracking-wider font-semibold">Role-Based Portals</p>
                     </div>
-                    <div class="text-center md:text-left px-4">
-                        <p class="font-mono text-3xl font-bold text-[#C8A415]">92.6%</p>
-                        <p class="text-xs text-white/40 mt-2 uppercase tracking-wider font-semibold">Truck Space Utilized</p>
+                    <div class="text-center px-6 pt-6 md:pt-0">
+                        <p class="font-mono text-3xl font-bold text-[#C8A415]">GPS</p>
+                        <p class="text-xs text-white/40 mt-2 uppercase tracking-wider font-semibold">Real-Time Tracking</p>
                     </div>
-                    <div class="text-center md:text-left px-4">
-                        <p class="font-mono text-3xl font-bold text-[#C8A415]">48h</p>
-                        <p class="text-xs text-white/40 mt-2 uppercase tracking-wider font-semibold">Farm to Terminal Max</p>
-                    </div>
-                    <div class="text-center md:text-left px-4">
-                        <p class="font-mono text-3xl font-bold text-[#C8A415]">2 min</p>
-                        <p class="text-xs text-white/40 mt-2 uppercase tracking-wider font-semibold">Harvest Posting Time</p>
+                    <div class="text-center px-6 pt-6 md:pt-0">
+                        <p class="font-mono text-3xl font-bold text-[#C8A415]">PWA</p>
+                        <p class="text-xs text-white/40 mt-2 uppercase tracking-wider font-semibold">Mobile-First Driver App</p>
                     </div>
                 </div>
             </div>
@@ -585,7 +401,7 @@
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="max-w-2xl mx-auto mb-12">
                 <span class="text-xs font-bold uppercase tracking-widest text-[#3A7D44]">FAQ</span>
-                <h2 class="text-3xl sm:text-4xl font-display text-[#1A2E1A] mt-4">Common questions</h2>
+                <h2 class="text-3xl sm:text-4xl font-display text-[#1A2E1A] mt-4">Your Questions, Answered</h2>
             </div>
 
             <div class="max-w-2xl mx-auto space-y-3">
@@ -625,7 +441,7 @@
                         <span id="faq-icon-3" class="text-[#C8A415] font-bold text-lg transition-transform duration-300">+</span>
                     </button>
                     <div id="faq-3" class="faq-content px-6 pb-5">
-                        <p class="text-sm text-[#1A2E1A]/50 leading-relaxed">HARVEST calculates proportional costs based on crop weight (tons) and pickup-to-hub distance (km) registered during scheduling.</p>
+                        <p class="text-sm text-[#1A2E1A]/50 leading-relaxed">HarvestHaul calculates proportional costs based on crop weight (tons) and pickup-to-hub distance (km) registered during scheduling.</p>
                     </div>
                 </div>
             </div>
@@ -633,25 +449,65 @@
     </section>
 
     <!-- CTA -->
-    <section class="py-24 bg-[#2E6336]">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 class="text-3xl sm:text-5xl font-display text-white leading-tight">Ready to coordinate your shipments?</h2>
-            <p class="text-white/60 mt-6 text-lg max-w-xl mx-auto">
-                Join cooperatives across Tupi, Polomolok, and General Santos who are already saving on logistics.
-            </p>
-            <div class="mt-10 flex flex-wrap justify-center gap-4">
-                @guest
-                    <a href="{{ route('login') }}" class="px-8 py-4 bg-[#C8A415] text-[#1A2E1A] rounded-xl font-bold hover:bg-[#C8A415]/90 transition shadow-lg gold-glow">
-                        Register Your Organization
-                    </a>
-                    <a href="{{ route('login') }}" class="px-8 py-4 bg-white/10 text-white rounded-xl font-semibold hover:bg-white/15 border border-white/20 transition">
-                        Access Portal
-                    </a>
-                @else
-                    <a href="{{ url('/dashboard') }}" class="px-8 py-4 bg-[#C8A415] text-[#1A2E1A] rounded-xl font-bold hover:bg-[#C8A415]/90 transition shadow-lg gold-glow">
-                        Open Dashboard
-                    </a>
-                @endguest
+    <section class="py-24 bg-white">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                <div>
+                    <h2 class="text-3xl sm:text-4xl font-display text-[#1A2E1A] leading-tight">Get Started with HarvestHaul</h2>
+                    <p class="text-[#1A2E1A]/60 mt-6 text-lg leading-relaxed">
+                        Register your cooperative or freight operator account to start coordinating crop pickups and deliveries through a centralized platform.
+                    </p>
+
+                    <div class="mt-10 space-y-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-lg bg-[#3A7D44]/10 flex items-center justify-center">
+                                <svg class="w-4 h-4 text-[#3A7D44]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                                </svg>
+                            </div>
+                            <span class="text-sm text-[#1A2E1A]/60">hello@harvesthaul.ph</span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-lg bg-[#3A7D44]/10 flex items-center justify-center">
+                                <svg class="w-4 h-4 text-[#3A7D44]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                </svg>
+                            </div>
+                            <span class="text-sm text-[#1A2E1A]/60">General Santos City, Mindanao</span>
+                        </div>
+                    </div>
+
+                    <div class="mt-10 flex flex-wrap gap-4">
+                        @guest
+                            <a href="{{ route('login') }}" class="px-8 py-4 bg-[#C8A415] text-[#1A2E1A] rounded-xl font-bold hover:bg-[#C8A415]/90 transition shadow-lg">
+                                Register Your Organization
+                            </a>
+                            <a href="{{ route('login') }}" class="px-8 py-4 bg-[#1A2E1A] text-white rounded-xl font-semibold hover:bg-[#1A2E1A]/90 transition">
+                                Access Portal
+                            </a>
+                        @else
+                            <a href="{{ url('/dashboard') }}" class="px-8 py-4 bg-[#C8A415] text-[#1A2E1A] rounded-xl font-bold hover:bg-[#C8A415]/90 transition shadow-lg">
+                                Open Dashboard
+                            </a>
+                        @endguest
+                    </div>
+                </div>
+
+                <div class="relative">
+                    <div class="bg-[#FAFAF5] rounded-3xl p-8 border border-[#1A2E1A]/5">
+                        <p class="text-xs font-bold uppercase tracking-widest text-[#C8A415] mb-6">Stay Updated</p>
+                        <p class="text-sm text-[#1A2E1A]/60 mb-6 leading-relaxed">
+                            Receive platform updates and delivery coordination tips.
+                        </p>
+                        <div class="flex gap-3">
+                            <input type="email" placeholder="Email address" class="flex-1 px-4 py-3 rounded-xl bg-white border border-[#1A2E1A]/10 text-sm text-[#1A2E1A] placeholder:text-[#1A2E1A]/30 focus:outline-none focus:ring-2 focus:ring-[#C8A415]/30 focus:border-[#C8A415]">
+                            <button class="px-6 py-3 bg-[#3A7D44] text-white rounded-xl text-sm font-bold hover:bg-[#2E6336] transition whitespace-nowrap">
+                                Sign Up
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
@@ -668,8 +524,8 @@
                 <span class="text-sm font-bold text-white/60 font-display">HarvestHaul</span>
             </div>
             <div class="flex gap-6 text-xs">
-                <a href="#problem" class="hover:text-white transition">Problem</a>
-                <a href="#solution" class="hover:text-white transition">How It Works</a>
+                <a href="#about" class="hover:text-white transition">About</a>
+                <a href="#services" class="hover:text-white transition">Services</a>
                 <a href="#roles" class="hover:text-white transition">Portals</a>
                 <a href="#faq" class="hover:text-white transition">FAQ</a>
             </div>

@@ -25,14 +25,7 @@
         </header>
 
         {{-- Flash Messages --}}
-        @if(session('success'))
-            <div class="mb-6 bg-[#3A7D44]/10 dark:bg-[#3A7D44]/10 border border-[#3A7D44]/20 dark:border-[#3A7D44]/20 text-[#3A7D44] dark:text-[#3A7D44] rounded-xl px-5 py-4 text-sm font-medium flex items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-[#3A7D44] dark:text-[#3A7D44] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                {{ session('success') }}
-            </div>
-        @endif
+        <x-flash-success />
 
         {{-- Vehicles List --}}
         <div class="bg-white dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700/80 rounded-2xl shadow-sm p-6">
@@ -40,7 +33,7 @@
 
             @if($vehicles->isEmpty())
                 <div class="bg-slate-50 dark:bg-slate-900/40 border border-dashed border-slate-300 dark:border-slate-700/80 rounded-xl p-12 text-center">
-                    <p class="text-4xl mb-4">🚛</p>
+                    <p class="text-4xl mb-4 font-bold text-slate-300 dark:text-slate-600">—</p>
                     <p class="text-slate-800 dark:text-slate-200 font-bold text-base mb-1 heading-font">No Vehicles Registered</p>
                     <p class="text-slate-400 dark:text-slate-500 font-medium text-xs max-w-sm mx-auto">
                         Register a new truck, wing van, or utility vehicle to calculate optimized multi-party cargo routes.
@@ -75,7 +68,7 @@
                                     <td class="py-4 pr-3">
                                         <div class="flex items-center gap-3">
                                             <div class="w-10 h-10 rounded-xl bg-[#1F4D25]/10 dark:bg-[#1F4D25]/10 border border-[#1F4D25]/15 dark:border-[#1F4D25]/15 flex items-center justify-center text-[#1F4D25] dark:text-[#1F4D25] font-extrabold uppercase text-sm select-none">
-                                                🚛
+                                                 {{ substr($vehicle->truck_name, 0, 1) }}
                                             </div>
                                             <div>
                                                 <p class="font-bold text-slate-800 dark:text-slate-200 text-sm mb-0.5">{{ $vehicle->truck_name }}</p>

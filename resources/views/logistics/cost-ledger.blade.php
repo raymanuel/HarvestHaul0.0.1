@@ -111,7 +111,7 @@
                                             <p class="text-[10px] text-slate-400 mt-0.5">{{ $entry['variety'] }}</p>
                                         @endif
                                         <p class="text-[10px] text-slate-500 mt-1 italic max-w-[200px] truncate" title="{{ $entry['destination'] }}">
-                                            📍 {{ $entry['destination'] }}
+                                            <x-icon name="pin" class="w-4 h-4" /> {{ $entry['destination'] }}
                                         </p>
                                     </td>
                                     <td class="px-5 py-4 text-right">

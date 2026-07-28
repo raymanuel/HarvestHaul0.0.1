@@ -11,9 +11,9 @@
             </div>
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <span class="text-[10px] font-bold uppercase tracking-widest text-harvest dark:text-harvest bg-harvest/10 dark:bg-harvest/10 px-3 py-1 rounded-full border border-harvest/20">B2B Crop Board</span>
+                    <span class="text-[10px] font-bold uppercase tracking-widest text-harvest dark:text-harvest bg-harvest/10 dark:bg-harvest/10 px-3 py-1 rounded-full border border-harvest/20">Crop Board</span>
                     <h1 class="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight heading-font mt-3">Available Posts</h1>
-                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-1 font-medium">Browse verified independent farmer posts and initiate direct B2B negotiations.</p>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-1 font-medium">Browse farmer posts and start a negotiation.</p>
                 </div>
             </div>
         </header>
@@ -35,11 +35,9 @@
                             @if(!empty($post->crop_photos))
                                 <img src="{{ asset('storage/' . $post->crop_photos[0]) }}" alt="{{ $post->crop->name ?? $post->crop_type }}" class="w-full h-full object-cover">
                             @else
-                                <svg class="w-12 h-12 text-harvest/40 dark:text-harvest/30" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12M6 12h12M3 6h3M18 6h3M3 18h3M18 18h3M6 3v3M6 18v3M18 3v3M18 18v3" />
-                                </svg>
+                                <x-icon name="folder" class="w-12 h-12 text-harvest/40 dark:text-harvest/30" />
                             @endif
-                            <span class="absolute top-3 left-3 text-[9px] font-extrabold uppercase tracking-widest text-harvest dark:text-harvest bg-white/70 dark:bg-slate-900/70 backdrop-blur-sm px-2 py-0.5 rounded border border-harvest/20">PRODUCT #{{ $post->id }}</span>
+                            <span class="absolute top-3 left-3 text-[9px] font-extrabold uppercase tracking-widest text-harvest dark:text-harvest bg-white/70 dark:bg-slate-900/70 backdrop-blur-sm px-2 py-0.5 rounded border border-harvest/20">Post #{{ $post->id }}</span>
                         </div>
                         <div class="p-5 flex flex-col flex-1">
                             <div class="flex items-start justify-between gap-2 mb-1">
@@ -87,35 +85,23 @@
 
                             <div class="mt-auto pt-4 border-t border-slate-100 dark:border-slate-700/50">
                                 <div class="flex items-center gap-2 mb-3">
-                                    <div class="w-6 h-6 rounded-full bg-harvest/10 dark:bg-harvest/50 flex items-center justify-center">
-                                        <svg class="w-3 h-3 text-harvest dark:text-harvest" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                        </svg>
-                                    </div>
                                     <span class="text-xs font-semibold text-slate-600 dark:text-slate-400">{{ $post->farmer->name ?? 'Farmer' }}</span>
                                 </div>
                                 @if($post->notes)
                                     <p class="text-[10px] text-slate-400 dark:text-slate-500 leading-relaxed mb-3 line-clamp-2">"{{ Str::limit($post->notes, 80) }}"</p>
                                 @endif
                                 <a href="{{ route('buyer.crop-board.show', $post->id) }}" class="w-full flex items-center justify-center gap-2 py-2 mb-2 bg-white dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                    </svg>
+                                    <x-icon name="search" class="w-3.5 h-3.5" />
                                     View Details
                                 </a>
                                 @if($isMyNegotiation)
                                     <a href="{{ route('negotiations.room', $negotiationRoomMap[$post->id]) }}" class="w-full flex items-center justify-center gap-2 py-2.5 bg-amber-50 dark:bg-amber-900/20 border border-amber-200/50 dark:border-amber-700/30 rounded-xl text-xs font-bold text-amber-700 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/30 transition-colors">
-                                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                                        </svg>
+                                        <x-icon name="chat" class="w-3.5 h-3.5" />
                                         Continue Negotiation
                                     </a>
                                 @elseif($isNegotiating)
                                     <div class="w-full flex items-center justify-center gap-2 py-2.5 bg-slate-100 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-xl text-xs font-bold text-slate-400 dark:text-slate-500 cursor-not-allowed">
-                                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                        </svg>
+                                        <x-icon name="document" class="w-3.5 h-3.5" />
                                         Under Negotiation
                                     </div>
                                 @else
@@ -123,9 +109,7 @@
                                         @csrf
                                         <input type="hidden" name="harvest_id" value="{{ $post->id }}">
                                         <button type="submit" class="w-full flex items-center justify-center gap-2 py-2.5 bg-harvest hover:bg-harvest-dark dark:bg-harvest dark:hover:bg-harvest-dark text-white font-bold rounded-xl text-xs transition-colors shadow-sm shadow-harvest/10 cursor-pointer">
-                                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12M6 12h12" />
-                                            </svg>
+                                            <x-icon name="plus" class="w-3.5 h-3.5" />
                                             Initiate Negotiation
                                         </button>
                                     </form>

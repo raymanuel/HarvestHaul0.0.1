@@ -69,6 +69,8 @@ class HarvestTest extends TestCase
             'phone' => '09123456789',
             'is_verified' => false,
             'affiliation_type' => 'independent',
+            'latitude' => 6.1164,
+            'longitude' => 125.1716,
         ]);
 
         $this->actingAs($user)

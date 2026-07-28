@@ -7,10 +7,10 @@
     <title>HarvestHaul — Welcome</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
         <style>
         * { margin:0; padding:0; box-sizing:border-box; }
-        html, body { height:100%; overflow:hidden; font-family:'Plus Jakarta Sans',sans-serif; }
+        html, body { height:100%; overflow:hidden; font-family:'DM Sans',sans-serif; }
 
         .btn-loading { pointer-events:none; opacity:0.7; }
         .btn-loading::after { content:''; display:inline-block; width:16px; height:16px; border:2px solid rgba(255,255,255,0.3); border-top-color:#fff; border-radius:50%; animation:spin 0.6s linear infinite; margin-left:8px; vertical-align:middle; }
@@ -66,7 +66,7 @@
                 <div style="display:inline-block; padding:4px 14px; border-radius:100px; background:rgba(58,125,68,0.15); border:1px solid rgba(58,125,68,0.2); margin-bottom:20px;">
                     <span style="font-size:11px; font-weight:700; color:#3A7D44; letter-spacing:0.04em; text-transform:uppercase;">Mindanao Agri-Logistics</span>
                 </div>
-                <h1 style="font-size:2.5rem; font-weight:800; color:white; line-height:1.15; letter-spacing:-0.03em; margin-bottom:16px; font-family:'Outfit',sans-serif;">
+                <h1 style="font-size:2.5rem; font-weight:800; color:white; line-height:1.15; letter-spacing:-0.03em; margin-bottom:16px; font-family:'Instrument Serif',sans-serif;">
                     Bridge the<br>
                     <span style="color:#C8A415;">Supply Chain</span>
                 </h1>
@@ -342,7 +342,7 @@
                 </div>
             </div>
             <div style="padding:1.5rem 2rem 2rem;">
-                <div id="legal-modal-body" style="font-family:'Plus Jakarta Sans',sans-serif;font-size:0.9rem;line-height:1.7;color:#374151;text-align:justify;"></div>
+                <div id="legal-modal-body" style="font-family:'DM Sans',sans-serif;font-size:0.9rem;line-height:1.7;color:#374151;text-align:justify;"></div>
             </div>
         </div>
     </div>

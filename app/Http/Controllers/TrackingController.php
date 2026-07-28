@@ -75,8 +75,8 @@ class TrackingController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Unauthorized fleet streaming.'], 403);
         }
 
-        // Hard limitation check: Only log coordinates if the delivery trip is active
-        if ($job->status !== PoolingJobStatus::IN_PROGRESS) {
+        // Allow GPS pings when job is in_progress or confirmed (pre-flight tracking)
+        if ($job->status !== PoolingJobStatus::IN_PROGRESS && $job->status !== PoolingJobStatus::CONFIRMED) {
             return response()->json(['status' => 'error', 'message' => 'Job is not in transit.'], 422);
         }
 

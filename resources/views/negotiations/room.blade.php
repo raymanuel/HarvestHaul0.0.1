@@ -18,9 +18,6 @@
         $shadowColor = $isBuyer ? 'shadow-harvest/10' : 'shadow-[#3A7D44]/10';
     @endphp
 
-    <!-- Ambient glow decoration -->
-    <div class="absolute top-0 right-1/4 w-96 h-96 rounded-full bg-{{ $themeColor }}-500/5 blur-[120px] pointer-events-none z-0"></div>
-
     <div class="relative z-10">
         <!-- Page Header -->
         <header class="mb-6 pt-6">
@@ -58,7 +55,6 @@
                 <!-- Chat Header -->
                 <div class="px-6 py-4 bg-slate-50/50 dark:bg-slate-900/40 border-b border-slate-150 dark:border-slate-700/60 flex items-center justify-between shrink-0">
                     <div class="flex items-center gap-3">
-                        <div class="w-2 h-2 rounded-full bg-[#3A7D44]/100 animate-ping"></div>
                         <h3 class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Live Chat Console</h3>
                     </div>
                     <span class="text-[10px] font-bold font-mono text-slate-400 dark:text-slate-500">Secure Direct Message Tunnel</span>
@@ -113,12 +109,12 @@
                 <div class="p-4 border-t border-slate-150 dark:border-slate-700/60 bg-slate-50/50 dark:bg-slate-900/30 shrink-0">
                     @if($negotiation->status === 'COMPLETED')
                         <div class="text-center p-4 bg-[#1F4D25]/10 border border-[#1F4D25]/20 rounded-xl">
-                            <p class="text-[#1F4D25] dark:text-[#1F4D25] text-xs font-bold leading-none mb-3">✅ B2B deal finalized and closed. Chat room is locked to read-only.</p>
+                            <p class="text-[#1F4D25] dark:text-[#1F4D25] text-xs font-bold leading-none mb-3"><x-icon name="check" class="w-4 h-4" /> B2B deal finalized and closed. Chat room is locked to read-only.</p>
                             <div class="flex flex-wrap gap-2 justify-center">
                                 @if(auth()->user()->role === 'logistics_partner')
                                     <a href="{{ route('route.optimization') }}"
                                        class="inline-flex items-center gap-1.5 px-4 py-2 bg-[#3A7D44] hover:bg-[#2E6336] text-white font-bold rounded-xl text-xs transition">
-                                        🗺️ Go to Dispatch Console
+                                         <x-icon name="map" class="w-4 h-4" /> Go to Route Planning
                                     </a>
                                 @endif
                                 <a href="{{ $isBuyer ? route('buyer.negotiations') : route('farmer.negotiations') }}"
@@ -302,7 +298,7 @@
                             <form id="agree-terms-form" class="mb-4" onsubmit="return agreeTerms(event)">
                                 @csrf
                                 <button type="submit" id="agree-btn" class="w-full py-3 {{ $accentBg }} text-white font-bold rounded-xl text-xs transition duration-200 shadow-sm {{ $shadowColor }} cursor-pointer">
-                                    {{ $negotiation->status === 'AGREED' ? '✓ You Already Agreed' : 'Agree to These Terms' }}
+                                    {{ $negotiation->status === 'AGREED' ? 'Agreed' : 'Agree to These Terms' }}
                                 </button>
                             </form>
                         @endif
@@ -353,7 +349,7 @@
 
                                 document.getElementById('destination_latitude').value = e.latlng.lat;
                                 document.getElementById('destination_longitude').value = e.latlng.lng;
-                                document.getElementById('dropoff-feedback').textContent = `📍 Selected: ${e.latlng.lat.toFixed(5)}, ${e.latlng.lng.toFixed(5)}`;
+                                document.getElementById('dropoff-feedback').textContent = `Selected: ${e.latlng.lat.toFixed(5)}, ${e.latlng.lng.toFixed(5)}`;
                             });
 
                             setTimeout(() => map.invalidateSize(), 200);
@@ -442,7 +438,7 @@
         }
         if (data.status === 'AGREED') {
             var btn = document.getElementById('agree-btn');
-            if (btn) btn.textContent = '✓ You Already Agreed';
+            if (btn) btn.textContent = 'Agreed';
         }
     }
 

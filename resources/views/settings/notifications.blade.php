@@ -7,11 +7,7 @@
             <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Choose which notifications you want to receive.</p>
         </div>
 
-        @if(session('success'))
-            <div class="bg-[#3A7D44]/10 border border-[#3A7D44]/20 text-[#3A7D44] px-4 py-3 rounded-xl text-xs font-semibold">
-                {{ session('success') }}
-            </div>
-        @endif
+        <x-flash-success />
 
         <form method="POST" action="{{ route('notifications.preferences.update') }}" class="space-y-3">
             @csrf

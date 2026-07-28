@@ -19,11 +19,7 @@
         </header>
 
         {{-- Flash Messages --}}
-        @if(session('success'))
-            <div class="bg-[#3A7D44]/10 border border-[#3A7D44]/20 text-[#1A2E1A] text-xs font-bold heading-font rounded-xl px-4 py-3 mb-6">
-                ✅ {{ session('success') }}
-            </div>
-        @endif
+        <x-flash-success />
 
         {{-- ═══════════════════════════════════════════ --}}
         {{-- SECTION 1: CROP PRICING TRENDS             --}}
@@ -52,7 +48,7 @@
                     <tbody class="divide-y divide-slate-100 dark:divide-slate-700/40">
                         @foreach($cropPricingTrends as $trend)
                             <tr class="hover:bg-slate-50/40 dark:hover:bg-slate-900/10 transition">
-                                <td class="px-5 py-3 font-bold text-slate-700 dark:text-slate-300">🌾 {{ $trend->crop_name }}</td>
+                                <td class="px-5 py-3 font-bold text-slate-700 dark:text-slate-300">{{ $trend->crop_name }}</td>
                                 <td class="px-5 py-3 text-right font-mono text-[#3A7D44] dark:text-[#3A7D44] font-bold">₱{{ number_format($trend->avg_price, 2) }}</td>
                                 <td class="px-5 py-3 text-right font-mono text-slate-400">₱{{ number_format($trend->min_price, 2) }}</td>
                                 <td class="px-5 py-3 text-right font-mono text-slate-400">₱{{ number_format($trend->max_price, 2) }}</td>

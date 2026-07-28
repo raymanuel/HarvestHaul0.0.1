@@ -1,15 +1,11 @@
 ﻿<x-driver-layout title="HarvestHaul — Driver Portal">
 
-    <!-- Top Header Panel (Premium Sticky Glassmorphism) -->
+    <!-- Top Header Panel -->
     <header class="sticky top-0 z-35 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800/60 px-4 py-4 transition-colors duration-300">
         <div class="flex items-center justify-between max-w-lg mx-auto">
             <div class="flex items-center gap-3">
-                <div class="relative flex items-center justify-center">
-                    <span class="absolute inline-flex h-2.5 w-2.5 rounded-full bg-[#3A7D44] dark:bg-[#3A7D44] animate-ping opacity-75"></span>
-                    <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#3A7D44] dark:bg-[#3A7D44]/100"></span>
-                </div>
                 <div>
-                    <p class="text-[9px] text-[#3A7D44] dark:text-[#3A7D44] font-bold uppercase tracking-widest leading-none">Driver Portal &middot; Live</p>
+                    <p class="text-[9px] text-[#3A7D44] dark:text-[#3A7D44] font-bold uppercase tracking-widest leading-none">Driver Portal</p>
                     <h1 class="text-base font-extrabold heading-font text-slate-800 dark:text-white mt-1.5 leading-none">{{ Auth::user()->name }}</h1>
                 </div>
             </div>
@@ -42,17 +38,13 @@
     </header>
 
     <main class="max-w-lg mx-auto px-4 py-6 relative">
-        <!-- Glow highlights -->
-        <div class="absolute top-10 left-10 w-48 h-48 bg-[#3A7D44]/5 dark:bg-[#3A7D44]/5 rounded-full blur-[80px] pointer-events-none"></div>
 
         <!-- Summary Metrics Cards -->
         <div class="grid grid-cols-2 gap-4 mb-6">
             <div class="glass-card rounded-3xl p-5 flex items-center gap-3.5 relative overflow-hidden group hover:border-[#3A7D44]/30 transition-all duration-300 shadow-sm">
                 <div class="absolute -right-3 -bottom-3 w-16 h-16 bg-[#3A7D44]/5 rounded-full group-hover:scale-150 transition-all duration-500"></div>
                 <div class="w-10 h-10 rounded-xl bg-[#3A7D44]/10 border border-[#3A7D44]/20 flex items-center justify-center text-[#3A7D44] dark:text-[#3A7D44] shrink-0">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
-                    </svg>
+                    <x-icon name="map" class="w-5 h-5" />
                 </div>
                 <div>
                     <p class="text-[9px] text-slate-400 font-bold uppercase tracking-wider leading-none">Active Runs</p>
@@ -63,9 +55,7 @@
             <div class="glass-card rounded-3xl p-5 flex items-center gap-3.5 relative overflow-hidden group hover:border-[#2E6336]/20 transition-all duration-300 shadow-sm">
                 <div class="absolute -right-3 -bottom-3 w-16 h-16 bg-[#2E6336]/5 rounded-full group-hover:scale-150 transition-all duration-500"></div>
                 <div class="w-10 h-10 rounded-xl bg-[#2E6336]/10 border border-[#2E6336]/20 flex items-center justify-center text-[#2E6336] dark:text-[#2E6336] shrink-0">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
+                    <x-icon name="check" class="w-5 h-5" />
                 </div>
                 <div>
                     <p class="text-[9px] text-slate-400 font-bold uppercase tracking-wider leading-none">Completed</p>
@@ -75,23 +65,12 @@
         </div>
 
         <!-- Flash Messages -->
-        @if(session('success'))
-            <div class="mb-5 bg-[#3A7D44]/10 border border-[#3A7D44]/20 text-[#3A7D44] dark:text-[#3A7D44] text-xs font-bold heading-font rounded-2xl p-4 flex items-center gap-3 animate-fadeIn">
-                <div class="w-5 h-5 rounded-full bg-[#3A7D44]/20 flex items-center justify-center text-[#3A7D44] shrink-0">✓</div>
-                <span>{{ session('success') }}</span>
-            </div>
-        @endif
-        @if(session('error'))
-            <div class="mb-5 bg-rose-500/10 border border-rose-500/20 text-rose-605 dark:text-rose-405 text-xs font-bold heading-font rounded-2xl p-4 flex items-center gap-3 animate-fadeIn">
-                <div class="w-5 h-5 rounded-full bg-rose-500/20 flex items-center justify-center text-rose-550 shrink-0">!</div>
-                <span>{{ session('error') }}</span>
-            </div>
-        @endif
+        <x-flash-success />
+        <x-flash-error />
 
         <!-- Section Label -->
         <div class="flex items-center justify-between mb-4 px-1">
             <p class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Active Runs Assigned</p>
-            <span class="w-1.5 h-1.5 rounded-full bg-slate-400 dark:bg-slate-600"></span>
         </div>
 
         <!-- Job Cards -->
@@ -101,12 +80,9 @@
                 <!-- Card Header -->
                 <div class="px-5 py-4 border-b border-slate-100 dark:border-slate-800/50 bg-slate-50/50 dark:bg-slate-900/40 flex items-center justify-between">
                     <div>
-                        <div class="flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full bg-[#3A7D44]/100 animate-pulse"></span>
-                            <p class="text-sm font-black text-slate-800 dark:text-white heading-font">Job ID #{{ $job->id }}</p>
-                        </div>
+                        <p class="text-sm font-black text-slate-800 dark:text-white heading-font">Job ID #{{ $job->id }}</p>
                         <p class="text-[10px] text-slate-450 mt-1">
-                            Dispatched Shipping Container Run
+                            Active Delivery Run
                         </p>
                     </div>
                     @php
@@ -121,13 +97,11 @@
                     </span>
                 </div>
 
-                <!-- Logistics Payload & Stops Details -->
+                <!-- Delivery Details -->
                 <div class="grid grid-cols-2 divide-x divide-slate-100 dark:divide-slate-800/40 border-b border-slate-100 dark:border-slate-800/50 bg-slate-50/20 dark:bg-slate-900/10">
                     <div class="px-5 py-4 flex items-center gap-3">
                         <div class="w-8 h-8 rounded-lg bg-brand/10 border border-brand/20 flex items-center justify-center text-brand dark:text-brand-light shrink-0">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                            </svg>
+                            <x-icon name="pin" class="w-4 h-4" />
                         </div>
                         <div>
                             <p class="text-[9px] text-slate-400 font-bold uppercase tracking-wider leading-none">Stops</p>
@@ -137,9 +111,7 @@
 
                     <div class="px-5 py-4 flex items-center gap-3">
                         <div class="w-8 h-8 rounded-lg bg-harvest/10 border border-harvest/20 flex items-center justify-center text-harvest dark:text-harvest shrink-0">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
-                            </svg>
+                            <x-icon name="gauge" class="w-4 h-4" />
                         </div>
                         <div>
                             <p class="text-[9px] text-slate-400 font-bold uppercase tracking-wider leading-none">Payload</p>
@@ -151,10 +123,8 @@
                 <!-- Truck Row -->
                 <div class="px-5 py-3 text-xs border-b border-slate-100 dark:border-slate-800/50 bg-slate-50/10 dark:bg-slate-900/5 flex items-center justify-between">
                     <div class="flex items-center gap-2 text-slate-400 font-semibold text-[10px] uppercase tracking-wide">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-[#3A7D44] dark:text-[#3A7D44]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" />
-                        </svg>
-                        <span>Assigned Fleet Truck</span>
+                        <x-icon name="pin" class="w-3.5 h-3.5 text-[#3A7D44] dark:text-[#3A7D44]" />
+                        <span>Assigned Truck</span>
                     </div>
                     <div class="flex items-center gap-2">
                         <span class="font-mono text-[9px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-[#3A7D44] border border-slate-200 dark:border-slate-700/60 rounded px-2.5 py-0.5">
@@ -189,9 +159,6 @@
                             <button type="submit"
                                     class="w-full text-xs font-extrabold text-white bg-gradient-to-r from-[#3A7D44] to-[#2E6336] hover:from-[#3A7D44] hover:to-[#2E6336] rounded-2xl py-3.5 shadow-lg shadow-[#3A7D44]/15 hover:shadow-[#3A7D44]/25 transition-all duration-200 active:scale-[0.98] flex items-center justify-center gap-1.5">
                                 <span>Start Run</span>
-                                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                                </svg>
                             </button>
                         </form>
                     @endif
@@ -202,16 +169,15 @@
             <div class="text-center py-16 px-6 glass-card rounded-3xl shadow-xl relative overflow-hidden">
                 <div class="absolute inset-0 bg-gradient-to-b from-slate-200/10 dark:from-slate-950/10 to-transparent pointer-events-none"></div>
                 <div class="relative w-24 h-24 mx-auto mb-6 flex items-center justify-center">
-                    <div class="absolute inset-0 rounded-full bg-slate-200 dark:bg-slate-800/40 animate-ping opacity-25"></div>
-                    <div class="w-14 h-14 rounded-full bg-[#3A7D44]/10 border border-[#3A7D44]/20 flex items-center justify-center text-3xl text-[#3A7D44] dark:text-[#3A7D44] shadow-md">🚛</div>
+                    <div class="w-14 h-14 rounded-full bg-[#3A7D44]/10 border border-[#3A7D44]/20 flex items-center justify-center text-[#3A7D44] dark:text-[#3A7D44] shadow-md font-bold text-xl">—</div>
                 </div>
                 <h3 class="text-base font-extrabold text-slate-850 dark:text-white heading-font tracking-tight">No Active Routes Assigned</h3>
                 <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 max-w-xs mx-auto leading-relaxed">
-                    Logistic dispatchers have not pooled a run for you yet. Standing by for real-time schedule assignments.
+                    No runs assigned yet. You'll be notified when a dispatch is ready.
                 </p>
                 <div class="mt-6 inline-flex items-center gap-2 bg-[#3A7D44]/10 border border-[#3A7D44]/20 px-3 py-1.5 rounded-full">
                     <span class="w-2 h-2 rounded-full bg-[#3A7D44]/100 animate-pulse"></span>
-                    <span class="text-[9px] text-[#3A7D44] dark:text-[#3A7D44] font-bold uppercase tracking-wider">Listening for dispatch...</span>
+                    <span class="text-[9px] text-[#3A7D44] dark:text-[#3A7D44] font-bold uppercase tracking-wider">Waiting for dispatch...</span>
                 </div>
             </div>
         @endforelse

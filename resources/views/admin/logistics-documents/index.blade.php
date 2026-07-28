@@ -1,7 +1,7 @@
 ﻿<x-layout title="Logistics Documents">
 <div class="w-full max-w-5xl mx-auto">
 
-    <!-- Nice Admin Page Header -->
+    <!-- Page Header -->
     <header class="mb-8">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
@@ -12,11 +12,7 @@
         </div>
     </header>
 
-    @if(session('success'))
-        <div class="mb-6 bg-[#3A7D44]/10 dark:bg-[#3A7D44]/10 border border-[#3A7D44]/20 dark:border-[#3A7D44]/20 text-[#3A7D44] dark:text-[#3A7D44] rounded-xl px-5 py-4 text-sm font-semibold flex items-center gap-2">
-            <span>✅</span> {{ session('success') }}
-        </div>
-    @endif
+    <x-flash-success />
 
     @if($documents->isEmpty())
         <div class="bg-white dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700/80 rounded-2xl shadow-sm p-12 text-center">
@@ -90,7 +86,7 @@
                                         <p class="text-xs text-slate-400 dark:text-slate-500 italic mt-1">Note: {{ $doc->notes }}</p>
                                     @endif
                                     @if($doc->document_type === 'business_permit' && $doc->business_permit_match_confirmed)
-                                        <p class="text-xs text-[#3A7D44] dark:text-[#3A7D44] font-bold mt-1">✓ Permit number match confirmed</p>
+                                        <p class="text-xs text-[#3A7D44] dark:text-[#3A7D44] font-bold mt-1"><svg class="w-3 h-3 inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg> Permit number match confirmed</p>
                                     @endif
                                 </div>
                                 <div class="flex items-center gap-3">

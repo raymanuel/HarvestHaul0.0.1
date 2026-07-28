@@ -12,17 +12,8 @@
         </header>
 
         {{-- Flash Messages --}}
-        @if(session('success'))
-            <div class="mb-6 bg-green-50 dark:bg-green-900/20 border border-green-200/50 dark:border-green-800/30 text-green-700 dark:text-green-400 rounded-xl px-5 py-4 text-sm font-medium">
-                ✅ {{ session('success') }}
-            </div>
-        @endif
-
-        @if(session('error'))
-            <div class="mb-6 bg-red-50 dark:bg-red-900/20 border border-red-200/50 dark:border-red-800/30 text-red-700 dark:text-red-400 rounded-xl px-5 py-4 text-sm font-medium">
-                ⚠️ {{ session('error') }}
-            </div>
-        @endif
+        <x-flash-success />
+        <x-flash-error />
 
         {{-- Business Permit Reference Banner --}}
         @if($profile && $profile->business_permit_no)
@@ -99,7 +90,7 @@
 
             @if($documents->isEmpty())
                 <div class="bg-slate-50 dark:bg-slate-900/40 border border-dashed border-slate-300 dark:border-slate-700/80 rounded-xl p-10 text-center">
-                    <p class="text-3xl mb-3">📄</p>
+                    <p class="text-3xl mb-3"><x-icon name="document" class="w-8 h-8" /></p>
                     <p class="text-slate-500 dark:text-slate-400 font-medium text-sm">No documents submitted yet.</p>
                 </div>
             @else

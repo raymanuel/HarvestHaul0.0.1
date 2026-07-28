@@ -14,7 +14,7 @@
     @if ($errors->any())
         <div class="mb-6 p-4 bg-red-50 dark:bg-red-950/20 border border-red-200/50 dark:border-red-900/30 rounded-xl">
             <div class="flex items-start gap-2.5">
-                <span class="text-red-500 mt-0.5 text-xs">⚠️</span>
+                <span class="text-red-500 mt-0.5 text-xs"><x-icon name="warning" class="w-4 h-4" /></span>
                 <ul class="text-xs text-red-600 dark:text-red-400 list-disc list-inside space-y-1 text-left">
                     @foreach ($errors->all() as $error)
                         <li>{{ $error }}</li>
@@ -197,13 +197,13 @@
                     <div style="display:flex;align-items:center;justify-content:space-between;">
                         <div>
                             <span style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.7);">HarvestHaul</span>
-                            <div id="legal-modal-title" style="font-size:1.1rem;font-weight:700;color:#fff;font-family:'Outfit',sans-serif;margin-top:0.15rem;">Loading...</div>
+                            <div id="legal-modal-title" style="font-size:1.1rem;font-weight:700;color:#fff;font-family:'Instrument Serif',sans-serif;margin-top:0.15rem;">Loading...</div>
                         </div>
                         <button onclick="closeLegalModal()" style="width:30px;height:30px;display:flex;align-items:center;justify-content:center;border-radius:50%;border:none;background:rgba(255,255,255,0.2);color:#fff;cursor:pointer;font-size:1.1rem;transition:all 0.15s;font-family:inherit;backdrop-filter:blur(4px);" onmouseover="this.style.background='rgba(255,255,255,0.35)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'">&times;</button>
                     </div>
                 </div>
                 <div style="padding:1.5rem 2rem 2rem;">
-                    <div id="legal-modal-body" style="font-family:'Plus Jakarta Sans',sans-serif;font-size:0.9rem;line-height:1.7;color:#374151;text-align:justify;"></div>
+                    <div id="legal-modal-body" style="font-family:'DM Sans',sans-serif;font-size:0.9rem;line-height:1.7;color:#374151;text-align:justify;"></div>
                 </div>
             </div>
         </div>
