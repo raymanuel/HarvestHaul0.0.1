@@ -13,7 +13,7 @@
                 </div>
                 <button onclick="openCreateEntityModal()"
                     class="bg-[#3A7D44] hover:bg-[#2E6336] text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-md shadow-[#3A7D44]/10 hover:shadow-lg transition-all flex items-center gap-1.5 cursor-pointer self-start">
-                    <span>➕</span> Add Registry Entity
+                    <x-icon name="plus" class="w-4 h-4" /> Add Registry Entity
                 </button>
             </div>
         </header>
@@ -21,17 +21,8 @@
         {{-- ============================================================
              FLASH MESSAGES
         ============================================================ --}}
-        @if (session('success'))
-            <div class="mb-6 bg-[#3A7D44]/10 dark:bg-[#3A7D44]/10 border border-[#3A7D44]/20 dark:border-[#3A7D44]/20 text-[#3A7D44] dark:text-[#3A7D44] rounded-xl px-5 py-4 text-sm font-semibold flex items-center gap-2">
-                <span>✓</span> {{ session('success') }}
-            </div>
-        @endif
-
-        @if (session('error'))
-            <div class="mb-6 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 rounded-xl px-5 py-4 text-sm font-semibold flex items-center gap-2">
-                <span>✕</span> {{ session('error') }}
-            </div>
-        @endif
+        <x-flash-success />
+        <x-flash-error />
 
         {{-- ============================================================
              ANALYTICS / STATS OVERVIEW
@@ -43,7 +34,7 @@
                     <span class="text-[9px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-widest block mb-1">Crop Categories</span>
                     <span class="text-2xl font-black text-slate-800 dark:text-white heading-font">{{ $categories->count() }}</span>
                 </div>
-                <div class="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-850 flex items-center justify-center text-lg">📂</div>
+                <div class="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-850 flex items-center justify-center text-lg"><x-icon name="folder" class="w-4 h-4" /></div>
             </div>
             {{-- Crops Card --}}
             <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/80 rounded-2xl p-5 flex items-center justify-between shadow-sm hover:shadow-md transition">
@@ -51,7 +42,7 @@
                     <span class="text-[9px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-widest block mb-1">Distinct Crops</span>
                     <span class="text-2xl font-black text-slate-800 dark:text-white heading-font">{{ $categories->sum(fn($c) => $c->crops->count()) }}</span>
                 </div>
-                <div class="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-850 flex items-center justify-center text-lg">🌱</div>
+                <div class="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-850 flex items-center justify-center text-lg"><x-icon name="seedling" class="w-4 h-4" /></div>
             </div>
             {{-- Varieties Card --}}
             <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/80 rounded-2xl p-5 flex items-center justify-between shadow-sm hover:shadow-md transition">
@@ -59,7 +50,7 @@
                     <span class="text-[9px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-widest block mb-1">Total Varieties</span>
                     <span class="text-2xl font-black text-slate-800 dark:text-white heading-font">{{ $categories->sum(fn($c) => $c->crops->sum(fn($cr) => $cr->varieties->count())) }}</span>
                 </div>
-                <div class="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-850 flex items-center justify-center text-lg">🏷️</div>
+                <div class="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-850 flex items-center justify-center text-lg"><x-icon name="tag" class="w-4 h-4" /></div>
             </div>
         </div>
 
@@ -68,7 +59,7 @@
         ============================================================ --}}
         <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/80 rounded-2xl p-4 mb-6 flex flex-col md:flex-row gap-4 items-center justify-between shadow-sm">
             <div class="relative w-full md:w-96">
-                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-550 text-xs">🔍</span>
+                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-550 text-xs"><x-icon name="search" class="w-4 h-4" /></span>
                 <input type="text" id="cropSearchInput" onkeyup="filterRegistry()" placeholder="Search categories, crops or varieties..."
                     class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-xs rounded-xl pl-9 pr-4 py-2.5 focus:outline-none focus:border-[#3A7D44] transition" />
             </div>
@@ -119,7 +110,7 @@
                             </div>
                         </div>
                         <div class="flex items-center gap-3">
-                            <span class="text-[9px] font-bold px-2 py-0.5 rounded-lg uppercase tracking-wide {{ $category->status === 'active' ? 'bg-[#3A7D44]/10 dark:bg-[#3A7D44]/10 text-[#3A7D44] dark:text-[#3A7D44]' : 'bg-slate-100 dark:bg-slate-900/50 text-slate-450 dark:text-slate-500' }}">{{ $category->status }}</span>
+                            <x-badge status="{{ $category->status }}" />
                             <span class="text-[10px] text-slate-400 dark:text-slate-550 font-bold uppercase tracking-wider">{{ $category->crops->count() }} Crops</span>
                             <button
                                 onclick="openEditCategory({{ $category->id }}, '{{ addslashes($category->name) }}', '{{ addslashes($category->description ?? '') }}', '{{ $category->status }}')"
@@ -158,7 +149,7 @@
                                         </div>
                                     </div>
                                     <div class="flex items-center gap-3">
-                                        <span class="text-[9px] font-bold px-2 py-0.5 rounded-lg uppercase tracking-wide {{ $crop->status === 'active' ? 'bg-[#3A7D44]/10 dark:bg-[#3A7D44]/10 text-[#3A7D44] dark:text-[#3A7D44]' : 'bg-slate-100 dark:bg-slate-900/50 text-slate-450 dark:text-slate-500' }}">{{ $crop->status }}</span>
+                                        <x-badge status="{{ $crop->status }}" />
                                         <span class="text-[10px] text-slate-400 dark:text-slate-550 font-bold uppercase tracking-wider">{{ $crop->varieties->count() }} Var.</span>
                                         <button
                                             onclick="openEditCrop({{ $crop->id }}, {{ $crop->crop_category_id }}, '{{ addslashes($crop->name) }}', '{{ addslashes($crop->description ?? '') }}', '{{ $crop->status }}')"
@@ -195,7 +186,7 @@
                                             </div>
                                             <div class="flex items-center gap-4">
                                                 <span class="text-xs font-mono font-black text-slate-700 dark:text-slate-350 bg-slate-100/60 dark:bg-slate-900/50 px-2 py-0.5 rounded border border-slate-200/20">₱{{ number_format($variety->price_per_kg, 2) }}/kg</span>
-                                                <span class="text-[9px] font-bold px-2 py-0.5 rounded-lg uppercase tracking-wide {{ $variety->status === 'active' ? 'bg-[#3A7D44]/10 dark:bg-[#3A7D44]/10 text-[#3A7D44] dark:text-[#3A7D44]' : 'bg-slate-100 dark:bg-slate-900/50 text-slate-450 dark:text-slate-500' }}">{{ $variety->status }}</span>
+                                                <x-badge status="{{ $variety->status }}" />
                                                 <button
                                                     onclick="openEditVariety({{ $variety->id }}, {{ $variety->crop_id }}, '{{ addslashes($variety->name) }}', '{{ addslashes($variety->description ?? '') }}', '{{ $variety->price_per_kg }}', '{{ $variety->status }}')"
                                                     class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-[#3A7D44]/10 text-[#3A7D44] hover:bg-[#3A7D44]/15 dark:bg-[#3A7D44]/10 dark:hover:bg-[#3A7D44]/15 dark:text-[#3A7D44] transition cursor-pointer"
@@ -252,7 +243,7 @@
                 </div>
             @empty
                 <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/80 rounded-2xl p-12 text-center shadow-sm">
-                    <div class="text-3xl mb-3">📦</div>
+                    <div class="text-3xl mb-3">—</div>
                     <p class="text-slate-400 dark:text-slate-500 text-sm font-semibold">No crop categories found. Create one to populate the registry catalog.</p>
                 </div>
             @endforelse
@@ -263,13 +254,7 @@
     {{-- ============================================================
          MODAL: CREATE REGISTRY ENTITY (Unified Tabbed Creator)
     ============================================================ --}}
-    <div id="modal-create-entity" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 backdrop-blur-sm">
-        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-md mx-4 border border-slate-100 dark:border-slate-700 p-7">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-base font-extrabold text-slate-800 dark:text-white heading-font">Add Registry Entity</h3>
-                <button onclick="closeModal('modal-create-entity')" class="text-slate-400 hover:text-slate-800 dark:hover:text-white text-lg leading-none transition cursor-pointer">&times;</button>
-            </div>
-            
+    <x-modal id="modal-create-entity" title="Add Registry Entity" size="md">
             {{-- Tabs --}}
             <div class="flex border-b border-slate-100 dark:border-slate-700 mb-5 text-xs font-bold text-slate-400">
                 <button onclick="switchTab('tab-category')" id="btn-tab-category" class="flex-1 pb-2.5 border-b-2 border-[#3A7D44] text-[#3A7D44] select-none cursor-pointer">Category</button>
@@ -360,18 +345,12 @@
                 </div>
                 <button type="submit" class="w-full bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold py-2.5 rounded-xl transition shadow-sm cursor-pointer">Save Variety</button>
             </form>
-        </div>
-    </div>
+    </x-modal>
 
     {{-- ============================================================
          MODAL: EDIT CATEGORY
     ============================================================ --}}
-    <div id="modal-edit-category" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 backdrop-blur-sm">
-        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-md mx-4 border border-slate-100 dark:border-slate-700 p-7">
-            <div class="flex items-center justify-between mb-5">
-                <h3 class="text-base font-extrabold text-slate-800 dark:text-white heading-font">Edit Category</h3>
-                <button onclick="closeModal('modal-edit-category')" class="text-slate-400 hover:text-slate-800 dark:hover:text-white text-lg leading-none transition cursor-pointer">&times;</button>
-            </div>
+    <x-modal id="modal-edit-category" title="Edit Category" size="md">
             <form id="form-edit-category" method="POST" class="space-y-4">
                 @csrf @method('PUT')
                 <div>
@@ -392,23 +371,17 @@
                         <option value="inactive">Inactive</option>
                     </select>
                 </div>
-                <div class="flex gap-3 pt-2">
-                    <button type="submit" class="flex-1 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold py-2.5 rounded-xl transition shadow-sm cursor-pointer">Save Changes</button>
-                    <button type="button" onclick="closeModal('modal-edit-category')" class="flex-1 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-bold py-2.5 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-600 transition cursor-pointer">Cancel</button>
-                </div>
             </form>
-        </div>
-    </div>
+            <x-slot:footer>
+                <button type="submit" form="form-edit-category" class="flex-1 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold py-2.5 rounded-xl transition shadow-sm cursor-pointer">Save Changes</button>
+                <button type="button" onclick="closeModal('modal-edit-category')" class="flex-1 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-bold py-2.5 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-600 transition cursor-pointer">Cancel</button>
+            </x-slot:footer>
+    </x-modal>
 
     {{-- ============================================================
          MODAL: EDIT CROP
     ============================================================ --}}
-    <div id="modal-edit-crop" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 backdrop-blur-sm">
-        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-md mx-4 border border-slate-100 dark:border-slate-700 p-7">
-            <div class="flex items-center justify-between mb-5">
-                <h3 class="text-base font-extrabold text-slate-800 dark:text-white heading-font">Edit Crop</h3>
-                <button onclick="closeModal('modal-edit-crop')" class="text-slate-400 hover:text-slate-800 dark:hover:text-white text-lg leading-none transition cursor-pointer">&times;</button>
-            </div>
+    <x-modal id="modal-edit-crop" title="Edit Crop" size="md">
             <form id="form-edit-crop" method="POST" class="space-y-4">
                 @csrf @method('PUT')
                 <div>
@@ -438,23 +411,17 @@
                         <option value="inactive">Inactive</option>
                     </select>
                 </div>
-                <div class="flex gap-3 pt-2">
-                    <button type="submit" class="flex-1 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold py-2.5 rounded-xl transition shadow-sm cursor-pointer">Save Changes</button>
-                    <button type="button" onclick="closeModal('modal-edit-crop')" class="flex-1 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-bold py-2.5 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-600 transition cursor-pointer">Cancel</button>
-                </div>
             </form>
-        </div>
-    </div>
+            <x-slot:footer>
+                <button type="submit" form="form-edit-crop" class="flex-1 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold py-2.5 rounded-xl transition shadow-sm cursor-pointer">Save Changes</button>
+                <button type="button" onclick="closeModal('modal-edit-crop')" class="flex-1 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-bold py-2.5 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-600 transition cursor-pointer">Cancel</button>
+            </x-slot:footer>
+    </x-modal>
 
     {{-- ============================================================
          MODAL: EDIT VARIETY
     ============================================================ --}}
-    <div id="modal-edit-variety" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 backdrop-blur-sm">
-        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-md mx-4 border border-slate-100 dark:border-slate-700 p-7">
-            <div class="flex items-center justify-between mb-5">
-                <h3 class="text-base font-extrabold text-slate-800 dark:text-white heading-font">Edit Variety</h3>
-                <button onclick="closeModal('modal-edit-variety')" class="text-slate-400 hover:text-slate-800 dark:hover:text-white text-lg leading-none transition cursor-pointer">&times;</button>
-            </div>
+    <x-modal id="modal-edit-variety" title="Edit Variety" size="md">
             <form id="form-edit-variety" method="POST" class="space-y-4">
                 @csrf @method('PUT')
                 <div>
@@ -483,18 +450,17 @@
                         <option value="inactive">Inactive</option>
                     </select>
                 </div>
-                <div class="flex gap-3 pt-2">
-                    <button type="submit" class="flex-1 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold py-2.5 rounded-xl transition shadow-sm cursor-pointer">Save Changes</button>
-                    <button type="button" onclick="closeModal('modal-edit-variety')" class="flex-1 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-bold py-2.5 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-600 transition cursor-pointer">Cancel</button>
-                </div>
             </form>
-        </div>
-    </div>
+            <x-slot:footer>
+                <button type="submit" form="form-edit-variety" class="flex-1 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold py-2.5 rounded-xl transition shadow-sm cursor-pointer">Save Changes</button>
+                <button type="button" onclick="closeModal('modal-edit-variety')" class="flex-1 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-bold py-2.5 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-600 transition cursor-pointer">Cancel</button>
+            </x-slot:footer>
+    </x-modal>
 
     {{-- ============================================================
-         MODAL: DELETE CONFIRMATION (Shared)
+         MODAL: DELETE CONFIRMATION (Shared — red border variant)
     ============================================================ --}}
-    <div id="modal-delete-confirm" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 backdrop-blur-sm">
+    <div id="modal-delete-confirm" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 backdrop-blur-sm" onclick="if(event.target===this)closeModal('modal-delete-confirm')">
         <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-sm mx-4 border border-red-100 dark:border-red-900/30 p-7">
             <p class="text-[10px] font-extrabold uppercase tracking-widest text-red-500 mb-2">Confirm Delete</p>
             <p id="delete-confirm-message" class="text-sm text-slate-600 dark:text-slate-300 mb-6 leading-relaxed">Are you sure?</p>
@@ -512,31 +478,6 @@
          JAVASCRIPT
     ============================================================ --}}
     <script>
-        // --- MODAL UTILS ---
-        function closeModal(id) {
-            document.getElementById(id).classList.add('hidden');
-        }
-
-        function openModal(id) {
-            document.getElementById(id).classList.remove('hidden');
-        }
-
-        // Close modal on backdrop click
-        document.querySelectorAll('[id^="modal-"]').forEach(modal => {
-            modal.addEventListener('click', function (e) {
-                if (e.target === this) closeModal(this.id);
-            });
-        });
-
-        // Close on Escape key
-        document.addEventListener('keydown', function (e) {
-            if (e.key === 'Escape') {
-                document.querySelectorAll('[id^="modal-"]').forEach(modal => {
-                    modal.classList.add('hidden');
-                });
-            }
-        });
-
         // --- COLLAPSE CATEGORIES ---
         function toggleCategoryCollapse(catId) {
             const body = document.getElementById(`cat-body-${catId}`);

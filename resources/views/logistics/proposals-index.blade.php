@@ -1,21 +1,17 @@
 ﻿<x-layout>
     <div class="w-full max-w-7xl mx-auto pb-12">
         <header class="pt-8 mb-6 border-b border-slate-200/80 dark:border-slate-700/80 pb-5">
-            <span class="text-xs font-bold uppercase tracking-wider text-[#3A7D44] dark:text-[#3A7D44] bg-[#3A7D44]/10 dark:bg-[#3A7D44]/10 px-3 py-1.5 rounded-lg border border-[#3A7D44]/10 dark:border-[#3A7D44]/20 self-start">Proposal Control</span>
+            <span class="text-xs font-bold uppercase tracking-wider text-[#3A7D44] dark:text-[#3A7D44] bg-[#3A7D44]/10 dark:bg-[#3A7D44]/10 px-3 py-1.5 rounded-lg border border-[#3A7D44]/10 dark:border-[#3A7D44]/20 self-start">Proposals</span>
             <h1 class="text-3xl font-bold text-slate-900 dark:text-white tracking-tight heading-font mt-2">Proposal Inbox</h1>
-            <p class="text-slate-500 dark:text-slate-400 mt-1 font-medium">Manage negotiable delivery options and track farmer consensus channels.</p>
+            <p class="text-slate-500 dark:text-slate-400 mt-1 font-medium">Review delivery proposals from logistics partners.</p>
         </header>
 
-        @if(session('success'))
-            <div class="mb-6 bg-[#3A7D44]/10 dark:bg-[#3A7D44]/10 border border-[#3A7D44]/20 dark:border-[#3A7D44]/20 text-[#3A7D44] dark:text-[#3A7D44] rounded-xl px-5 py-4 text-sm font-semibold flex items-center gap-2 shadow-sm">
-                <span>✅</span> {{ session('success') }}
-            </div>
-        @endif
+        <x-flash-success />
 
         @if($proposals->isEmpty() && $cancelledProposals->isEmpty())
             <div class="bg-white dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700/80 rounded-2xl p-16 text-center shadow-sm">
-                <p class="text-4xl mb-4">💬</p>
-                <p class="text-slate-500 dark:text-slate-400 font-medium">No active delivery proposals open. Generate route pools from the Dispatch Console to open negotiation rooms.</p>
+                <div class="mb-4"><x-icon name="chat" class="w-10 h-10" /></div>
+                <p class="text-slate-500 dark:text-slate-400 font-medium">No active delivery proposals open. Generate route pools from Route Planning to open negotiation rooms.</p>
             </div>
         @else
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
@@ -36,10 +32,10 @@
                         <div>
                             <div class="flex items-center justify-between mb-4">
                                 <span class="text-xs font-bold text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/20 border border-blue-200/50 dark:border-blue-900/30 px-2.5 py-1 rounded-lg font-mono">Job #{{ $proposal->id }}</span>
-                                <span class="text-[10px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/20 px-2.5 py-1 rounded-lg border border-amber-200/40 dark:border-amber-800/40">Pending Consensus</span>
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/20 px-2.5 py-1 rounded-lg border border-amber-200/40 dark:border-amber-800/40">Awaiting Response</span>
                             </div>
 
-                            <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 mb-1 heading-font">🚛 {{ $proposal->truck->truck_name ?? 'Fleet Hauler' }}</h3>
+                            <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 mb-1 heading-font">{{ $proposal->truck->truck_name ?? 'Fleet Hauler' }}</h3>
                             
                             <div class="space-y-1.5 mb-4 text-xs font-semibold">
                                 <div class="flex justify-between">
@@ -54,7 +50,7 @@
 
                             @if($hasCounter)
                                 <div class="mb-4 p-3 bg-amber-50 dark:bg-amber-950/20 text-amber-800 dark:text-amber-400 border border-amber-250/20 rounded-xl text-xs leading-relaxed font-bold">
-                                    ⚠️ Farmer Counter-Offer received: <b>₱{{ number_format($proposal->negotiated_price, 2) }}</b>
+                                    <x-icon name="warning" class="w-4 h-4" /> Farmer Counter-Offer received: <b>₱{{ number_format($proposal->negotiated_price, 2) }}</b>
                                 </div>
                             @endif
 
@@ -132,7 +128,7 @@
                                 <span class="text-[10px] font-bold uppercase tracking-wider text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/20 px-2.5 py-1 rounded-lg border border-red-200/40 dark:border-red-800/40">Cancelled</span>
                             </div>
                             <p class="text-xs text-slate-500 dark:text-slate-400 font-medium mb-2">
-                                🚛 {{ $proposal->truck->truck_name ?? 'Fleet Hauler' }}
+                                 {{ $proposal->truck->truck_name ?? 'Fleet Hauler' }}
                             </p>
                             @foreach($proposal->harvests as $harvest)
                                 <div class="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-900/30 px-3 py-2 rounded-xl mb-1">

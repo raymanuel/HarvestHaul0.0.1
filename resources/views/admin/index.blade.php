@@ -1,7 +1,6 @@
 ﻿<x-layout>
 <div class="w-full max-w-7xl mx-auto">
 
-    <!-- Nice Admin Page Header -->
     <header class="mb-8">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
@@ -12,17 +11,8 @@
         </div>
     </header>
 
-    {{-- Flash Messages --}}
-    @if (session('success'))
-        <div class="mb-6 bg-[#3A7D44]/10 dark:bg-[#3A7D44]/15 border border-[#3A7D44]/20 dark:border-[#3A7D44]/30 text-[#3A7D44] dark:text-[#3A7D44] rounded-xl px-5 py-4 text-sm font-semibold flex items-center gap-2">
-            <span>✅</span> {{ session('success') }}
-        </div>
-    @endif
-    @if (session('error'))
-        <div class="mb-6 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800/30 text-red-700 dark:text-red-400 rounded-xl px-5 py-4 text-sm font-semibold flex items-center gap-2">
-            <span>❌</span> {{ session('error') }}
-        </div>
-    @endif
+    <x-flash-success />
+    <x-flash-error />
 
     {{-- ================================================ --}}
     {{-- ADD FORMS ROW --}}
@@ -119,7 +109,7 @@
                 </div>
             </div>
             <div class="flex items-center gap-2">
-                <button onclick="toggleModal('edit-category-{{ $category->id }}')"
+                <button onclick="openModal('edit-category-{{ $category->id }}')"
                     class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-[#3A7D44]/10 text-[#3A7D44] hover:bg-[#3A7D44]/15 dark:bg-[#3A7D44]/10 dark:hover:bg-[#3A7D44]/15 dark:text-[#3A7D44] transition"
                     title="Edit Category">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -148,12 +138,10 @@
             <div class="flex items-center justify-between mb-4">
                 <div class="flex items-center gap-3">
                     <span class="text-sm font-bold text-slate-700 dark:text-slate-300">{{ $crop->name }}</span>
-                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-lg uppercase tracking-wide {{ $crop->is_active ? 'bg-[#3A7D44]/10 text-[#3A7D44]' : 'bg-slate-100 dark:bg-slate-700 text-slate-400 dark:text-slate-500' }}">
-                        {{ $crop->is_active ? 'Active' : 'Inactive' }}
-                    </span>
+                    <x-badge status="{{ $crop->is_active ? 'active' : 'inactive' }}" />
                 </div>
                 <div class="flex items-center gap-2">
-                    <button onclick="toggleModal('edit-crop-{{ $crop->id }}')"
+                    <button onclick="openModal('edit-crop-{{ $crop->id }}')"
                         class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-[#3A7D44]/10 text-[#3A7D44] hover:bg-[#3A7D44]/15 dark:bg-[#3A7D44]/10 dark:hover:bg-[#3A7D44]/15 dark:text-[#3A7D44] transition"
                         title="Edit Crop">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -192,13 +180,11 @@
                             <td class="px-4 py-2.5 text-slate-700 dark:text-slate-300 font-semibold text-sm">{{ $variety->name }}</td>
                             <td class="px-4 py-2.5 text-slate-700 dark:text-slate-300 font-mono text-sm font-bold">₱{{ number_format($variety->price_per_kg, 2) }}</td>
                             <td class="px-4 py-2.5">
-                                <span class="text-[10px] font-bold px-2 py-0.5 rounded-lg uppercase tracking-wide {{ $variety->is_active ? 'bg-[#3A7D44]/10 text-[#3A7D44]' : 'bg-slate-100 dark:bg-slate-700 text-slate-400 dark:text-slate-500' }}">
-                                    {{ $variety->is_active ? 'Active' : 'Inactive' }}
-                                </span>
+                                <x-badge status="{{ $variety->is_active ? 'active' : 'inactive' }}" />
                             </td>
                             <td class="px-4 py-2.5 text-right">
                                 <div class="flex justify-end items-center gap-2">
-                                    <button onclick="toggleModal('edit-variety-{{ $variety->id }}')"
+                                    <button onclick="openModal('edit-variety-{{ $variety->id }}')"
                                         class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-[#3A7D44]/10 text-[#3A7D44] hover:bg-[#3A7D44]/15 dark:bg-[#3A7D44]/10 dark:hover:bg-[#3A7D44]/15 dark:text-[#3A7D44] transition"
                                         title="Edit Variety">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -221,9 +207,7 @@
                         </tr>
 
                         {{-- Edit Variety Modal --}}
-                        <div id="edit-variety-{{ $variety->id }}" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 backdrop-blur-sm">
-                            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-md p-7 border border-slate-100 dark:border-slate-700/60">
-                                <h3 class="text-base font-extrabold text-slate-800 dark:text-white heading-font mb-5">Edit Variety — {{ $variety->name }}</h3>
+                        <x-modal id="edit-variety-{{ $variety->id }}" title="Edit Variety — {{ $variety->name }}" size="md">
                                 <form method="POST" action="{{ route('admin.crops.varieties.update', $variety) }}">
                                     @csrf @method('PUT')
                                     <div class="mb-4">
@@ -252,14 +236,13 @@
                                             class="flex-1 bg-slate-800 dark:bg-slate-700 text-white text-xs font-bold py-2.5 rounded-xl hover:bg-slate-700 dark:hover:bg-slate-600 transition shadow-sm">
                                             Save Changes
                                         </button>
-                                        <button type="button" onclick="toggleModal('edit-variety-{{ $variety->id }}')"
+                                        <button type="button" onclick="closeModal('edit-variety-{{ $variety->id }}')"
                                             class="flex-1 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-bold py-2.5 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-600 transition">
                                             Cancel
                                         </button>
                                     </div>
                                 </form>
-                            </div>
-                        </div>
+                        </x-modal>
                         @endforeach
                     </tbody>
                 </table>
@@ -270,9 +253,7 @@
         </div>
 
         {{-- Edit Crop Modal --}}
-        <div id="edit-crop-{{ $crop->id }}" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 backdrop-blur-sm">
-            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-md p-7 border border-slate-100 dark:border-slate-700/60">
-                <h3 class="text-base font-extrabold text-slate-800 dark:text-white heading-font mb-5">Edit Crop — {{ $crop->name }}</h3>
+        <x-modal id="edit-crop-{{ $crop->id }}" title="Edit Crop — {{ $crop->name }}" size="md">
                 <form method="POST" action="{{ route('admin.crops.update', $crop) }}">
                     @csrf @method('PUT')
                     <div class="mb-4">
@@ -306,20 +287,17 @@
                             class="flex-1 bg-slate-800 dark:bg-slate-700 text-white text-xs font-bold py-2.5 rounded-xl hover:bg-slate-700 dark:hover:bg-slate-600 transition shadow-sm">
                             Save Changes
                         </button>
-                        <button type="button" onclick="toggleModal('edit-crop-{{ $crop->id }}')"
+                        <button type="button" onclick="closeModal('edit-crop-{{ $crop->id }}')"
                             class="flex-1 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-bold py-2.5 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-600 transition">
                             Cancel
                         </button>
                     </div>
                 </form>
-            </div>
-        </div>
+        </x-modal>
         @endforeach
 
         {{-- Edit Category Modal --}}
-        <div id="edit-category-{{ $category->id }}" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 backdrop-blur-sm">
-            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-md p-7 border border-slate-100 dark:border-slate-700/60">
-                <h3 class="text-base font-extrabold text-slate-800 dark:text-white heading-font mb-5">Edit Category — {{ $category->name }}</h3>
+        <x-modal id="edit-category-{{ $category->id }}" title="Edit Category — {{ $category->name }}" size="md">
                 <form method="POST" action="{{ route('admin.crops.categories.update', $category) }}">
                     @csrf @method('PUT')
                     <div class="mb-4">
@@ -338,31 +316,17 @@
                             class="flex-1 bg-slate-800 dark:bg-slate-700 text-white text-xs font-bold py-2.5 rounded-xl hover:bg-slate-700 dark:hover:bg-slate-600 transition shadow-sm">
                             Save Changes
                         </button>
-                        <button type="button" onclick="toggleModal('edit-category-{{ $category->id }}')"
+                        <button type="button" onclick="closeModal('edit-category-{{ $category->id }}')"
                             class="flex-1 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-bold py-2.5 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-600 transition">
                             Cancel
                         </button>
                     </div>
                 </form>
-            </div>
-        </div>
+        </x-modal>
 
     </div>
     @endforeach
 
 </div>
 
-<script>
-function toggleModal(id) {
-    const modal = document.getElementById(id);
-    modal.classList.toggle('hidden');
-}
-
-// Close modal on backdrop click
-document.querySelectorAll('[id^="edit-"]').forEach(modal => {
-    modal.addEventListener('click', function (e) {
-        if (e.target === this) toggleModal(this.id);
-    });
-});
-</script>
 </x-layout>

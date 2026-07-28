@@ -1,6 +1,5 @@
 ﻿<x-layout>
 <div class="w-full max-w-7xl mx-auto pb-12">
-    <x-ambient-glow color="brand" />
 
     <div class="relative z-10">
         <x-page-header
@@ -24,11 +23,8 @@
                 :subBadges="['Farmers' => $totalFarmers, 'Logistics' => $totalLogistics, 'Drivers' => $totalDrivers, 'Buyers' => $totalBuyers]"
                 href="{{ route('admin.users') }}"
                 linkText="Manage Users"
-            >
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                </svg>
-            </x-stat-card>
+                :icon="'<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; fill=&quot;none&quot; viewBox=&quot;0 0 24 24&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot;><path stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; d=&quot;M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z&quot; /></svg>'"
+            />
 
             <x-stat-card
                 accent="brand"
@@ -38,11 +34,8 @@
                 height="h-56"
                 href="{{ route('admin.harvests') }}"
                 linkText="View Posts"
-            >
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                </svg>
-            </x-stat-card>
+                :icon="'<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; fill=&quot;none&quot; viewBox=&quot;0 0 24 24&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot;><path stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; d=&quot;M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4&quot; /></svg>'"
+            />
 
             <x-stat-card
                 accent="amber-500"
@@ -50,12 +43,10 @@
                 :value="$pendingFarmers + $pendingLogistics + $pendingBuyers"
                 height="h-56"
                 :subBadges="['Farmers' => $pendingFarmers, 'Logistics' => $pendingLogistics, 'Buyers' => $pendingBuyers]"
+                :icon="'<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; fill=&quot;none&quot; viewBox=&quot;0 0 24 24&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot;><path stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; d=&quot;M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z&quot; /></svg>'"
             >
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
                 @if($pendingFarmers > 0 || $pendingLogistics > 0 || $pendingBuyers > 0)
-                    <span class="text-[9px] font-extrabold uppercase tracking-widest text-amber-700 dark:text-amber-400 bg-amber-500/10 border border-amber-500/15 px-2 py-0.5 rounded-lg animate-pulse">Action Required</span>
+                    <span class="text-[9px] font-extrabold uppercase tracking-widest text-amber-700 dark:text-amber-400 bg-amber-500/10 border border-amber-500/15 px-2 py-0.5 rounded-lg">Action Required</span>
                 @else
                     <span class="text-[9px] font-extrabold uppercase tracking-widest text-brand dark:text-brand bg-brand/10 border border-brand/15 px-2 py-0.5 rounded-lg">Clear</span>
                 @endif

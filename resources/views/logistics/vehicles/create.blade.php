@@ -116,7 +116,7 @@
                 {{-- Notes --}}
                 <div class="mb-8">
                     <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">
-                        Operational Notes
+                        Notes
                     </label>
                     <textarea name="notes" placeholder="Optional notes regarding vehicle height limits, refrigeration status, or driver specifications..." rows="4"
                         class="w-full px-4 py-3 border border-slate-200 dark:border-slate-600 rounded-xl text-sm text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-900/60 focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/30 dark:focus:ring-[#3A7D44]/30 focus:border-[#3A7D44] dark:focus:border-[#3A7D44] transition"></textarea>

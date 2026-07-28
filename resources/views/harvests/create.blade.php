@@ -15,7 +15,7 @@
     @php $missingLocation = !Auth::user()->farmerProfile?->latitude || !Auth::user()->farmerProfile?->longitude; @endphp
     @if ($missingLocation)
         <div class="mb-6 bg-red-50 border-2 border-red-300 dark:bg-red-950/30 dark:border-red-500/30 rounded-xl px-5 py-5 flex gap-3 items-start shadow-sm">
-            <span class="text-xl mt-0.5">📍</span>
+            <span class="text-xl mt-0.5"><x-icon name="pin" class="w-4 h-4" /></span>
             <div>
                 <p class="text-sm font-bold text-red-800 dark:text-red-300">Farm location required</p>
                 <p class="text-xs text-red-600 dark:text-red-400 mt-1 leading-relaxed">
@@ -31,8 +31,7 @@
 
     {{-- PRIORITY 5: Independent Farmer Logistics Warning --}}
     @if (isset($isIndependent) && $isIndependent && !$hasCommercialLogistics)
-        <div class="mb-6 bg-orange-50 border border-orange-200 dark:bg-orange-950/20 dark:border-orange-500/20 rounded-xl px-5 py-4 flex gap-3 items-start shadow-sm">
-            <span class="text-lg mt-0.5">🚚</span>
+        <div class="mb-6 bg-orange-50 border border-orange-200 dark:bg-orange-950/20 dark:border-orange-500/20 rounded-xl px-5 py-4 shadow-sm">
             <div>
                 <p class="font-bold text-sm text-orange-800 dark:text-orange-300">Limited Transport Availability</p>
                 <p class="text-sm text-orange-700 dark:text-orange-400 mt-0.5 leading-relaxed font-medium">
@@ -144,7 +143,7 @@
                 />
                 <p class="mt-1 text-xs text-slate-400 dark:text-slate-500 font-medium">Estimated harvest weight. Actual weight confirmed at pickup.</p>
                 <p id="quantity_warning" class="hidden mt-2 text-xs text-amber-600 dark:text-amber-400 font-bold">
-                    ⚠ That quantity seems unrealistic. Max allowed is 999,999.99 kg.
+                    <x-icon name="warning" class="w-4 h-4" /> That quantity seems unrealistic. Max allowed is 999,999.99 kg.
                 </p>
                 @error('quantity_kg')
                     <p class="mt-2 text-xs text-red-500">{{ $message }}</p>
@@ -253,7 +252,7 @@
                         </option>
                     @endforeach
                     <option value="custom" {{ old('destination_id') === 'custom' ? 'selected' : '' }}>
-                        📍 Custom Location — Pin on Map
+                        <x-icon name="pin" class="w-4 h-4" /> Custom Location — Pin on Map
                     </option>
                 </select>
                 @error('destination_id')
@@ -279,7 +278,7 @@
 
             {{-- Info Banner --}}
             <div class="mb-6 bg-green-50 border border-green-200 dark:bg-[#3A7D44]/10 dark:border-[#3A7D44]/20 rounded-xl px-4 py-3 flex gap-3 items-start">
-                <span class="text-lg">📍</span>
+                <span class="text-lg"><x-icon name="pin" class="w-4 h-4" /></span>
                 <p class="text-sm text-green-700 dark:text-[#3A7D44] font-medium">
                     Once posted, your farm location will be <strong>visible on the logistics map</strong> for pickup coordination.
                     You can remove the post anytime from your dashboard.
@@ -464,7 +463,7 @@
                         document.getElementById('destination_latitude').value  = e.latlng.lat;
                         document.getElementById('destination_longitude').value = e.latlng.lng;
                         document.getElementById('destination_address').value   = `Custom (${e.latlng.lat.toFixed(5)}, ${e.latlng.lng.toFixed(5)})`;
-                        document.getElementById('pin-feedback').textContent    = `📍 Pinned at ${e.latlng.lat.toFixed(5)}, ${e.latlng.lng.toFixed(5)}`;
+                        document.getElementById('pin-feedback').textContent    = `Pinned at ${e.latlng.lat.toFixed(5)}, ${e.latlng.lng.toFixed(5)}`;
                     });
                 }
 

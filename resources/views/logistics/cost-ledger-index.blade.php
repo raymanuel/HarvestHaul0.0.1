@@ -25,11 +25,11 @@
                 </div>
                 <p class="text-slate-600 dark:text-slate-400 font-bold text-sm heading-font">No confirmed jobs yet</p>
                 <p class="text-xs text-slate-400 dark:text-slate-500 mt-2 leading-relaxed">
-                    Cost ledgers are generated once a pooling job is confirmed. Go to the Dispatch Console to create one.
+                    Cost ledgers are generated once a pooling job is confirmed. Go to Route Planning to create one.
                 </p>
                 <a href="{{ route('route.optimization') }}"
                    class="mt-5 inline-flex items-center gap-2 bg-[#3A7D44] hover:bg-[#2E6336] text-white text-xs font-bold px-4 py-2.5 rounded-xl transition shadow-sm">
-                    Open Dispatch Console →
+                    Open Route Planning →
                 </a>
             </div>
         @else
@@ -62,7 +62,7 @@
                                 <div class="min-w-0">
                                     <div class="flex items-center gap-2 flex-wrap">
                                         <p class="text-sm font-bold text-slate-800 dark:text-slate-200 group-hover:text-[#3A7D44] dark:group-hover:text-[#3A7D44] transition heading-font truncate">
-                                            🚛 {{ $job->truck->truck_name ?? 'Fleet Hauler' }}
+                                             {{ $job->truck->truck_name ?? 'Fleet Hauler' }}
                                         </p>
                                         <span class="text-[10px] font-bold px-2 py-0.5 rounded-md border {{ $statusColor }} capitalize shrink-0">
                                             {{ str_replace('_', ' ', $job->status) }}

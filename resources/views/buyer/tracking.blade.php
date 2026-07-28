@@ -19,16 +19,8 @@
         </header>
 
         {{-- Flash Messages --}}
-        @if(session('success'))
-            <div class="bg-[#3A7D44]/10 dark:bg-[#3A7D44]/20 border border-[#3A7D44]/20 dark:border-[#3A7D44]/30 text-[#1A2E1A] dark:text-[#8BC49E] text-xs font-bold heading-font rounded-xl px-4 py-3 mb-6">
-                ✅ {{ session('success') }}
-            </div>
-        @endif
-        @if(session('error'))
-            <div class="bg-rose-50 dark:bg-rose-950/30 border border-rose-200/60 dark:border-rose-800/30 text-rose-800 dark:text-rose-300 text-xs font-bold heading-font rounded-xl px-4 py-3 mb-6">
-                ⚠️ {{ session('error') }}
-            </div>
-        @endif
+        <x-flash-success />
+        <x-flash-error />
 
         {{-- Active Deliveries --}}
         <div class="mb-6 flex items-center justify-between">
@@ -51,7 +43,7 @@
                                     Route #{{ $delivery->id }}
                                 </p>
                                 <p class="text-[11px] text-slate-400 font-semibold mt-0.5">
-                                    🚛 {{ $delivery->truck->plate_number ?? '—' }}
+                                    {{ $delivery->truck->plate_number ?? '—' }}
                                     · Driver: {{ $delivery->driver->name ?? '—' }}
                                 </p>
                             </div>
@@ -73,7 +65,7 @@
                                 @foreach($delivery->harvests as $harvest)
                                     <div class="flex items-center justify-between text-xs">
                                         <span class="text-slate-500 dark:text-slate-400 font-semibold">
-                                            🌾 {{ $harvest->crop->name ?? $harvest->crop_type ?? '—' }}
+                                            {{ $harvest->crop->name ?? $harvest->crop_type ?? '—' }}
                                         </span>
                                         <span class="text-slate-700 dark:text-slate-300 font-bold bg-slate-100 dark:bg-slate-700/50 px-2 py-0.5 rounded-md">
                                             {{ number_format($harvest->quantity_kg, 1) }} kg
@@ -104,7 +96,7 @@
                                     @csrf
                                     <button type="submit"
                                         class="w-full py-3 bg-gradient-to-tr from-[#3A7D44] to-[#2E6336] hover:shadow-[#3A7D44]/10 rounded-xl text-xs font-bold text-white transition-all shadow-md active:scale-[0.98] cursor-pointer">
-                                        ✅ Confirm Receipt — I received this delivery
+                                        <x-icon name="check" class="w-4 h-4" /> Confirm Receipt — I received this delivery
                                     </button>
                                 </form>
                             @else

@@ -1,10 +1,6 @@
 ﻿<x-layout>
     <div class="w-full max-w-7xl mx-auto pb-12">
 
-        <!-- Ambient glow decoration -->
-        <div class="absolute top-0 right-1/4 w-96 h-96 rounded-full bg-[#3A7D44]/5 blur-[120px] pointer-events-none z-0"></div>
-        <div class="absolute top-1/3 left-1/3 w-[500px] h-[500px] rounded-full bg-[#1F4D25]/5 blur-[150px] pointer-events-none z-0"></div>
-
         <div class="relative z-10">
             <!-- Page Header -->
             <header class="mb-8 pt-6">
@@ -54,7 +50,7 @@
                 <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-700/60 flex items-center justify-between">
                     <h2 class="text-sm font-bold text-slate-800 dark:text-slate-200 heading-font">Revenue & Efficiency per Vehicle</h2>
                     <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-slate-900/50 px-2.5 py-1 rounded-lg border border-slate-200/60 dark:border-slate-700">
-                        Operational Breakdown
+                        Breakdown
                     </span>
                 </div>
 

@@ -73,10 +73,10 @@
                 @foreach($predictions as $pred)
                     @php
                         $urgency = match(true) {
-                            $pred['days_until'] !== null && $pred['days_until'] <= 7  => ['border-rose-300 dark:border-rose-700/50 bg-rose-50/30 dark:bg-rose-950/10', 'text-rose-600 dark:text-rose-400', '🔴 Harvest Soon'],
-                            $pred['days_until'] !== null && $pred['days_until'] <= 21 => ['border-amber-300 dark:border-amber-700/50 bg-amber-50/30 dark:bg-amber-950/10', 'text-amber-600 dark:text-amber-400', '🟡 Coming Up'],
-                            $pred['days_until'] !== null && $pred['days_until'] > 21  => ['border-slate-200/70 dark:border-slate-700/80 bg-white dark:bg-slate-800', 'text-[#3A7D44] dark:text-[#3A7D44]', '🟢 On Track'],
-                            default => ['border-slate-200/70 dark:border-slate-700/80 bg-white dark:bg-slate-800', 'text-slate-400', '⚪ Estimating...'],
+                            $pred['days_until'] !== null && $pred['days_until'] <= 7  => ['border-rose-300 dark:border-rose-700/50 bg-rose-50/30 dark:bg-rose-950/10', 'text-rose-600 dark:text-rose-400', '<span class="inline-block w-2 h-2 rounded-full bg-rose-500"></span> Harvest Soon'],
+                            $pred['days_until'] !== null && $pred['days_until'] <= 21 => ['border-amber-300 dark:border-amber-700/50 bg-amber-50/30 dark:bg-amber-950/10', 'text-amber-600 dark:text-amber-400', '<span class="inline-block w-2 h-2 rounded-full bg-amber-500"></span> Coming Up'],
+                            $pred['days_until'] !== null && $pred['days_until'] > 21  => ['border-slate-200/70 dark:border-slate-700/80 bg-white dark:bg-slate-800', 'text-[#3A7D44] dark:text-[#3A7D44]', '<span class="inline-block w-2 h-2 rounded-full bg-emerald-500"></span> On Track'],
+                            default => ['border-slate-200/70 dark:border-slate-700/80 bg-white dark:bg-slate-800', 'text-slate-400', '<span class="inline-block w-2 h-2 rounded-full bg-slate-300"></span> Estimating...'],
                         };
                     @endphp
                     <div class="border {{ $urgency[0] }} rounded-2xl shadow-sm p-5 sm:p-6">
@@ -84,7 +84,7 @@
                             <div class="flex-1">
                                 <div class="flex items-center gap-2 mb-1">
                                     <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 heading-font">
-                                        🌾 {{ $pred['crop'] }}
+                                         {{ $pred['crop'] }}
                                     </h3>
                                     <span class="text-[10px] font-bold {{ $urgency[1] }} bg-white dark:bg-slate-800 border border-current/20 px-2 py-0.5 rounded-md">
                                         {{ $urgency[2] }}
@@ -138,7 +138,7 @@
 
             {{-- Disclaimer --}}
             <div class="mt-6 bg-slate-50 dark:bg-slate-800/40 border border-slate-200/60 dark:border-slate-700/60 rounded-xl px-5 py-4 text-xs text-slate-400 dark:text-slate-500 font-semibold">
-                ℹ️ Predictions are heuristic estimates based on your harvest history. Actual timing may vary due to weather, soil conditions, and crop variety.
+                Predictions are heuristic estimates based on your harvest history. Actual timing may vary due to weather, soil conditions, and crop variety.
             </div>
         @endif
     </div>

@@ -242,13 +242,13 @@
                     <div style="display:flex;align-items:center;justify-content:space-between;">
                         <div>
                             <span style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.7);">HarvestHaul</span>
-                            <div id="legal-modal-title" style="font-size:1.1rem;font-weight:700;color:#fff;font-family:'Outfit',sans-serif;margin-top:0.15rem;">Loading...</div>
+                            <div id="legal-modal-title" style="font-size:1.1rem;font-weight:700;color:#fff;font-family:'Instrument Serif',sans-serif;margin-top:0.15rem;">Loading...</div>
                         </div>
                         <button onclick="closeLegalModal()" style="width:30px;height:30px;display:flex;align-items:center;justify-content:center;border-radius:50%;border:none;background:rgba(255,255,255,0.2);color:#fff;cursor:pointer;font-size:1.1rem;transition:all 0.15s;font-family:inherit;backdrop-filter:blur(4px);" onmouseover="this.style.background='rgba(255,255,255,0.35)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'">&times;</button>
                     </div>
                 </div>
                 <div style="padding:1.5rem 2rem 2rem;">
-                    <div id="legal-modal-body" style="font-family:'Plus Jakarta Sans',sans-serif;font-size:0.9rem;line-height:1.7;color:#374151;text-align:justify;"></div>
+                    <div id="legal-modal-body" style="font-family:'DM Sans',sans-serif;font-size:0.9rem;line-height:1.7;color:#374151;text-align:justify;"></div>
                 </div>
             </div>
         </div>

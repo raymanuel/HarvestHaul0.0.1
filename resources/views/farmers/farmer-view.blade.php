@@ -7,7 +7,6 @@
     </style>
 @endpush
 <div class="w-full max-w-7xl mx-auto pb-12 overflow-hidden">
-    <x-ambient-glow color="brand" />
 
     <div class="relative z-10">
         <x-page-header
@@ -18,11 +17,13 @@
         />
 
         @if (!Auth::user()->farmerProfile?->is_verified)
-            <x-pending-banner
-                type="farmer"
-                title="Account Pending Board Verification"
-                description="Your submitted credentials and cooperative licensing records are currently undergoing verification audit. Full route pooling capabilities and crop posts will unlock once verified."
-            />
+            <div class="mb-8 bg-amber-50 dark:bg-amber-950/20 border border-amber-200/50 dark:border-amber-900/30 rounded-2xl px-5 py-4 flex gap-3.5 items-start shadow-sm">
+                <span class="text-amber-500 mt-0.5 select-none"><x-icon name="document" class="w-5 h-5" /></span>
+                <div>
+                    <p class="text-sm font-bold text-amber-850 dark:text-amber-300 heading-font">Pending Verification</p>
+                    <p class="text-xs text-amber-750 dark:text-amber-400 mt-1 leading-relaxed font-medium">Your account is being reviewed. You'll have full access once approved.</p>
+                </div>
+            </div>
         @endif
 
         <x-flash-error />
@@ -38,11 +39,8 @@
                 unit="active posts"
                 href="{{ route('harvests.index') }}"
                 linkText="Manage Harvests"
-            >
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                </svg>
-            </x-stat-card>
+                :icon="'<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; fill=&quot;none&quot; viewBox=&quot;0 0 24 24&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot;><path stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; d=&quot;M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4&quot; /></svg>'"
+            />
 
             <x-stat-card
                 accent="brand"
@@ -52,12 +50,8 @@
                 unit="active runs"
                 href="{{ route('tracking.index') }}"
                 linkText="View Live Map"
-            >
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" />
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10M13 16h6m-6 0H6m13 0a2 2 0 002-2v-4a1 1 0 00-1-1h-6.18c-.09-.27-.27-.49-.52-.61l-2.6-1.3a1 1 0 00-1.12.18l-1.6 1.6" />
-                </svg>
-            </x-stat-card>
+                :icon="'<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; fill=&quot;none&quot; viewBox=&quot;0 0 24 24&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot;><path stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; d=&quot;M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z&quot; /><path stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; d=&quot;M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10M13 16h6m-6 0H6m13 0a2 2 0 002-2v-4a1 1 0 00-1-1h-6.18c-.09-.27-.27-.49-.52-.61l-2.6-1.3a1 1 0 00-1.12.18l-1.6 1.6&quot; /></svg>'"
+            />
 
             <x-stat-card
                 accent="harvest"
@@ -67,11 +61,8 @@
                 unit="pending deals"
                 href="{{ route('farmer.proposals') }}"
                 linkText="Review Cost Splits"
-            >
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                </svg>
-            </x-stat-card>
+                :icon="'<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; fill=&quot;none&quot; viewBox=&quot;0 0 24 24&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot;><path stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; d=&quot;M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z&quot; /></svg>'"
+            />
         </div>
 
         <div class="mb-10">

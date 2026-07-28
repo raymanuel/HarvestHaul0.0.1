@@ -63,7 +63,7 @@
                                         Route #{{ $job->id }}
                                     </p>
                                     <p class="text-[10px] font-semibold text-slate-400 mt-0.5">
-                                        🚛 {{ $job->truck->plate_number ?? '—' }} · Driver: {{ $job->driver->name ?? '—' }}
+                                         {{ $job->truck->plate_number ?? '—' }} · Driver: {{ $job->driver->name ?? '—' }}
                                     </p>
                                 </div>
                                 <span class="text-[9px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded {{ $job->status === 'in_progress' ? 'bg-[#1F4D25]/10 dark:bg-[#1F4D25]/10 text-[#1F4D25] dark:text-[#1F4D25] border border-[#1F4D25]/20' : 'bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400 border border-amber-200/30' }}">
@@ -74,7 +74,7 @@
                             <div class="space-y-1.5 w-full pt-3 border-t border-slate-100 dark:border-slate-700/50">
                                 @foreach($job->harvests as $h)
                                     <div class="flex items-center justify-between text-xs font-semibold text-slate-500 dark:text-slate-400">
-                                        <span>🌾 {{ $h->crop->name ?? $h->crop_type }}</span>
+                                         <span>{{ $h->crop->name ?? $h->crop_type }}</span>
                                         <span class="font-bold text-slate-700 dark:text-slate-300 font-mono">{{ number_format($h->quantity_kg) }} kg</span>
                                     </div>
                                 @endforeach
@@ -292,7 +292,7 @@
 
         function updateTruckMarker(lat, lng) {
             const truckIcon = L.divIcon({
-                html: `<div style="display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background: #0EA5E9; border: 3px solid white; box-shadow: 0 4px 10px rgba(14, 165, 233, 0.45); font-size: 16px; color: white">🚚</div>`,
+                html: `<div style="display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background: #0EA5E9; border: 3px solid white; box-shadow: 0 4px 10px rgba(14, 165, 233, 0.45);"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></svg></div>`,
                 className: '', iconSize: [32, 32], iconAnchor: [16, 16]
             });
 

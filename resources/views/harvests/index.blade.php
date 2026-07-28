@@ -1,14 +1,14 @@
 ﻿<x-layout>
 <div class="w-full">
 
-    <header class="pt-8 mb-8">
+    <header class="mb-8">
         <a href="{{ route('dashboard') }}" class="text-sm text-slate-400 hover:text-slate-650 dark:hover:text-slate-350 mb-4 inline-block font-semibold transition">
             ← Back to Dashboard
         </a>
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
                 <h1 class="text-3xl font-bold text-slate-900 dark:text-white tracking-tight heading-font">My Posts</h1>
-                <p class="text-slate-500 dark:text-slate-400 mt-1 font-medium">Manage your active crop posts. Active posts are visible on the logistics map.</p>
+                <p class="text-slate-500 dark:text-slate-400 mt-1 font-medium">Manage your active crop posts.</p>
             </div>
 
             @if (Auth::user()->farmerProfile?->is_verified)
@@ -30,7 +30,7 @@
     {{-- PENDING VERIFICATION BANNER --}}
     @if (!Auth::user()->farmerProfile?->is_verified)
         <div class="mb-6 bg-amber-50 dark:bg-amber-950/20 border border-amber-250/20 dark:border-amber-900/30 text-amber-750 dark:text-amber-450 rounded-2xl px-5 py-4 flex gap-3.5 items-start shadow-sm">
-            <span class="text-xl mt-0.5 select-none">⏳</span>
+            <span class="text-amber-500 mt-0.5 select-none"><x-icon name="document" class="w-5 h-5" /></span>
             <div>
                 <p class="text-sm font-bold text-amber-850 dark:text-amber-300 heading-font">Account Pending Verification</p>
                 <p class="text-xs text-amber-750 dark:text-amber-400 mt-1 leading-relaxed font-medium">
@@ -41,22 +41,13 @@
     @endif
 
     {{-- Flash Messages --}}
-    @if (session('success'))
-        <div class="mb-6 bg-green-50 dark:bg-green-950/20 border border-green-200/50 dark:border-green-800/30 text-green-700 dark:text-green-400 rounded-xl px-5 py-4 text-sm font-medium">
-            ✅ {{ session('success') }}
-        </div>
-    @endif
-
-    @if (session('error'))
-        <div class="mb-6 bg-red-50 dark:bg-red-950/20 border border-red-200/50 dark:border-red-800/30 text-red-700 dark:text-red-400 rounded-xl px-5 py-4 text-sm font-medium">
-            ⚠️ {{ session('error') }}
-        </div>
-    @endif
+    <x-flash-success />
+    <x-flash-error />
 
     {{-- Posts Table --}}
     @if($harvests->isEmpty())
         <div class="bg-slate-50 dark:bg-slate-900/40 border border-dashed border-slate-300 dark:border-slate-700/80 rounded-xl p-16 text-center">
-            <p class="text-4xl mb-4">🌾</p>
+            
             <p class="text-slate-500 dark:text-slate-400 font-medium mb-4">You have no harvest posts yet.</p>
             @if (Auth::user()->farmerProfile?->is_verified)
                 <a href="{{ route('harvests.create') }}"
@@ -124,9 +115,7 @@
                                         <a href="{{ route('harvests.edit', $harvest->id) }}"
                                             class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-[#3A7D44]/10 text-[#3A7D44] hover:bg-[#3A7D44]/15 dark:bg-[#3A7D44]/10 dark:hover:bg-[#3A7D44]/15 dark:text-[#3A7D44] transition"
                                             title="Edit Harvest">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                                            </svg>
+                                            <x-icon name="check" class="w-4 h-4" />
                                         </a>
                                         <form method="POST" action="{{ route('harvests.destroy', $harvest->id) }}" class="inline">
                                             @csrf
@@ -135,9 +124,6 @@
                                                 onclick="swalConfirm(this.closest('form'), {title: 'Remove Post?', text: 'You will no longer appear on the logistics map for this crop.', confirmText: 'Yes, remove', icon: 'warning', confirmColor: '#ef4444'})"
                                                 class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 dark:bg-rose-950/20 dark:hover:bg-rose-950/40 dark:text-rose-400 transition active:scale-[0.95]"
                                                 title="Remove Harvest">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                                </svg>
                                             </button>
                                         </form>
                                     @endif
@@ -148,9 +134,7 @@
                                                 onclick="swalConfirm(this.closest('form'), {title: 'Mark as Sold?', text: 'This harvest was sold outside the platform. It will be hidden from buyers and shown to logistics partners.', confirmText: 'Yes, mark as sold', icon: 'info', confirmColor: '#3A7D44'})"
                                                 class="inline-flex items-center gap-1 text-[10px] font-bold text-[#3A7D44] dark:text-[#3A7D44] bg-[#3A7D44]/10 hover:bg-[#3A7D44]/15 dark:bg-[#3A7D44]/10 dark:hover:bg-[#3A7D44]/15 px-2.5 py-1.5 rounded-lg transition active:scale-[0.97]"
                                                 title="Mark as Sold">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                                                </svg>
+                                                <x-icon name="check" class="w-3.5 h-3.5" />
                                                 Sold
                                             </button>
                                         </form>
@@ -158,9 +142,7 @@
                                             onclick="showLogisticsRequest({{ $harvest->id }}, '{{ $harvest->crop->name ?? $harvest->crop_type }}')"
                                             class="inline-flex items-center gap-1 text-[10px] font-bold text-amber-700 dark:text-amber-400 bg-amber-50 hover:bg-amber-100 dark:bg-amber-950/20 dark:hover:bg-amber-950/40 px-2.5 py-1.5 rounded-lg transition active:scale-[0.97]"
                                             title="Request Logistics">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-                                            </svg>
+                                            </button>
                                             Haul
                                         </button>
                                     @endif

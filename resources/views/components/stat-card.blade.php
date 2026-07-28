@@ -24,9 +24,8 @@
 @endphp
 
 <div {{ $attributes->merge([
-    'class' => "bg-white dark:bg-slate-800/80 backdrop-blur border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6 hover:-translate-y-1 hover:shadow-xl hover:shadow-{$accent}/5 hover:border-{$accent}/30 dark:hover:border-{$accent}/30 transition-all duration-300 group flex flex-col justify-between {$height} relative overflow-hidden"
+    'class' => "bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6 hover:-translate-y-1 hover:shadow-xl hover:shadow-{$accent}/5 hover:border-{$accent}/30 dark:hover:border-{$accent}/30 transition-all duration-300 group flex flex-col justify-between {$height}"
 ]) }}>
-    <div class="absolute -right-6 -bottom-6 w-24 h-24 bg-{{ $accent }}/5 rounded-full group-hover:scale-150 transition-all duration-500"></div>
     <div>
         <div class="flex items-start justify-between mb-4">
             <div class="w-12 h-12 rounded-2xl bg-{{ $accent }}/10 border border-{{ $accent }}/15 flex items-center justify-center text-{{ $accent }} dark:text-{{ $accent }} shrink-0 shadow-sm">

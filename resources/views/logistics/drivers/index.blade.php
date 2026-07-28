@@ -25,21 +25,8 @@
         </header>
 
         {{-- Flash Messages --}}
-        @if(session('success'))
-            <div class="mb-6 bg-[#3A7D44]/10 dark:bg-[#3A7D44]/10 border border-[#3A7D44]/20 dark:border-[#3A7D44]/20 text-[#3A7D44] dark:text-[#3A7D44] rounded-xl px-5 py-4 text-sm font-medium flex items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-[#3A7D44] dark:text-[#3A7D44] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                {{ session('success') }}
-            </div>
-        @endif
-
-        @if(session('error'))
-            <div class="mb-6 bg-red-50 dark:bg-red-950/20 border border-red-200/50 dark:border-red-800/30 text-red-700 dark:text-red-400 rounded-xl px-5 py-4 text-sm font-medium flex items-center gap-2">
-                <span class="text-xs">⚠️</span>
-                {{ session('error') }}
-            </div>
-        @endif
+        <x-flash-success />
+        <x-flash-error />
 
         {{-- Drivers List --}}
         <div class="bg-white dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700/80 rounded-2xl shadow-sm p-6">
@@ -47,7 +34,7 @@
 
             @if($drivers->isEmpty())
                 <div class="bg-slate-50 dark:bg-slate-900/40 border border-dashed border-slate-300 dark:border-slate-700/80 rounded-xl p-12 text-center">
-                    <p class="text-4xl mb-4">🚛</p>
+                    <p class="text-4xl mb-4 font-bold text-slate-300 dark:text-slate-600">—</p>
                     <p class="text-slate-800 dark:text-slate-200 font-bold text-base mb-1 heading-font">No Drivers Registered</p>
                     <p class="text-slate-400 dark:text-slate-500 font-medium text-xs max-w-sm mx-auto">
                         Register a new driver account to allow them to stream geolocation telemetry and coordinate multi-stop shipments.

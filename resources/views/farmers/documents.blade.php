@@ -26,19 +26,8 @@
         </header>
 
         {{-- Flash Messages --}}
-        @if(session('success'))
-            <div class="mb-6 bg-[#3A7D44]/10 dark:bg-[#3A7D44]/10 border border-[#3A7D44]/20 dark:border-[#3A7D44]/20 text-[#3A7D44] dark:text-[#3A7D44] rounded-xl px-5 py-4 text-sm font-semibold flex items-center gap-2 shadow-sm">
-                <span class="text-xs">✓</span>
-                {{ session('success') }}
-            </div>
-        @endif
-
-        @if(session('error'))
-            <div class="mb-6 bg-red-50 dark:bg-red-950/20 border border-red-200/50 dark:border-red-900/30 text-red-700 dark:text-red-400 rounded-xl px-5 py-4 text-sm font-semibold flex items-center gap-2 shadow-sm">
-                <span class="text-xs">⚠️</span>
-                {{ session('error') }}
-            </div>
-        @endif
+        <x-flash-success />
+        <x-flash-error />
 
         {{-- Upload Form --}}
         <div class="bg-white dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700/80 rounded-2xl shadow-sm p-7 mb-8">

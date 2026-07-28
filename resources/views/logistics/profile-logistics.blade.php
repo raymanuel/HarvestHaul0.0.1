@@ -2,10 +2,6 @@
 
 <div class="w-full max-w-4xl mx-auto pb-12">
 
-    <!-- Ambient glow decoration -->
-    <div class="absolute top-0 right-1/4 w-96 h-96 rounded-full bg-[#3A7D44]/5 blur-[120px] pointer-events-none z-0"></div>
-    <div class="absolute top-1/3 left-1/3 w-[500px] h-[500px] rounded-full bg-[#1F4D25]/5 blur-[150px] pointer-events-none z-0"></div>
-
     <div class="relative z-10">
         <!-- Page Header -->
         <header class="mb-8 pt-6">
@@ -48,23 +44,9 @@
         </header>
 
         {{-- Flash Messages --}}
-        @if (session('success'))
-            <div class="mb-6 bg-[#3A7D44]/10 dark:bg-[#3A7D44]/10 border border-[#3A7D44]/20 dark:border-[#3A7D44]/30 text-[#3A7D44] dark:text-[#3A7D44] rounded-2xl p-5 text-sm font-semibold flex items-center gap-3 shadow-sm">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-[#3A7D44] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                {{ session('success') }}
-            </div>
-        @endif
+        <x-flash-success />
 
-        @if (session('password_success'))
-            <div class="mb-6 bg-[#3A7D44]/10 dark:bg-[#3A7D44]/10 border border-[#3A7D44]/20 dark:border-[#3A7D44]/30 text-[#3A7D44] dark:text-[#3A7D44] rounded-2xl p-5 text-sm font-semibold flex items-center gap-3 shadow-sm">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-[#3A7D44] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                {{ session('password_success') }}
-            </div>
-        @endif
+        <x-flash-success :message="session('password_success')" />
 
         @if ($errors->any())
             <div class="mb-6 bg-red-500/10 dark:bg-red-500/10 border border-red-500/20 dark:border-red-500/30 text-red-700 dark:text-red-400 rounded-2xl p-5 text-sm font-semibold">
@@ -162,7 +144,7 @@
                             </span>
                         @else
                             <span class="inline-flex items-center gap-1 px-3 py-1 bg-[#1F4D25]/10 border border-[#1F4D25]/20 text-[#1F4D25] dark:text-[#1F4D25] rounded-lg text-xs font-bold">
-                                🏢 Private Company
+                                 Private Company
                             </span>
                         @endif
                     </div>

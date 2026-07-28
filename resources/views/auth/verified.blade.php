@@ -106,7 +106,7 @@
 </head>
 <body>
     <div class="card">
-        <span class="icon">✅</span>
+        <span class="icon"><x-icon name="check" class="w-4 h-4" /></span>
         <h1>Email Verified</h1>
         <p class="sub">
             Your HarvestHaul account is now active.<br>

@@ -13,14 +13,14 @@
     {{-- Status Banner --}}
     @if(in_array($harvest->status, ['completed', 'cancelled', 'negotiating', 'sold', 'assigned']))
         <div class="mb-6 bg-amber-50 border border-amber-200 dark:bg-amber-950/20 dark:border-amber-500/20 rounded-xl px-5 py-4 flex gap-3 items-start">
-            <span class="text-lg">🔒</span>
+            <span class="text-lg"><x-icon name="lock" class="w-4 h-4" /></span>
             <p class="text-sm text-amber-700 dark:text-amber-400 font-medium">
                 This harvest post is <strong>{{ ucfirst($harvest->status) }}</strong> and can no longer be edited.
             </p>
         </div>
     @elseif($harvest->status === 'partially_sold' && (float) ($harvest->remaining_quantity_kg ?? 0) <= 0)
         <div class="mb-6 bg-amber-50 border border-amber-200 dark:bg-amber-950/20 dark:border-amber-500/20 rounded-xl px-5 py-4 flex gap-3 items-start">
-            <span class="text-lg">🔒</span>
+            <span class="text-lg"><x-icon name="lock" class="w-4 h-4" /></span>
             <p class="text-sm text-amber-700 dark:text-amber-400 font-medium">
                 This harvest is fully sold and can no longer be edited.
             </p>
@@ -28,8 +28,7 @@
     @endif
 
     @if ($harvest->poolingJobs()->where('pooling_jobs.status', 'in', ['pending', 'confirmed', 'in_progress'])->exists())
-        <div class="mb-6 bg-amber-50 border border-amber-200 dark:bg-amber-950/20 dark:border-amber-500/20 rounded-xl px-5 py-4 flex gap-3 items-start">
-            <span class="text-lg">📦</span>
+        <div class="mb-6 bg-amber-50 border border-amber-200 dark:bg-amber-950/20 dark:border-amber-500/20 rounded-xl px-5 py-4">
             <p class="text-sm text-amber-700 dark:text-amber-400 font-medium">
                 This harvest has an active logistics proposal. Editing is locked until the proposal is resolved.
             </p>
@@ -144,7 +143,7 @@
                 />
                 <p class="mt-1 text-xs text-slate-400 dark:text-slate-500 font-medium">Actual weight confirmed at pickup.</p>
                 <p id="quantity_warning" class="hidden mt-2 text-xs text-amber-600 dark:text-amber-400 font-bold">
-                    ⚠ That quantity seems unrealistic. Max allowed is 999,999.99 kg.
+                    <x-icon name="warning" class="w-4 h-4" /> That quantity seems unrealistic. Max allowed is 999,999.99 kg.
                 </p>
                 @error('quantity_kg')
                     <p class="mt-2 text-xs text-red-500">{{ $message }}</p>
