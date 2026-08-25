@@ -20,6 +20,8 @@ class LogisticsSeeder extends Seeder
                 'permit'      => 'BP-2026-001A',
                 'type'        => 'cooperative',
                 'is_verified' => true,
+                'latitude'    => 6.1050,
+                'longitude'   => 125.1830,
             ],
             [
                 'name'        => 'Maria Santos',
@@ -48,6 +50,8 @@ class LogisticsSeeder extends Seeder
                 'business_permit_no' => $partner['permit'],
                 'logistics_type'     => $partner['type'],
                 'is_verified'        => $partner['is_verified'],
+                'latitude'           => $partner['latitude'] ?? null,
+                'longitude'          => $partner['longitude'] ?? null,
             ]);
         }
     }

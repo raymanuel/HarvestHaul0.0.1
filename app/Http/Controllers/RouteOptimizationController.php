@@ -141,8 +141,8 @@ class RouteOptimizationController extends Controller
         // Nearest available driver auto-suggestion
         $nearestDriver = null;
         $firstFarmer = $farmers->first();
+        $assignmentService = app(DriverAssignmentService::class);
         if ($firstFarmer && $firstFarmer->farmerProfile) {
-            $assignmentService = app(DriverAssignmentService::class);
             $nearestDriver = $assignmentService->findNearestAvailableDriver(
                 (float) $firstFarmer->farmerProfile->latitude,
                 (float) $firstFarmer->farmerProfile->longitude,
@@ -150,8 +150,48 @@ class RouteOptimizationController extends Controller
             );
         }
 
+        // Recent pooling routes owned by this logistics partner (for the "My Routes" list)
+        $myRoutes = PoolingJob::where('logistics_profile_id', $logisticsProfile->id)
+            ->with(['truck', 'driver', 'harvests.crop'])
+            ->latest()
+            ->take(15)
+            ->get()
+            ->map(fn ($job) => [
+                'id'                  => $job->id,
+                'status'              => $job->status->value,
+                'farm_count'          => $job->farm_count,
+                'total_kg'            => (float) $job->total_kg,
+                'planned_distance_km' => (float) $job->planned_distance_km,
+                'truck'               => $job->truck ? $job->truck->truck_name . ' — ' . $job->truck->plate_number : '—',
+                'driver'              => $job->driver?->name,
+                'created_at'          => $job->created_at?->format('M d, Y'),
+                'route_geometry'      => $job->route_geometry,
+                'start'               => $job->start_latitude !== null ? [$job->start_latitude, $job->start_longitude] : null,
+                'end'                 => $job->end_latitude !== null ? [$job->end_latitude, $job->end_longitude] : null,
+                'crops'               => $job->harvests
+                    ->map(fn ($h) => $h->crop?->name ?? $h->crop_type ?? '—')
+                    ->unique()
+                    ->values()
+                    ->take(3)
+                    ->implode(', '),
+            ]);
+
+        // Hub depot coordinates for auto-populating route start point
+        $hubLat = $logisticsProfile->latitude;
+        $hubLng = $logisticsProfile->longitude;
+
+        // Available drivers for manual selection dropdown
+        $availableDrivers = $assignmentService->getAvailableDrivers($logisticsProfile->id)
+            ->map(fn($d) => [
+                'id'            => $d->id,
+                'name'          => $d->name,
+                'active_jobs'   => $d->driverProfile->activePoolingJobsCount(),
+                'last_assigned' => $d->driverProfile->last_assigned_at,
+            ]);
+
         return view('logistics.route-optimization', compact(
-            'farmersData', 'trucks', 'suggestedTruckId', 'nearestDriver'
+            'farmersData', 'trucks', 'suggestedTruckId', 'nearestDriver', 'myRoutes',
+            'hubLat', 'hubLng', 'availableDrivers'
         ));
     }
 
