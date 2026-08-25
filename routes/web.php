@@ -2,10 +2,10 @@
 
 /**
  * HarvestHaul Routing Topology
- * 
+ *
  * This file defines all HTTP routes for the HarvestHaul platform.
  * Security and access control are structured via nested middleware groups:
- * 
+ *
  * 1. Public Routes: Accessible to anyone (e.g. landing page, success screens).
  * 2. Guest Group ('guest'): Registration and login. Restricted to logged-out users.
  * 3. Base Authenticated Group ('auth', 'EnsureAccountIsActive'):
@@ -14,47 +14,54 @@
  * 4. Verified Group ('verified'):
  *    - Only authenticated, active, and email-verified users can access these.
  *    - Nested into role-specific sub-groups:
- *      a) Farmers (EnsureUserIsFarmer): Harvest posts, yield predictor, document uploads.
- *      b) Logistics Partners (EnsureUserIsLogistics): B2B resource pooling, fleet predictor, driver/vehicle management, cost ledger.
+ *      a) Farmers (EnsureUserIsFarmer): Harvest posts, document uploads.
+ *      b) Logistics Partners (EnsureUserIsLogistics): B2B resource pooling, fleet capacity, driver/vehicle management, cost ledger.
  *      c) Drivers ('driver'): Mobile PWA views, telemetry/GPS signal streaming.
  *      d) Admin ('admin' prefix): User/compliance audit, crop hierarchy management, system logs.
  */
 
-use Illuminate\Support\Facades\Route;
-use Illuminate\Http\Request;
-
-// Controllers
-use App\Http\Controllers\LoginController;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\Auth\RegisterController;
-use App\Http\Controllers\RouteOptimizationController;
-use App\Http\Controllers\HarvestController;
-use App\Http\Controllers\AdminController;
-use App\Http\Controllers\Admin\CropManagerController;
-use App\Http\Controllers\FarmerDocumentController;
 use App\Http\Controllers\Admin\AdminFarmerDocumentController;
-use App\Http\Controllers\LogisticsDocumentController;
 use App\Http\Controllers\Admin\AdminLogisticsDocumentController;
-use App\Http\Controllers\PoolingJobController;
+use App\Http\Controllers\FarmerExpenseController;
+use App\Http\Controllers\Admin\CropManagerController;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\Auth\ForgotPasswordController;
+use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\Auth\VerifyOtpController;
+use App\Http\Controllers\BuyerController;
+use App\Http\Controllers\CapacityController;
+use App\Http\Controllers\CostLedgerController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DriverController;
+use App\Http\Controllers\FarmerDocumentController;
+use App\Http\Controllers\FarmerLogisticsController;
+use App\Http\Controllers\FileController;
+use App\Http\Controllers\HarvestController;
+use App\Http\Controllers\HaulNegotiationController;
+use App\Http\Controllers\HaulRequestController;
+use App\Http\Controllers\HealthController;
+use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\LoginController;
+use App\Http\Controllers\LogisticsDocumentController;
 use App\Http\Controllers\LogisticsDriverController;
 use App\Http\Controllers\LogisticsVehicleController;
-use App\Http\Controllers\TrackingController;
-use App\Http\Controllers\CostLedgerController;
-use App\Http\Controllers\PredictorController;
-use App\Http\Controllers\NotificationController;
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\BuyerController;
+use App\Http\Controllers\MarketPriceController;
 use App\Http\Controllers\NegotiationController;
+use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\NotificationPreferenceController;
+use App\Http\Controllers\PoolingJobController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
-use App\Http\Controllers\Auth\ForgotPasswordController;
-use App\Http\Controllers\Auth\ResetPasswordController;
-
 // Middleware
+use App\Http\Controllers\RouteOptimizationController;
+use App\Http\Controllers\TrackingController;
 use App\Http\Middleware\EnsureAccountIsActive;
+use App\Http\Middleware\EnsureUserIsBuyer;
 use App\Http\Middleware\EnsureUserIsFarmer;
 use App\Http\Middleware\EnsureUserIsLogistics;
-use App\Http\Middleware\EnsureUserIsBuyer;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -62,6 +69,10 @@ use App\Http\Middleware\EnsureUserIsBuyer;
 |--------------------------------------------------------------------------
 */
 Route::view('/', 'welcome')->name('welcome');
+
+// Lightweight health check for uptime monitors (UptimeRobot, cron-job.org, etc.).
+// Reports DB status, latest stored price date, and whether the hourly scraper heartbeat is alive.
+Route::get('/health', [HealthController::class, 'index'])->name('health');
 
 Route::view('/legal/terms', 'legal.terms')->name('legal.terms');
 Route::view('/legal/privacy', 'legal.privacy')->name('legal.privacy');
@@ -81,13 +92,13 @@ Route::middleware('guest')->group(function () {
 
     Route::get('register', [RegisterController::class, 'index'])->name('register');
     Route::get('/register/{role}', [RegisterController::class, 'create'])->name('register.role');
-    Route::post('/register', [RegisterController::class, 'store'])->name('register.store');
+    Route::post('/register', [RegisterController::class, 'store'])->middleware('throttle:5,1')->name('register.store');
 
     // Password Reset
     Route::get('forgot-password', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
-    Route::post('forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
+    Route::post('forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail'])->middleware('throttle:3,1')->name('password.email');
     Route::get('reset-password/{token}', [ResetPasswordController::class, 'showResetForm'])->name('password.reset');
-    Route::post('reset-password', [ResetPasswordController::class, 'reset'])->name('password.update');
+    Route::post('reset-password', [ResetPasswordController::class, 'reset'])->middleware('throttle:5,1')->name('password.update');
 });
 
 /*
@@ -111,11 +122,20 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
     Route::post('api/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.read-all');
 
     // Notification Preferences
-    Route::get('settings/notifications', [\App\Http\Controllers\NotificationPreferenceController::class, 'index'])->name('notifications.preferences');
-    Route::put('settings/notifications', [\App\Http\Controllers\NotificationPreferenceController::class, 'update'])->name('notifications.preferences.update');
+    Route::get('settings/notifications', [NotificationPreferenceController::class, 'index'])->name('notifications.preferences');
+    Route::put('settings/notifications', [NotificationPreferenceController::class, 'update'])->name('notifications.preferences.update');
 
     // Market Price API
-    Route::get('api/market-price/{cropName}', [\App\Http\Controllers\MarketPriceController::class, 'getMarketPrice'])->name('api.market-price');
+    Route::get('api/market-price/{cropName}', [MarketPriceController::class, 'getMarketPrice'])->name('api.market-price');
+
+    // WebSocket telemetry ticket (short-lived, signed; validated by the WS server on connect)
+    Route::post('api/ws-ticket', [TrackingController::class, 'wsTicket'])->middleware('throttle:30,1')->name('ws.ticket');
+
+    // Private file serving (IDs, receipts, load photos — stored on the private disk)
+    Route::get('files/{type}/{id}', [FileController::class, 'show'])
+        ->whereIn('type', ['farmer-document', 'logistics-document', 'driver-id', 'driver-selfie', 'payment-receipt', 'load-photo', 'delivery-receipt'])
+        ->middleware('throttle:60,1')
+        ->name('files.show');
 
     /*
     | Email Verification Core
@@ -129,14 +149,15 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
         if (auth()->user()->hasVerifiedEmail()) {
             return redirect()->route('dashboard');
         }
+
         return view('auth.verify-email');
     })->name('verification.notice');
 
-    Route::post('/email/verify-otp', [\App\Http\Controllers\Auth\VerifyOtpController::class, 'verify'])
+    Route::post('/email/verify-otp', [VerifyOtpController::class, 'verify'])
         ->middleware('throttle:5,1')
         ->name('verification.verify-otp');
 
-    Route::post('/email/resend-otp', [\App\Http\Controllers\Auth\VerifyOtpController::class, 'resend'])
+    Route::post('/email/resend-otp', [VerifyOtpController::class, 'resend'])
         ->middleware('throttle:3,1')
         ->name('verification.resend-otp');
 
@@ -155,20 +176,22 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
         Route::middleware(EnsureUserIsFarmer::class)->group(function () {
             // Harvest Posts Management
             Route::resource('harvests', HarvestController::class)->except(['show']);
-            Route::post('harvests/{harvest}/mark-as-sold', [HarvestController::class, 'markAsSold'])->name('harvests.mark-as-sold');
-            Route::post('harvests/{harvest}/request-logistics', [HarvestController::class, 'requestLogistics'])->name('harvests.request-logistics');
+            Route::post('harvests/{harvest}/mark-as-sold', [HarvestController::class, 'markAsSold'])->name('harvests.mark-as-sold')->middleware('throttle:10,10');
 
             // FIXED: Changed path and name to prevent collision with Logistics group
             Route::get('/farmer/proposals', [PoolingJobController::class, 'farmerProposals'])
                 ->name('farmer.proposals');
 
-            // Yield Predictor
-            Route::get('/farmer/predictor', [PredictorController::class, 'farmerPredict'])
-                ->name('farmer.predictor');
+            // Haul Requests for sold-outside-platform harvests
+            Route::post('harvests/{harvest}/request-haul', [HaulRequestController::class,
+                'create'])->name('harvests.request-haul')->middleware('throttle:10,10');
+            Route::get('/farmer/haul-requests', [HaulRequestController::class, 'farmerHaulRequests'])->name('farmer.haul-requests');
+            Route::post('/haul-intents/{haulIntent}/accept', [HaulRequestController::class, 'acceptIntent'])->name('haul-intents.accept')->middleware('throttle:20,10');
+            Route::post('/haul-intents/{haulIntent}/decline', [HaulRequestController::class, 'declineIntent'])->name('haul-intents.decline')->middleware('throttle:20,10');
 
-            // Live tracking list for farmers
-            Route::get('/tracking', [TrackingController::class, 'index'])
-                ->name('tracking.index');
+            // Farmer logistics monitoring
+            Route::get('/farmer/logistics', [FarmerLogisticsController::class, 'index'])
+                ->name('farmer.logistics');
 
             // Documents
             Route::get('/my-documents', [FarmerDocumentController::class, 'index'])->name('farmer.documents');
@@ -180,10 +203,28 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
 
             // Farmer Reports
             Route::get('/farmer/reports/profit-expense', [ReportController::class, 'farmerProfitExpense'])->name('farmer.reports.profit-expense');
+            Route::get('/farmer/reports/sales', [ReportController::class, 'farmerSales'])->name('farmer.reports.sales');
+
+            // Farmer Expense Logbook
+            Route::get('/farmer/expenses', [FarmerExpenseController::class, 'index'])->name('farmer.expenses');
+            Route::post('/farmer/expenses', [FarmerExpenseController::class, 'store'])->name('farmer.expenses.store');
+            Route::delete('/farmer/expenses/{expense}', [FarmerExpenseController::class, 'destroy'])->name('farmer.expenses.destroy');
+        });
+
+        // Farmer <-> Logistics in-app haul negotiation (chat + rate offers)
+        Route::middleware(['role:farmer,logistics_partner'])->prefix('haul-negotiations')->name('haul-negotiations.')->group(function () {
+            Route::get('/{haulIntent}', [HaulNegotiationController::class, 'room'])->name('room');
+            Route::post('/{haulIntent}/message', [HaulNegotiationController::class, 'sendMessage'])->name('message');
+            Route::get('/{haulIntent}/messages', [HaulNegotiationController::class, 'getMessages'])->name('messages');
+            Route::post('/{haulIntent}/propose-rate', [HaulNegotiationController::class, 'proposeRate'])->name('propose-rate');
+            Route::post('/{haulIntent}/counter-rate', [HaulNegotiationController::class, 'counterRate'])->name('counter-rate');
+            Route::post('/{haulIntent}/agree', [HaulNegotiationController::class, 'agree'])->name('agree');
         });
 
         // Full Market Prices Page (accessible to all verified users)
-        Route::get('/market-prices', [\App\Http\Controllers\DashboardController::class, 'fullPrices'])->name('prices.full');
+        Route::get('/market-prices', [DashboardController::class, 'fullPrices'])->name('prices.full');
+        Route::post('/prices/refresh', [DashboardController::class, 'refreshPrices'])
+            ->middleware(['role:admin,logistics_partner,farmer', 'throttle:5,10'])->name('prices.refresh');
 
         /*
         |------------------------------------------------------------------
@@ -214,24 +255,26 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
 
                 // Detailed Item Views & Logic Workers
                 Route::get('/{poolingJob}', [PoolingJobController::class, 'show'])->name('show');       // Maps to: /pooling/{poolingJob}
-                Route::post('/plan', [PoolingJobController::class, 'plan'])->name('plan');              // Maps to: /pooling/plan
-                Route::post('/confirm', [PoolingJobController::class, 'confirm'])->name('confirm');    // Maps to: /pooling/confirm
-                Route::post('/{poolingJob}/logistics-accept', [PoolingJobController::class, 'logisticsAcceptCounter'])->name('logistics-accept');
-                Route::post('/{poolingJob}/logistics-counter', [PoolingJobController::class, 'logisticsCounter'])->name('logistics-counter');
+                Route::post('/plan', [PoolingJobController::class, 'plan'])->name('plan')->middleware('throttle:30,10');    // Maps to: /pooling/plan
+                Route::post('/confirm', [PoolingJobController::class, 'confirm'])->name('confirm')->middleware('throttle:10,10');    // Maps to: /pooling/confirm
             });
 
-            // Fleet Predictor
-            Route::get('/logistics/predictor', [PredictorController::class, 'logisticsPredict'])
-                ->name('logistics.predictor');
+            // Haul Requests - logistics expresses intent
+            Route::post('/haul-requests/{haulRequest}/express-intent', [HaulRequestController::class, 'expressIntent'])->name('haul-requests.express-intent')->middleware('throttle:10,10');
 
-            // Fleet Surveillance Query (Egress)
-            Route::get('/tracking/{poolingJob}/latest', [TrackingController::class, 'latest'])->name('tracking.latest');
+            // Logistics haul-negotiation inbox
+            Route::get('/logistics/haul-negotiations', [HaulNegotiationController::class, 'logisticsInbox'])->name('logistics.haul-negotiations');
 
-            // ETA endpoint
-            Route::get('/tracking/{poolingJob}/eta', [TrackingController::class, 'eta'])->name('tracking.eta');
+            // Fleet Capacity
+            Route::get('/logistics/capacity', [CapacityController::class, 'capacity'])
+                ->name('logistics.capacity');
 
             // Auto-assign nearest available driver
             Route::post('/route-optimization/auto-assign-driver', [RouteOptimizationController::class, 'autoAssignDriver'])->name('route.auto-assign-driver');
+
+            // Manual driver assignment for a specific truck
+            Route::post('/route-optimization/assign-driver', [RouteOptimizationController::class, 'assignDriver'])
+                ->name('route-optimization.assign-driver');
 
             // Driver Fleet Control
             Route::get('/drivers', [LogisticsDriverController::class, 'index'])->name('logistics.drivers.index');
@@ -248,6 +291,17 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
         | 3.0 Driver Portal & Mobile PWA Ingress
         |------------------------------------------------------------------
         */
+        /*
+        | Fleet Surveillance Egress (shared by farmer / buyer / logistics)
+        |------------------------------------------------------------------
+        */
+        Route::middleware(['role:farmer,buyer,logistics_partner'])->group(function () {
+            Route::get('/tracking', [TrackingController::class, 'index'])
+                ->name('tracking.index');
+            Route::get('/tracking/{poolingJob}/latest', [TrackingController::class, 'latest'])->name('tracking.latest');
+            Route::get('/tracking/{poolingJob}/eta', [TrackingController::class, 'eta'])->name('tracking.eta');
+        });
+
         Route::middleware('driver')->prefix('driver')->name('driver.')->group(function () {
             Route::get('/', [DriverController::class, 'index'])->name('dashboard');
             Route::get('/jobs/{poolingJob}', [DriverController::class, 'show'])->name('jobs.show');
@@ -306,7 +360,7 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
         Route::middleware(['role:farmer,logistics_partner'])->group(function () {
             Route::post('/pooling/{poolingJob}/accept', [PoolingJobController::class, 'acceptProposal'])->name('pooling.accept')->middleware('throttle:30,1');
             Route::post('/pooling/{poolingJob}/reject', [PoolingJobController::class, 'rejectProposal'])->name('pooling.reject')->middleware('throttle:30,1');
-            Route::post('/pooling/{poolingJob}/counter', [PoolingJobController::class, 'counterProposal'])->name('pooling.counter')->middleware('throttle:30,1');
+            Route::get('/invoices/{invoice}/download', [InvoiceController::class, 'download'])->name('invoices.download');
         });
 
         /*

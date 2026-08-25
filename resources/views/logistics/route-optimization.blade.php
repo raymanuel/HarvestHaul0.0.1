@@ -1,32 +1,32 @@
-﻿<x-layout>
+<x-layout>
     @push('head')
-        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+        <link rel="stylesheet" href="{{ asset('vendor/leaflet/leaflet.css') }}" />
     @endpush
     @push('scripts')
-        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
+        <script src="{{ asset('vendor/leaflet/leaflet.js') }}"></script>
+        <script src="{{ asset('vendor/turf/turf.min.js') }}"></script>
     @endpush
 
-    @php
-        // Fetch active pooling jobs for the authenticated logistics partner directly in the view
-        $activeJobIds = \App\Models\PoolingJob::where('logistics_profile_id', auth()->user()->logisticsProfile->id)
-            ->where('status', 'in_progress')
-            ->pluck('id');
-    @endphp
-
     <div class="w-full pb-12">
+        @php
+            $openFarms = collect($farmersData)
+                ->filter(fn($f) => collect($f['harvests'] ?? [])->contains(fn($h) => ($h['has_open_haul_request'] ?? false)))
+                ->values();
+        @endphp
         <header class="pt-8 mb-6 border-b border-slate-200/80 dark:border-slate-700/80 pb-5">
-            <span class="text-xs font-bold uppercase tracking-wider text-[#3A7D44] dark:text-[#3A7D44] bg-[#3A7D44]/10 dark:bg-[#3A7D44]/10 px-3 py-1.5 rounded-lg border border-[#3A7D44]/10 dark:border-[#3A7D44]/20 self-start">Routing</span>
+            <span class="text-xs font-bold uppercase tracking-wider text-[#0F766E] dark:text-[#0F766E] bg-[#0F766E]/10 dark:bg-[#0F766E]/10 px-3 py-1.5 rounded-lg border border-[#0F766E]/10 dark:border-[#0F766E]/20 self-start">Routing</span>
             <h1 class="text-3xl font-bold text-slate-900 dark:text-white heading-font mt-2">Route Planning</h1>
             <p class="text-slate-500 dark:text-slate-400 mt-1">Plan multi-stop pickup routes.</p>
         </header>
 
+        <x-flash-success />
+
         {{-- ─── Truck Selector + Generate Plan Bar ─── --}}
         <div class="bg-white dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700/80 rounded-2xl shadow-sm p-5 mb-6 flex flex-wrap items-end gap-4">
             <div class="flex-1 min-w-[220px]">
-                <label class="block text-xs font-bold text-slate-400 dark:text-slate-550 uppercase tracking-widest mb-2">Select Truck</label>
+                <label for="truck-select" class="block text-xs font-bold text-slate-400 dark:text-slate-550 uppercase tracking-widest mb-2">Select Truck</label>
                 <div class="relative">
-                    <select id="truck-select" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-xl px-4 py-3 text-sm focus:border-[#3A7D44] focus:ring-4 focus:ring-[#3A7D44]/10 transition outline-none appearance-none cursor-pointer">
+                    <select id="truck-select" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-xl px-4 py-3 text-sm focus:border-[#0F766E] focus:ring-4 focus:ring-[#0F766E]/10 transition outline-none appearance-none cursor-pointer">
                         <option value="">— Choose a truck —</option>
                         @forelse($trucks as $truck)
                             <option value="{{ $truck['id'] }}"
@@ -46,51 +46,76 @@
                 </div>
             </div>
 
+            <div class="flex-1 min-w-[220px]">
+                <label for="driver-select" class="block text-xs font-bold text-slate-400 dark:text-slate-550 uppercase tracking-widest mb-2">Assign Driver</label>
+                <div class="relative">
+                    <select id="driver-select" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-xl px-4 py-3 text-sm focus:border-[#0F766E] focus:ring-4 focus:ring-[#0F766E]/10 transition outline-none appearance-none cursor-pointer">
+                        <option value="">Auto-assign (nearest)</option>
+                        @forelse($availableDrivers as $driver)
+                            <option value="{{ $driver['id'] }}"
+                                    data-active-jobs="{{ $driver['active_jobs'] }}"
+                                    data-last-assigned="{{ $driver['last_assigned'] ?? 'Never' }}">
+                                {{ $driver['name'] }} ({{ $driver['active_jobs'] }} active jobs)
+                            </option>
+                        @empty
+                            <option disabled>No available drivers</option>
+                        @endforelse
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400">
+                        <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                    </div>
+                </div>
+            </div>
+
             <div id="truck-info" class="hidden text-sm border rounded-xl px-5 py-3 transition-all duration-200">
                 <span id="truck-info-driver"></span> &bull;
                 <span id="truck-info-capacity"></span>
             </div>
 
             @if($suggestedTruckId)
-                <div id="recommendation-badge" class="text-xs text-[#3A7D44] dark:text-[#3A7D44] bg-[#3A7D44]/10 dark:bg-[#3A7D44]/10 border border-[#3A7D44]/20 dark:border-[#3A7D44]/15 rounded-xl px-4 py-2.5 font-semibold flex items-center gap-2">
+                <div id="recommendation-badge" class="text-xs text-[#0F766E] dark:text-[#0F766E] bg-[#0F766E]/10 dark:bg-[#0F766E]/10 border border-[#0F766E]/20 dark:border-[#0F766E]/15 rounded-xl px-4 py-2.5 font-semibold flex items-center gap-2">
                     <span><x-icon name="sun" class="w-4 h-4" /></span> Auto-Recommended
                 </div>
             @endif
 
             @if($nearestDriver)
-                <div class="text-xs text-[#1F4D25] dark:text-[#1F4D25] bg-[#1F4D25]/10 dark:bg-[#1F4D25]/10 border border-[#1F4D25]/20 dark:border-[#1F4D25]/10 rounded-xl px-4 py-2.5 font-semibold flex items-center gap-2">
+                <div class="text-xs text-[#0B4F49] dark:text-[#0B4F49] bg-[#0B4F49]/10 dark:bg-[#0B4F49]/10 border border-[#0B4F49]/20 dark:border-[#0B4F49]/10 rounded-xl px-4 py-2.5 font-semibold flex items-center gap-2">
                     <span><x-icon name="pin" class="w-4 h-4" /></span> Nearest Driver: {{ $nearestDriver['driver']->name }} ({{ $nearestDriver['distance_km'] }} km)
                 </div>
             @endif
 
-            <button id="btn-generate-plan"
-                    disabled
-                    class="bg-gradient-to-tr from-[#3A7D44] to-[#2E6336] dark:bg-[#3A7D44]/100 dark:bg-none dark:hover:bg-[#3A7D44] text-white font-bold px-6 py-3.5 rounded-xl text-sm hover:shadow-lg hover:shadow-[#3A7D44]/10 dark:hover:shadow-[#3A7D44]/20 hover:translate-y-[-1px] transition-all disabled:opacity-40 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none flex items-center gap-2">
-                <span><x-icon name="calculator" class="w-4 h-4" /></span> Generate Route Plan
+            <button id="btn-show-map" type="button"
+                    class="text-sm font-bold text-[#0F766E] dark:text-[#0F766E] bg-[#0F766E]/10 dark:bg-[#0F766E]/10 border border-[#0F766E]/20 dark:border-[#0F766E]/15 hover:bg-[#0F766E]/20 dark:hover:bg-[#0F766E]/20 rounded-xl px-6 py-3.5 transition flex items-center gap-2">
+                <span><x-icon name="pin" class="w-4 h-4" /></span> Show Map
             </button>
+
+            <x-button id="btn-generate-plan" disabled size="lg">
+                <span><x-icon name="calculator" class="w-4 h-4" /></span> Generate Route Plan
+            </x-button>
         </div>
 
-        {{-- ─── Main Grid: Map + Sidebar ─── --}}
+        {{-- ─── Main Grid: Map + Sidebar (hidden until "Show Map" / route planning) ─── --}}
+        <div id="map-section" class="hidden">
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
             {{-- Map --}}
             <div class="lg:col-span-2">
                 <div id="routing-map" class="w-full rounded-2xl border border-slate-200 dark:border-slate-700 relative z-10 shadow-sm h-[400px] sm:h-[600px]"></div>
-                <p class="text-xs text-slate-400 dark:text-slate-500 mt-3 flex items-center gap-1">
-                    <span><x-icon name="sun" class="w-4 h-4" /></span> <b>Click map to plot custom Start (Logistics hub) and End (Drop-off Terminal) points.</b>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-3 flex items-center gap-1">
+                    <span><x-icon name="sun" class="w-4 h-4" /></span> <b>Route auto-populated from cooperative hub and deal destinations. Click map to reposition.</b>
                 </p>
             </div>
 
             {{-- Sidebar --}}
             <div class="bg-slate-50 dark:bg-slate-900/40 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 p-5 flex flex-col h-[400px] sm:h-[600px]">
                 <h3 class="text-sm font-bold text-slate-800 dark:text-slate-250 heading-font mb-4 flex items-center gap-2">
-                    <span class="text-[#3A7D44]"><x-icon name="pin" class="w-4 h-4" /></span> Route Pickups
+                    <span class="text-[#0F766E]"><x-icon name="pin" class="w-4 h-4" /></span> Route Pickups
                 </h3>
 
                 <div class="mb-4 bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200/60 dark:border-slate-700/60 shadow-sm">
-                    <label for="radius-select" class="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2">Search Radius</label>
+                    <label for="radius-select" class="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-2">Search Radius</label>
                     <div class="relative">
-                        <select id="radius-select" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-xl px-3 py-2.5 text-xs focus:border-[#3A7D44] focus:ring-4 focus:ring-[#3A7D44]/10 transition outline-none appearance-none cursor-pointer">
+                        <select id="radius-select" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-xl px-3 py-2.5 text-xs focus:border-[#0F766E] focus:ring-4 focus:ring-[#0F766E]/10 transition outline-none appearance-none cursor-pointer">
                             <option value="1">Within 1 km</option>
                             <option value="3">Within 3 km</option>
                             <option value="5" selected>Within 5 km</option>
@@ -104,6 +129,19 @@
                 </div>
 
                 <p id="radius-description" class="text-[11px] text-slate-450 dark:text-slate-500 mb-4 leading-relaxed">Farms within 5km buffer off the planned road segments will auto-detect.</p>
+
+                <div class="mb-4 bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200/60 dark:border-slate-700/60 shadow-sm">
+                    <label for="hauling-rate" class="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-2">Flat Hauling Rate (₱/kg)</label>
+                    <input type="number" id="hauling-rate" step="0.01" min="0.1" value="1.50"
+                        class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-xl px-3 py-2.5 text-xs font-mono focus:border-[#0F766E] focus:ring-4 focus:ring-[#0F766E]/10 transition outline-none"
+                        placeholder="e.g. 1.50" />
+                    <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-1.5 leading-relaxed">Total price = rate × total kg. Split across farmers by cargo weight × haul distance.</p>
+                    <div class="mt-2 p-2 bg-slate-50 dark:bg-slate-900/60 rounded-lg border border-slate-100 dark:border-slate-800">
+                        <p class="text-[9px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                            Reference only (non-binding): NFA hauling rates run ₱0.50–0.85/MT/km over flat terrain and ₱1.20/MT/km over mountainous terrain, with the per-km rate declining at longer distances. A PIDS/SEARCA study of Mindanao vegetable truckers (incl. GenSan/Tupi routes) found transport cost rises steeply with distance and rough road conditions. Set your actual rate based on your fleet's fuel, labor, and maintenance costs.
+                        </p>
+                    </div>
+                </div>
 
                 {{-- Weather Widget --}}
                 <div id="weather-widget" class="hidden mb-4 bg-white dark:bg-slate-800 p-3 rounded-xl border border-slate-200/60 dark:border-slate-700/60 shadow-sm">
@@ -121,12 +159,103 @@
                 </div>
 
                 <div id="pickup-queue" class="flex-1 overflow-y-auto space-y-3 pr-1 custom-scroll">
-                    <div class="text-center text-slate-400 dark:text-slate-500 mt-10 italic text-xs">Awaiting route coordinates...</div>
+                    <div class="text-center text-slate-500 dark:text-slate-400 mt-10 italic text-xs">Awaiting route coordinates...</div>
                 </div>
 
                 <button id="reset-map" class="w-full mt-4 bg-red-55/10 dark:bg-red-950/20 text-red-600 dark:text-red-400 font-bold py-2.5 rounded-xl border border-red-200/50 dark:border-red-900/30 hover:bg-red-100 dark:hover:bg-red-950/40 transition text-xs hidden">
                     Clear Route & Restart
                 </button>
+            </div>
+        </div>
+        </div>
+
+        {{-- ─── Open Haul Requests (list-first primary) + My Routes ─── --}}
+        <div class="space-y-6 mt-8">
+
+            {{-- Open Haul Requests (radius-aware) --}}
+            <div class="bg-white dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700/80 rounded-2xl shadow-sm p-5">
+                <div class="flex items-center justify-between mb-1">
+                    <h3 class="text-sm font-bold text-slate-800 dark:text-slate-200 heading-font flex items-center gap-2">
+                        <span class="text-[#0F766E]"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg></span>
+                        Open Haul Requests
+                    </h3>
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-[#0F766E] dark:text-[#0F766E] bg-[#0F766E]/10 dark:bg-[#0F766E]/10 border border-[#0F766E]/20 dark:border-[#0F766E]/15 px-2.5 py-1 rounded-lg" id="open-haul-count">{{ $openFarms->count() }}</span>
+                </div>
+                <p class="text-[11px] text-slate-500 dark:text-slate-400 mb-4 leading-relaxed">Open haul requests from verified farmers. Plot a route to narrow the pool to farms within your search radius.</p>
+                <div id="open-haul-requests" class="space-y-3 max-h-[480px] overflow-y-auto pr-1 custom-scroll">
+                    @forelse($openFarms as $openFarm)
+                        @php
+                            $openHarvest = collect($openFarm['harvests'] ?? [])->first(fn($h) => ($h['has_open_haul_request'] ?? false));
+                            $openTotalKg = collect($openFarm['harvests'] ?? [])->sum(fn($h) => (float) ($h['quantity'] ?? 0));
+                            $openDropoff = $openHarvest['destination_address'] ?? $openFarm['destination_address'] ?? 'B2B Terminal';
+                            $openCrop = $openHarvest['crop'] ?? null;
+                        @endphp
+                        <div class="bg-slate-50 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-700/60 border-l-4 border-l-[#0F766E] rounded-xl p-3.5">
+                            <p class="text-sm font-bold text-slate-800 dark:text-slate-200 heading-font truncate">{{ $openFarm['name'] }}</p>
+                            <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 truncate">
+                                @if($openCrop)<span class="font-semibold">{{ $openCrop }}</span> &bull; @endif
+                                {{ number_format($openTotalKg) }} kg &bull; — km off-route
+                            </p>
+                            <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 truncate">Drop-off: {{ $openDropoff }}</p>
+                            @if($openHarvest['haul_request_id'] ?? null)
+                                <div class="flex items-center gap-2 mt-2.5">
+                                    <button onclick="expressHaulIntent({{ $openHarvest['haul_request_id'] }}, '{{ addslashes($openFarm['name']) }}')" class="flex-1 text-[11px] font-bold text-white bg-[#E14B3D] hover:opacity-90 rounded-lg px-3 py-1.5 transition">Express Haul Intent</button>
+                                </div>
+                            @endif
+                        </div>
+                    @empty
+                        <div class="text-center text-slate-500 dark:text-slate-400 mt-8 italic text-xs">No open haul requests right now.</div>
+                    @endforelse
+                </div>
+            </div>
+
+            {{-- My Routes (pooling jobs) --}}
+            <div class="bg-white dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700/80 rounded-2xl shadow-sm p-5">
+                <div class="flex items-center justify-between mb-1">
+                    <h3 class="text-sm font-bold text-slate-800 dark:text-slate-200 heading-font flex items-center gap-2">
+                        <span class="text-[#0F766E]"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg></span>
+                        My Routes
+                    </h3>
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 px-2.5 py-1 rounded-lg">{{ $myRoutes->count() }}</span>
+                </div>
+                <p class="text-[11px] text-slate-500 dark:text-slate-400 mb-4 leading-relaxed">Recent pooling routes for this logistics partner. Select View Map to recall the saved route on the map.</p>
+
+                @forelse($myRoutes as $route)
+                    <div class="flex items-center justify-between gap-3 bg-slate-50 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-700/60 border-l-4 border-l-[#0F766E] rounded-xl p-3.5 mb-3">
+                        <div class="min-w-0">
+                            <p class="text-sm font-bold text-slate-800 dark:text-slate-200 heading-font truncate">
+                                <a href="{{ route('pooling.show', $route['id']) }}" class="hover:underline">Job #{{ $route['id'] }}</a>
+                            </p>
+                            <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 truncate">
+                                @if($route['crops'])
+                                    <span class="font-semibold">{{ $route['crops'] }}</span> &bull;
+                                @endif
+                                {{ $route['farm_count'] }} farm{{ $route['farm_count'] == 1 ? '' : 's' }} &bull;
+                                {{ number_format($route['total_kg']) }} kg &bull;
+                                {{ $route['driver'] ?: 'No driver' }}
+                            </p>
+                            <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 truncate">
+                                {{ $route['truck'] }} &bull; {{ number_format($route['planned_distance_km'], 1) }} km &bull; {{ $route['created_at'] }}
+                            </p>
+                        </div>
+                        <div class="flex flex-col items-end gap-1.5 shrink-0">
+                            <span class="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md
+                                {{ $route['status'] === 'in_progress' ? 'bg-blue-50 dark:bg-blue-950/20 text-blue-600 dark:text-blue-400 border border-blue-200/60 dark:border-blue-900/30' : '' }}
+                                {{ $route['status'] === 'confirmed' ? 'bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-900/30' : '' }}
+                                {{ $route['status'] === 'awaiting_confirmation' ? 'bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-400 border border-amber-200/60 dark:border-amber-900/30' : '' }}
+                                {{ !in_array($route['status'], ['in_progress', 'confirmed', 'awaiting_confirmation']) ? 'bg-slate-100 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700' : '' }}">
+                                {{ ucfirst(str_replace('_', ' ', $route['status'])) }}
+                            </span>
+                            <button onclick="viewRouteMap({{ $route['id'] }})"
+                                class="text-[11px] font-bold text-[#0F766E] dark:text-[#0F766E] bg-[#0F766E]/10 dark:bg-[#0F766E]/10 border border-[#0F766E]/20 dark:border-[#0F766E]/15 hover:bg-[#0F766E]/20 dark:hover:bg-[#0F766E]/20 rounded-lg px-3 py-1.5 transition flex items-center gap-1">
+                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                View Map
+                            </button>
+                        </div>
+                    </div>
+                @empty
+                    <div class="text-center text-slate-500 dark:text-slate-400 mt-8 italic text-xs">No routes planned yet.</div>
+                @endforelse
             </div>
         </div>
 
@@ -145,7 +274,7 @@
                 </div>
                 <div class="bg-slate-50 dark:bg-slate-900/50 rounded-xl p-4 border border-slate-100 dark:border-slate-700/40 text-center hover:shadow-sm transition-shadow duration-200">
                     <p class="text-[10px] text-slate-400 dark:text-slate-550 uppercase tracking-widest font-bold">Total Load</p>
-                    <p id="plan-total-kg" class="text-2xl font-black text-[#3A7D44] dark:text-[#3A7D44] mt-1">—</p>
+                    <p id="plan-total-kg" class="text-2xl font-black text-[#0F766E] dark:text-[#0F766E] mt-1">—</p>
                 </div>
                 <div class="bg-slate-50 dark:bg-slate-900/50 rounded-xl p-4 border border-slate-100 dark:border-slate-700/40 text-center hover:shadow-sm transition-shadow duration-200">
                     <p class="text-[10px] text-slate-400 dark:text-slate-550 uppercase tracking-widest font-bold">Capacity Used</p>
@@ -155,9 +284,10 @@
                     <p class="text-[10px] text-slate-400 dark:text-slate-550 uppercase tracking-widest font-bold">Est. Distance</p>
                     <p id="plan-distance" class="text-2xl font-black text-slate-700 dark:text-slate-350 mt-1">—</p>
                 </div>
-                <div class="bg-[#3A7D44]/10/50 dark:bg-[#3A7D44]/10 rounded-xl p-4 border border-[#3A7D44]/20 dark:border-[#3A7D44]/15 text-center ring-2 ring-[#3A7D44]/10 hover:shadow-sm transition-shadow duration-200">
-                    <p class="text-[10px] text-[#3A7D44] dark:text-[#3A7D44] font-bold uppercase tracking-widest">Suggested Cost</p>
-                    <p id="plan-price-ref" class="text-2xl font-black text-[#3A7D44] dark:text-[#3A7D44] mt-1">—</p>
+                <div class="bg-[#0F766E]/10/50 dark:bg-[#0F766E]/10 rounded-xl p-4 border border-[#0F766E]/20 dark:border-[#0F766E]/15 text-center ring-2 ring-[#0F766E]/10 hover:shadow-sm transition-shadow duration-200">
+                    <p class="text-[10px] text-[#0F766E] dark:text-[#0F766E] font-bold uppercase tracking-widest">Total Haul Cost</p>
+                    <p id="plan-price-ref" class="text-2xl font-black text-[#0F766E] dark:text-[#0F766E] mt-1">—</p>
+                    <p id="plan-rate" class="text-[10px] text-[#0F766E]/80 font-bold mt-1">—</p>
                 </div>
                 <div class="bg-slate-50 dark:bg-slate-900/50 rounded-xl p-4 border border-slate-100 dark:border-slate-700/40 text-center hover:shadow-sm transition-shadow duration-200">
                     <p class="text-[10px] text-slate-400 dark:text-slate-550 uppercase tracking-widest font-bold">Assigned Truck</p>
@@ -169,7 +299,7 @@
             <div class="overflow-x-auto border border-slate-200/60 dark:border-slate-700/60 rounded-2xl mb-6">
                 <table class="w-full text-sm text-left border-collapse">
                     <thead>
-                        <tr class="border-b border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/40 text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-widest font-bold">
+                        <tr class="border-b border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/40 text-[10px] text-slate-500 dark:text-slate-400 uppercase tracking-widest font-bold">
                             <th class="py-3.5 px-4">Order</th>
                             <th class="py-3 px-4">Farm</th>
                             <th class="py-3 px-4">Location</th>
@@ -179,7 +309,7 @@
                         </tr>
                     </thead>
                     <tbody id="plan-table-body" class="divide-y divide-slate-100 dark:divide-slate-700/50">
-                        <tr><td colspan="6" class="py-6 text-center text-slate-400 dark:text-slate-500 italic text-xs">No plan generated yet.</td></tr>
+                        <tr><td colspan="6" class="py-6 text-center text-slate-500 dark:text-slate-400 italic text-xs">No plan generated yet.</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -187,15 +317,14 @@
             {{-- Notes + Proposal Submission Trigger --}}
             <div class="flex flex-wrap items-end gap-4 pt-4 border-t border-slate-100 dark:border-slate-700">
                 <div class="flex-1 min-w-[220px]">
-                    <label class="block text-xs font-bold text-slate-400 dark:text-slate-550 uppercase tracking-widest mb-2">Instructions / Notes (optional)</label>
+                    <label for="plan-notes" class="block text-xs font-bold text-slate-400 dark:text-slate-550 uppercase tracking-widest mb-2">Instructions / Notes (optional)</label>
                     <input id="plan-notes" type="text" maxlength="500"
                            placeholder="e.g., Deliver to port before 12:00 PM, secure tarpaulin"
-                           class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-xl px-4 py-3 text-sm focus:border-[#3A7D44] focus:ring-4 focus:ring-[#3A7D44]/10 transition outline-none">
+                           class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-xl px-4 py-3 text-sm focus:border-[#0F766E] focus:ring-4 focus:ring-[#0F766E]/10 transition outline-none">
                 </div>
-                <button id="btn-confirm-plan"
-                        class="bg-gradient-to-tr from-[#3A7D44] to-[#2E6336] dark:bg-[#3A7D44]/100 dark:bg-none dark:hover:bg-[#3A7D44] text-white font-bold px-6 py-3.5 rounded-xl text-sm hover:shadow-lg hover:shadow-[#3A7D44]/10 dark:hover:shadow-[#3A7D44]/20 hover:translate-y-[-1px] transition-all flex items-center gap-2">
+                <x-button id="btn-confirm-plan" size="lg">
                     <span><x-icon name="inbox" class="w-4 h-4" /></span> Create Delivery Proposal
-                </button>
+                </x-button>
             </div>
 
             {{-- Confirm feedback --}}
@@ -213,8 +342,23 @@
             // Add standard OpenStreetMap tiles
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
 
+            // The map section is hidden on load (list-first flow); reveal it and
+            // re-measure the Leaflet container once it becomes visible.
+            function revealMap() {
+                const section = document.getElementById('map-section');
+                if (section) section.classList.remove('hidden');
+                map.invalidateSize();
+                setTimeout(function () { map.invalidateSize(); }, 300);
+                document.getElementById('routing-map').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            document.getElementById('btn-show-map').addEventListener('click', function () {
+                revealMap();
+            });
+
             // Farmers coordinate data passed from the controller
             const farms = @json($farmersData);
+            const hubLat = @json($hubLat);
+            const hubLng = @json($hubLng);
 
             // Map and routing variables
             let baseRouteGeoJSON     = null;  // Original straight-line route path
@@ -227,12 +371,16 @@
             let lastNearbyFarms      = [];    // Farms matched inside the selected radius
             let currentPlan          = null;  // Final calculated cost and weight allocations
 
+            // Saved pooling routes (for the "My Routes" panel) + dedicated layer for route recall
+            const myRoutes    = @json($myRoutes);
+            const historyLayer = L.layerGroup().addTo(map);
+
             // Colors for custom markers
-            const defaultIcon   = L.icon({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png',  iconSize: [25, 41], iconAnchor: [12, 41] });
-            const highlightIcon = L.icon({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png', iconSize: [25, 41], iconAnchor: [12, 41] });
+            const defaultIcon   = L.icon({ iconUrl: '{{ asset('vendor/leaflet/markers/marker-icon-blue.png') }}',  iconSize: [25, 41], iconAnchor: [12, 41] });
+            const highlightIcon = L.icon({ iconUrl: '{{ asset('vendor/leaflet/markers/marker-icon-green.png') }}', iconSize: [25, 41], iconAnchor: [12, 41] });
 
             // High contrast red marker mapping for drop-off terminals / buyers
-            const destinationMarkerIcon = L.icon({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png', iconSize: [25, 41], iconAnchor: [12, 41] });
+            const destinationMarkerIcon = L.icon({ iconUrl: '{{ asset('vendor/leaflet/markers/marker-icon-red.png') }}', iconSize: [25, 41], iconAnchor: [12, 41] });
 
             const truckSelect   = document.getElementById('truck-select');
             const truckInfo     = document.getElementById('truck-info');
@@ -274,6 +422,34 @@
 
                 if (lastNearbyFarms.length > 0) {
                     renderPickupQueue(lastNearbyFarms);
+                }
+            });
+
+            // ─── Driver Selector: manual override for driver assignment ───
+            const driverSelect = document.getElementById('driver-select');
+            driverSelect.addEventListener('change', async function () {
+                const driverId = this.value;
+                if (!driverId) return;
+
+                const truckId = truckSelect.value;
+                if (!truckId) return;
+
+                const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute("content") ?? "";
+
+                try {
+                    const res = await fetch("/route-optimization/assign-driver", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json", "Accept": "application/json", "X-CSRF-TOKEN": csrf },
+                        body: JSON.stringify({ truck_id: Number(truckId), driver_id: Number(driverId) }),
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        const selectedOpt = truckSelect.options[truckSelect.selectedIndex];
+                        if (selectedOpt) selectedOpt.dataset.driver = data.driver_name;
+                        truckSelect.dispatchEvent(new Event('change'));
+                    }
+                } catch (err) {
+                    console.error("Manual driver assignment failed:", err);
                 }
             });
 
@@ -344,15 +520,19 @@
                     currentRouteGeoJSON = data.trips[0].geometry;
                     drawRoute(currentRouteGeoJSON);
 
-                    // Sort waypoints by OSRM optimized sequence
-                    const optimizedWps = data.waypoints
+                    // Sort waypoints by OSRM optimized sequence (guard against missing waypoints)
+                    const wps = Array.isArray(data.waypoints) ? data.waypoints : [];
+                    const optimizedWps = wps
                         .filter(wp => wp.waypoint_index !== 0 && wp.waypoint_index !== coords.length - 1)
                         .sort((a, b) => a.trips_index - b.trips_index);
 
-                    const optimizedFarms = optimizedWps.map(wp => nearbyFarms[wp.waypoint_index - 1]);
-                    lastNearbyFarms = optimizedFarms;
+                    const optimizedFarms = optimizedWps
+                        .map(wp => nearbyFarms[wp.waypoint_index - 1])
+                        .filter(f => f != null);
 
-                    renderPickupQueue(optimizedFarms);
+                    lastNearbyFarms = optimizedFarms.length > 0 ? optimizedFarms : nearbyFarms;
+
+                    renderPickupQueue(lastNearbyFarms);
                 } catch (err) {
                     console.error('Detour OSRM Trip TSP error:', err);
                     generateDetourRouteFallback(start, nearbyFarms, end);
@@ -383,7 +563,7 @@
 
             function drawRoute(geojson) {
                 if (routePolyline) map.removeLayer(routePolyline);
-                routePolyline = L.geoJSON(geojson, { style: { color: '#3b82f6', weight: 5 } }).addTo(map);
+                routePolyline = L.geoJSON(geojson, { style: { color: '#0D9488', weight: 5 } }).addTo(map);
             }
 
             window.plotFarmRoute = function(farmLat, farmLng, destLat, destLng) {
@@ -435,12 +615,19 @@
                     const hasDestination = farm.destination_latitude && farm.destination_longitude;
                     const plotButtonHtml = hasDestination
                         ? `<button onclick="plotFarmRoute(${farm.farmer_profile.latitude},${farm.farmer_profile.longitude},${farm.destination_latitude},${farm.destination_longitude})"
-                            style="margin-top:10px;width:100%;background:linear-gradient(to top right, #059669, #14b8a6);color:white;border:none;border-radius:8px;padding:8px 0;font-size:12px;font-weight:700;cursor:pointer;box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
+                            style="margin-top:10px;width:100%;background:#0F766E;color:white;border:none;border-radius:8px;padding:8px 0;font-size:12px;font-weight:700;cursor:pointer;box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
                             <svg class="w-4 h-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg> Plot Route
                            </button>`
                         : `<button disabled style="margin-top:10px;width:100%;background:${isDark ? '#334155' : '#f1f5f9'};color:${isDark ? '#64748b' : '#94a3b8'};border:none;border-radius:8px;padding:8px 0;font-size:12px;font-weight:700;cursor:not-allowed;">
                             No destination set
                            </button>`;
+
+                    const haulRequestHtml = farm.harvests && farm.harvests.some(h => h.has_open_haul_request)
+                        ? `<button onclick="expressHaulIntent(${farm.harvests.find(h => h.has_open_haul_request).haul_request_id}, '${farm.name}')"
+                            style="margin-top:10px;width:100%;background:#E14B3D;color:white;border:none;border-radius:8px;padding:8px 0;font-size:12px;font-weight:700;cursor:pointer;box-shadow:0 4px 6px -1px rgba(0,0,0,0.05);">
+                            Express Haul Intent
+                           </button>`
+                        : '';
 
                     marker.bindPopup(`
                         <div style="min-width:200px;font-family:'DM Sans',sans-serif;">
@@ -451,6 +638,7 @@
                             <ul style="margin:4px 0 0;padding-left:14px;font-size:12px;color:${isDark ? '#cbd5e1' : '#334155'};list-style-type:square;">${harvestList}</ul>
                             ${destinationHtml}
                             ${plotButtonHtml}
+                            ${haulRequestHtml}
                         </div>
                     `, { maxWidth: 260 });
 
@@ -478,6 +666,32 @@
                     destinationMarkers.push({ marker: marker, farmName: farm.name, harvestId: h.id });
                 });
             });
+
+            // Auto-populate start/end markers from cooperative hub + first deal destination
+            if (hubLat && hubLng) {
+                var autoEndFarm = null;
+                for (var i = 0; i < farms.length; i++) {
+                    var f = farms[i];
+                    if (f.destination_latitude && f.destination_longitude) {
+                        autoEndFarm = f;
+                        break;
+                    }
+                }
+
+                if (autoEndFarm) {
+                    var startLatLng = L.latLng(hubLat, hubLng);
+                    var endLatLng = L.latLng(autoEndFarm.destination_latitude, autoEndFarm.destination_longitude);
+
+                    startMarker = L.marker(startLatLng).addTo(map)
+                        .bindPopup('<b>Start:</b> Coop Hub').openPopup();
+                    endMarker = L.marker(endLatLng).addTo(map)
+                        .bindPopup('<b>End:</b> Delivery Destination');
+
+                    map.fitBounds([startLatLng, endLatLng], { padding: [60, 60] });
+                    generateBaseRoute(startLatLng, endLatLng);
+                    document.getElementById('reset-map').classList.remove('hidden');
+                }
+            }
 
             /**
              * Finds all active farm posts situated within a specific search buffer distance 
@@ -526,6 +740,7 @@
                 const currentRadius  = parseFloat(document.getElementById('radius-select').value);
                 const queueContainer = document.getElementById('pickup-queue');
                 queueContainer.innerHTML = '';
+                renderOpenHaulRequests(nearbyFarms);
 
                 if (nearbyFarms.length === 0) {
                     queueContainer.innerHTML = `<div class="text-center text-slate-400 mt-10">No farms detected within ${currentRadius}km of this route.</div>`;
@@ -541,7 +756,7 @@
 
                     const cardClass = exceedsCapacity
                         ? 'bg-slate-50 dark:bg-slate-905/40 p-4 rounded-xl border border-slate-205 dark:border-slate-800 border-l-4 border-l-rose-500 opacity-60 filter grayscale relative overflow-hidden'
-                        : 'bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-100/70 dark:border-slate-700/80 border-l-4 border-l-[#3A7D44] shadow-sm hover:shadow-md transition-shadow relative overflow-hidden';
+                        : 'bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-100/70 dark:border-slate-700/80 border-l-4 border-l-[#0F766E] shadow-sm hover:shadow-md transition-shadow relative overflow-hidden';
 
                     const capacityBadge = exceedsCapacity
                         ? `<span class="inline-block mt-2 text-[9px] font-bold uppercase tracking-wider bg-rose-50 dark:bg-rose-950/20 text-rose-600 dark:text-rose-400 border border-rose-250/50 dark:border-rose-900/30 px-2 py-0.5 rounded-md"><svg class="w-4 h-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg> Over Limit</span>`
@@ -557,6 +772,137 @@
                         </div>
                     `;
                 });
+            }
+
+            // ─── Open Haul Requests (radius-aware list) ───────────────
+            function renderOpenHaulRequests(nearbyFarms) {
+                const container = document.getElementById('open-haul-requests');
+                if (!container) return;
+                const counter = document.getElementById('open-haul-count');
+                const currentRadius = parseFloat(document.getElementById('radius-select').value);
+
+                if (!baseRouteGeoJSON) {
+                    const allOpen = (farms || []).filter(f =>
+                        f.harvests && f.harvests.some(h => h.has_open_haul_request)
+                    );
+                    if (counter) counter.textContent = allOpen.length;
+                    container.innerHTML = '';
+
+                    if (allOpen.length === 0) {
+                        container.innerHTML = '<div class="text-center text-slate-500 dark:text-slate-400 mt-8 italic text-xs">No open haul requests right now.</div>';
+                        return;
+                    }
+
+                    allOpen.forEach(farm => {
+                        const open = farm.harvests.find(h => h.has_open_haul_request);
+                        const totalKg = farm.harvests.reduce((s, h) => s + parseFloat(h.quantity || 0), 0);
+                        const destination = open.destination_address || farm.destination_address || 'B2B Terminal';
+                        const escName = String(farm.name).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+
+                        container.innerHTML += `
+                            <div class="bg-slate-50 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-700/60 border-l-4 border-l-[#0F766E] rounded-xl p-3.5">
+                                <p class="text-sm font-bold text-slate-800 dark:text-slate-200 heading-font truncate">${farm.name}</p>
+                                <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 truncate">
+                                    ${open.crop ? '<span class="font-semibold">' + open.crop + '</span> &bull; ' : ''}${Number(totalKg || 0).toLocaleString()} kg &bull; — km off-route
+                                </p>
+                                <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 truncate">Drop-off: ${destination}</p>
+                                ${open.haul_request_id ? `<div class="flex items-center gap-2 mt-2.5"><button onclick="expressHaulIntent(${open.haul_request_id}, '${escName}')" class="flex-1 text-[11px] font-bold text-white bg-[#E14B3D] hover:opacity-90 rounded-lg px-3 py-1.5 transition">Express Haul Intent</button></div>` : ''}
+                            </div>
+                        `;
+                    });
+                    return;
+                }
+
+                const openFarms = (nearbyFarms || []).filter(item =>
+                    item.data.harvests && item.data.harvests.some(h => h.has_open_haul_request)
+                );
+
+                if (counter) counter.textContent = openFarms.length;
+                container.innerHTML = '';
+
+                if (openFarms.length === 0) {
+                    container.innerHTML = `<div class="text-center text-slate-500 dark:text-slate-400 mt-8 italic text-xs">No open haul requests within ${currentRadius} km of this route.</div>`;
+                    return;
+                }
+
+                openFarms.forEach(item => {
+                    const open = item.data.harvests.find(h => h.has_open_haul_request);
+                    const totalKg = item.data.harvests.reduce((s, h) => s + parseFloat(h.quantity || 0), 0);
+                    const destination = open.destination_address || item.data.destination_address || 'B2B Terminal';
+                    const distance = (item.distance != null) ? item.distance.toFixed(2) : '—';
+                    const markerIndex = farmMarkers.findIndex(m => m.marker === item.marker);
+                    const escName = String(item.data.name).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+
+                    const btnMap = markerIndex !== -1
+                        ? `<button onclick="viewFarmOnMap(${markerIndex})" class="flex-1 text-[11px] font-bold text-[#0F766E] dark:text-[#0F766E] bg-[#0F766E]/10 dark:bg-[#0F766E]/10 border border-[#0F766E]/20 dark:border-[#0F766E]/15 hover:bg-[#0F766E]/20 dark:hover:bg-[#0F766E]/20 rounded-lg px-3 py-1.5 transition flex items-center justify-center gap-1">
+                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                View Map</button>`
+                        : '';
+
+                    const btnIntent = open.haul_request_id
+                        ? `<button onclick="expressHaulIntent(${open.haul_request_id}, '${escName}')" class="flex-1 text-[11px] font-bold text-white bg-[#E14B3D] hover:opacity-90 rounded-lg px-3 py-1.5 transition">Express Haul Intent</button>`
+                        : '';
+
+                    container.innerHTML += `
+                        <div class="bg-slate-50 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-700/60 border-l-4 border-l-[#0F766E] rounded-xl p-3.5">
+                            <p class="text-sm font-bold text-slate-800 dark:text-slate-200 heading-font truncate">${item.data.name}</p>
+                            <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 truncate">
+                                ${open.crop ? '<span class="font-semibold">' + open.crop + '</span> &bull; ' : ''}${Number(totalKg || 0).toLocaleString()} kg &bull; ${distance} km off-route
+                            </p>
+                            <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 truncate">Drop-off: ${destination}</p>
+                            <div class="flex items-center gap-2 mt-2.5">${btnMap}${btnIntent}</div>
+                        </div>
+                    `;
+                });
+            }
+
+            // ─── Recall a farm on the map from the Open Haul Requests list ──
+            function viewFarmOnMap(markerIndex) {
+                revealMap();
+                const item = farmMarkers[markerIndex];
+                if (!item || !item.marker) return;
+                map.setView(item.marker.getLatLng(), 14);
+                item.marker.openPopup();
+            }
+
+            // ─── Recall a saved pooling route on the map from My Routes ───
+            function viewRouteMap(jobId) {
+                revealMap();
+                const job = myRoutes.find(j => j.id === jobId);
+                if (!job) return;
+
+                historyLayer.clearLayers();
+
+                let coords = [];
+                const geom = job.route_geometry;
+                if (Array.isArray(geom) && geom.length) {
+                    if (Array.isArray(geom[0])) {
+                        coords = geom.map(p => [p[1], p[0]]);            // [[lng, lat], ...]
+                    } else if (geom[0] && typeof geom[0] === 'object') {
+                        coords = geom.map(p => [p.lat, p.lng]);          // [{lat, lng}, ...]
+                    }
+                }
+                if (coords.length < 2 && Array.isArray(job.start) && Array.isArray(job.end)) {
+                    coords = [job.start, job.end];                        // fallback straight line
+                }
+
+                if (coords.length >= 2) {
+                    L.polyline(coords, { color: '#0F766E', weight: 4, opacity: 0.85 }).addTo(historyLayer);
+                }
+                if (Array.isArray(job.start) && job.start.length >= 2) {
+                    L.marker(job.start).addTo(historyLayer).bindPopup('<b>Start:</b> Hub Depot');
+                }
+                if (Array.isArray(job.end) && job.end.length >= 2) {
+                    L.marker(job.end, { icon: destinationMarkerIcon }).addTo(historyLayer).bindPopup('<b>End:</b> Delivery Terminal');
+                }
+
+                if (coords.length >= 2) {
+                    map.fitBounds(L.latLngBounds(coords), { padding: [40, 40] });
+                } else if (coords.length === 1) {
+                    map.setView(coords[0], 14);
+                }
+                map.invalidateSize();
+                document.getElementById('routing-map').scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
 
             // ─── Weather Fetch on Route Generation ────────────────
@@ -603,6 +949,7 @@
                             end_lat:     endMarker.getLatLng().lat,
                             end_lng:     endMarker.getLatLng().lng,
                             radius_km:   parseFloat(document.getElementById('radius-select').value),
+                            hauling_rate_per_kg: parseFloat(document.getElementById('hauling-rate').value),
                         }),
                     });
 
@@ -629,6 +976,7 @@
                 document.getElementById('plan-truck-label').textContent = truckSelect.options[truckSelect.selectedIndex].text;
                 document.getElementById('plan-distance').textContent   = (plan.total_distance_km ?? 0).toFixed(2) + ' km';
                 document.getElementById('plan-price-ref').textContent  = '₱' + Number(plan.price_reference ?? 0).toLocaleString(undefined, {minimumFractionDigits: 2});
+                document.getElementById('plan-rate').textContent       = '₱' + Number(plan.hauling_rate_per_kg ?? 0).toFixed(2) + '/kg × ' + Number(plan.total_kg ?? 0).toLocaleString() + ' kg';
 
                 const tbody = document.getElementById('plan-table-body');
                 tbody.innerHTML = '';
@@ -641,7 +989,7 @@
                             <td class="py-3.5 px-4 text-slate-500 dark:text-slate-400 text-xs">${h.farm_location ?? '—'}</td>
                             <td class="py-3.5 px-4 text-slate-500 dark:text-slate-400 text-xs font-semibold">${h.crop ?? '—'}</td>
                             <td class="py-3.5 px-4 font-bold text-slate-800 dark:text-slate-200">${Number(h.quantity_kg).toLocaleString()} kg</td>
-                            <td class="py-3.5 px-4 font-extrabold text-[#3A7D44] dark:text-[#3A7D44] text-right">
+                            <td class="py-3.5 px-4 font-extrabold text-[#0F766E] dark:text-[#0F766E] text-right">
                                 ₱${Number(h.split_cost ?? 0).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}
                             </td>
                         </tr>
@@ -666,6 +1014,7 @@
                             end_lat:        endMarker.getLatLng().lat,
                             end_lng:        endMarker.getLatLng().lng,
                             radius_km:      parseFloat(document.getElementById('radius-select').value),
+                            hauling_rate_per_kg: parseFloat(document.getElementById('hauling-rate').value),
                             notes:          document.getElementById('plan-notes').value,
                             route_geometry: currentRouteGeoJSON ? currentRouteGeoJSON.coordinates : [],
                         }),
@@ -677,7 +1026,7 @@
 
                     if (res.ok && result.success) {
                         document.getElementById('plan-status-badge').textContent = 'Proposal Created';
-                        feedback.className = 'mt-4 p-4 rounded-xl bg-[#3A7D44]/10 dark:bg-[#3A7D44]/10 text-[#1A2E1A] dark:text-[#3A7D44] border border-[#3A7D44]/20 dark:border-[#3A7D44]/15 font-bold flex items-center gap-2';
+                        feedback.className = 'mt-4 p-4 rounded-xl bg-[#0F766E]/10 dark:bg-[#0F766E]/10 text-[#1A2E1A] dark:text-[#0F766E] border border-[#0F766E]/20 dark:border-[#0F766E]/15 font-bold flex items-center gap-2';
                         feedback.innerHTML = '<span><svg class="w-4 h-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></span> Proposal pipeline open. Room linked to Job #' + result.pooling_job_id;
                         this.innerHTML = '<span><svg class="w-4 h-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></span> Proposal Sent';
                     } else {
@@ -703,10 +1052,38 @@
                 farmMarkers.forEach(item => item.marker.setIcon(defaultIcon));
                 destinationMarkers.forEach(function (dm) { dm.marker.setOpacity(1); });
                 document.getElementById('pickup-queue').innerHTML = '<div class="text-center text-slate-400 mt-10 italic">Awaiting route coordinates...</div>';
+                renderOpenHaulRequests([]);
+                historyLayer.clearLayers();
                 document.getElementById('plan-panel').classList.add('hidden');
                 btnGenerate.disabled = true; this.classList.add('hidden');
             });
         });
+
+        window.expressHaulIntent = function(haulRequestId, farmName) {
+            Swal.fire({
+                title: 'Express Haul Intent',
+                html: '<p class="text-xs text-slate-500 mb-3">Express intent to haul for <strong>' + farmName + '</strong></p>' +
+                    '<input id="swal-date" type="date" class="swal2-input text-xs" placeholder="Suggested pickup date" style="font-size:12px">' +
+                    '<textarea id="swal-notes" class="swal2-textarea text-xs" placeholder="Notes for farmer (optional)" rows="2" style="font-size:12px"></textarea>',
+                showCancelButton: true,
+                confirmButtonText: 'Express Intent',
+                confirmButtonColor: '#0D9488',
+                customClass: { popup: 'rounded-2xl' },
+                preConfirm: function() {
+                    var date = document.getElementById('swal-date').value;
+                    var notes = document.getElementById('swal-notes').value;
+                    var form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = '/haul-requests/' + haulRequestId + '/express-intent';
+                    var csrf = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                    form.innerHTML = '<input type="hidden" name="_token" value="' + csrf + '">' +
+                        '<input type="hidden" name="suggested_date" value="' + date + '">' +
+                        '<input type="hidden" name="notes" value="' + notes + '">';
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            });
+        };
     </script>
     @endpush
 </x-layout>

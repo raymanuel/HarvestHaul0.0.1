@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\HarvestStatus;
 use App\Models\PoolingJob;
 use App\Models\Truck;
+use App\Models\HaulRequest;
 use App\Services\DriverAssignmentService;
 use Illuminate\Support\Facades\Auth;
 
@@ -58,7 +59,7 @@ class RouteOptimizationController extends Controller
             ->with([
                 'farmerProfile',
                 'harvests' => fn($query) => $query->whereIn('status', HarvestStatus::logisticsVisible())
-                                                   ->with(['crop', 'cropVariety', 'destination']),
+                                                   ->with(['crop', 'cropVariety', 'destination', 'haulRequest']),
             ])
             ->get();
 
@@ -86,6 +87,8 @@ class RouteOptimizationController extends Controller
                         'destination_address'   => $h->destination_address,
                         'destination_latitude'  => $h->destination_latitude,
                         'destination_longitude' => $h->destination_longitude,
+                        'has_open_haul_request' => $h->haulRequest && $h->haulRequest->status === 'open',
+                        'haul_request_id'       => $h->haulRequest?->id,
                     ];
                 })->values(),
                 'destination'           => $firstHarvest?->destination ? [
@@ -240,6 +243,41 @@ class RouteOptimizationController extends Controller
                 'name' => $result['driver']->name,
                 'distance_km' => $result['distance_km'],
             ],
+        ]);
+    }
+
+    /**
+     * Manually assign a specific driver to a truck.
+     */
+    public function assignDriver(Request $request)
+    {
+        if (Auth::user()->role !== 'logistics_partner') {
+            abort(403);
+        }
+
+        $logisticsProfile = Auth::user()->logisticsProfile;
+
+        $request->validate([
+            'truck_id'   => 'required|integer|exists:trucks,id',
+            'driver_id'  => 'required|integer|exists:users,id',
+        ]);
+
+        $truck = Truck::where('id', $request->truck_id)
+            ->where('logistics_profile_id', $logisticsProfile->id)
+            ->firstOrFail();
+
+        $driver = User::where('id', $request->driver_id)
+            ->where('role', 'driver')
+            ->whereHas('driverProfile', fn($q) => $q->where('partner_id', $logisticsProfile->id))
+            ->firstOrFail();
+
+        $assignmentService = app(DriverAssignmentService::class);
+        $assignmentService->assignDriver($truck, $driver->id);
+
+        return response()->json([
+            'success'     => true,
+            'message'     => "Driver {$driver->name} assigned to {$truck->truck_name}.",
+            'driver_name' => $driver->name,
         ]);
     }
 }
