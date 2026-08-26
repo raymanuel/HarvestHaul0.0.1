@@ -20,7 +20,7 @@
 
         <x-welcome-bar message="Welcome back, Admin." :subtitle="$totalPendingVerifications > 0 ? $totalPendingVerifications . ' item' . ($totalPendingVerifications > 1 ? 's' : '') . ' need attention' : ''" />
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
             <x-stat-card
                 accent="amber-500"
                 title="Pending Verifications"
@@ -89,13 +89,13 @@
                                     <div class="flex items-center gap-2 shrink-0">
                                         <form action="{{ route('admin.farmers.verify', $farmer->id) }}" method="POST">
                                             @csrf
-                                            <button type="submit" class="bg-brand hover:bg-brand-dark text-white text-[10px] font-bold px-3 py-1.5 rounded-lg transition">
+                                            <button type="button" onclick="swalConfirm(this.closest('form'), {title:'Approve?', text:'This action cannot be undone.', icon:'question', confirmText:'Yes, approve', confirmColor:'#065F46'})" class="bg-brand hover:bg-brand-dark text-white text-[10px] font-bold px-3 py-1.5 rounded-lg transition cursor-pointer">
                                                 Approve
                                             </button>
                                         </form>
                                         <form action="{{ route('admin.farmers.reject', $farmer->id) }}" method="POST">
                                             @csrf
-                                            <button type="submit" class="bg-red-500/10 hover:bg-red-500/20 text-red-650 dark:text-red-405 text-[10px] font-bold px-3 py-1.5 rounded-lg transition border border-red-500/10">
+                                            <button type="button" onclick="swalConfirm(this.closest('form'), {title:'Reject?', text:'This account will be rejected.', icon:'warning', confirmText:'Yes, reject', confirmColor:'#ef4444'})" class="bg-red-500/10 hover:bg-red-500/20 text-red-650 dark:text-red-405 text-[10px] font-bold px-3 py-1.5 rounded-lg transition border border-red-500/10 cursor-pointer">
                                                 Reject
                                             </button>
                                         </form>
@@ -120,13 +120,13 @@
                                     <div class="flex items-center gap-2 shrink-0">
                                         <form action="{{ route('admin.buyers.verify', $buyer->id) }}" method="POST">
                                             @csrf
-                                            <button type="submit" class="bg-brand hover:bg-brand-dark text-white text-[10px] font-bold px-3 py-1.5 rounded-lg transition">
+                                            <button type="button" onclick="swalConfirm(this.closest('form'), {title:'Approve?', text:'This action cannot be undone.', icon:'question', confirmText:'Yes, approve', confirmColor:'#065F46'})" class="bg-brand hover:bg-brand-dark text-white text-[10px] font-bold px-3 py-1.5 rounded-lg transition cursor-pointer">
                                                 Approve
                                             </button>
                                         </form>
                                         <form action="{{ route('admin.buyers.reject', $buyer->id) }}" method="POST">
                                             @csrf
-                                            <button type="submit" class="bg-red-500/10 hover:bg-red-500/20 text-red-650 dark:text-red-405 text-[10px] font-bold px-3 py-1.5 rounded-lg transition border border-red-500/10">
+                                            <button type="button" onclick="swalConfirm(this.closest('form'), {title:'Reject?', text:'This account will be rejected.', icon:'warning', confirmText:'Yes, reject', confirmColor:'#ef4444'})" class="bg-red-500/10 hover:bg-red-500/20 text-red-650 dark:text-red-405 text-[10px] font-bold px-3 py-1.5 rounded-lg transition border border-red-500/10 cursor-pointer">
                                                 Reject
                                             </button>
                                         </form>
@@ -151,13 +151,13 @@
                                     <div class="flex items-center gap-2 shrink-0">
                                         <form action="{{ route('admin.logistics.verify', $partner->id) }}" method="POST">
                                             @csrf
-                                            <button type="submit" class="bg-brand hover:bg-brand-dark text-white text-[10px] font-bold px-3 py-1.5 rounded-lg transition">
+                                            <button type="button" onclick="swalConfirm(this.closest('form'), {title:'Approve?', text:'This action cannot be undone.', icon:'question', confirmText:'Yes, approve', confirmColor:'#065F46'})" class="bg-brand hover:bg-brand-dark text-white text-[10px] font-bold px-3 py-1.5 rounded-lg transition cursor-pointer">
                                                 Approve
                                             </button>
                                         </form>
                                         <form action="{{ route('admin.logistics.reject', $partner->id) }}" method="POST">
                                             @csrf
-                                            <button type="submit" class="bg-red-500/10 hover:bg-red-500/20 text-red-650 dark:text-red-405 text-[10px] font-bold px-3 py-1.5 rounded-lg transition border border-red-500/10">
+                                            <button type="button" onclick="swalConfirm(this.closest('form'), {title:'Reject?', text:'This account will be rejected.', icon:'warning', confirmText:'Yes, reject', confirmColor:'#ef4444'})" class="bg-red-500/10 hover:bg-red-500/20 text-red-650 dark:text-red-405 text-[10px] font-bold px-3 py-1.5 rounded-lg transition border border-red-500/10 cursor-pointer">
                                                 Reject
                                             </button>
                                         </form>
@@ -198,14 +198,14 @@
                                         <form action="{{ route('admin.farmer-documents.approve', $doc->id) }}" method="POST">
                                             @csrf
                                             @method('PATCH')
-                                            <button type="submit" class="bg-brand hover:bg-brand-dark text-white text-[10px] font-bold px-3 py-1.5 rounded-lg transition">
+                                            <button type="button" onclick="swalConfirm(this.closest('form'), {title:'Approve?', text:'This action cannot be undone.', icon:'question', confirmText:'Yes, approve', confirmColor:'#065F46'})" class="bg-brand hover:bg-brand-dark text-white text-[10px] font-bold px-3 py-1.5 rounded-lg transition cursor-pointer">
                                                 Approve
                                             </button>
                                         </form>
                                         <form action="{{ route('admin.farmer-documents.reject', $doc->id) }}" method="POST">
                                             @csrf
                                             @method('PATCH')
-                                            <button type="submit" class="bg-red-500/10 hover:bg-red-500/20 text-red-650 dark:text-red-405 text-[10px] font-bold px-3 py-1.5 rounded-lg transition border border-red-500/10">
+                                            <button type="button" onclick="swalConfirm(this.closest('form'), {title:'Reject?', text:'This account will be rejected.', icon:'warning', confirmText:'Yes, reject', confirmColor:'#ef4444'})" class="bg-red-500/10 hover:bg-red-500/20 text-red-650 dark:text-red-405 text-[10px] font-bold px-3 py-1.5 rounded-lg transition border border-red-500/10 cursor-pointer">
                                                 Reject
                                             </button>
                                         </form>
@@ -231,14 +231,14 @@
                                         <form action="{{ route('admin.logistics-documents.approve', $doc->id) }}" method="POST">
                                             @csrf
                                             @method('PATCH')
-                                            <button type="submit" class="bg-brand hover:bg-brand-dark text-white text-[10px] font-bold px-3 py-1.5 rounded-lg transition">
+                                            <button type="button" onclick="swalConfirm(this.closest('form'), {title:'Approve?', text:'This action cannot be undone.', icon:'question', confirmText:'Yes, approve', confirmColor:'#065F46'})" class="bg-brand hover:bg-brand-dark text-white text-[10px] font-bold px-3 py-1.5 rounded-lg transition cursor-pointer">
                                                 Approve
                                             </button>
                                         </form>
                                         <form action="{{ route('admin.logistics-documents.reject', $doc->id) }}" method="POST">
                                             @csrf
                                             @method('PATCH')
-                                            <button type="submit" class="bg-red-500/10 hover:bg-red-500/20 text-red-650 dark:text-red-405 text-[10px] font-bold px-3 py-1.5 rounded-lg transition border border-red-500/10">
+                                            <button type="button" onclick="swalConfirm(this.closest('form'), {title:'Reject?', text:'This account will be rejected.', icon:'warning', confirmText:'Yes, reject', confirmColor:'#ef4444'})" class="bg-red-500/10 hover:bg-red-500/20 text-red-650 dark:text-red-405 text-[10px] font-bold px-3 py-1.5 rounded-lg transition border border-red-500/10 cursor-pointer">
                                                 Reject
                                             </button>
                                         </form>
@@ -255,7 +255,7 @@
             <x-market-prices-card :daPrices="$daPrices" :priceTrends="$priceTrends" :latestDate="$latestDaDate" :scraperStatus="$scraperStatus" />
         </div>
 
-        <div class="mb-4 flex items-center justify-between">
+        <div class="mb-6 flex items-center justify-between">
             <h2 class="text-[10px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Activity Log</h2>
             <a href="{{ route('admin.audit-logs') }}" class="text-brand dark:text-brand font-bold text-xs hover:underline transition inline-flex items-center gap-1">View all <span aria-hidden="true">→</span></a>
         </div>
@@ -283,7 +283,7 @@
                             <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-900/40 transition">
                                 <td class="px-4 py-3 whitespace-nowrap">
                                     <span class="bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-350 text-[9px] font-extrabold px-2.5 py-1 rounded-lg uppercase tracking-wider">
-                                        {{ str_replace('_', ' ', $log->action) }}
+                                        {{ ucwords(str_replace('_', ' ', $log->action)) }}
                                     </span>
                                 </td>
                                 <td class="px-4 py-3 whitespace-nowrap">
