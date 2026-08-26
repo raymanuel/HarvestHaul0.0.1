@@ -50,7 +50,10 @@
 
         @if($pendingConfirmations->isNotEmpty())
         <div class="mb-10">
-            <div class="bg-white dark:bg-slate-800/80 backdrop-blur border border-slate-200/60 dark:border-slate-700/60 rounded-3xl overflow-hidden shadow-sm">
+            <div class="bg-white dark:bg-slate-800/80 backdrop-blur border border-slate-200/60 dark:border-slate-700/60 rounded-3xl shadow-sm">
+                <div class="px-6 pt-5 pb-3">
+                    <h2 class="text-[10px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Pending Confirmations</h2>
+                </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-sm text-left" aria-label="Pending confirmations">
                         <thead>
