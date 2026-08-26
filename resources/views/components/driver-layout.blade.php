@@ -1,12 +1,28 @@
-@props(['title' => 'HarvestHaul — Driver Portal', 'themeColor' => '#3A7D44'])
+@props(['title' => 'HarvestHaul — Driver Portal', 'themeColor' => '#065F46'])
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="overflow-x-hidden">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="{{ $themeColor }}" />
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="description" content="HarvestHaul Driver Portal — Manage jobs, tracking, and fuel logs for crop deliveries in General Santos City.">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="apple-touch-icon" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="manifest" href="/manifest.json">
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js').then(function(reg) {
+                    console.log('Service Worker registered: ', reg.scope);
+                }).catch(function(err) {
+                    console.error('Service Worker registration failed: ', err);
+                });
+            });
+        }
+    </script>
     <title>{{ $title }}</title>
 
     <!-- Theme Initializer -->
@@ -22,57 +38,25 @@
         })();
     </script>
 
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+    <!-- Fonts -->
+    <link rel="stylesheet" href="{{ asset('fonts/fonts.css') }}">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        slate: {
-                            950: '#020617',
-                        }
-                    }
-                }
-            }
-        }
-    </script>
     <style>
         body {
-            font-family: 'DM Sans', sans-serif;
-            background: radial-gradient(circle at 50% 0%, #FAFAF5 0%, #F0EFE8 100%);
+            background: #FAFAFA;
             transition: background 0.3s ease, color 0.3s ease;
         }
         html.dark body {
-            background: radial-gradient(circle at 50% 0%, #111318 0%, #0a0c10 100%);
-        }
-        .heading-font {
-            font-family: 'Instrument Serif', sans-serif;
-        }
-        .glass-card {
-            background: rgba(255, 255, 255, 0.75);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(0, 0, 0, 0.06);
-            transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
-        }
-        html.dark .glass-card {
-            background: rgba(15, 23, 42, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            background: radial-gradient(circle at 50% 0%, #1a1d24 0%, #121815 100%);
         }
     </style>
     @stack('head')
 </head>
-<body class="text-slate-800 dark:text-slate-100 antialiased min-h-screen pb-12">
-
-    {{ $slot }}
+<body class="text-slate-800 dark:text-slate-100 antialiased min-h-screen pb-12 overflow-x-hidden">
+    <main>
+        {{ $slot }}
+    </main>
 
     <!-- Notification & Dark Mode Scripts -->
     <script>
@@ -82,35 +66,25 @@
         }
     </script>
 
+    <script src="{{ asset('vendor/sweetalert2/sweetalert2.all.min.js') }}"></script>
+
     {{-- SweetAlert Global Flash Handler --}}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            @if(session('success'))
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Success',
-                    text: @json(session('success')),
-                    timer: 3000,
-                    timerProgressBar: true,
-                    showConfirmButton: false,
-                    toast: true,
-                    position: 'top-end',
-                    background: document.documentElement.classList.contains('dark') ? '#1e293b' : '#fff',
-                    color: document.documentElement.classList.contains('dark') ? '#e2e8f0' : '#1e293b',
-                    iconColor: '#3A7D44',
-                    customClass: { popup: 'rounded-xl shadow-lg border border-[#3A7D44]/20' }
-                });
-            @endif
             @if(session('error'))
+                @php
+                    $errorText = session('error');
+                    $isGateNotice = str_contains($errorText, 'pending verification') || str_contains($errorText, 'No new data');
+                @endphp
                 Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: @json(session('error')),
+                    icon: '{{ $isGateNotice ? 'info' : 'error' }}',
+                    title: '{{ $isGateNotice ? 'Notice' : 'Error' }}',
+                    text: @json($errorText),
                     timer: 4500,
                     timerProgressBar: true,
                     showConfirmButton: true,
                     confirmButtonText: 'OK',
-                    confirmButtonColor: '#ef4444',
+                    confirmButtonColor: '{{ $isGateNotice ? '#059669' : '#ef4444' }}',
                     toast: false,
                     background: document.documentElement.classList.contains('dark') ? '#1e293b' : '#fff',
                     color: document.documentElement.classList.contains('dark') ? '#e2e8f0' : '#1e293b',
@@ -126,7 +100,7 @@
                 icon: opts.icon || 'warning',
                 confirmText: opts.confirmText || 'Yes, proceed',
                 cancelText: opts.cancelText || 'Cancel',
-                confirmColor: opts.confirmColor || '#3A7D44',
+                confirmColor: opts.confirmColor || '#065F46',
                 cancelColor: opts.cancelColor || '#64748b'
             };
 

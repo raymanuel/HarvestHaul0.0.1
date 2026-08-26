@@ -1,11 +1,4 @@
 <x-layout>
-@push('head')
-    <style>
-        @media (prefers-reduced-motion: reduce) {
-            *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
-        }
-    </style>
-@endpush
 <div class="w-full max-w-7xl mx-auto pb-12">
     <h1 class="sr-only">Farmer Dashboard</h1>
 
