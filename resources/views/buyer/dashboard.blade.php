@@ -1,57 +1,99 @@
-﻿<x-layout>
+<x-layout>
+@push('head')
+    <style>
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+        }
+    </style>
+@endpush
 <div class="w-full max-w-7xl mx-auto pb-12">
+    <h1 class="sr-only">Buyer Dashboard</h1>
 
     <div class="relative z-10">
-        <x-page-header
-            portal="Buyer Portal"
-            title="Welcome, {{ Auth::user()->name }}"
-            subtitle="Browse crop posts, negotiate with farmers, and manage your purchase deals."
-            :showDate="true"
-        />
-
+        <x-flash-success />
         <x-flash-error />
 
-        <x-section-label title="Buyer Console Dashboard" />
+        <x-welcome-bar message="Welcome back, {{ Auth::user()->name }}." />
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
             <x-stat-card
+                accent="harvest"
+                title="Pending Confirmations"
+                :value="$pendingConfirmations->count()"
+                unit="deliveries"
+                href="{{ route('buyer.negotiations') }}"
+                linkText="View Deliveries"
+            />
+
+            <x-stat-card
                 accent="brand"
-                badge="Active"
-                title="Active Negotiations"
+                title="Open Negotiations"
                 :value="$activeNegotiations->count()"
-                unit="open deals"
+                unit="active deals"
                 href="{{ route('buyer.negotiations') }}"
                 linkText="View Negotiations"
-                :icon="'<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; fill=&quot;none&quot; viewBox=&quot;0 0 24 24&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot;><path stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; d=&quot;M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z&quot; /></svg>'"
             />
 
             <x-stat-card
-                accent="brand-dark"
-                badge="Closed"
-                title="Completed Deals"
-                :value="$completedDeals"
-                unit="total purchases"
-                href="{{ route('buyer.negotiations') }}"
-                linkText="View History"
-                :icon="'<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; fill=&quot;none&quot; viewBox=&quot;0 0 24 24&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot;><path stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; d=&quot;M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z&quot; /></svg>'"
-            />
-
-            <x-stat-card
-                accent="harvest"
-                badge="Marketplace"
-                title="Crop Board"
+                accent="brand"
+                title="Available Crops"
                 :value="$recentPosts->count()"
-                unit="available lots"
+                unit="postings"
                 href="{{ route('buyer.crop-board') }}"
-                linkText="Browse All Posts"
-                :icon="'<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; fill=&quot;none&quot; viewBox=&quot;0 0 24 24&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot;><path stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; d=&quot;M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z&quot; /></svg>'"
+                linkText="Browse Crops"
             />
         </div>
 
         <div class="mb-10">
-            <x-section-label title="DA RFO12 Market Prices" />
             <x-market-prices-card :daPrices="$daPrices" :priceTrends="$priceTrends" :latestDate="$latestDaDate" :scraperStatus="$scraperStatus" />
         </div>
+
+        @if($pendingConfirmations->isNotEmpty())
+        <div class="mb-10">
+            <div class="bg-white dark:bg-slate-800/80 backdrop-blur border border-slate-200/60 dark:border-slate-700/60 rounded-3xl overflow-hidden shadow-sm">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left" aria-label="Pending confirmations">
+                        <thead>
+                            <tr class="border-b border-slate-100 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-900/30">
+                                <th class="p-5 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Delivery</th>
+                                <th class="p-5 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Truck</th>
+                                <th class="p-5 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Driver</th>
+                                <th class="p-5 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100/50 dark:divide-slate-700/30">
+                            @foreach($pendingConfirmations as $job)
+                            <tr class="group hover:bg-slate-50/30 dark:hover:bg-slate-900/20 transition duration-150">
+                                <td class="p-5 whitespace-nowrap">
+                                    <div class="font-bold text-slate-800 dark:text-slate-200 text-xs">Delivery #{{ $job->id }}</div>
+                                    <div class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">
+                                        {{ $job->harvests->count() }} stop(s) • {{ number_format($job->total_kg) }} kg
+                                    </div>
+                                </td>
+                                <td class="p-5 text-xs font-bold text-slate-700 dark:text-slate-300">
+                                    {{ $job->truck->truck_name ?? 'N/A' }}
+                                </td>
+                                <td class="p-5 text-xs font-bold text-slate-700 dark:text-slate-300">
+                                    {{ $job->driver->name ?? 'N/A' }}
+                                </td>
+                                <td class="p-5 text-center">
+                                    <form method="POST" action="{{ route('buyer.confirm-receipt', $job) }}">
+                                        @csrf
+                                        <button type="button"
+                                            onclick="swalConfirm(this.closest('form'), {title:'Confirm Receipt?', text:'Mark delivery #{{ $job->id }} as received?', confirmText:'Yes, confirm', icon:'question', confirmColor:'#065F46'})"
+                                            class="inline-flex items-center gap-1.5 px-4 py-2 bg-harvest hover:bg-harvest-dark text-white text-[10px] font-bold rounded-xl transition shadow-sm shadow-harvest/10 cursor-pointer">
+                                            Confirm Receipt
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        @endif
     </div>
 </div>
 </x-layout>
