@@ -1,7 +1,7 @@
 ﻿<x-driver-layout title="HarvestHaul — Driver Portal">
 
     <!-- Top Header Panel -->
-    <header class="sticky top-0 z-35 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800/60 px-4 py-4 transition-colors duration-300">
+    <header class="sticky top-0 z-30 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800/60 px-4 py-4 transition-colors duration-300">
         <div class="flex items-center justify-between max-w-lg mx-auto">
             <div class="flex items-center gap-3">
                 <div>

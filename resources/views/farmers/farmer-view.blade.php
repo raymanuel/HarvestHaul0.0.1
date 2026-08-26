@@ -6,7 +6,7 @@
         }
     </style>
 @endpush
-<div class="w-full max-w-7xl mx-auto pb-12 overflow-hidden">
+<div class="w-full max-w-7xl mx-auto pb-12">
 
     <div class="relative z-10">
         <x-page-header

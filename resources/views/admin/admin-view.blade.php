@@ -10,6 +10,7 @@
         />
 
         <x-flash-success />
+        <x-flash-error />
 
         <x-section-label title="System Overview" />
 
