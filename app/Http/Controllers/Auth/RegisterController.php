@@ -6,12 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Mail\SendOtpMail;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Validation\Rule;
-use App\Models\FarmerProfile;
 use App\Models\LogisticsProfile;
 
 class RegisterController extends Controller
@@ -64,10 +61,11 @@ class RegisterController extends Controller
             'cda_registration_no' => 'nullable|string|max:255',
         ]);
 
-        // Validate cooperative_id belongs to a cooperative
+        // Validate cooperative_id belongs to a verified cooperative
         if ($request->affiliation_type === 'cooperative' && $request->cooperative_id) {
             $isValidCooperative = \App\Models\LogisticsProfile::where('id', $request->cooperative_id)
                 ->where('logistics_type', 'cooperative')
+                ->where('is_verified', true)
                 ->exists();
 
             if (!$isValidCooperative) {
@@ -80,7 +78,7 @@ class RegisterController extends Controller
                 $user = User::create([
                     'name'             => $request->name,
                     'email'            => $request->email,
-                    'password'         => Hash::make($request->password),
+                    'password'         => $request->password,
                     'role'             => $request->role,
                     'affiliation_type' => match ($request->role) {
                         'farmer'             => $request->affiliation_type ?? 'independent',

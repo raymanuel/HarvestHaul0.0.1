@@ -1,9 +1,8 @@
-﻿<x-layout>
-<meta http-equiv="refresh" content="30">
+<x-layout>
 <div class="w-full max-w-7xl mx-auto pb-12">
 
     <div class="relative z-10">
-        <header class="mb-8 pt-6">
+        <header class="mb-8 pt-8">
             <div class="flex items-center gap-2 mb-2">
                 <a href="{{ route('dashboard') }}" class="text-xs font-bold text-harvest dark:text-harvest hover:underline flex items-center gap-1">
                     ← Dashboard
@@ -13,7 +12,6 @@
                 <div>
                     <span class="text-[10px] font-bold uppercase tracking-widest text-harvest dark:text-harvest bg-harvest/10 dark:bg-harvest/10 px-3 py-1 rounded-full border border-harvest/20">Crop Board</span>
                     <h1 class="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight heading-font mt-3">Available Posts</h1>
-                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-1 font-medium">Browse farmer posts and start a negotiation.</p>
                 </div>
             </div>
         </header>
@@ -43,9 +41,9 @@
                             <div class="flex items-start justify-between gap-2 mb-1">
                                 <h3 class="text-base font-extrabold text-slate-900 dark:text-white heading-font leading-snug">{{ $post->crop->name ?? $post->crop_type }}</h3>
                                 <div class="text-right shrink-0">
-                                    <span class="text-base font-extrabold text-[#3A7D44] dark:text-[#3A7D44] font-mono">{{ number_format($post->quantity_kg) }} <span class="text-[10px] font-bold text-[#3A7D44]/70 dark:text-[#3A7D44]/70">kg</span></span>
+                                    <span class="text-base font-extrabold text-[#16283C] dark:text-[#D7BC7A] font-mono">{{ number_format($post->quantity_kg) }} <span class="text-[10px] font-bold text-[#16283C]/70 dark:text-[#D7BC7A]/70">kg</span></span>
                                     @if($post->remaining_quantity_kg && (float)$post->remaining_quantity_kg < (float)$post->quantity_kg)
-                                        <span class="text-[9px] font-bold text-amber-600 dark:text-amber-400 block">{{ number_format($post->remaining_quantity_kg, 0) }} kg left</span>
+                                        <span class="text-[9px] font-bold text-[var(--color-warning-text)] block">{{ number_format($post->remaining_quantity_kg, 0) }} kg left</span>
                                     @endif
                                 </div>
                             </div>
@@ -53,20 +51,20 @@
 
                             @if($post->suggested_price_per_kg)
                                 <div class="mt-2 flex items-center gap-1.5">
-                                    <span class="text-sm font-extrabold text-[#2D8A37] dark:text-[#3A7D44] font-mono">₱{{ number_format($post->suggested_price_per_kg, 2) }}</span>
-                                    <span class="text-[9px] font-bold text-[#3A7D44]/70 dark:text-[#3A7D44]/70">/kg suggested</span>
+                                    <span class="text-sm font-extrabold text-[#16283C] dark:text-[#D7BC7A] font-mono">₱{{ number_format($post->suggested_price_per_kg, 2) }}</span>
+                                    <span class="text-[9px] font-bold text-[#16283C]/70 dark:text-[#D7BC7A]/70">/kg suggested</span>
                                 </div>
                             @else
                                 <div class="mt-2">
-                                    <span class="text-[9px] font-bold text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded">Negotiable</span>
+                                    <span class="text-[9px] font-bold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded">Negotiable</span>
                                 </div>
                             @endif
 
                             <div class="mt-3 flex items-center gap-2 flex-wrap">
                                 @if($isNegotiating && !$isMyNegotiation)
                                     <span class="text-[9px] font-bold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-600">UNDER NEGOTIATION</span>
-                                @elseif($post->status === 'partially_sold')
-                                    <span class="text-[9px] font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/30 px-2 py-0.5 rounded border border-amber-200/50 dark:border-amber-700/30">PARTIAL SALE</span>
+                                @elseif($post->status->value === 'partially_sold')
+                                    <span class="text-[9px] font-bold text-[var(--color-warning-text)] bg-[var(--color-warning-bg)] px-2 py-0.5 rounded border border-[var(--color-warning-border)]">PARTIAL SALE</span>
                                 @endif
                                 @if($post->harvest_date)
                                     @php $daysAgo = $post->harvest_date->diffInDays(now()); @endphp
@@ -76,11 +74,11 @@
                                 @endif
                             </div>
 
-                            @if($post->status === 'partially_sold' && $post->sale_progress !== null)
+                            @if($post->status->value === 'partially_sold' && $post->sale_progress !== null)
                                 <div class="mt-2 w-full bg-slate-200 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden">
-                                    <div class="bg-amber-500 h-full rounded-full" style="width: {{ $post->sale_progress }}%"></div>
+                                    <div class="bg-[var(--color-warning-text)] h-full rounded-full" style="width: {{ $post->sale_progress }}%"></div>
                                 </div>
-                                <p class="text-[9px] text-slate-400 dark:text-slate-500 mt-1 font-semibold">{{ $post->sale_progress }}% sold</p>
+                                <p class="text-[9px] text-slate-500 dark:text-slate-400 mt-1 font-semibold">{{ $post->sale_progress }}% sold</p>
                             @endif
 
                             <div class="mt-auto pt-4 border-t border-slate-100 dark:border-slate-700/50">
@@ -88,19 +86,19 @@
                                     <span class="text-xs font-semibold text-slate-600 dark:text-slate-400">{{ $post->farmer->name ?? 'Farmer' }}</span>
                                 </div>
                                 @if($post->notes)
-                                    <p class="text-[10px] text-slate-400 dark:text-slate-500 leading-relaxed mb-3 line-clamp-2">"{{ Str::limit($post->notes, 80) }}"</p>
+                                    <p class="text-[10px] text-slate-500 dark:text-slate-400 leading-relaxed mb-3 line-clamp-2">"{{ Str::limit($post->notes, 80) }}"</p>
                                 @endif
                                 <a href="{{ route('buyer.crop-board.show', $post->id) }}" class="w-full flex items-center justify-center gap-2 py-2 mb-2 bg-white dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
                                     <x-icon name="search" class="w-3.5 h-3.5" />
                                     View Details
                                 </a>
                                 @if($isMyNegotiation)
-                                    <a href="{{ route('negotiations.room', $negotiationRoomMap[$post->id]) }}" class="w-full flex items-center justify-center gap-2 py-2.5 bg-amber-50 dark:bg-amber-900/20 border border-amber-200/50 dark:border-amber-700/30 rounded-xl text-xs font-bold text-amber-700 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/30 transition-colors">
+                                    <a href="{{ route('negotiations.room', $negotiationRoomMap[$post->id]) }}" class="w-full flex items-center justify-center gap-2 py-2.5 bg-[var(--color-warning-bg)] border border-[var(--color-warning-border)] rounded-xl text-xs font-bold text-[var(--color-warning-text)] hover:opacity-80 transition-colors">
                                         <x-icon name="chat" class="w-3.5 h-3.5" />
                                         Continue Negotiation
                                     </a>
                                 @elseif($isNegotiating)
-                                    <div class="w-full flex items-center justify-center gap-2 py-2.5 bg-slate-100 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-xl text-xs font-bold text-slate-400 dark:text-slate-500 cursor-not-allowed">
+                                    <div class="w-full flex items-center justify-center gap-2 py-2.5 bg-slate-100 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-xl text-xs font-bold text-slate-500 dark:text-slate-400 cursor-not-allowed">
                                         <x-icon name="document" class="w-3.5 h-3.5" />
                                         Under Negotiation
                                     </div>
@@ -127,4 +125,25 @@
     </div>
 
 </div>
+
+<script>
+    // Poll for new posts without losing scroll position or form state.
+    (function () {
+        var lastSnapshot = document.querySelector('.grid.grid-cols-1') ? document.querySelector('.grid.grid-cols-1').innerHTML : '';
+        setInterval(function () {
+            fetch(window.location.href, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(function (r) { return r.ok ? r.text() : null; })
+                .then(function (html) {
+                    if (!html) return;
+                    var doc = new DOMParser().parseFromString(html, 'text/html');
+                    var freshGrid = doc.querySelector('.grid.grid-cols-1');
+                    if (freshGrid && freshGrid.innerHTML !== lastSnapshot) {
+                        lastSnapshot = freshGrid.innerHTML;
+                        document.querySelector('.grid.grid-cols-1').innerHTML = lastSnapshot;
+                    }
+                })
+                .catch(function () { /* offline or server busy; retry next tick */ });
+        }, 30000);
+    })();
+</script>
 </x-layout>

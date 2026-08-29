@@ -11,10 +11,11 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\PoolingJob;
 use App\Models\PoolingJobStatus;
 use App\Traits\GeometryHelper;
+use App\Traits\Notifiable;
 
 class DriverController extends Controller
 {
-    use GeometryHelper;
+    use GeometryHelper, Notifiable;
 
     /**
      * Driver Dashboard — lists only jobs assigned to the authenticated driver.
@@ -82,11 +83,11 @@ class DriverController extends Controller
         $poolingJob->load('harvests.crop');
 
         $allowedTransitions = [
-            PoolingJobStatus::CONFIRMED   => PoolingJobStatus::IN_PROGRESS,
-            PoolingJobStatus::IN_PROGRESS => PoolingJobStatus::AWAITING_CONFIRMATION,
+            PoolingJobStatus::CONFIRMED->value   => PoolingJobStatus::IN_PROGRESS,
+            PoolingJobStatus::IN_PROGRESS->value => PoolingJobStatus::AWAITING_CONFIRMATION,
         ];
 
-        $currentStatus = $poolingJob->status;
+        $currentStatus = $poolingJob->status->value;
 
         if (!isset($allowedTransitions[$currentStatus])) {
             return back()->with('error', 'This job cannot be updated further.');
@@ -95,9 +96,18 @@ class DriverController extends Controller
         $newStatus = $allowedTransitions[$currentStatus];
 
         if ($newStatus === PoolingJobStatus::IN_PROGRESS) {
-            $hasTracking = \App\Models\TrackingRecord::where('pooling_job_id', $poolingJob->id)->exists();
-            if (!$hasTracking) {
-                return back()->with('error', 'Cannot start trip. No GPS data received yet. Enable location tracking first.');
+            if (!$poolingJob->accepted_at) {
+                return back()->with('error', 'Accept the job before starting the trip.');
+            }
+
+            // Reset all non-delivered stop pivots to 'assigned' so the driver's
+            // stop chain (assigned → arrived → loaded → delivered) can start.
+            // The pivot 'status' is repurposed from farmer proposal acceptance
+            // ('accepted') to trip-stop tracking once the route goes live.
+            foreach ($poolingJob->harvests as $harvest) {
+                if ($harvest->pivot->status !== 'delivered') {
+                    $poolingJob->harvests()->updateExistingPivot($harvest->id, ['status' => 'assigned']);
+                }
             }
         }
 
@@ -123,6 +133,11 @@ class DriverController extends Controller
             $poolingJob->completed_at = now();
             $poolingJob->end_odometer_reading = $request->end_odometer_reading;
 
+            // Trip physically done: release the truck for the next route
+            if ($poolingJob->truck) {
+                $poolingJob->truck->update(['status' => 'available']);
+            }
+
             // Calculate actual distance from tracking records
             $trackingRecords = \App\Models\TrackingRecord::where('pooling_job_id', $poolingJob->id)
                 ->orderBy('posted_at')
@@ -145,79 +160,67 @@ class DriverController extends Controller
         $poolingJob->status = $newStatus;
         $poolingJob->save();
 
-        \App\Models\AuditLog::create([
-            'admin_id'    => Auth::id(),
-            'action'      => 'updated_dispatch_status',
-            'target_type' => 'pooling_job',
-            'target_id'   => $poolingJob->id,
-            'notes'       => "Driver " . Auth::user()->name . " updated route #{$poolingJob->id} status from {$currentStatus->value} to {$newStatus->value}.",
-        ]);
+        self::logAudit(
+            Auth::id(),
+            'updated_dispatch_status',
+            'pooling_job',
+            $poolingJob->id,
+            "Driver " . Auth::user()->name . " updated route #{$poolingJob->id} status from {$currentStatus} to {$newStatus->value}."
+        );
 
         // Trigger Notifications
         if ($newStatus === PoolingJobStatus::IN_PROGRESS) {
-            // Notify logistics partner
             if ($poolingJob->logisticsProfile && $poolingJob->logisticsProfile->user_id) {
-                \App\Models\Notification::create([
-                    'user_id' => $poolingJob->logisticsProfile->user_id,
-                    'title' => 'Job In Transit',
-                    'message' => "Driver {$user->name} has started Route #{$poolingJob->id}.",
-                    'link' => route('pooling.show', $poolingJob)
-                ]);
-            }
-            // Notify farmers in bulk
-            $notifications = [];
-            foreach ($poolingJob->harvests as $harvest) {
-                $notifications[] = [
-                    'user_id'    => $harvest->user_id,
-                    'title'      => 'Harvest Shipment In Transit',
-                    'message'    => "Your harvest '{$harvest->crop->name}' in Route #{$poolingJob->id} is now in transit.",
-                    'link'       => route('tracking.index'),
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ];
-            }
-            if (!empty($notifications)) {
-                \App\Models\Notification::insert($notifications);
+                self::notifyJobInTransit(
+                    $poolingJob->logisticsProfile->user_id,
+                    $user->name,
+                    $poolingJob->id,
+                    $poolingJob->harvests
+                );
             }
         }
 
         if ($newStatus === PoolingJobStatus::AWAITING_CONFIRMATION) {
-            // Notify logistics partner
             if ($poolingJob->logisticsProfile && $poolingJob->logisticsProfile->user_id) {
-                \App\Models\Notification::create([
-                    'user_id' => $poolingJob->logisticsProfile->user_id,
-                    'title' => 'Job Awaiting Buyer Confirmation',
-                    'message' => "Driver {$user->name} finalized Route #{$poolingJob->id}. Awaiting buyer receipt confirmation.",
-                    'link' => route('pooling.show', $poolingJob)
-                ]);
-            }
-            // Notify farmers in bulk
-            $notifications = [];
-            foreach ($poolingJob->harvests as $harvest) {
-                $notifications[] = [
-                    'user_id'    => $harvest->user_id,
-                    'title'      => 'Harvest Shipment Delivered',
-                    'message'    => "Your harvest '{$harvest->crop->name}' in Route #{$poolingJob->id} has been delivered. Awaiting buyer confirmation.",
-                    'link'       => route('harvests.index'),
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ];
-            }
-            if (!empty($notifications)) {
-                \App\Models\Notification::insert($notifications);
-            }
-            // Notify buyer to confirm receipt
-            if ($poolingJob->buyer_id) {
-                \App\Models\Notification::create([
-                    'user_id' => $poolingJob->buyer_id,
-                    'title' => 'Delivery Ready — Confirm Receipt',
-                    'message' => "Your order in Route #{$poolingJob->id} has been delivered. Please confirm receipt.",
-                    'link' => route('buyer.tracking')
-                ]);
+                self::notifyJobAwaitingConfirmation(
+                    $poolingJob->logisticsProfile->user_id,
+                    $user->name,
+                    $poolingJob->id,
+                    $poolingJob->harvests,
+                    $poolingJob->buyer_id
+                );
             }
         }
 
-        return back()->with('success', 'Job status updated to ' . ucfirst(str_replace('_', ' ', $newStatus)) . '.');
+        $statusLabel = ucfirst(str_replace('_', ' ', $newStatus->value));
+
+        $nextSteps = match ($newStatus) {
+            PoolingJobStatus::IN_PROGRESS => [
+                'title'   => 'Trip started',
+                'message' => 'Job status updated to In Transit.',
+                'steps'   => [
+                    'You are now actively hauling this route.',
+                    'Work through each stop in order: Mark Arrived, Confirm Load, then Mark Delivered.',
+                    'GPS telemetry streams throughout the trip.',
+                ],
+            ],
+            PoolingJobStatus::AWAITING_CONFIRMATION => [
+                'title'   => 'Route complete',
+                'message' => 'Job status updated to Awaiting Confirmation.',
+                'steps'   => [
+                    'Your physical trip is done and the truck has been released.',
+                    'The route now awaits the buyer confirming their receipt.',
+                    'Once confirmed, the route is completed and drops off your active jobs.',
+                ],
+            ],
+            default => null,
+        };
+
+        $response = back()->with('success', 'Job status updated to ' . $statusLabel . '.');
+        if ($nextSteps) {
+            $response->with('next_steps', $nextSteps);
+        }
+        return $response;
     }
 
     /**
@@ -239,7 +242,23 @@ class DriverController extends Controller
             return back()->with('error', $e->getMessage());
         }
 
-        return back()->with('success', 'Stop status updated to ' . strtoupper($request->validated()['status']) . '.');
+        $newStatus = strtoupper($request->validated()['status']);
+
+        $response = back()->with('success', 'Stop status updated to ' . $newStatus . '.');
+
+        if ($newStatus === 'DELIVERED') {
+            $response->with('next_steps', [
+                'title'   => 'Stop delivered',
+                'message' => 'Stop status updated to DELIVERED.',
+                'steps'   => [
+                    'This harvest has been delivered and the crop is now marked completed.',
+                    'Continue to the next stop on the route.',
+                    'When all stops are delivered, use Finalize Job to complete the route.',
+                ],
+            ]);
+        }
+
+        return $response;
     }
 
     /**
@@ -271,13 +290,13 @@ class DriverController extends Controller
             'odometer_reading' => $validated['odometer_reading'],
         ]);
 
-        \App\Models\AuditLog::create([
-            'admin_id'    => $user->id,
-            'action'      => 'driver_logged_fuel',
-            'target_type' => 'fuel_logs',
-            'target_id'   => $poolingJob->truck_id,
-            'notes'       => "Driver {$user->name} logged {$validated['fuel_liters']}L of fuel (Cost: ₱{$validated['cost']}) for Truck #{$poolingJob->truck_id} at {$validated['odometer_reading']} km.",
-        ]);
+        self::logAudit(
+            $user->id,
+            'driver_logged_fuel',
+            'fuel_logs',
+            $poolingJob->truck_id,
+            "Driver {$user->name} logged {$validated['fuel_liters']}L of fuel (Cost: ₱{$validated['cost']}) for Truck #{$poolingJob->truck_id} at {$validated['odometer_reading']} km."
+        );
 
         return back()->with('success', 'Fuel purchase logged successfully.');
     }
@@ -295,8 +314,8 @@ class DriverController extends Controller
             return back()->with('error', 'No driver profile found.');
         }
 
-        $idPath = $request->file('id_photo')->store('driver-ids/' . $user->id, 'public');
-        $selfiePath = $request->file('selfie')->store('driver-selfies/' . $user->id, 'public');
+        $idPath = $request->file('id_photo')->store('driver-ids/' . $user->id, 'local');
+        $selfiePath = $request->file('selfie')->store('driver-selfies/' . $user->id, 'local');
 
         $profile->update([
             'id_photo_path' => $idPath,
@@ -304,12 +323,12 @@ class DriverController extends Controller
             'identity_verified' => false, // reset to pending review
         ]);
 
-        \App\Models\Notification::create([
-            'user_id' => $profile->partner?->user_id,
-            'title' => 'Driver Identity Documents Uploaded',
-            'message' => "Driver {$user->name} uploaded identity documents for verification.",
-            'link' => route('logistics.drivers.index'),
-        ]);
+        self::sendNotification(
+            $profile->partner?->user_id,
+            'Driver Identity Documents Uploaded',
+            "Driver {$user->name} uploaded identity documents for verification.",
+            route('logistics.drivers.index')
+        );
 
         return back()->with('success', 'Identity documents uploaded. Pending admin verification.');
     }
@@ -332,20 +351,20 @@ class DriverController extends Controller
 
         $poolingJob->update(['accepted_at' => now()]);
 
-        \App\Models\AuditLog::create([
-            'admin_id'    => $user->id,
-            'action'      => 'driver_accepted_job',
-            'target_type' => 'pooling_job',
-            'target_id'   => $poolingJob->id,
-            'notes'       => "Driver {$user->name} accepted Route #{$poolingJob->id}.",
-        ]);
+        self::logAudit(
+            $user->id,
+            'driver_accepted_job',
+            'pooling_job',
+            $poolingJob->id,
+            "Driver {$user->name} accepted Route #{$poolingJob->id}."
+        );
 
-        \App\Models\Notification::create([
-            'user_id' => $poolingJob->logisticsProfile?->user_id,
-            'title'   => 'Driver Accepted Job',
-            'message' => "Driver {$user->name} has accepted Route #{$poolingJob->id}.",
-            'link'    => route('pooling.show', $poolingJob),
-        ]);
+        self::sendNotification(
+            $poolingJob->logisticsProfile?->user_id,
+            'Driver Accepted Job',
+            "Driver {$user->name} has accepted Route #{$poolingJob->id}.",
+            route('pooling.show', $poolingJob)
+        );
 
         return back()->with('success', 'Job accepted successfully.');
     }

@@ -22,7 +22,7 @@ class EnsureFarmerHasLocation
 
             if (!$hasLocation) {
                 // Allow profile pages and logout so farmer can actually set location
-                $allowedRoutes = ['profile.show', 'profile.update', 'profile.password', 'logout'];
+                $allowedRoutes = ['profile.show', 'profile.update', 'profile.password', 'logout', 'harvests.create', 'harvests.store'];
                 $routeName = $request->route()?->getName();
 
                 if (!in_array($routeName, $allowedRoutes)) {

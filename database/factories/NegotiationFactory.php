@@ -40,6 +40,14 @@ class NegotiationFactory extends Factory
         ]);
     }
 
+    public function withHaulingRate(float $rate): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'status'              => 'COMPLETED',
+            'hauling_rate_per_kg' => $rate,
+        ]);
+    }
+
     public function closed(): static
     {
         return $this->state(fn (array $attributes) => [

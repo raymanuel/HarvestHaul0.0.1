@@ -1,43 +1,42 @@
-﻿<x-layout>
+<x-layout>
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="{{ asset('vendor/leaflet/leaflet.css') }}" />
 
 <div class="w-full max-w-4xl mx-auto pb-12">
 
     <div class="relative z-10">
         <!-- Page Header -->
-        <header class="mb-8 pt-6">
+        <header class="mb-8 pt-8">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <span class="text-[10px] font-bold uppercase tracking-widest text-[#3A7D44] dark:text-[#3A7D44] bg-[#3A7D44]/10 dark:bg-[#3A7D44]/10 px-3 py-1 rounded-full border border-[#3A7D44]/20">My Profile</span>
+                    <span class="text-[10px] font-bold uppercase tracking-widest text-[#16283C] dark:text-[#D7BC7A] bg-[#16283C]/10 dark:bg-[#16283C]/10 px-3 py-1 rounded-full border border-[#16283C]/20">My Profile</span>
                     <h1 class="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight heading-font mt-3">Profile Settings</h1>
-                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-1 font-medium">Manage your account details, farm location, and cooperative affiliation.</p>
                 </div>
                 <div class="flex items-center gap-3">
                     <!-- Profile Verification Badge -->
                     @if($profile?->is_verified)
-                        <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#3A7D44]/10 dark:bg-[#3A7D44]/10 border border-[#3A7D44]/20 dark:border-[#3A7D44]/30 text-[#3A7D44] dark:text-[#3A7D44] rounded-full text-xs font-bold">
+                        <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#16283C]/10 dark:bg-[#16283C]/10 border border-[#16283C]/20 dark:border-[#16283C]/30 text-[#16283C] dark:text-[#D7BC7A] rounded-full text-xs font-bold">
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                             Profile Verified
                         </span>
                     @else
-                        <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-amber-500/10 border border-amber-500/20 text-amber-700 dark:text-amber-400 rounded-full text-xs font-bold">
+                        <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[var(--color-warning-bg)] border border-[var(--color-warning-border)] text-[var(--color-warning-text)] rounded-full text-xs font-bold">
                             Profile Pending
                         </span>
                     @endif
 
                     <!-- Email Verification Badge -->
                     @if($user->hasVerifiedEmail())
-                        <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-blue-500/10 border border-blue-500/20 text-blue-700 dark:text-blue-400 rounded-full text-xs font-bold">
+                        <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[var(--color-info-bg)] border border-[var(--color-info-border)] text-[var(--color-info-text)] rounded-full text-xs font-bold">
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                             </svg>
                             Email Verified
                         </span>
                     @else
-                        <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-amber-500/10 border border-amber-500/20 text-amber-700 dark:text-amber-400 rounded-full text-xs font-bold">
+                        <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[var(--color-warning-bg)] border border-[var(--color-warning-border)] text-[var(--color-warning-text)] rounded-full text-xs font-bold">
                             Email Unverified
                         </span>
                     @endif
@@ -48,10 +47,13 @@
         {{-- Flash Messages --}}
         <x-flash-success />
 
-        <x-flash-success :message="session('password_success')" />
+        @if(session('password_success'))
+            <x-flash-success :message="session('password_success')" />
+        @endif
 
+        
         @if ($errors->any())
-            <div class="mb-6 bg-red-500/10 dark:bg-red-500/10 border border-red-500/20 dark:border-red-500/30 text-red-700 dark:text-red-400 rounded-2xl p-5 text-sm font-semibold">
+            <div class="mb-6 bg-[var(--color-error-bg)] border border-[var(--color-error-border)] text-[var(--color-error-text)] rounded-2xl p-5 text-sm font-semibold">
                 <ul class="list-disc list-inside space-y-1">
                     @foreach ($errors->all() as $error)
                         <li>{{ $error }}</li>
@@ -61,9 +63,9 @@
         @endif
 
         @if (session('profile_complete'))
-            <div class="mb-6 p-5 rounded-2xl bg-gradient-to-r from-[#3A7D44]/10 to-[#2E6336]/5 dark:from-[#3A7D44]/20 dark:to-[#2E6336]/10 border border-[#3A7D44]/20 dark:border-[#3A7D44]/30 text-[#1a3a1a] dark:text-[#8BC49E]">
+            <div class="mb-6 p-5 rounded-2xl bg-gradient-to-r from-[#16283C]/10 to-[#0E1620]/5 dark:from-[#16283C]/20 dark:to-[#0E1620]/10 border border-[#16283C]/20 dark:border-[#16283C]/30 text-brand-dark dark:text-brand-light">
                 <div class="flex items-start gap-3">
-                    <div class="w-9 h-9 rounded-[10px] bg-[#3A7D44] flex items-center justify-center shrink-0">
+                    <div class="w-9 h-9 rounded-[10px] bg-[#16283C] flex items-center justify-center shrink-0">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                     </div>
                     <div>
@@ -72,6 +74,7 @@
                     </div>
                 </div>
             </div>
+        
         @endif
 
         {{-- ═══════════════════════════════════════════ --}}
@@ -84,27 +87,27 @@
             {{-- ── ACCOUNT INFORMATION ── --}}
             <div class="bg-white dark:bg-slate-800/80 backdrop-blur border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6 sm:p-8 shadow-sm">
                 <div class="flex items-center gap-3 mb-6">
-                    <div class="w-10 h-10 rounded-2xl bg-[#3A7D44]/10 border border-[#3A7D44]/15 flex items-center justify-center text-[#3A7D44] dark:text-[#3A7D44] shrink-0">
+                    <div class="w-10 h-10 rounded-2xl bg-[#16283C]/10 border border-[#16283C]/15 flex items-center justify-center text-[#16283C] dark:text-[#D7BC7A] shrink-0">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                         </svg>
                     </div>
                     <div>
                         <h2 class="text-base font-bold text-slate-800 dark:text-white heading-font">Account Information</h2>
-                        <p class="text-xs text-slate-400 dark:text-slate-500 font-medium">Your login credentials and display name.</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Your login credentials and display name.</p>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div>
-                        <label class="text-xs font-bold text-slate-600 dark:text-slate-400 block mb-1.5">Full Name</label>
-                        <input type="text" name="name" value="{{ old('name', $user->name) }}" required
-                            class="px-4 py-3 w-full bg-white/80 dark:bg-slate-700/50 border border-slate-200/80 dark:border-slate-600/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/20 focus:border-[#3A7D44] transition text-sm text-slate-800 dark:text-white">
+                        <label for="name" class="text-xs font-bold text-slate-600 dark:text-slate-400 block mb-1.5">Full Name</label>
+<input type="text" id="name" name="name" value="{{ old('name', $user->name) }}" required
+                            class="px-4 py-3 w-full bg-white/80 dark:bg-slate-700/50 border border-slate-200/80 dark:border-slate-600/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#16283C]/20 focus:border-[#16283C] transition text-sm text-slate-800 dark:text-white">
                     </div>
                     <div>
-                        <label class="text-xs font-bold text-slate-600 dark:text-slate-400 block mb-1.5">Email Address</label>
-                        <input type="email" name="email" value="{{ old('email', $user->email) }}" required
-                            class="px-4 py-3 w-full bg-white/80 dark:bg-slate-700/50 border border-slate-200/80 dark:border-slate-600/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/20 focus:border-[#3A7D44] transition text-sm text-slate-800 dark:text-white">
+                        <label for="email" class="text-xs font-bold text-slate-600 dark:text-slate-400 block mb-1.5">Email Address</label>
+<input type="email" id="email" name="email" value="{{ old('email', $user->email) }}" required
+                            class="px-4 py-3 w-full bg-white/80 dark:bg-slate-700/50 border border-slate-200/80 dark:border-slate-600/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#16283C]/20 focus:border-[#16283C] transition text-sm text-slate-800 dark:text-white">
                     </div>
                 </div>
             </div>
@@ -112,7 +115,7 @@
             {{-- ── FARM DETAILS ── --}}
             <div class="bg-white dark:bg-slate-800/80 backdrop-blur border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6 sm:p-8 shadow-sm">
                 <div class="flex items-center gap-3 mb-6">
-                    <div class="w-10 h-10 rounded-2xl bg-[#3A7D44]/10 border border-[#3A7D44]/15 flex items-center justify-center text-[#3A7D44] dark:text-[#3A7D44] shrink-0">
+                    <div class="w-10 h-10 rounded-2xl bg-[#16283C]/10 border border-[#16283C]/15 flex items-center justify-center text-[#16283C] dark:text-[#D7BC7A] shrink-0">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -120,19 +123,19 @@
                     </div>
                     <div>
                         <h2 class="text-base font-bold text-slate-800 dark:text-white heading-font">Farm Details</h2>
-                        <p class="text-xs text-slate-400 dark:text-slate-500 font-medium">Contact number and farm location.</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Contact number and farm location.</p>
                     </div>
                 </div>
 
                 <div class="space-y-5">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                         <div>
-                            <label class="text-xs font-bold text-slate-600 dark:text-slate-400 block mb-1.5">Phone Number</label>
-                            <input type="text" name="phone" value="{{ old('phone', $profile->phone ?? '') }}"
-                                class="px-4 py-3 w-full bg-white/80 dark:bg-slate-700/50 border border-slate-200/80 dark:border-slate-600/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/20 focus:border-[#3A7D44] transition text-sm text-slate-800 dark:text-white">
+                            <label for="phone" class="text-xs font-bold text-slate-600 dark:text-slate-400 block mb-1.5">Phone Number</label>
+<input type="text" id="phone" name="phone" value="{{ old('phone', $profile->phone ?? '') }}"
+                                class="px-4 py-3 w-full bg-white/80 dark:bg-slate-700/50 border border-slate-200/80 dark:border-slate-600/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#16283C]/20 focus:border-[#16283C] transition text-sm text-slate-800 dark:text-white">
                         </div>
                         <div>
-                            <label class="text-xs font-bold text-slate-600 dark:text-slate-400 block mb-1.5">Farm Location</label>
+                            <label for="farm_location_display" class="text-xs font-bold text-slate-600 dark:text-slate-400 block mb-1.5">Farm Location</label>
                             <input type="text" id="farm_location_display" name="farm_location" value="{{ old('farm_location', $profile->farm_location ?? '') }}" readonly
                                 class="px-4 py-3 w-full bg-slate-50 dark:bg-slate-700/30 border border-slate-200/80 dark:border-slate-600/60 rounded-xl focus:outline-none cursor-default text-sm text-slate-600 dark:text-slate-300 font-medium">
                         </div>
@@ -143,7 +146,7 @@
                     <input type="hidden" id="longitude" name="longitude" value="{{ old('longitude', $profile->longitude ?? '') }}">
 
                     {{-- GPS button --}}
-                    <button type="button" id="use-my-location" class="w-full flex items-center justify-center gap-2 py-2.5 bg-[#3A7D44]/5 hover:bg-[#3A7D44]/10 text-[#3A7D44] dark:text-[#3A7D44] border border-[#3A7D44]/20 rounded-xl text-xs font-bold transition shadow-sm">
+                    <button type="button" id="use-my-location" class="w-full flex items-center justify-center gap-2 py-2.5 bg-[#16283C]/5 hover:bg-[#16283C]/10 text-[#16283C] dark:text-[#D7BC7A] border border-[#16283C]/20 rounded-xl text-xs font-bold transition shadow-sm">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -152,8 +155,8 @@
                     </button>
 
                     {{-- Map --}}
-                    <div id="farm-map" class="w-full h-[250px] rounded-xl border border-[#3A7D44]/15 shadow-sm overflow-hidden z-0"></div>
-                    <p class="text-[10px] text-slate-400 dark:text-slate-500 font-medium text-center">
+                    <div id="farm-map" class="w-full h-[250px] rounded-xl border border-[#16283C]/15 shadow-sm overflow-hidden z-0"></div>
+                    <p class="text-[10px] text-slate-500 dark:text-slate-400 font-medium text-center">
                         Drag the pin or click the map to update your farm location.
                     </p>
                 </div>
@@ -162,14 +165,14 @@
             {{-- ── COOPERATIVE AFFILIATION ── --}}
             <div class="bg-white dark:bg-slate-800/80 backdrop-blur border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6 sm:p-8 shadow-sm">
                 <div class="flex items-center gap-3 mb-6">
-                    <div class="w-10 h-10 rounded-2xl bg-amber-500/10 border border-amber-500/15 flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0">
+                    <div class="w-10 h-10 rounded-2xl bg-[var(--color-warning-bg)] border border-[var(--color-warning-border)] flex items-center justify-center text-[var(--color-warning-text)] shrink-0">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                         </svg>
                     </div>
                     <div>
                         <h2 class="text-base font-bold text-slate-800 dark:text-white heading-font">Cooperative Affiliation</h2>
-                        <p class="text-xs text-slate-400 dark:text-slate-500 font-medium">Your current membership type and cooperative assignment.</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Your current membership type and cooperative assignment.</p>
                     </div>
                 </div>
 
@@ -178,58 +181,71 @@
                     <div class="flex items-center gap-3">
                         <span class="text-xs font-bold text-slate-500 dark:text-slate-400">Membership Type:</span>
                         @if($profile?->affiliation_type === 'cooperative')
-                            <span class="inline-flex items-center gap-1 px-3 py-1 bg-[#3A7D44]/10 border border-[#3A7D44]/20 text-[#3A7D44] dark:text-[#3A7D44] rounded-lg text-xs font-bold">
+                            <span class="inline-flex items-center gap-1 px-3 py-1 bg-[#16283C]/10 border border-[#16283C]/20 text-[#16283C] dark:text-[#D7BC7A] rounded-lg text-xs font-bold">
                                 Cooperative Member
                             </span>
                         @else
-                            <span class="inline-flex items-center gap-1 px-3 py-1 bg-amber-500/10 border border-amber-500/20 text-amber-700 dark:text-amber-400 rounded-lg text-xs font-bold">
+                            <span class="inline-flex items-center gap-1 px-3 py-1 bg-[var(--color-warning-bg)] border border-[var(--color-warning-border)] text-[var(--color-warning-text)] rounded-lg text-xs font-bold">
                                 Independent Farmer
                             </span>
                         @endif
                     </div>
 
-                    @if($profile?->affiliation_type === 'cooperative')
-                        <div>
-                            <label class="text-xs font-bold text-slate-600 dark:text-slate-400 block mb-1.5">Select Cooperative</label>
-                            <div class="relative">
-                                <select name="cooperative_id"
-                                    class="pl-4 pr-10 py-3 w-full bg-white/80 dark:bg-slate-700/50 border border-slate-200/80 dark:border-slate-600/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/20 focus:border-[#3A7D44] transition appearance-none cursor-pointer text-sm text-slate-700 dark:text-slate-200">
-                                    <option value="">— No cooperative selected —</option>
-                                    @foreach($cooperatives as $coop)
-                                        <option value="{{ $coop->id }}"
-                                            {{ old('cooperative_id', $profile->cooperative_id ?? '') == $coop->id ? 'selected' : '' }}>
-                                            {{ $coop->company_name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                <span class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
-                                    </svg>
-                                </span>
+                    @if($profile?->membership_status === 'pending' && $profile?->cooperative_id)
+                        <div class="p-4 bg-[var(--color-warning-bg)] border border-[var(--color-warning-border)] rounded-xl flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                            <div class="flex items-center gap-2.5">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-[var(--color-warning-text)] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                                <span class="text-sm font-bold text-[var(--color-warning-text)]">Membership request pending for {{ $profile->cooperative->company_name }}</span>
                             </div>
-                            @if($cooperatives->isEmpty())
-                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 font-medium bg-slate-50 dark:bg-slate-700/30 p-2.5 rounded-lg border border-slate-200/50 dark:border-slate-600/40">
-                                    No verified cooperatives are registered yet.
-                                </p>
-                            @endif
+                            <form action="{{ route('farmer.join-cooperative.cancel', $profile->cooperative_id) }}" method="POST" class="inline" id="cancel-coop-form">
+                                @csrf
+                                @method('DELETE')
+                                <button type="button" onclick="swalConfirm(document.getElementById('cancel-coop-form'), {title: 'Cancel Request?', text: 'Your pending request will be cancelled.', confirmText: 'Yes, cancel', icon: 'warning', confirmColor: '#f59e0b'})" class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 bg-[var(--color-warning-bg)] text-[var(--color-warning-text)] hover:opacity-80 rounded-lg text-xs font-bold transition cursor-pointer">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                                    Cancel Request
+                                </button>
+                            </form>
+                        </div>
+                    @elseif($profile?->membership_status === 'approved' && $profile?->cooperative_id)
+                        <div class="p-4 bg-[#16283C]/5 dark:bg-[#16283C]/10 border border-[#16283C]/15 dark:border-[#16283C]/25 rounded-xl flex items-center gap-2.5">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-[#16283C] dark:text-[#D7BC7A] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                            <span class="text-sm font-bold text-[#16283C] dark:text-[#D7BC7A]">Member of {{ $profile->cooperative->company_name }}</span>
+                        </div>
+                    @elseif($profile?->membership_status === 'rejected')
+                        <div class="p-4 bg-slate-50 dark:bg-slate-700/30 border border-slate-200/50 dark:border-slate-600/40 rounded-xl flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                            <span class="text-sm font-bold text-slate-600 dark:text-slate-300">Request was not approved.</span>
+                            <a href="{{ route('farmer.join-cooperative.index') }}" class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 bg-[#16283C]/10 text-[#16283C] hover:bg-[#16283C]/15 dark:bg-[#16283C]/10 dark:hover:bg-[#16283C]/15 dark:text-[#D7BC7A] rounded-lg text-xs font-bold transition">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
+                                Request to Join a Cooperative
+                            </a>
+                        </div>
+                    @elseif($profile?->affiliation_type === 'independent' && is_null($profile?->membership_status))
+                        <div class="p-4 bg-slate-50 dark:bg-slate-700/30 border border-slate-200/50 dark:border-slate-600/40 rounded-xl flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                            <span class="text-sm font-bold text-slate-600 dark:text-slate-300">Join a cooperative to access shared logistics and better rates.</span>
+                            <a href="{{ route('farmer.join-cooperative.index') }}" class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 bg-[#16283C]/10 text-[#16283C] hover:bg-[#16283C]/15 dark:bg-[#16283C]/10 dark:hover:bg-[#16283C]/15 dark:text-[#D7BC7A] rounded-lg text-xs font-bold transition">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
+                                Join a Cooperative
+                            </a>
                         </div>
                     @else
-                        <p class="text-xs text-slate-400 dark:text-slate-500 font-medium bg-slate-50 dark:bg-slate-700/30 p-3 rounded-lg border border-slate-200/50 dark:border-slate-600/40">
+                        <p class="text-xs text-slate-500 dark:text-slate-400 font-medium bg-slate-50 dark:bg-slate-700/30 p-3 rounded-lg border border-slate-200/50 dark:border-slate-600/40">
                             You are registered as an independent farmer. Contact your cooperative administrator to change your affiliation type.
                         </p>
                     @endif
                 </div>
             </div>
 
+            {{-- CONFIRM PASSWORD --}}
+            <x-current-password-field />
+
             {{-- SAVE BUTTON --}}
             <div class="flex justify-end">
-                <button type="submit" class="px-8 py-3 bg-gradient-to-r from-[#3A7D44] to-[#2E6336] hover:brightness-105 text-white font-bold rounded-xl text-sm shadow-md shadow-[#3A7D44]/15 hover:shadow-lg transition duration-200 transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer inline-flex items-center gap-2">
+                <x-button type="submit" size="lg">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                     </svg>
                     Save Changes
-                </button>
+                </x-button>
             </div>
         </form>
 
@@ -249,24 +265,24 @@
                     </div>
                     <div>
                         <h2 class="text-base font-bold text-slate-800 dark:text-white heading-font">Change Password</h2>
-                        <p class="text-xs text-slate-400 dark:text-slate-500 font-medium">Update your login password. Requires current password.</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Update your login password. Requires current password.</p>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
                     <div>
-                        <label class="text-xs font-bold text-slate-600 dark:text-slate-400 block mb-1.5">Current Password</label>
-                        <input type="password" name="current_password" required
+                        <label for="current_password" class="text-xs font-bold text-slate-600 dark:text-slate-400 block mb-1.5">Current Password</label>
+                        <input type="password" id="current_password" name="current_password" required
                             class="px-4 py-3 w-full bg-white/80 dark:bg-slate-700/50 border border-slate-200/80 dark:border-slate-600/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition text-sm">
                     </div>
                     <div>
-                        <label class="text-xs font-bold text-slate-600 dark:text-slate-400 block mb-1.5">New Password</label>
-                        <input type="password" name="password" required
+                        <label for="password" class="text-xs font-bold text-slate-600 dark:text-slate-400 block mb-1.5">New Password</label>
+                        <input type="password" id="password" name="password" required
                             class="px-4 py-3 w-full bg-white/80 dark:bg-slate-700/50 border border-slate-200/80 dark:border-slate-600/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition text-sm">
                     </div>
                     <div>
-                        <label class="text-xs font-bold text-slate-600 dark:text-slate-400 block mb-1.5">Confirm New Password</label>
-                        <input type="password" name="password_confirmation" required
+                        <label for="password_confirmation" class="text-xs font-bold text-slate-600 dark:text-slate-400 block mb-1.5">Confirm New Password</label>
+                        <input type="password" id="password_confirmation" name="password_confirmation" required
                             class="px-4 py-3 w-full bg-white/80 dark:bg-slate-700/50 border border-slate-200/80 dark:border-slate-600/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition text-sm">
                     </div>
                 </div>
@@ -288,7 +304,7 @@
 {{-- ═══════════════════════════════════════════ --}}
 {{-- LEAFLET MAP SCRIPT --}}
 {{-- ═══════════════════════════════════════════ --}}
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="{{ asset('vendor/leaflet/leaflet.js') }}"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const GENSAN = [6.1164, 125.1716];
@@ -299,16 +315,12 @@
 
         const map = L.map('farm-map', { zoomControl: true }).setView(initPos, initZoom);
 
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-            attribution: '© OpenStreetMap © CARTO',
-            subdomains: 'abcd',
-            maxZoom: 19,
-        }).addTo(map);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: ' OpenStreetMap contributors' }).addTo(map);
 
         const greenIcon = L.divIcon({
             html: `<div style="
                 width: 18px; height: 18px; border-radius: 50%;
-                background: #3A7D44; border: 3px solid white;
+                background: #16283C; border: 3px solid white;
                 box-shadow: 0 3px 8px rgba(45, 106, 47, 0.4);
             "></div>`,
             className: '',

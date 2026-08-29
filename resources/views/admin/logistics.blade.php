@@ -1,15 +1,22 @@
-﻿<x-layout>
+<x-layout>
 <div class="w-full max-w-7xl mx-auto">
 
-    <header class="mb-8">
+    <header class="pt-8 mb-8">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
                 <h1 class="text-2xl font-extrabold text-slate-800 dark:text-white heading-font tracking-tight">Logistics Verification</h1>
-                <p class="text-sm text-slate-400 dark:text-slate-500 mt-1 font-semibold">Approve or reject logistics partner accounts</p>
             </div>
             <span class="text-[10px] font-bold uppercase tracking-widest text-harvest dark:text-harvest bg-harvest/10 dark:bg-harvest/20 px-3 py-1.5 rounded-lg border border-harvest/10 dark:border-harvest/20 self-start">{{ $partners->count() }} Partners</span>
         </div>
     </header>
+
+    @php
+        $logisticsVerifyTabs = [
+            ['label' => 'Registry', 'url' => route('admin.logistics'), 'active' => true],
+            ['label' => 'Documents', 'url' => route('admin.logistics-documents'), 'active' => false],
+        ];
+    @endphp
+    <x-nav-tabs :tabs="$logisticsVerifyTabs" />
 
     <x-flash-success />
 
@@ -44,7 +51,7 @@
                     @if(!$partner->logisticsProfile?->is_verified)
                         <form method="POST" action="{{ route('admin.logistics.verify', $partner->id) }}">
                             @csrf
-                            <button type="button" onclick="swalConfirm(this.closest('form'), {title: 'Approve Partner?', text: 'Verify {{ addslashes($partner->name) }} as a logistics partner?', confirmText: 'Yes, approve', icon: 'question', confirmColor: '#3A7D44'})" class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-[#3A7D44]/10 text-[#3A7D44] hover:bg-[#3A7D44]/15 dark:bg-[#3A7D44]/10 dark:hover:bg-[#3A7D44]/15 dark:text-[#3A7D44] transition" title="Approve Partner">
+                            <button type="button" onclick="swalConfirm(this.closest('form'), {title: 'Approve Partner?', text: 'Verify {{ addslashes($partner->name) }} as a logistics partner?', confirmText: 'Yes, approve', icon: 'question', confirmColor: '#16283C'})" class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-[#16283C]/10 text-[#16283C] hover:bg-[#16283C]/15 dark:bg-[#16283C]/10 dark:hover:bg-[#16283C]/15 dark:text-[#D7BC7A] transition" title="Approve Partner">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                                 </svg>

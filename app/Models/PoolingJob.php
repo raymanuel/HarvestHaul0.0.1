@@ -20,30 +20,22 @@ class PoolingJob extends Model
         'driver_id',
         'buyer_id',
         'status',
-        'total_kg',
         'truck_capacity_kg',
-        'farm_count',
         'start_latitude',
         'start_longitude',
         'end_latitude',
         'end_longitude',
         'radius_km',
         'notes',
-        'confirmed_at',
         'accepted_at',
-        'completed_at',
         'price_reference',
         'negotiated_price',
+        'hauling_rate_per_kg',
         'planned_distance_km',
         'actual_distance_km',
         'end_odometer_reading',
         'proposal_expires_at',
         'negotiation_rounds',
-        'route_geometry',
-        'weather_condition',
-        'weather_temperature',
-        'weather_wind_speed',
-        'weather_icon',
         'weather_checked_at',
         'weather_advisory',
     ];
@@ -69,6 +61,7 @@ class PoolingJob extends Model
         'end_odometer_reading'  => 'decimal:2',
         'planned_distance_km'   => 'decimal:2',
         'actual_distance_km'    => 'decimal:2',
+        'hauling_rate_per_kg'   => 'decimal:2',
         'proposal_expires_at'   => 'datetime',
         'negotiation_rounds'    => 'integer',
         'route_geometry'        => 'array',
@@ -129,7 +122,7 @@ class PoolingJob extends Model
     {
         return $this->belongsToMany(Harvest::class, 'pooling_job_harvests')
                     ->using(PoolingJobHarvest::class)
-                    ->withPivot('pickup_order', 'quantity_kg', 'cost_share', 'status', 'payment_status', 'receipt_path', 'loaded_quantity_kg', 'loaded_volume_cubic_meters', 'delivery_receipt_path', 'load_photo_path', 'actual_quantity_kg', 'farmer_qty_confirmed', 'crop_confirmed', 'arrived_at', 'loaded_at', 'delivered_at', 'buyer_confirmed_at')
+                    ->withPivot('pickup_order', 'quantity_kg', 'cost_share', 'amount_paid', 'status', 'payment_status', 'receipt_path', 'loaded_quantity_kg', 'loaded_volume_cubic_meters', 'delivery_receipt_path', 'load_photo_path', 'actual_quantity_kg', 'farmer_qty_confirmed', 'crop_confirmed', 'arrived_at', 'loaded_at', 'delivered_at', 'buyer_confirmed_at')
                     ->orderByPivot('pickup_order');
     }
 
@@ -167,8 +160,8 @@ class PoolingJob extends Model
      */
     public function getLoadPercentageAttribute(): float
     {
-        if (!$this->truck_capacity_kg) return 0;
-        return round(($this->total_kg / $this->truck_capacity_kg) * 100, 1);
+        if ((float) $this->truck_capacity_kg <= 0) return 0;
+        return round(((float) $this->total_kg / (float) $this->truck_capacity_kg) * 100, 1);
     }
 
     /**

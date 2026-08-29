@@ -20,20 +20,8 @@ use Illuminate\Support\Facades\Storage;
  */
 class FarmerDocumentController extends Controller
 {
-    /**
-     * Helper to verify if user has 'farmer' role.
-     */
-    private function authorizeFarmer(): void
-    {
-        if (Auth::user()->role !== 'farmer') {
-            abort(403);
-        }
-    }
-
     public function index()
     {
-        $this->authorizeFarmer();
-
         $documents = FarmerDocument::where('user_id', Auth::id())
             ->orderBy('created_at', 'desc')
             ->get();
@@ -43,8 +31,6 @@ class FarmerDocumentController extends Controller
 
     public function store(Request $request)
     {
-        $this->authorizeFarmer();
-
         $request->validate([
             'document_type' => ['required', 'in:government_id,rsbsa,land_title,barangay_cert,mao_cert,other'],
             'document_file' => ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'],
@@ -52,7 +38,7 @@ class FarmerDocumentController extends Controller
 
         $file = $request->file('document_file');
         $originalFilename = $file->getClientOriginalName();
-        $path = $file->store('farmer-documents/' . Auth::id(), 'public');
+        $path = $file->store('farmer-documents/' . Auth::id(), 'local');
 
         $doc = FarmerDocument::create([
             'user_id'           => Auth::id(),
@@ -75,8 +61,6 @@ class FarmerDocumentController extends Controller
 
     public function destroy(FarmerDocument $document)
     {
-        $this->authorizeFarmer();
-
         if ($document->user_id !== Auth::id()) {
             abort(403);
         }
@@ -85,7 +69,7 @@ class FarmerDocumentController extends Controller
             return redirect()->route('farmer.documents')->with('error', 'Approved documents cannot be deleted.');
         }
 
-        Storage::disk('public')->delete($document->file_path);
+        Storage::disk('local')->delete($document->file_path);
         $document->delete();
 
         \App\Models\AuditLog::create([

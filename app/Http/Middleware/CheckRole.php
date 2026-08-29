@@ -16,8 +16,13 @@ class CheckRole
 
         $userRole = Auth::user()->role;
 
-        if (!empty($roles) && !in_array($userRole, $roles)) {
-            abort(403, 'Unauthorized. Required role: ' . implode(' or ', $roles) . '.');
+        $allowed = [];
+        foreach ($roles as $role) {
+            $allowed = array_merge($allowed, array_map('trim', explode(',', $role)));
+        }
+
+        if (!empty($allowed) && !in_array($userRole, $allowed)) {
+            abort(403, 'Unauthorized. Required role: ' . implode(' or ', $allowed) . '.');
         }
 
         return $next($request);

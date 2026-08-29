@@ -3,24 +3,16 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\AuditLog;
 use App\Models\LogisticsDocument;
 use App\Models\LogisticsProfile;
+use App\Models\User;
+use App\Traits\Notifiable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class AdminLogisticsDocumentController extends Controller
 {
-    private function log(string $action, string $targetType, int $targetId, string $notes): void
-    {
-        AuditLog::create([
-            'admin_id'    => Auth::id(),
-            'action'      => $action,
-            'target_type' => $targetType,
-            'target_id'   => $targetId,
-            'notes'       => $notes,
-        ]);
-    }
+    use Notifiable;
 
     public function index()
     {
@@ -36,6 +28,10 @@ class AdminLogisticsDocumentController extends Controller
 
     public function approve(Request $request, LogisticsDocument $document)
     {
+        $request->validate([
+            'notes' => ['nullable', 'string', 'max:1000'],
+        ]);
+
         $data = [
             'status' => 'approved',
             'notes'  => $request->input('notes'),
@@ -48,7 +44,8 @@ class AdminLogisticsDocumentController extends Controller
             LogisticsProfile::where('user_id', $document->user_id)
                 ->update(['business_permit_verified' => true]);
 
-            $this->log(
+            self::logAudit(
+                Auth::id(),
                 'verified_business_permit',
                 'logistics_partner',
                 $document->user_id,
@@ -58,19 +55,19 @@ class AdminLogisticsDocumentController extends Controller
 
         $document->update($data);
 
-        $this->log(
+        self::logAudit(
+            Auth::id(),
             'approved_logistics_document',
             'logistics_partner',
             $document->user_id,
             "Approved document \"{$document->original_filename}\" (type: {$document->document_type}) for logistics partner ID {$document->user_id}."
         );
 
-        \App\Models\Notification::create([
-            'user_id' => $document->user_id,
-            'title' => 'Document Approved',
-            'message' => "Your uploaded document '{$document->original_filename}' has been approved.",
-            'link' => route('logistics.documents'),
-        ]);
+        self::notifyDocumentApproved(
+            User::find($document->user_id),
+            $document->original_filename,
+            route('logistics.documents')
+        );
 
         $this->checkAndVerifyLogistics($document->user_id);
 
@@ -88,19 +85,20 @@ class AdminLogisticsDocumentController extends Controller
             'notes'  => $request->input('notes'),
         ]);
 
-        $this->log(
+        self::logAudit(
+            Auth::id(),
             'rejected_logistics_document',
             'logistics_partner',
             $document->user_id,
             "Rejected document \"{$document->original_filename}\" (type: {$document->document_type}) for logistics partner ID {$document->user_id}. Reason: {$request->input('notes')}"
         );
 
-        \App\Models\Notification::create([
-            'user_id' => $document->user_id,
-            'title' => 'Document Rejected',
-            'message' => "Your uploaded document '{$document->original_filename}' was rejected. Reason: {$request->input('notes')}",
-            'link' => route('logistics.documents'),
-        ]);
+        self::notifyDocumentRejected(
+            User::find($document->user_id),
+            $document->original_filename,
+            $request->input('notes'),
+            route('logistics.documents')
+        );
 
         return back()->with('success', 'Document rejected.');
     }
@@ -134,7 +132,8 @@ class AdminLogisticsDocumentController extends Controller
         if ($hasOtherDoc) {
             $profile->update(['is_verified' => true]);
 
-            $this->log(
+            self::logAudit(
+                Auth::id(),
                 'verified_logistics',
                 'logistics_partner',
                 $userId,

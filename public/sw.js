@@ -1,10 +1,11 @@
 /**
  * HarvestHaul Driver Service Worker — Offline Telemetry Sync
  * Queues GPS tracking pings locally when offline, retries when online.
- * Version: 1.0
+ * Handles all fetch events so browsers detect SW page control (PWA installability).
+ * Version: 2.0
  */
 
-const SW_VERSION = 'hh-telemetry-v1';
+const SW_VERSION = 'hh-v2';
 const TRACKING_URL_PATTERN = /\/tracking\/store|\/tracking\/stream/;
 
 // Install — skip waiting to activate immediately
@@ -18,17 +19,20 @@ self.addEventListener('activate', event => {
 });
 
 /**
- * Fetch handler — intercept tracking POST requests.
- * If the network fails, the payload is stored in IndexedDB and
- * the SW broadcasts a 'telemetry-queued' message back to the client.
+ * Fetch handler.
+ * Tracking POSTs: queue offline via IndexedDB on network failure (retried on reconnect).
+ * Everything else: passes straight through to the network (no SW interception),
+ * so a down server surfaces the browser's native error instead of a misleading "Offline" stub.
  */
 self.addEventListener('fetch', event => {
     const url = new URL(event.request.url);
 
-    // Only intercept tracking POST requests
     if (event.request.method === 'POST' && TRACKING_URL_PATTERN.test(url.pathname)) {
         event.respondWith(handleTrackingRequest(event.request.clone()));
     }
+    // Everything else goes straight to the network (no SW interception).
+    // Removes the misleading bare "Offline" 503 stub while preserving
+    // offline GPS telemetry + PWA installability.
 });
 
 async function handleTrackingRequest(request) {

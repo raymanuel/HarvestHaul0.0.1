@@ -16,6 +16,7 @@ class Negotiation extends Model
         'harvest_id',
         'negotiated_price',
         'negotiated_volume',
+        'hauling_rate_per_kg',
         'status',
         'destination_address',
         'destination_latitude',
@@ -31,6 +32,7 @@ class Negotiation extends Model
         'farmer_last_read_at' => 'datetime',
         'destination_latitude' => 'decimal:8',
         'destination_longitude' => 'decimal:8',
+        'hauling_rate_per_kg' => 'decimal:2',
         'status' => NegotiationStatus::class,
     ];
 

@@ -5,10 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Traits\HasNearbyScope;
 
 class Harvest extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, HasNearbyScope;
 
     protected $fillable = [
         'user_id',
@@ -28,14 +29,11 @@ class Harvest extends Model
         'quality_grade',
         'packaging_type',
         'suggested_price_per_kg',
-        'crop_photos',
         'latitude',
         'longitude',
-        'cluster_id',
         'destination_id',
         'destination_address',
-        'destination_latitude',
-        'destination_longitude',
+        'crop_photos',
     ];
 
     protected $casts = [
@@ -111,6 +109,41 @@ class Harvest extends Model
         return $this->belongsToMany(PoolingJob::class, 'pooling_job_harvests', 'harvest_id', 'pooling_job_id');
     }
 
+    /** Haul request for sold-outside-platform harvests. */
+    public function haulRequest()
+    {
+        return $this->hasOne(HaulRequest::class);
+    }
+
+    // ─────────────────────────────────────────────────────────
+    // NEGOTIATION RELATIONSHIPS
+    // ─────────────────────────────────────────────────────────
+
+    /** B2B negotiations for this harvest. */
+    public function negotiations()
+    {
+        return $this->hasMany(Negotiation::class, 'harvest_id');
+    }
+
+    /** Completed negotiation for this harvest. */
+    public function scopeCompletedNegotiation($query)
+    {
+        return $this->hasOne(Negotiation::class, 'harvest_id')
+            ->where('status', NegotiationStatus::COMPLETED);
+    }
+
+    /**
+     * The most recent AGREED or COMPLETED negotiation for this harvest.
+     * Used to link the buyer to a haul request and to surface the agreed
+     * crop terms (₱/kg) as context in haul pricing breakdowns.
+     */
+    public function scopeAgreedNegotiation($query)
+    {
+        return $this->hasOne(Negotiation::class, 'harvest_id')
+            ->whereIn('status', [NegotiationStatus::AGREED, NegotiationStatus::COMPLETED])
+            ->latest('last_activity_at');
+    }
+
     // ─────────────────────────────────────────────────────────
     // QUERY SCOPES
     // Use: Harvest::active()->get() or Harvest::withLocation()->get()
@@ -128,10 +161,10 @@ class Harvest extends Model
         return $query->whereIn('status', ['active', 'partially_sold']);
     }
 
-    /** Harvests visible on the logistics routing map (sold or partially sold). */
+    /** Harvests visible on the logistics routing map (sold, booked, or partially sold). */
     public function scopeVisibleToLogistics($query)
     {
-        return $query->whereIn('status', ['sold', 'partially_sold']);
+        return $query->whereIn('status', ['sold', 'booked', 'partially_sold']);
     }
 
     /** Returns harvests not yet linked to any driver. */
@@ -151,20 +184,6 @@ class Harvest extends Model
     {
         return $query->whereNotNull('destination_latitude')
                      ->whereNotNull('destination_longitude');
-    }
-
-    /**
-     * Bounding box pre-filter for proximity queries.
-     * Returns harvests within the approximate rectangular bounds of $radiusKm
-     * around the given coordinates. Apply Haversine in PHP for precise distance.
-     */
-    public function scopeNearby($query, float $lat, float $lng, float $radiusKm)
-    {
-        $latOffset = $radiusKm / 111.32;
-        $lngOffset = $radiusKm / (111.32 * cos(deg2rad($lat)));
-
-        return $query->whereBetween('latitude', [$lat - $latOffset, $lat + $latOffset])
-                     ->whereBetween('longitude', [$lng - $lngOffset, $lng + $lngOffset]);
     }
 
     // ─────────────────────────────────────────────────────────
@@ -203,51 +222,19 @@ class Harvest extends Model
         return null;
     }
 
-    // ─────────────────────────────────────────────────────────
-    // NEGOTIATION RELATIONSHIP
-    // ─────────────────────────────────────────────────────────
-
-    /** B2B negotiations for this harvest. */
-    public function negotiations()
+    /**
+     * Resolved destination from completed negotiation, falling back to harvest defaults.
+     * Returns an object with address, latitude, longitude properties.
+     */
+    public function getResolvedDestinationAttribute(): ?object
     {
-        return $this->hasMany(Negotiation::class, 'harvest_id');
-    }
+        $completedDeal = $this->completedNegotiation;
 
-    /** Completed negotiation (cached per instance to avoid N+1). */
-    private ?Negotiation $completedNegotiation = null;
-
-    public function getCompletedNegotiation(): ?Negotiation
-    {
-        if (!isset($this->completedNegotiation)) {
-            $this->completedNegotiation = $this->negotiations()
-                ->where('status', 'COMPLETED')
-                ->first();
-        }
-        return $this->completedNegotiation;
-    }
-
-    // ─────────────────────────────────────────────────────────
-    // RESOLVED DESTINATION ACCESSORS
-    // Check completed negotiations first (deal-specific), fall back to harvest default.
-    // Uses cached getCompletedNegotiation() to avoid N+1 (was 3 queries per row).
-    // ─────────────────────────────────────────────────────────
-
-    public function getResolvedDestinationAddressAttribute(): ?string
-    {
-        $completedDeal = $this->getCompletedNegotiation();
-        return $completedDeal?->destination_address ?? $this->destination_address;
-    }
-
-    public function getResolvedDestinationLatitudeAttribute(): ?float
-    {
-        $completedDeal = $this->getCompletedNegotiation();
-        return $completedDeal?->destination_latitude ?? $this->destination_latitude;
-    }
-
-    public function getResolvedDestinationLongitudeAttribute(): ?float
-    {
-        $completedDeal = $this->getCompletedNegotiation();
-        return $completedDeal?->destination_longitude ?? $this->destination_longitude;
+        return (object) [
+            'address'   => $completedDeal?->destination_address ?? $this->destination_address,
+            'latitude'  => $completedDeal?->destination_latitude ?? $this->destination_latitude,
+            'longitude' => $completedDeal?->destination_longitude ?? $this->destination_longitude,
+        ];
     }
 
     /**

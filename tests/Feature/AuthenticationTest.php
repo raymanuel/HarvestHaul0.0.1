@@ -95,8 +95,8 @@ class AuthenticationTest extends TestCase
             'password' => bcrypt('password'),
         ]);
 
-        // Attempt 6 times (limit is 5 per minute)
-        for ($i = 0; $i < 6; $i++) {
+        // Attempt 15 times (limit is 15 per minute)
+        for ($i = 0; $i < 15; $i++) {
             $this->post('/login', [
                 'email' => $user->email,
                 'password' => 'wrong-password',

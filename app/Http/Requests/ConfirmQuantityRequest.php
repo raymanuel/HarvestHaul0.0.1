@@ -8,7 +8,7 @@ class ConfirmQuantityRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user()->role === 'farmer';
     }
 
     public function rules(): array

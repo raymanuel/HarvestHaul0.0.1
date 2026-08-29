@@ -31,19 +31,6 @@ class ConfirmPoolingPlanAction
 
         $this->recalculateCostShares($job);
 
-        foreach ($job->harvests as $harvest) {
-            try {
-                \App\Models\Notification::create([
-                    'user_id' => $harvest->user_id,
-                    'title'   => 'New Pooling Proposal',
-                    'message' => "Your harvest '{$harvest->crop->name}' has been pooled into Route #{$job->id}.",
-                    'link'    => route('farmer.proposals'),
-                ]);
-            } catch (\Exception $e) {
-                Log::warning('Failed to send pooling notification to user ' . $harvest->user_id . ': ' . $e->getMessage());
-            }
-        }
-
         AuditLog::create([
             'admin_id'    => Auth::id(),
             'action'      => 'confirmed_pooling_plan',
@@ -56,29 +43,109 @@ class ConfirmPoolingPlanAction
     }
 
     /**
-     * Recalculate per-farmer cost shares proportionally from the negotiated total.
+     * Recalculate per-farmer cost shares.
+     *
+     * Preferred: per-farmer hauling rate agreed in the chat, so a farmer's share
+     * is their own rate x their kg (fixed regardless of other farmers).
+     * Fallback (no agreed per-farmer rate, e.g. independent flow): the old
+     * flat route rate allocated by weight x distance.
      */
     public function recalculateCostShares(\App\Models\PoolingJob $job): void
     {
-        $job->load('harvests');
+        $job->load('harvests.negotiations');
 
-        $totalCostShare = $job->harvests->sum(function ($h) {
-            return (float) ($h->pivot->quantity_kg ?? 0);
-        });
-
-        $negotiatedPrice = (float) ($job->negotiated_price ?? $job->price_reference ?? 0);
-
-        if ($totalCostShare <= 0) {
+        $totalKg = $job->harvests->sum(fn($h) => (float) ($h->pivot->quantity_kg ?? $h->quantity_kg ?? 0));
+        if ($totalKg <= 0) {
             return;
         }
 
-        foreach ($job->harvests as $h) {
-            $share = (float) ($h->pivot->quantity_kg ?? 0);
-            $costShare = round(($share / $totalCostShare) * $negotiatedPrice, 2);
+        // Prefer per-farmer negotiated hauling rates.
+        $hasPerFarmerRates = $job->harvests->contains(fn($h) => $this->agreedHaulRate($h) !== null);
 
-            $job->harvests()->updateExistingPivot($h->id, [
-                'cost_share' => $costShare,
+        if ($hasPerFarmerRates) {
+            foreach ($job->harvests as $h) {
+                $rate = $this->agreedHaulRate($h);
+                $qty  = (float) ($h->pivot->quantity_kg ?? $h->quantity_kg ?? 0);
+                // Fall back to the flat rate when this farmer has no agreed rate.
+                if ($rate === null) {
+                    $rate = (float) ($job->hauling_rate_per_kg ?? 0);
+                }
+                $job->harvests()->updateExistingPivot($h->id, [
+                    'cost_share' => round($rate * $qty, 2),
+                ]);
+            }
+            $job->negotiated_price = $job->harvests->sum(fn($h) => (float) ($h->pivot->cost_share ?? 0));
+            $job->save();
+            return;
+        }
+
+        // Fallback: flat rate x total kg, allocated by weight x distance.
+        $rate = (float) ($job->hauling_rate_per_kg ?? 0);
+        $total = $rate > 0
+            ? round($rate * $totalKg, 2)
+            : (float) ($job->negotiated_price ?? $job->price_reference ?? 0);
+
+        if ($total <= 0) {
+            return;
+        }
+
+        $scores = [];
+        foreach ($job->harvests as $h) {
+            $qty  = (float) ($h->pivot->quantity_kg ?? $h->quantity_kg ?? 0);
+            $dist = max(
+                $this->haversine(
+                    (float) ($h->latitude ?? 0),
+                    (float) ($h->longitude ?? 0),
+                    (float) ($h->destination_latitude ?? 0),
+                    (float) ($h->destination_longitude ?? 0)
+                ),
+                1.0
+            );
+            $scores[$h->id] = $qty * $dist;
+        }
+
+        $totalScore = array_sum($scores);
+        if ($totalScore <= 0) {
+            return;
+        }
+
+        foreach ($scores as $harvestId => $score) {
+            $job->harvests()->updateExistingPivot($harvestId, [
+                'cost_share' => round($total * ($score / $totalScore), 2),
             ]);
         }
+
+        $job->negotiated_price = $total;
+        $job->save();
+    }
+
+    private function agreedHaulRate(\App\Models\Harvest $harvest): ?float
+    {
+        $negotiation = $harvest->negotiations
+            ->filter(fn($n) => $n->status === \App\Models\NegotiationStatus::COMPLETED)
+            ->first();
+
+        if ($negotiation && $negotiation->hauling_rate_per_kg !== null) {
+            return (float) $negotiation->hauling_rate_per_kg;
+        }
+
+        return null;
+    }
+
+    /**
+     * True when the job's farmers carry their own agreed hauling rates
+     * (per-farmer cost shares are independent), so removing one farmer
+     * does not change the others' shares.
+     */
+    public static function usesPerFarmerRates(\App\Models\PoolingJob $job): bool
+    {
+        $job->loadMissing('harvests.negotiations');
+
+        return $job->harvests->contains(function ($h) {
+            $negotiation = $h->negotiations
+                ->filter(fn($n) => $n->status === \App\Models\NegotiationStatus::COMPLETED)
+                ->first();
+            return $negotiation && $negotiation->hauling_rate_per_kg !== null;
+        });
     }
 }

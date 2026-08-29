@@ -1,4 +1,4 @@
-﻿<x-layout title="My Business Documents">
+<x-layout title="My Business Documents">
 
     <div class="w-full max-w-3xl mx-auto pb-12">
 
@@ -6,9 +6,8 @@
             <a href="{{ route('dashboard') }}" class="text-sm text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 mb-4 inline-block font-semibold transition">
                 ← Back to Dashboard
             </a>
-            <span class="text-xs font-bold uppercase tracking-wider text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 px-3 py-1.5 rounded-lg border border-blue-500/10 dark:border-blue-500/20 inline-block mb-2">Document Vault</span>
+            <span class="text-xs font-bold uppercase tracking-wider text-[var(--color-info-text)] bg-[var(--color-info-bg)] px-3 py-1.5 rounded-lg border border-[var(--color-info-border)] inline-block mb-2">Document Vault</span>
             <h1 class="text-3xl font-bold text-slate-900 dark:text-white tracking-tight heading-font">My Business Documents</h1>
-            <p class="text-slate-500 dark:text-slate-400 mt-1 font-medium">Submit your business registration documents for verification.</p>
         </header>
 
         {{-- Flash Messages --}}
@@ -21,9 +20,9 @@
                 <span class="text-xs text-slate-500 dark:text-slate-400 font-medium">Declared Business Permit No.:</span>
                 <span class="text-sm font-bold text-slate-800 dark:text-slate-200 font-mono">{{ $profile->business_permit_no }}</span>
                 @if($profile->business_permit_verified)
-                    <span class="text-[10px] font-bold uppercase tracking-wider text-[#3A7D44] dark:text-[#3A7D44] bg-[#3A7D44]/10 dark:bg-[#3A7D44]/5 border border-[#3A7D44]/10 dark:border-[#3A7D44]/20 px-2.5 py-1 rounded-lg">Verified</span>
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-[#16283C] dark:text-[#D7BC7A] bg-[#16283C]/10 dark:bg-[#16283C]/5 border border-[#16283C]/10 dark:border-[#16283C]/20 px-2.5 py-1 rounded-lg">Verified</span>
                 @else
-                    <span class="text-[10px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 border border-amber-500/10 dark:border-amber-500/20 px-2.5 py-1 rounded-lg">Pending Verification</span>
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-[var(--color-warning-text)] bg-[var(--color-warning-bg)] border border-[var(--color-warning-border)] px-2.5 py-1 rounded-lg">Pending Verification</span>
                 @endif
             </div>
         @endif
@@ -41,7 +40,7 @@
                         Document Type <span class="text-red-500">*</span>
                     </label>
                     <select name="document_type" required
-                        class="w-full px-4 py-3 border border-slate-200 dark:border-slate-600 rounded-xl text-sm text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-900/60 focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/30 dark:focus:ring-[#3A7D44]/30 focus:border-[#3A7D44] dark:focus:border-[#3A7D44] transition">
+                        class="w-full px-4 py-3 border border-slate-200 dark:border-slate-600 rounded-xl text-sm text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-900/60 focus:outline-none focus:ring-2 focus:ring-[#16283C]/30 dark:focus:ring-[#16283C]/30 focus:border-[#16283C] dark:focus:border-[#16283C] transition">
                         <option value="" disabled selected>Select document type</option>
                         <option value="dti_sec" {{ old('document_type') === 'dti_sec' ? 'selected' : '' }}>
                             DTI / SEC Registration
@@ -67,8 +66,8 @@
                         File <span class="text-red-500">*</span>
                     </label>
                     <input type="file" name="document_file" required accept=".jpg,.jpeg,.png,.pdf"
-                        class="w-full px-4 py-3 border border-slate-200 dark:border-slate-600 rounded-xl text-sm text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-900/60 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-[#3A7D44]/10 file:text-[#3A7D44] dark:file:bg-[#3A7D44]/10 dark:file:text-[#3A7D44] hover:file:bg-[#3A7D44]/15 dark:hover:file:bg-[#3A7D44]/15 transition">
-                    <p class="text-slate-400 dark:text-slate-500 text-xs mt-1.5 font-medium">
+                        class="w-full px-4 py-3 border border-slate-200 dark:border-slate-600 rounded-xl text-sm text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-900/60 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-[#16283C]/10 file:text-[#16283C] dark:file:bg-[#16283C]/10 dark:file:text-[#16283C] hover:file:bg-[#16283C]/15 dark:hover:file:bg-[#16283C]/15 transition">
+                    <p class="text-slate-500 dark:text-slate-400 text-xs mt-1.5 font-medium">
                         Accepted: JPG, PNG, PDF — max 5MB
                     </p>
                     @error('document_file')
@@ -76,11 +75,9 @@
                     @enderror
                 </div>
 
-                <button type="submit"
-                    class="bg-gradient-to-tr from-[#3A7D44] to-[#2E6336] dark:from-[#3A7D44] dark:to-[#2E6336] text-white dark:text-white text-sm font-bold px-6 py-3.5 rounded-xl border border-[#3A7D44]/20 dark:border-[#3A7D44]/25 shadow-md shadow-[#3A7D44]/15 dark:shadow-[#3A7D44]/30 hover:shadow-lg hover:shadow-[#3A7D44]/25 dark:hover:shadow-[#3A7D44]/30 hover:translate-y-[-1px] active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/30 dark:focus:ring-[#3A7D44]/40 transition-all duration-200"
-                    >
+                <x-button type="submit" size="lg" class=".5 border border-[#16283C]/20 dark:border-[#16283C]/25 dark:focus:ring-[#16283C]/40">
                     Upload Document
-                </button>
+                </x-button>
             </form>
         </div>
 
@@ -98,7 +95,7 @@
                     @foreach($documents as $doc)
                         @php
                             $statusStyle = match($doc->status) {
-                                'approved' => ['badge' => 'text-[#3A7D44] dark:text-[#3A7D44] bg-[#3A7D44]/10 dark:bg-[#3A7D44]/5 border-[#3A7D44]/10 dark:border-[#3A7D44]/20', 'card' => 'bg-[#3A7D44]/10/30 dark:bg-[#3A7D44]/5 border-[#3A7D44]/20 dark:border-[#3A7D44]/15'],
+                                'approved' => ['badge' => 'text-[#16283C] dark:text-[#D7BC7A] bg-[#16283C]/10 dark:bg-[#16283C]/5 border-[#16283C]/10 dark:border-[#16283C]/20', 'card' => 'bg-[#16283C]/10/30 dark:bg-[#16283C]/5 border-[#16283C]/20 dark:border-[#16283C]/15'],
                                 'rejected' => ['badge' => 'text-rose-700 dark:text-rose-400 bg-rose-50 dark:bg-rose-900/20 border-rose-500/10 dark:border-rose-500/20', 'card' => 'bg-rose-50/30 dark:bg-rose-900/10 border-rose-200/50 dark:border-rose-800/30'],
                                 default    => ['badge' => 'text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-700/40 border-slate-200/50 dark:border-slate-600/40', 'card' => 'bg-slate-50/50 dark:bg-slate-900/30 border-slate-200/50 dark:border-slate-700/40'],
                             };
@@ -116,7 +113,7 @@
                                 <p class="font-bold text-slate-800 dark:text-slate-200 text-sm">{{ $typeLabel }}</p>
                                 <p class="text-slate-500 dark:text-slate-400 text-xs mt-0.5 truncate">{{ $doc->original_filename }}</p>
                                 @if($doc->document_type === 'business_permit' && $profile)
-                                    <p class="text-slate-400 dark:text-slate-500 text-xs mt-1 font-mono">
+                                    <p class="text-slate-500 dark:text-slate-400 text-xs mt-1 font-mono">
                                         Permit No: {{ $profile->business_permit_no }}
                                     </p>
                                 @endif
@@ -128,8 +125,8 @@
                                 <span class="text-[10px] font-bold uppercase tracking-wider {{ $statusStyle['badge'] }} border px-2.5 py-1 rounded-lg">
                                     {{ $doc->status }}
                                 </span>
-                                <a href="{{ Storage::url($doc->file_path) }}" target="_blank"
-                                    class="text-[#3A7D44] dark:text-[#3A7D44] text-xs font-bold hover:underline transition">
+                                <a href="{{ route('files.show', ['type' => 'logistics-document', 'id' => $doc->id]) }}" target="_blank"
+                                    class="text-[#16283C] dark:text-[#D7BC7A] text-xs font-bold hover:underline transition">
                                     View
                                 </a>
                                 @if($doc->status !== 'approved')

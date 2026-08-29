@@ -3,7 +3,7 @@
 namespace App\Channels;
 
 use App\Models\Notification;
-use App\Models\NotificationPreference;
+use App\Services\NotificationPreferenceService;
 use Illuminate\Notifications\Notification as NotificationClass;
 
 class DatabaseChannel
@@ -16,7 +16,7 @@ class DatabaseChannel
 
         $category = $data['category'] ?? null;
 
-        if ($category && !NotificationPreference::isEnabled($notifiable->id, $category)) {
+        if ($category && !app(NotificationPreferenceService::class)->isEnabled($notifiable->id, $category)) {
             return;
         }
 

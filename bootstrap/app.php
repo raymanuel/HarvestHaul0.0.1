@@ -14,9 +14,15 @@ return Application::configure(basePath: dirname(__DIR__))
         //
     })
     ->withMiddleware(function (Middleware $middleware) {
+        $middleware->append(\App\Http\Middleware\SecurityHeaders::class);
+        $middleware->append(\App\Http\Middleware\EnsureSchedulerAlive::class);
+
         $middleware->alias([
             'driver' => \App\Http\Middleware\EnsureUserIsDriver::class,
             'admin' => \App\Http\Middleware\EnsureUserIsAdmin::class,
+            'farmer' => \App\Http\Middleware\EnsureUserIsFarmer::class,
+            'logistics' => \App\Http\Middleware\EnsureUserIsLogistics::class,
+            'buyer' => \App\Http\Middleware\EnsureUserIsBuyer::class,
             'role' => \App\Http\Middleware\CheckRole::class,
             'farmer.location' => \App\Http\Middleware\EnsureFarmerHasLocation::class,
         ]);

@@ -4,9 +4,8 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Password;
-use Illuminate\Support\Facades\Mail;
-use App\Mail\PasswordResetMail;
 
 class ForgotPasswordController extends Controller
 {
@@ -25,8 +24,14 @@ class ForgotPasswordController extends Controller
             $request->only('email')
         );
 
-        return $status === Password::RESET_LINK_SENT
-            ? back()->with('status', __($status))
-            : back()->withErrors(['email' => __($status)]);
+        if ($status !== Password::RESET_LINK_SENT) {
+            Log::info('Password reset requested for unknown or throttled address.', [
+                'email' => $request->email,
+                'status' => $status,
+            ]);
+        }
+
+        // Always return the same generic message to prevent account enumeration.
+        return back()->with('status', __('We have emailed your password reset link.'));
     }
 }

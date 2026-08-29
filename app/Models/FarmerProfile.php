@@ -15,11 +15,16 @@ class FarmerProfile extends Model
         'longitude',
         'affiliation_type',
         'cooperative_id',
+        'membership_status',
+        'membership_requested_at',
+        'membership_decided_at',
     ];
 
     protected $casts = [
         'is_verified'      => 'boolean',
-        'affiliation_type' => 'string',
+        'affiliation_type'         => 'string',
+        'membership_requested_at'  => 'datetime',
+        'membership_decided_at'    => 'datetime',
     ];
 
     public function user()
@@ -54,19 +59,21 @@ class FarmerProfile extends Model
         return $this->affiliation_type === 'independent';
     }
 
-    /**
-     * Bounding box pre-filter for proximity queries.
-     * Returns farmer profiles within the approximate rectangular bounds of $radiusKm
-     * around the given coordinates. Apply Haversine in PHP for precise distance.
-     */
-    public function scopeNearby($query, float $lat, float $lng, float $radiusKm)
-    {
-        $latOffset = $radiusKm / 111.32;
-        $lngOffset = $radiusKm / (111.32 * cos(deg2rad($lat)));
+    // NOTE: scopeNearby() will be provided by the shared HasNearbyScope trait
+    // once app/Concerns/HasNearbyScope.php is created by another task.
 
-        return $query->whereNotNull('latitude')
-                     ->whereNotNull('longitude')
-                     ->whereBetween('latitude', [$lat - $latOffset, $lat + $latOffset])
-                     ->whereBetween('longitude', [$lng - $lngOffset, $lng + $lngOffset]);
+    public function scopePendingMembership($query)
+    {
+        return $query->where('membership_status', 'pending');
+    }
+
+    public function scopeApprovedMembership($query)
+    {
+        return $query->where('membership_status', 'approved');
+    }
+
+    public function scopeRejectedMembership($query)
+    {
+        return $query->where('membership_status', 'rejected');
     }
 }

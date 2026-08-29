@@ -19,10 +19,10 @@ class PlanPoolingJobRequest extends FormRequest
             'truck_id'      => ['required', 'integer', 'exists:trucks,id'],
             'harvest_ids'   => ['required', 'array', 'min:1'],
             'harvest_ids.*' => ['integer', 'exists:harvests,id'],
-            'start_lat'     => ['required', 'numeric'],
-            'start_lng'     => ['required', 'numeric'],
-            'end_lat'       => ['required', 'numeric'],
-            'end_lng'       => ['required', 'numeric'],
+            'start_lat'     => ['required', 'numeric', 'between:-90,90'],
+            'start_lng'     => ['required', 'numeric', 'between:-180,180'],
+            'end_lat'       => ['required', 'numeric', 'between:-90,90'],
+            'end_lng'       => ['required', 'numeric', 'between:-180,180'],
             'radius_km'     => ['required', 'numeric', 'min:1'],
         ];
     }

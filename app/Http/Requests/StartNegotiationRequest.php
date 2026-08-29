@@ -8,7 +8,7 @@ class StartNegotiationRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return in_array($this->user()->role, ['buyer', 'farmer', 'logistics_partner'], true);
     }
 
     public function rules(): array

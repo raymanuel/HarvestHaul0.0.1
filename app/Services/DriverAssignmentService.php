@@ -19,15 +19,21 @@ class DriverAssignmentService
 
         if ($drivers->isEmpty()) return null;
 
+        // Fetch the latest heartbeat for all candidate drivers in one query
+        // (avoids an N+1 query per driver on every route assignment).
+        $heartbeatsByDriver = \App\Models\DriverHeartbeat::whereIn('driver_id', $drivers->pluck('id'))
+            ->where('reported_at', '>=', now()->subMinutes(5))
+            ->orderBy('reported_at', 'desc')
+            ->get()
+            ->unique('driver_id')
+            ->keyBy('driver_id');
+
         $closest = null;
         $closestDist = PHP_FLOAT_MAX;
 
         foreach ($drivers as $driver) {
             // Use real-time heartbeat GPS if available (within last 5 min), else fallback to profile
-            $heartbeat = \App\Models\DriverHeartbeat::where('driver_id', $driver->id)
-                ->where('reported_at', '>=', now()->subMinutes(5))
-                ->latest('reported_at')
-                ->first();
+            $heartbeat = $heartbeatsByDriver->get($driver->id);
 
             if ($heartbeat) {
                 $lat = (float) $heartbeat->latitude;

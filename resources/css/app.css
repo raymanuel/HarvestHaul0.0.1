@@ -25,17 +25,25 @@
     --font-display: 'Schibsted Grotesk', 'DM Sans', ui-sans-serif, system-ui, sans-serif;
     --font-mono: 'JetBrains Mono', ui-monospace, monospace;
 
-    /* HarvestHaul Brand — Emerald Noir (dark emerald primary, mint accent, coral action) */
-    --color-brand: #065F46;
-    --color-brand-light: #34D399;
-    --color-brand-dark: #022c22;
-    --color-brand-50: #ecfdf5;
-    --color-brand-100: #d1fae5;
-    --color-brand-200: #a7f3d0;
-    --color-brand-500: #34D399;
-    --color-brand-600: #059669;
-    --color-brand-700: #047857;
-    --color-brand-900: #022c22;
+    /* HarvestHaul Brand — Ink Navy + Gold (navy primary, gold accent, coral action) */
+    --color-brand: #16283C;
+    --color-brand-light: #D7BC7A;
+    --color-brand-dark: #0E1620;
+    --color-brand-50: #eef2f6;
+    --color-brand-100: #dfe6ee;
+    --color-brand-200: #b9c7da;
+    --color-brand-500: #33506B;
+    --color-brand-600: #233B52;
+    --color-brand-700: #1A2A3D;
+    --color-brand-900: #16283c;
+
+    /* Gold accent (active nav, welcome pops, premium emphasis) */
+    --color-accent: #BFA05A;
+    --color-accent-light: #D7BC7A;
+    --color-accent-600: #7C6527;
+    --color-accent-700: #8A7030;
+    --color-accent-50: #f9f6eb;
+    --color-accent-100: #f2ebd4;
 
     --color-harvest: #F26B5E;
     --color-harvest-light: #F98B80;
@@ -46,30 +54,54 @@
     --color-harvest-600: #E14B3D;
     --color-harvest-700: #C23A2E;
 
-    --color-soil: #334155;
-    --color-soil-light: #475569;
+    --color-soil: #435060;
+    --color-soil-light: #7C8A99;
 
-    --color-surface: #FFFFFF;
-    --color-surface-dark: #0B1220;
+    --color-surface: #F5F6F2;
+    --color-surface-dark: #0E1620;
     --color-surface-card: #FFFFFF;
-    --color-surface-card-dark: #022c22;
+    --color-surface-card-dark: #14202D;
     --color-card: #FFFFFF;
 
     --color-success: #15803D;
     --color-success-light: #22C55E;
     --color-success-dark: #14532D;
+    --color-success-text: #15803D;
+    --color-success-text-dark: #4ade80;
+    --color-success-bg: #f0fdf4;
+    --color-success-bg-dark: #052e16;
+    --color-success-border: #bbf7d0;
+    --color-success-border-dark: #166534;
 
     --color-warning: #D97706;
     --color-warning-light: #F59E0B;
     --color-warning-dark: #B45309;
+    --color-warning-text: #92400e;
+    --color-warning-text-dark: #fbbf24;
+    --color-warning-bg: #fffbeb;
+    --color-warning-bg-dark: #451a03;
+    --color-warning-border: #fde68a;
+    --color-warning-border-dark: #924009;
 
     --color-error: #DC2626;
     --color-error-light: #EF4444;
     --color-error-dark: #B91C1C;
+    --color-error-text: #991b1b;
+    --color-error-text-dark: #fca5a5;
+    --color-error-bg: #fef2f2;
+    --color-error-bg-dark: #450a0a;
+    --color-error-border: #fecaca;
+    --color-error-border-dark: #991b1b;
 
     --color-info: #2563EB;
     --color-info-light: #3B82F6;
     --color-info-dark: #1D4ED8;
+    --color-info-text: #1e40af;
+    --color-info-text-dark: #93c5fd;
+    --color-info-bg: #eff6ff;
+    --color-info-bg-dark: #172554;
+    --color-info-border: #bfdbfe;
+    --color-info-border-dark: #1e40af;
 }
 
 /* Respect user motion preferences */
@@ -109,6 +141,13 @@ html.dark input[type="date"]::-webkit-calendar-picker-indicator {
     background-color: var(--color-surface-card);
 }
 
+/* App-shell dark cards: ink navy card surface (#14202D) not slate-800.
+   Mirrors the light-mode .bg-white override above; leaves dark:bg-slate-900
+   insets (inputs, table footers) intact for contrast. */
+:where(html.dark) :where(.app-shell) .dark\:bg-slate-800 {
+    background-color: var(--color-surface-card-dark);
+}
+
 /* Mobile fixed header offset - prevent content hiding behind fixed header on mobile */
 @media (max-width: 1023px) {
     #main-content > main { padding-top: 4.5rem !important; }
@@ -124,6 +163,7 @@ button:not(:disabled) {
 body {
     font-family: 'DM Sans', sans-serif;
     font-weight: 500;
+    background-color: var(--color-surface, #F5F6F2);
 }
 
 .heading-font {

@@ -17,11 +17,16 @@ class LogisticsProfile extends Model
         'phone',
         'is_verified',
         'logistics_type',
+        'office_address',
+        'latitude',
+        'longitude',
+        'default_hauling_rate',
     ];
 
     protected $casts = [
         'is_verified'    => 'boolean',
         'logistics_type' => 'string',
+        'default_hauling_rate' => 'decimal:2',
     ];
 
     public function user()
@@ -37,6 +42,11 @@ class LogisticsProfile extends Model
     public function trucks()
     {
         return $this->hasMany(Truck::class);
+    }
+
+    public function haulIntents()
+    {
+        return $this->hasMany(HaulIntent::class);
     }
 
     public function availableTrucks()

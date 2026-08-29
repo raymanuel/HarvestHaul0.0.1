@@ -1,19 +1,18 @@
-﻿<x-layout>
+<x-layout>
 <div class="w-full max-w-7xl mx-auto pb-12">
 
     <div class="relative z-10">
         <!-- Page Header -->
-        <header class="mb-8 pt-6">
+        <header class="mb-8 pt-8">
             <div class="flex items-center gap-2 mb-2">
-                <a href="{{ route('dashboard') }}" class="text-xs font-bold text-[#3A7D44] dark:text-[#3A7D44] hover:underline flex items-center gap-1">
+                <a href="{{ route('dashboard') }}" class="text-xs font-bold text-[#16283C] dark:text-[#D7BC7A] hover:underline flex items-center gap-1">
                     ← Dashboard
                 </a>
             </div>
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <span class="text-[10px] font-bold uppercase tracking-widest text-[#3A7D44] dark:text-[#3A7D44] bg-[#3A7D44]/10 dark:bg-[#3A7D44]/10 px-3 py-1 rounded-full border border-[#3A7D44]/20">Deals Workspace</span>
+                    <span class="text-[10px] font-bold uppercase tracking-widest text-[#16283C] dark:text-[#D7BC7A] bg-[#16283C]/10 dark:bg-[#16283C]/10 px-3 py-1 rounded-full border border-[#16283C]/20">Deals Workspace</span>
                     <h1 class="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight heading-font mt-3">My B2B Sales Negotiations</h1>
-                    <p class="text-sm text-slate-505 dark:text-slate-400 mt-1 font-medium">Trace buyer inquiries, price updates, and close sales for your listed harvests.</p>
                 </div>
             </div>
         </header>
@@ -54,22 +53,22 @@
                                         {{ $negotiation->buyer->name ?? 'Buyer' }}
                                     </td>
                                     <td class="p-5 text-right font-mono font-extrabold text-slate-800 dark:text-white text-xs">
-                                        ₱{{ number_format($negotiation->offered_price ?? 0, 2) }} / kg
+                                        ₱{{ number_format($negotiation->negotiated_price ?? 0, 2) }} / kg
                                     </td>
                                     <td class="p-5 text-right font-mono font-bold text-slate-500 dark:text-slate-400 text-xs">
                                         {{ number_format($negotiation->negotiated_volume ?? 0) }} kg
                                     </td>
                                     <td class="p-5 text-center whitespace-nowrap">
                                         <span class="text-[9px] font-extrabold uppercase tracking-widest px-2.5 py-1 rounded border
-                                            @if($negotiation->status === 'OPEN') text-harvest-700 bg-harvest/10 border-harvest/10 dark:text-harvest dark:bg-harvest/20 dark:border-harvest/20
-                                            @elseif($negotiation->status === 'AGREED') text-[#3A7D44] bg-[#3A7D44]/10 border-[#3A7D44]/10 dark:text-[#3A7D44] dark:bg-[#3A7D44]/20 dark:border-[#3A7D44]/20
-                                            @elseif($negotiation->status === 'COMPLETED') text-[#1F4D25] bg-[#1F4D25]/10 border-[#1F4D25]/10 dark:text-[#3A7D44] dark:bg-[#3A7D44]/20 dark:border-[#3A7D44]/20
+                                            @if($negotiation->status->value === 'OPEN') text-harvest-700 bg-harvest/10 border-harvest/10 dark:text-harvest dark:bg-harvest/20 dark:border-harvest/20
+                                            @elseif($negotiation->status->value === 'AGREED') text-[#16283C] bg-[#16283C]/10 border-[#16283C]/10 dark:text-[#D7BC7A] dark:bg-[#16283C]/20 dark:border-[#16283C]/20
+                                            @elseif($negotiation->status->value === 'COMPLETED') text-[#0E1620] bg-[#0E1620]/10 border-[#0E1620]/10 dark:text-[#D7BC7A] dark:bg-[#16283C]/20 dark:border-[#16283C]/20
                                             @else text-slate-500 bg-slate-500/10 border-slate-500/10 dark:text-slate-400 dark:bg-slate-500/20 dark:border-slate-500/20 @endif">
-                                            {{ $negotiation->status }}
+                                            {{ $negotiation->status->value }}
                                         </span>
                                     </td>
                                     <td class="p-5 text-center whitespace-nowrap">
-                                        <a href="{{ route('negotiations.room', $negotiation->id) }}" class="inline-flex items-center gap-1 text-xs font-bold text-[#3A7D44] dark:text-[#3A7D44] hover:underline">
+                                        <a href="{{ route('negotiations.room', $negotiation->id) }}" class="inline-flex items-center gap-1 text-xs font-bold text-[#16283C] dark:text-[#D7BC7A] hover:underline">
                                             Enter Room <span>→</span>
                                         </a>
                                     </td>

@@ -1,16 +1,24 @@
 {
   "name": "HarvestHaul",
   "short_name": "HarvestHaul",
-  "start_url": "/",
+  "description": "B2B Crop Distribution & Logistics — General Santos City",
+  "start_url": "/driver",
   "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone"],
   "background_color": "#1e293b",
-  "theme_color": "#10b981",
+  "theme_color": "#3A7D44",
   "orientation": "portrait",
   "icons": [
     {
       "src": "/images/logo_pwa.png",
       "type": "image/png",
       "sizes": "512x512",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/images/logo_pwa-192.png",
+      "type": "image/png",
+      "sizes": "192x192",
       "purpose": "any maskable"
     }
   ]

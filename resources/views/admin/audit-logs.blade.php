@@ -1,11 +1,10 @@
-﻿<x-layout>
+<x-layout>
 <div class="w-full max-w-7xl mx-auto">
 
-    <header class="mb-8">
+    <header class="pt-8 mb-8">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
                 <h1 class="text-2xl font-extrabold text-slate-800 dark:text-white heading-font tracking-tight">System Audit Logs</h1>
-                <p class="text-sm text-slate-400 dark:text-slate-500 mt-1 font-semibold">Full history of admin actions performed on the platform</p>
             </div>
             <span class="text-[10px] font-bold uppercase tracking-widest text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-900/50 px-3 py-1.5 rounded-lg border border-slate-200/50 dark:border-slate-700 self-start">Activity Log</span>
         </div>

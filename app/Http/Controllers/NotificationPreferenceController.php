@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\NotificationPreference;
+use App\Services\NotificationPreferenceService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -10,7 +11,11 @@ class NotificationPreferenceController extends Controller
 {
     public function index()
     {
-        $preferences = NotificationPreference::getAllForUser(Auth::id());
+        $preferences = app(NotificationPreferenceService::class)->getAllForUser(Auth::id());
+
+        if (Auth::user()->role === 'farmer') {
+            unset($preferences['weather']);
+        }
 
         return view('settings.notifications', compact('preferences'));
     }

@@ -21,11 +21,14 @@ class StoreHarvestRequest extends FormRequest
             return false;
         }
 
-        if (is_null($farmerProfile->latitude) || is_null($farmerProfile->longitude)) {
-            return false;
-        }
-
         return true;
+    }
+
+    protected function prepareForValidation(): void
+    {
+        if (in_array($this->input('destination_id'), ['custom', 'coop'], true)) {
+            $this->merge(['destination_id' => null]);
+        }
     }
 
     public function rules(): array
@@ -56,6 +59,10 @@ class StoreHarvestRequest extends FormRequest
             'destination_longitude' => ['required', 'numeric', 'between:-180,180'],
             'crop_photos'           => ['nullable', 'array', 'max:5'],
             'crop_photos.*'         => ['nullable', 'image', 'max:5120'],
+            'popup_latitude'        => ['nullable', 'numeric', 'between:-90,90'],
+            'popup_longitude'       => ['nullable', 'numeric', 'between:-180,180'],
+            'popup_address'         => ['nullable', 'string', 'max:500'],
+            'popup_save_permanently'=> ['nullable', 'boolean'],
         ];
     }
 

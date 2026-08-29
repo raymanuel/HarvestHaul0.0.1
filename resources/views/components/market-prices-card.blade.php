@@ -22,20 +22,20 @@
         <div class="flex items-center justify-between">
             <div>
                 <h2 class="text-sm font-extrabold text-slate-900 dark:text-white heading-font">DA RFO12 Market Prices</h2>
-                <a href="{{ $sourceUrl }}" target="_blank" rel="noopener" class="inline-flex items-center gap-1 text-[9px] font-bold text-blue-500 dark:text-blue-400 hover:underline mt-0.5">
+                <a href="{{ $sourceUrl }}" target="_blank" rel="noopener" class="inline-flex items-center gap-1 text-[9px] font-bold text-slate-500 dark:text-slate-400 hover:text-brand-700 dark:hover:text-brand-light hover:underline mt-0.5" aria-label="Visit DA RFO12 website (opens in new tab)">
                     {{ $sourceUrl }}
-                    <svg class="w-2.5 h-2.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                    <svg class="w-2.5 h-2.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
                 </a>
             </div>
             <div class="flex items-center gap-2">
                 @if($scraperFailed)
-                    <span class="text-[9px] font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/30 border border-amber-200/50 dark:border-amber-700/30 px-2 py-0.5 rounded flex items-center gap-1">
+                    <span class="text-[9px] font-bold text-[var(--color-warning-text)] bg-[var(--color-warning-bg)] border border-[var(--color-warning-border)] px-2 py-0.5 rounded flex items-center gap-1">
                         <svg class="w-2.5 h-2.5 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
                         Scraper Error
                     </span>
                 @endif
                 @if($latestDate)
-                    <span class="text-[9px] font-bold {{ $dataIsStale ? 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/30 border-amber-200/50 dark:border-amber-700/30' : 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 border-blue-200/50 dark:border-blue-700/30' }} px-2 py-0.5 rounded border">
+                    <span class="text-[9px] font-bold {{ $dataIsStale ? 'text-[var(--color-warning-text)] bg-[var(--color-warning-bg)] border-[var(--color-warning-border)]' : 'text-[var(--color-info-text)] bg-[var(--color-info-bg)] border-[var(--color-info-border)]' }} px-2 py-0.5 rounded border">
                         {{ \Carbon\Carbon::parse($latestDate)->format('M d, Y') }}
                         @if($dataIsStale)
                             — {{ \Carbon\Carbon::parse($latestDate)->diffForHumans(null, true) }} old
@@ -55,16 +55,19 @@
                     Last scraper run failed on {{ $scraperStatus['last_run_at'] ? \Carbon\Carbon::parse($scraperStatus['last_run_at'])->format('M d, Y h:i A') : 'unknown date' }}. Showing oldest available data.
                 @endif
             </p>
+            @if(!empty($scraperStatus['message']) && $scraperStatus['status'] !== 'never_run')
+                <p class="text-[10px] text-amber-700 dark:text-amber-500 mt-0.5">{{ $scraperStatus['message'] }}</p>
+            @endif
         </div>
     @endif
 
     @if($daPrices->isEmpty())
         <div class="py-12 text-center">
-            <svg class="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
+            <svg class="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
             </svg>
-            <p class="text-xs text-slate-400 dark:text-slate-500 font-semibold">No price data available yet.</p>
-            <p class="text-[10px] text-slate-300 dark:text-slate-600 mt-1">Prices are scraped from DA RFO12 throughout the day.</p>
+            <p class="text-xs text-slate-500 dark:text-slate-400 font-semibold">No price data available yet.</p>
+            <p class="text-[10px] text-slate-500 dark:text-slate-600 mt-1">Prices are scraped from DA RFO12 throughout the day.</p>
         </div>
     @else
         @if($compact)
@@ -77,20 +80,20 @@
                     <div class="flex items-center justify-between py-2.5 first:pt-0 last:pb-0">
                         <div class="flex-1 min-w-0">
                             <p class="text-[11px] font-bold text-slate-800 dark:text-slate-200 truncate">{{ $trend['commodity'] }}</p>
-                            <p class="text-[9px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">{{ $trend['category'] }}</p>
+                            <p class="text-[9px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{{ $trend['category'] }}</p>
                         </div>
                         <div class="flex items-center gap-3 ml-4 shrink-0">
                             <div class="text-right">
                                 <p class="text-[12px] font-mono font-extrabold text-slate-900 dark:text-white">₱{{ number_format($trend['price'], 2) }}</p>
-                                <p class="text-[8px] font-semibold text-slate-400 dark:text-slate-500 uppercase">DPI/kg</p>
+                                <p class="text-[8px] font-semibold text-slate-500 dark:text-slate-400 uppercase">DPI/kg</p>
                             </div>
                             <div class="w-14 text-right">
                                 @if($trend['trend'] === 'up')
-                                    <span class="text-[9px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 px-1.5 py-0.5 rounded">▲{{ $trend['change_pct'] }}%</span>
+                                    <span class="text-[9px] font-bold text-[var(--color-success-text)] bg-[var(--color-success-bg)] px-1.5 py-0.5 rounded">▲{{ $trend['change_pct'] }}%</span>
                                 @elseif($trend['trend'] === 'down')
-                                    <span class="text-[9px] font-bold text-red-500 dark:text-red-400 bg-red-50 dark:bg-red-900/20 px-1.5 py-0.5 rounded">▼{{ $trend['change_pct'] }}%</span>
+                                    <span class="text-[9px] font-bold text-[var(--color-error-text)] bg-[var(--color-error-bg)] px-1.5 py-0.5 rounded">▼{{ $trend['change_pct'] }}%</span>
                                 @else
-                                    <span class="text-[9px] font-bold text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-slate-800 px-1.5 py-0.5 rounded">▬</span>
+                                    <span class="text-[9px] font-bold text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800 px-1.5 py-0.5 rounded">▬</span>
                                 @endif
                             </div>
                         </div>
@@ -99,53 +102,60 @@
             </div>
         @else
             {{-- FULL MODE: Complete table --}}
-            <div class="overflow-x-auto">
-                <table class="w-full text-left">
+            <div class="px-6 pt-3 pb-2">
+                <input type="text" id="price-search" placeholder="Search commodity..." aria-label="Search commodity prices"
+                    class="w-full border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-2 text-xs bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-[#16283C]/30 focus:border-transparent transition">
+            </div>
+            <div class="overflow-x-auto relative">
+                <div class="sm:hidden absolute top-0 right-0 bottom-0 w-8 bg-gradient-to-l from-white dark:from-slate-800 to-transparent pointer-events-none z-10"></div>
+                <table id="price-table" class="w-full text-left" aria-label="DA RFO12 market prices">
                     <thead>
                         <tr class="border-b border-slate-100 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-900/30">
-                            <th class="px-6 py-2.5 text-[9px] font-extrabold uppercase tracking-widest text-slate-400 dark:text-slate-500">Category</th>
-                            <th class="px-3 py-2.5 text-[9px] font-extrabold uppercase tracking-widest text-slate-400 dark:text-slate-500">Commodity</th>
-                            <th class="px-3 py-2.5 text-[9px] font-extrabold uppercase tracking-widest text-slate-400 dark:text-slate-500 text-right">Low (₱/kg)</th>
-                            <th class="px-3 py-2.5 text-[9px] font-extrabold uppercase tracking-widest text-slate-400 dark:text-slate-500 text-right">High (₱/kg)</th>
-                            <th class="px-3 py-2.5 text-[9px] font-extrabold uppercase tracking-widest text-slate-400 dark:text-slate-500 text-right">Common (Retail)</th>
-                            <th class="px-3 py-2.5 text-[9px] font-extrabold uppercase tracking-widest text-slate-400 dark:text-slate-500 text-right">DPI (Prevailing Avg)</th>
-                            <th class="px-6 py-2.5 text-[9px] font-extrabold uppercase tracking-widest text-slate-400 dark:text-slate-500 text-right w-16">Trend</th>
+                            <th class="px-6 py-2.5 text-[9px] font-extrabold uppercase tracking-widest text-slate-500 dark:text-slate-400">Category</th>
+                            <th class="px-3 py-2.5 text-[9px] font-extrabold uppercase tracking-widest text-slate-500 dark:text-slate-400">Commodity</th>
+                            <th class="px-3 py-2.5 text-[9px] font-extrabold uppercase tracking-widest text-slate-500 dark:text-slate-400 text-right">Low (₱/kg)</th>
+                            <th class="px-3 py-2.5 text-[9px] font-extrabold uppercase tracking-widest text-slate-500 dark:text-slate-400 text-right">High (₱/kg)</th>
+                            <th class="px-3 py-2.5 text-[9px] font-extrabold uppercase tracking-widest text-slate-500 dark:text-slate-400 text-right">Common (Retail)</th>
+                            <th class="px-3 py-2.5 text-[9px] font-extrabold uppercase tracking-widest text-slate-500 dark:text-slate-400 text-right">DPI (Prevailing Avg)</th>
+                            <th class="px-6 py-2.5 text-[9px] font-extrabold uppercase tracking-widest text-slate-500 dark:text-slate-400 text-right w-16">Trend</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-50 dark:divide-slate-700/30">
                         @foreach($sortedCategories as $category)
-                            <tr class="bg-slate-50/80 dark:bg-slate-900/20">
+                            <tr class="bg-slate-50/80 dark:bg-slate-900/20" data-category-header="{{ $category }}">
                                 <td colspan="7" class="px-6 py-1.5">
                                     <div class="flex items-center gap-2">
-                                        <span class="text-[10px] font-extrabold uppercase tracking-widest text-[#3A7D44] dark:text-[#4ea857]">{{ $category }}</span>
-                                        <span class="text-[9px] font-bold text-slate-400 dark:text-slate-500">({{ $grouped[$category]->count() }} {{ Str::plural('item', $grouped[$category]->count()) }})</span>
+                                        <span class="text-[10px] font-extrabold uppercase tracking-widest text-[#16283C] dark:text-[#D7BC7A]">{{ $category }}</span>
+                                        <span class="text-[9px] font-bold text-slate-500 dark:text-slate-400">({{ $grouped[$category]->count() }} {{ Str::plural('item', $grouped[$category]->count()) }})</span>
                                         <span class="flex-1 h-px bg-slate-200/60 dark:bg-slate-700/40"></span>
                                     </div>
                                 </td>
                             </tr>
                             @foreach($grouped[$category] as $trend)
-                                <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-700/20 transition-colors">
-                                    <td class="px-6 py-2 text-[10px] font-bold text-slate-400 dark:text-slate-500">{{ $category }}</td>
+                                <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-700/20 transition-colors"
+                                    data-commodity="{{ $trend['commodity'] }}"
+                                    data-category="{{ $category }}">
+                                    <td class="px-6 py-2 text-[10px] font-bold text-slate-500 dark:text-slate-400">{{ $category }}</td>
                                     <td class="px-3 py-2 text-[11px] font-bold text-slate-800 dark:text-slate-200">{{ $trend['commodity'] }}</td>
                                     <td class="px-3 py-2 text-[11px] font-mono font-extrabold text-slate-600 dark:text-slate-400 text-right">
                                         @if($trend['low'])
                                             ₱{{ number_format($trend['low'], 2) }}
                                         @else
-                                            <span class="text-slate-300 dark:text-slate-600">—</span>
+                                            <span class="text-slate-400 dark:text-slate-600">—</span>
                                         @endif
                                     </td>
                                     <td class="px-3 py-2 text-[11px] font-mono font-extrabold text-slate-600 dark:text-slate-400 text-right">
                                         @if($trend['high'])
                                             ₱{{ number_format($trend['high'], 2) }}
                                         @else
-                                            <span class="text-slate-300 dark:text-slate-600">—</span>
+                                            <span class="text-slate-400 dark:text-slate-600">—</span>
                                         @endif
                                     </td>
                                     <td class="px-3 py-2 text-[11px] font-mono font-extrabold text-slate-700 dark:text-slate-300 text-right">
                                         @if($trend['common'])
                                             ₱{{ number_format($trend['common'], 2) }}
                                         @else
-                                            <span class="text-slate-300 dark:text-slate-600">—</span>
+                                            <span class="text-slate-400 dark:text-slate-600">—</span>
                                         @endif
                                     </td>
                                     <td class="px-3 py-2 text-[11px] font-mono font-extrabold text-slate-900 dark:text-white text-right">
@@ -153,11 +163,11 @@
                                     </td>
                                     <td class="px-6 py-2 text-right">
                                         @if($trend['trend'] === 'up')
-                                            <span class="text-[9px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 px-1.5 py-0.5 rounded">▲ +{{ $trend['change_pct'] }}%</span>
+                                            <span class="text-[9px] font-bold text-[var(--color-success-text)] bg-[var(--color-success-bg)] px-1.5 py-0.5 rounded">▲ +{{ $trend['change_pct'] }}%</span>
                                         @elseif($trend['trend'] === 'down')
-                                            <span class="text-[9px] font-bold text-red-500 dark:text-red-400 bg-red-50 dark:bg-red-900/20 px-1.5 py-0.5 rounded">▼ {{ $trend['change_pct'] }}%</span>
+                                            <span class="text-[9px] font-bold text-[var(--color-error-text)] bg-[var(--color-error-bg)] px-1.5 py-0.5 rounded">▼ {{ $trend['change_pct'] }}%</span>
                                         @else
-                                            <span class="text-[9px] font-bold text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-slate-800 px-1.5 py-0.5 rounded">▬ Stable</span>
+                                            <span class="text-[9px] font-bold text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800 px-1.5 py-0.5 rounded">▬ Stable</span>
                                         @endif
                                     </td>
                                 </tr>
@@ -166,14 +176,46 @@
                     </tbody>
                 </table>
             </div>
+            <script>
+                (function() {
+                    var input = document.getElementById('price-search');
+                    if (!input) return;
+                    input.addEventListener('input', function() {
+                        var q = this.value.toLowerCase().trim();
+                        var rows = document.querySelectorAll('#price-table tbody tr[data-commodity]');
+                        var headers = document.querySelectorAll('#price-table tbody tr[data-category-header]');
+
+                        rows.forEach(function(row) {
+                            var commodity = (row.getAttribute('data-commodity') || '').toLowerCase();
+                            var category = (row.getAttribute('data-category') || '').toLowerCase();
+                            var match = !q || commodity.includes(q) || category.includes(q);
+                            row.style.display = match ? '' : 'none';
+                        });
+
+                        headers.forEach(function(header) {
+                            var category = header.getAttribute('data-category-header');
+                            var hasVisible = false;
+                            var el = header.nextElementSibling;
+                            while (el && !el.hasAttribute('data-category-header')) {
+                                if (el.hasAttribute('data-commodity') && el.style.display !== 'none') {
+                                    hasVisible = true;
+                                    break;
+                                }
+                                el = el.nextElementSibling;
+                            }
+                            header.style.display = hasVisible ? '' : 'none';
+                        });
+                    });
+                })();
+            </script>
         @endif
     @endif
 
     {{-- Footer --}}
     <div class="px-6 py-3 border-t border-slate-100 dark:border-slate-700/50 bg-slate-50/30 dark:bg-slate-900/20 flex items-center justify-between">
-        <p class="text-[9px] text-slate-400 dark:text-slate-500 font-medium">{{ $daPrices->count() }} commodities tracked</p>
+        <p class="text-[9px] text-slate-500 dark:text-slate-400 font-medium">{{ $daPrices->count() }} commodities tracked</p>
         @if($compact && $daPrices->isNotEmpty())
-            <a href="{{ route('prices.full') }}" class="text-[10px] font-bold text-[#3A7D44] dark:text-[#4ea857] hover:underline transition inline-flex items-center gap-1">
+            <a href="{{ route('prices.full') }}" class="text-[10px] font-bold text-[#16283C] dark:text-[#D7BC7A] hover:underline transition inline-flex items-center gap-1">
                 View All Prices <span>→</span>
             </a>
         @endif

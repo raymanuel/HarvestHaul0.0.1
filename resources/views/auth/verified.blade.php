@@ -1,17 +1,29 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="overflow-x-hidden">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#16283C">
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js').then(function(reg) {
+                    console.log('Service Worker registered: ', reg.scope);
+                }).catch(function(err) {
+                    console.error('Service Worker registration failed: ', err);
+                });
+            });
+        }
+    </script>
     <title>Email Verified — HarvestHaul</title>
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/fonts/fonts.css" />
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
-            font-family: 'Figtree', sans-serif;
-            background: linear-gradient(135deg, #f1f5f9 0%, #faf5ff 50%, #eff6ff 100%);
+            font-family: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+            background: #FAFAFA;
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -40,7 +52,8 @@
 
         h1 {
             font-size: 1.4rem;
-            font-weight: 700;
+            font-weight: 800;
+            font-family: 'Schibsted Grotesk', 'DM Sans', sans-serif;
             color: #111827;
             margin-bottom: 0.5rem;
         }
@@ -64,7 +77,7 @@
         .progress-bar {
             height: 100%;
             width: 100%;
-            background: #2D8A37;
+            background: #16283C;
             border-radius: 9999px;
             transform-origin: left;
             animation: drain 5s linear forwards;
@@ -90,7 +103,7 @@
             display: none;
             width: 100%;
             padding: 0.875rem;
-            background: #111827;
+            background: #16283C;
             color: white;
             border: none;
             border-radius: 0.75rem;
@@ -101,12 +114,17 @@
             transition: background 0.2s;
         }
 
-        .fallback-btn:hover { background: #000; }
+        .fallback-btn:hover { background: #0E1620; }
     </style>
 </head>
-<body>
+<body class="overflow-x-hidden">
     <div class="card">
-        <span class="icon"><x-icon name="check" class="w-4 h-4" /></span>
+        <span class="icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#16283C" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10" stroke-width="2"></circle>
+                <path d="m8.5 12.5 2.5 2.5 5-5.5"></path>
+            </svg>
+        </span>
         <h1>Email Verified</h1>
         <p class="sub">
             Your HarvestHaul account is now active.<br>

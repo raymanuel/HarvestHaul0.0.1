@@ -1,7 +1,7 @@
-﻿<x-driver-layout title="Job #{{ $job->id }} — HarvestHaul" themeColor="#059669">
+<x-driver-layout title="Job #{{ $job->id }} — HarvestHaul" themeColor="#16283C">
 
     <!-- Top Header Panel -->
-    <header class="bg-gradient-to-tr from-[#3A7D44] to-[#2E6336] text-white px-5 pt-6 pb-5 sticky top-0 z-20 shadow-md">
+    <header class="bg-brand-700 text-white px-5 pt-6 pb-5 sticky top-0 z-20 shadow-md">
         <div class="flex items-center gap-4 max-w-lg mx-auto">
             <a href="{{ route('driver.dashboard') }}" class="text-white bg-white/10 hover:bg-white/20 p-2 rounded-xl border border-white/10 transition-all">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
@@ -9,7 +9,7 @@
                 </svg>
             </a>
             <div>
-                <p class="text-[10px] text-[#3A7D44]/60 font-bold uppercase tracking-widest">Cargo Details</p>
+                <p class="text-[10px] text-[#16283C]/60 font-bold uppercase tracking-widest">Cargo Details</p>
                 <h1 class="text-xl font-bold leading-tight heading-font mt-0.5">Job #{{ $job->id }}</h1>
             </div>
         </div>
@@ -32,11 +32,11 @@
                     <p class="text-[11px] text-slate-400 font-semibold mt-1">{{ number_format($job->load_percentage, 1) }}% truck capacity utilized</p>
                 </div>
                 @php
-                    $badge = match($job->status) {
-                        'confirmed'   => ['bg-amber-50 text-amber-700 border-amber-200/50',  'Ready'],
-                        'in_progress' => ['bg-[#1F4D25]/10 text-[#1F4D25] border-[#1F4D25]/20',    'In Transit'],
-                        'completed'   => ['bg-[#3A7D44]/10 text-[#3A7D44] border-[#3A7D44]/20',  'Completed'],
-                        default       => ['bg-slate-50 text-slate-500 border-slate-200/50',    ucfirst($job->status)],
+                    $badge = match($job->status->value) {
+                        'confirmed'   => ['bg-[var(--color-warning-bg)] text-[var(--color-warning-text)] border-[var(--color-warning-border)]',  'Ready'],
+                        'in_progress' => ['bg-[#0E1620]/10 text-[#0E1620] border-[#0E1620]/20',    'In Transit'],
+                        'completed'   => ['bg-[#16283C]/10 text-[#16283C] border-[#16283C]/20',  'Completed'],
+                        default       => ['bg-slate-50 text-slate-500 border-slate-200/50',    $job->status->label()],
                     };
                 @endphp
                 <span class="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-md border {{ $badge[0] }}">
@@ -56,14 +56,14 @@
 
         <!-- Coordinator Instructions -->
         @if($job->notes)
-            <div class="bg-amber-50/60 border border-amber-200/80 rounded-2xl p-5 shadow-sm">
-                <p class="text-[10px] font-bold text-amber-700 uppercase tracking-widest mb-2 flex items-center gap-1"><x-icon name="document" class="w-3 h-3" /> Dispatch Instructions</p>
-                <p class="text-xs text-amber-800 leading-relaxed font-semibold">{{ $job->notes }}</p>
+            <div class="bg-[var(--color-warning-bg)] border border-[var(--color-warning-border)] rounded-2xl p-5 shadow-sm">
+                <p class="text-[10px] font-bold text-[var(--color-warning-text)] uppercase tracking-widest mb-2 flex items-center gap-1"><x-icon name="document" class="w-3 h-3" /> Dispatch Instructions</p>
+                <p class="text-xs text-[var(--color-warning-text)] leading-relaxed font-semibold">{{ $job->notes }}</p>
             </div>
         @endif
 
         <!-- Quick Fuel Log Form -->
-        @if($job->status === 'in_progress')
+        @if($job->status->value === 'in_progress')
             <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm">
                 <h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-1">
                     <x-icon name="fuel" class="w-3 h-3" /> Log Fuel Purchase
@@ -72,19 +72,19 @@
                     @csrf
                     <div class="grid grid-cols-3 gap-2">
                         <div>
-                            <label class="block text-[9px] font-bold text-slate-400 uppercase mb-1">Liters</label>
-                            <input type="number" step="0.01" name="fuel_liters" required placeholder="0.00"
-                                class="w-full border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-700 font-bold focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/10 focus:border-[#3A7D44]">
+                            <label for="fuel_liters" class="block text-[9px] font-bold text-slate-400 uppercase mb-1">Liters</label>
+                            <input type="number" step="0.01" name="fuel_liters" id="fuel_liters" required placeholder="0.00"
+                                class="w-full border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-700 font-bold focus:outline-none focus:ring-2 focus:ring-[#16283C]/10 focus:border-[#16283C]">
                         </div>
                         <div>
-                            <label class="block text-[9px] font-bold text-slate-400 uppercase mb-1">Cost (₱)</label>
-                            <input type="number" step="0.01" name="cost" required placeholder="0.00"
-                                class="w-full border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-700 font-bold focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/10 focus:border-[#3A7D44]">
+                            <label for="cost" class="block text-[9px] font-bold text-slate-400 uppercase mb-1">Cost (₱)</label>
+                            <input type="number" step="0.01" name="cost" id="cost" required placeholder="0.00"
+                                class="w-full border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-700 font-bold focus:outline-none focus:ring-2 focus:ring-[#16283C]/10 focus:border-[#16283C]">
                         </div>
                         <div>
-                            <label class="block text-[9px] font-bold text-slate-400 uppercase mb-1">Odometer (km)</label>
-                            <input type="number" step="0.1" name="odometer_reading" required placeholder="0.0"
-                                class="w-full border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-700 font-bold focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/10 focus:border-[#3A7D44]">
+                            <label for="odometer_reading" class="block text-[9px] font-bold text-slate-400 uppercase mb-1">Odometer (km)</label>
+                            <input type="number" step="0.1" name="odometer_reading" id="odometer_reading" required placeholder="0.0"
+                                class="w-full border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-700 font-bold focus:outline-none focus:ring-2 focus:ring-[#16283C]/10 focus:border-[#16283C]">
                         </div>
                     </div>
                     <button type="submit" class="w-full py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl shadow-sm transition">
@@ -94,8 +94,19 @@
             </div>
         @endif
 
+        <!-- Accept Job Action -->
+        @if($job->status->value === 'confirmed' && !$job->accepted_at)
+            <form method="POST" action="{{ route('driver.jobs.accept', $job) }}">
+                @csrf
+                <x-button type="submit" size="lg" full class="rounded-2xl active:scale-[0.98]">
+                    Accept Job
+                </x-button>
+            </form>
+            <p class="text-[10px] text-slate-400 text-center -mt-2 font-semibold">Accept before starting the trip.</p>
+        @endif
+
         <!-- Status Action Button -->
-        @if(in_array($job->status, ['confirmed', 'in_progress']))
+        @if(in_array($job->status->value, ['confirmed', 'in_progress']))
             @php
                 $allStopsDelivered = true;
                 foreach($job->harvests as $h) {
@@ -107,15 +118,20 @@
             @endphp
             <form method="POST" action="{{ route('driver.jobs.status', $job) }}">
                 @csrf @method('PATCH')
-                @if($job->status === 'confirmed')
-                    <button type="submit" class="w-full py-4 bg-gradient-to-tr from-[#1F4D25] to-[#2E6336] hover:shadow-[#1F4D25]/10 rounded-2xl text-xs font-bold text-white transition-all shadow-md active:scale-[0.98]">
+                @if($job->status->value === 'confirmed')
+                    <x-button type="submit" size="lg" full class="rounded-2xl active:scale-[0.98]" :disabled="!$job->accepted_at">
                         Start Job — Mark In Transit
-                    </button>
+                    </x-button>
                 @else
                     @if($allStopsDelivered)
-                        <button type="submit" class="w-full py-4 bg-gradient-to-tr from-[#3A7D44] to-[#2E6336] hover:shadow-[#3A7D44]/10 rounded-2xl text-xs font-bold text-white transition-all shadow-md active:scale-[0.98]">
+                        <div class="mb-3">
+                            <label for="end_odometer_reading" class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">End Odometer (km)</label>
+                            <input type="number" step="0.01" min="0.01" name="end_odometer_reading" id="end_odometer_reading" required placeholder="0.00"
+                                class="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-xs text-slate-700 font-bold focus:outline-none focus:ring-2 focus:ring-[#16283C]/10 focus:border-[#16283C]">
+                        </div>
+                        <x-button type="submit" size="lg" full class="rounded-2xl active:scale-[0.98]">
                             Finalize Job — Mark Completed
-                        </button>
+                        </x-button>
                     @else
                         <button type="button" disabled class="w-full py-4 bg-slate-200 text-slate-400 rounded-2xl text-xs font-bold cursor-not-allowed">
                             Complete Stop Deliveries to Finalize Job
@@ -134,7 +150,7 @@
 
                     <!-- Stop Header -->
                     <div class="flex items-center gap-3 px-5 py-4 border-b border-slate-100 bg-slate-50/20">
-                        <div class="w-7 h-7 rounded-xl bg-gradient-to-tr from-[#3A7D44] to-[#2E6336] text-white text-xs font-black flex items-center justify-center flex-shrink-0 heading-font">
+                        <div class="w-7 h-7 rounded-xl bg-brand-700 text-white text-xs font-black flex items-center justify-center flex-shrink-0 heading-font">
                             {{ $index + 1 }}
                         </div>
                         <div class="min-w-0">
@@ -182,42 +198,54 @@
                             <span class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Stop Status</span>
                             <span class="text-xs font-bold uppercase
                                 @if($harvest->pivot->status === 'assigned') text-slate-500
-                                @elseif($harvest->pivot->status === 'arrived') text-amber-600
-                                @elseif($harvest->pivot->status === 'loaded') text-[#1F4D25]
-                                @elseif($harvest->pivot->status === 'delivered') text-[#3A7D44]
+                                @elseif($harvest->pivot->status === 'arrived') text-[var(--color-warning-text)]
+                                @elseif($harvest->pivot->status === 'loaded') text-[#0E1620]
+                                @elseif($harvest->pivot->status === 'delivered') text-[#16283C]
                                 @endif">
                                 {{ strtoupper($harvest->pivot->status ?? 'assigned') }}
                             </span>
                         </div>
 
-                        @if($job->status === 'in_progress')
+        @if($job->status->value === 'in_progress')
                             @if($harvest->pivot->status === 'assigned')
                                 <form method="POST" action="{{ route('driver.jobs.stop.status', [$job, $harvest->id]) }}">
                                     @csrf @method('PATCH')
                                     <input type="hidden" name="status" value="arrived">
-                                    <button type="submit" class="w-full py-2.5 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold rounded-xl shadow-sm transition cursor-pointer">
+                                    <button type="submit" class="w-full py-2.5 bg-[var(--color-warning-text)] hover:opacity-80 text-white text-xs font-bold rounded-xl shadow-sm transition cursor-pointer">
                                         <x-icon name="pin" class="w-4 h-4 inline" /> Mark Arrived at Pick-up
                                     </button>
                                 </form>
                             @elseif($harvest->pivot->status === 'arrived')
-                                <form method="POST" action="{{ route('driver.jobs.stop.status', [$job, $harvest->id]) }}" class="space-y-3">
+                                <form method="POST" action="{{ route('driver.jobs.stop.status', [$job, $harvest->id]) }}" enctype="multipart/form-data" class="space-y-3">
                                     @csrf @method('PATCH')
                                     <input type="hidden" name="status" value="loaded">
                                     
                                     <div class="grid grid-cols-2 gap-3">
                                         <div>
-                                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Loaded Weight (kg)</label>
-                                            <input type="number" step="0.01" min="0.01" name="loaded_quantity_kg" required value="{{ $harvest->quantity_kg }}"
-                                                class="w-full border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-700 font-bold focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/10 focus:border-[#3A7D44]">
+                                            <label for="loaded_quantity_kg" class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Loaded Weight (kg)</label>
+                                            <input type="number" step="0.01" min="0.01" name="loaded_quantity_kg" id="loaded_quantity_kg" required value="{{ $harvest->quantity_kg }}"
+                                                class="w-full border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-700 font-bold focus:outline-none focus:ring-2 focus:ring-[#16283C]/10 focus:border-[#16283C]">
                                         </div>
                                         <div>
-                                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Loaded Vol (m³)</label>
-                                            <input type="number" step="0.01" min="0.01" name="loaded_volume_cubic_meters" required value="1.5"
-                                                class="w-full border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-700 font-bold focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/10 focus:border-[#3A7D44]">
+                                            <label for="loaded_volume_cubic_meters" class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Loaded Vol (m)</label>
+                                            <input type="number" step="0.01" min="0.01" name="loaded_volume_cubic_meters" id="loaded_volume_cubic_meters" required value="1.5"
+                                                class="w-full border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-700 font-bold focus:outline-none focus:ring-2 focus:ring-[#16283C]/10 focus:border-[#16283C]">
                                         </div>
                                     </div>
+
+                                    <div>
+                                        <label for="load_photo" class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Take Photo of Loaded Cargo</label>
+                                        <input type="file" name="load_photo" id="load_photo" accept="image/*" capture="environment"
+                                            class="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-[#16283C]/10 file:text-[#16283C] hover:file:bg-[#16283C]/15 transition cursor-pointer">
+                                    </div>
+
+                                    <label class="flex items-center gap-2 cursor-pointer">
+                                        <input type="checkbox" name="crop_confirmed" id="crop_confirmed" value="1"
+                                            class="rounded border-slate-300 text-[#16283C] focus:ring-[#16283C]/30 focus:ring-offset-0">
+                                        <span class="text-xs text-slate-600 dark:text-slate-400 font-medium">I confirm the loaded crop matches the listing</span>
+                                    </label>
                                     
-                                    <button type="submit" class="w-full py-2.5 bg-[#1F4D25]/100 hover:bg-[#1F4D25] text-white text-xs font-bold rounded-xl shadow-sm transition cursor-pointer">
+                                    <button type="submit" class="w-full py-2.5 bg-[#0E1620]/100 hover:bg-[#0E1620] text-white text-xs font-bold rounded-xl shadow-sm transition cursor-pointer">
                                         <x-icon name="gauge" class="w-4 h-4 inline" /> Confirm Cargo & Mark Loaded
                                     </button>
                                 </form>
@@ -227,12 +255,12 @@
                                     <input type="hidden" name="status" value="delivered">
                                     
                                     <div>
-                                        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Take/Upload Photo of Delivered Goods</label>
-                                        <input type="file" name="delivery_receipt" required accept="image/*" capture="environment"
-                                            class="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-[#3A7D44]/10 file:text-[#3A7D44] hover:file:bg-[#3A7D44]/15 transition cursor-pointer">
+                                        <label for="delivery_receipt" class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Take/Upload Photo of Delivered Goods</label>
+                                        <input type="file" name="delivery_receipt" id="delivery_receipt" required accept="image/*" capture="environment"
+                                            class="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-[#16283C]/10 file:text-[#16283C] hover:file:bg-[#16283C]/15 transition cursor-pointer">
                                     </div>
 
-                                    <button type="submit" class="w-full py-2.5 bg-[#3A7D44] hover:bg-[#2E6336] text-white text-xs font-bold rounded-xl shadow-sm transition cursor-pointer">
+                                    <button type="submit" class="w-full py-2.5 bg-[#16283C] hover:bg-[#0E1620] text-white text-xs font-bold rounded-xl shadow-sm transition cursor-pointer">
                                         <x-icon name="camera" class="w-4 h-4 inline" /> Mark Delivered & Upload Photo of Goods
                                     </button>
                                 </form>
@@ -247,7 +275,7 @@
                                     @if($harvest->pivot->delivery_receipt_path)
                                         <div class="text-[10px] text-slate-400 font-bold flex items-center gap-1">
                                             <x-icon name="paperclip" class="w-3 h-3 inline" /> Goods Photo Uploaded: 
-                                            <a href="{{ Storage::url($harvest->pivot->delivery_receipt_path) }}" target="_blank" class="text-[#3A7D44] hover:underline">View Photo</a>
+                                            <a href="{{ route('files.show', ['type' => 'delivery-receipt', 'id' => $harvest->id]) }}" target="_blank" class="text-[#16283C] hover:underline">View Photo</a>
                                         </div>
                                     @endif
                                 </div>
@@ -273,13 +301,13 @@
             <span>Offline — GPS pings queued locally</span>
         </div>
         <div id="syncing-badge"
-             class="hidden bg-amber-500 text-white text-xs font-bold px-4 py-3 rounded-2xl shadow-xl flex items-center gap-2.5 border border-amber-400">
+             class="hidden bg-[var(--color-warning-text)] text-white text-xs font-bold px-4 py-3 rounded-2xl shadow-xl flex items-center gap-2.5 border border-[var(--color-warning-border)]">
             <span class="w-2 h-2 rounded-full bg-white animate-pulse shrink-0"></span>
             <span id="syncing-text">Syncing queued pings…</span>
         </div>
         <div id="synced-badge"
-             class="hidden bg-[#3A7D44] text-white text-xs font-bold px-4 py-3 rounded-2xl shadow-xl flex items-center gap-2.5 border border-[#3A7D44]">
-            <span class="text-[#3A7D44]"><svg class="w-4 h-4 inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span>
+             class="hidden bg-[#16283C] text-white text-xs font-bold px-4 py-3 rounded-2xl shadow-xl flex items-center gap-2.5 border border-[#16283C]">
+            <span class="text-[#16283C]"><svg class="w-4 h-4 inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span>
             <span id="synced-text">All pings synced successfully</span>
         </div>
     </div>
@@ -287,7 +315,7 @@
     @push('scripts')
     <script>
     (function () {
-        const jobStatus  = '{{ $job->status }}';
+        const jobStatus  = '{{ $job->status->value }}';
         const jobId      = {{ $job->id }};
         const csrfToken  = document.querySelector('meta[name="csrf-token"]').content;
         const trackingUrl = '{{ route("driver.tracking.store") }}';

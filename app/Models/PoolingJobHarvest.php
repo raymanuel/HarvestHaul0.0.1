@@ -43,6 +43,9 @@ class PoolingJobHarvest extends Pivot
         ];
     }
 
+    /**
+     * Presentation logic — formats durations as human-readable strings.
+     */
     public function getStopDurationHumanAttribute(): ?array
     {
         $durations = $this->getStopDurationAttribute();

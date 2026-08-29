@@ -20,20 +20,8 @@ use Illuminate\Support\Facades\Storage;
  */
 class LogisticsDocumentController extends Controller
 {
-    /**
-     * Helper to verify if user has 'logistics_partner' role.
-     */
-    private function authorizeLogistics(): void
-    {
-        if (Auth::user()->role !== 'logistics_partner') {
-            abort(403);
-        }
-    }
-
     public function index()
     {
-        $this->authorizeLogistics();
-
         $documents = LogisticsDocument::where('user_id', Auth::id())
             ->orderBy('created_at', 'desc')
             ->get();
@@ -45,8 +33,6 @@ class LogisticsDocumentController extends Controller
 
     public function store(Request $request)
     {
-        $this->authorizeLogistics();
-
         $request->validate([
             'document_type' => ['required', 'in:dti_sec,business_permit,bir_cert,mayors_permit'],
             'document_file' => ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'],
@@ -54,7 +40,7 @@ class LogisticsDocumentController extends Controller
 
         $file = $request->file('document_file');
         $originalFilename = $file->getClientOriginalName();
-        $path = $file->store('logistics-documents/' . Auth::id(), 'public');
+        $path = $file->store('logistics-documents/' . Auth::id(), 'local');
 
         $doc = LogisticsDocument::create([
             'user_id'           => Auth::id(),
@@ -77,8 +63,6 @@ class LogisticsDocumentController extends Controller
 
     public function destroy(LogisticsDocument $document)
     {
-        $this->authorizeLogistics();
-
         if ($document->user_id !== Auth::id()) {
             abort(403);
         }
@@ -87,7 +71,7 @@ class LogisticsDocumentController extends Controller
             return redirect()->route('logistics.documents')->with('error', 'Approved documents cannot be deleted.');
         }
 
-        Storage::disk('public')->delete($document->file_path);
+        Storage::disk('local')->delete($document->file_path);
         $document->delete();
 
         \App\Models\AuditLog::create([

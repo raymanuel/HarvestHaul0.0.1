@@ -118,6 +118,8 @@ return [
     |
     */
 
+    'ws_ticket_secret' => env('WS_TICKET_SECRET', ''),
+
     'maintenance' => [
         'driver' => env('APP_MAINTENANCE_DRIVER', 'file'),
         'store' => env('APP_MAINTENANCE_STORE', 'database'),

@@ -13,6 +13,7 @@ class WebSocketServer extends Command
 
     private array $clients = [];
     private array $wsClients = [];
+    private array $clientJobFilter = [];
     private int $lastBroadcastId = 0;
     private int $lastHeartbeat = 0;
     private int $clientCounter = 0;
@@ -84,24 +85,40 @@ class WebSocketServer extends Command
                     $this->clients[$clientId] = $client;
                     $clientActivity[$clientId] = time();
 
-                    $request = @socket_read($client, 8192);
-                    if ($request && preg_match("/Sec-WebSocket-Key: (.*)\r\n/", $request, $matches)) {
-                        // Validate token from query string
-                        $token = null;
-                        if (preg_match("/GET\s+\/\?token=([^\s]+)\s+HTTP/", $request, $tokenMatch)) {
-                            $token = urldecode($tokenMatch[1]);
+                    // The socket is nonblocking, so a browser's upgrade request may
+                    // not have arrived yet when we accept. Retry until the full HTTP
+                    // header terminator is seen or a short deadline elapses — otherwise
+                    // the handshake is lost and the browser sees the connection closed.
+                    $request = '';
+                    $deadline = microtime(true) + 3.0;
+                    while (strpos($request, "\r\n\r\n") === false && microtime(true) < $deadline) {
+                        $chunk = @socket_read($client, 8192);
+                        if ($chunk === false || $chunk === '') {
+                            usleep(1000);
+                            continue;
                         }
-                        
-                        // For now, accept connections with any token (implement proper validation as needed)
-                        // In production, validate against a whitelist of valid tokens
-                        if (!$token) {
+                        $request .= $chunk;
+                    }
+
+                    if ($request && preg_match("/Sec-WebSocket-Key: (.*)\r\n/", $request, $matches)) {
+                        // Validate short-lived signed ticket from query string
+                        $ticket = null;
+                        if (preg_match("/GET\s+\/\?ticket=([^\s]+)\s+HTTP/", $request, $ticketMatch)) {
+                            $ticket = urldecode($ticketMatch[1]);
+                        }
+
+                        $ticketData = $ticket ? $this->verifyTicket($ticket) : null;
+                        if (!$ticketData) {
                             $reject = "HTTP/1.1 401 Unauthorized\r\n\r\n";
                             @socket_write($client, $reject, strlen($reject));
                             @socket_close($client);
                             unset($this->clients[$clientId], $clientActivity[$clientId]);
                             continue;
                         }
-                        
+
+                        $allowedJobIds = array_flip(array_map('intval', $ticketData['j'] ?? []));
+                        $this->clientJobFilter[$clientId] = $allowedJobIds;
+
                         $secKey = trim($matches[1]);
                         $secAccept = base64_encode(pack('H*', sha1($secKey . '258EAFA5-E914-47DA-95CA-C5AB0DC85B11')));
                         $upgrade = "HTTP/1.1 101 Switching Protocols\r\n" .
@@ -110,10 +127,14 @@ class WebSocketServer extends Command
                                    "Sec-WebSocket-Accept: $secAccept\r\n\r\n";
                         @socket_write($client, $upgrade, strlen($upgrade));
                         $this->wsClients[$clientId] = $client;
-                        $this->info("Map viewer connected with token.");
+                        $this->info("Map viewer connected (user {$ticketData['u']}, " . count($allowedJobIds) . " job(s)).");
+                    } else {
+                        // No valid WebSocket handshake received in time — close it.
+                        // (No app code connects to 8080 as a TCP client; browsers only.)
+                        @socket_close($client);
+                        unset($this->clients[$clientId], $clientActivity[$clientId]);
+                        continue;
                     }
-                    // Non-WebSocket TCP connections (from publish endpoint) are handled
-                    // by the DB poll approach — no need for per-ping connections from TrackingController.
                 }
                 $read = array_filter($read ?? [], fn($c) => $c !== $server);
             }
@@ -179,6 +200,10 @@ class WebSocketServer extends Command
 
                 $frame = $this->encode($payload);
                 foreach ($this->wsClients as $wid => $wsClient) {
+                    // Only deliver frames for jobs this client is authorized to watch
+                    if (isset($this->clientJobFilter[$wid]) && !isset($this->clientJobFilter[$wid][(int) $record->pooling_job_id])) {
+                        continue;
+                    }
                     if (@socket_write($wsClient, $frame, strlen($frame)) === false) {
                         $this->disconnectClient($wsClient, $wid);
                     }
@@ -208,8 +233,45 @@ class WebSocketServer extends Command
         if ($client) {
             @socket_close($client);
         }
-        unset($this->clients[$id], $this->wsClients[$id]);
+        unset($this->clients[$id], $this->wsClients[$id], $this->clientJobFilter[$id]);
         $this->info("Client {$id} disconnected.");
+    }
+
+    /**
+     * Verify a short-lived signed WebSocket ticket.
+     * Format: base64url(json payload).base64url(hmac-sha256)
+     */
+    private function verifyTicket(string $ticket): ?array
+    {
+        $secret = (string) config('app.ws_ticket_secret');
+        if ($secret === '') {
+            return null;
+        }
+
+        $parts = explode('.', $ticket);
+        if (count($parts) !== 2 || $parts[0] === '' || $parts[1] === '') {
+            return null;
+        }
+
+        [$payload64, $signature] = $parts;
+
+        $expected = hash_hmac('sha256', $payload64, $secret);
+        if (!hash_equals($expected, $signature)) {
+            return null;
+        }
+
+        $json = base64_decode(strtr($payload64, '-_', '+/'));
+        $data = json_decode((string) $json, true);
+
+        if (!is_array($data) || !isset($data['exp'])) {
+            return null;
+        }
+
+        if ((int) $data['exp'] < time()) {
+            return null;
+        }
+
+        return $data;
     }
 
     private function encode(string $text): string

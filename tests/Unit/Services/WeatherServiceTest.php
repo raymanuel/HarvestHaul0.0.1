@@ -180,4 +180,26 @@ class WeatherServiceTest extends TestCase
         $this->assertNotEmpty($summary);
         $this->assertStringContainsString('Thunderstorm', $summary);
     }
+
+    public function test_get_weather_results_are_cached_for_repeat_lookups(): void
+    {
+        config()->set('services.openweather.key', 'test-key');
+        \Illuminate\Support\Facades\Cache::flush();
+
+        \Illuminate\Support\Facades\Http::fake([
+            'api.openweathermap.org/*' => \Illuminate\Support\Facades\Http::response([
+                'weather' => [['main' => 'Clear', 'description' => 'clear sky', 'icon' => '01d']],
+                'main'    => ['temp' => 28, 'feels_like' => 29, 'humidity' => 60],
+                'wind'    => ['speed' => 5, 'gust' => 8],
+                'visibility' => 10000,
+            ]),
+        ]);
+
+        $first = $this->service->getWeather(7.1, 125.5);
+        $second = $this->service->getWeather(7.1, 125.5);
+
+        $this->assertSame('Clear', $first['condition']);
+        $this->assertSame($first['condition'], $second['condition']);
+        \Illuminate\Support\Facades\Http::assertSentCount(2); // weather + forecast once each
+    }
 }

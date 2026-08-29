@@ -1,4 +1,4 @@
-﻿{{--
+{{--
     Farmer Documents Management View
     
     PURPOSE:
@@ -17,12 +17,11 @@
     <div class="w-full max-w-3xl mx-auto">
 
         <!-- Page Header -->
-        <header class="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <header class="pt-8 mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
                 <h1 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight heading-font">My Documents</h1>
-                <p class="text-sm text-slate-500 dark:text-slate-400 mt-1 font-medium font-semibold">Submit your government ID and proof of farming activity for verification</p>
             </div>
-            <span class="text-xs font-semibold uppercase tracking-wider text-[#3A7D44] dark:text-[#3A7D44] bg-[#3A7D44]/10 dark:bg-[#3A7D44]/10 px-3 py-1.5 rounded-lg border border-[#3A7D44]/10 dark:border-[#3A7D44]/20 self-start">Verifications</span>
+            <span class="text-xs font-semibold uppercase tracking-wider text-[#16283C] dark:text-[#D7BC7A] bg-[#16283C]/10 dark:bg-[#16283C]/10 px-3 py-1.5 rounded-lg border border-[#16283C]/10 dark:border-[#16283C]/20 self-start">Verifications</span>
         </header>
 
         {{-- Flash Messages --}}
@@ -39,10 +38,10 @@
                 {{-- Document Type --}}
                 <div class="form-group space-y-1.5">
                     <label class="text-[10px] font-bold text-slate-450 dark:text-slate-500 uppercase tracking-wider block">
-                        Document Type <span class="text-red-500">*</span>
+                        Document Type <span class="text-[var(--color-error-text)]">*</span>
                     </label>
                     <select name="document_type" required
-                        class="py-3 px-4 w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/20 focus:border-[#3A7D44] transition cursor-pointer text-sm text-slate-700 dark:text-slate-200">
+                        class="py-3 px-4 w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#16283C]/20 focus:border-[#16283C] transition cursor-pointer text-sm text-slate-700 dark:text-slate-200">
                         <option value="" disabled selected>Select document type</option>
                         <optgroup label="Government ID (Primary)">
                             <option value="government_id" {{ old('document_type') === 'government_id' ? 'selected' : '' }}>
@@ -69,29 +68,29 @@
                             </option>
                         </optgroup>
                     </select>
-                    @error('document_type')
-                        <p class="text-xs text-red-500 mt-1 font-semibold">{{ $message }}</p>
+                        @error('document_type')
+                            <p class="text-xs text-[var(--color-error-text)] mt-1 font-semibold">{{ $message }}</p>
                     @enderror
                 </div>
 
                 {{-- File Upload --}}
                 <div class="form-group space-y-1.5">
                     <label class="text-[10px] font-bold text-slate-450 dark:text-slate-500 uppercase tracking-wider block">
-                        File <span class="text-red-500">*</span>
+                        File <span class="text-[var(--color-error-text)]">*</span>
                     </label>
                     <input type="file" name="document_file" required accept=".jpg,.jpeg,.png,.pdf"
-                        class="py-2 px-4 w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/20 focus:border-[#3A7D44] transition text-sm text-slate-700 dark:text-slate-200 file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-slate-50 dark:file:bg-slate-800 file:text-slate-700 dark:file:text-slate-200 hover:file:bg-slate-100 dark:hover:file:bg-slate-700">
+                        class="py-2 px-4 w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#16283C]/20 focus:border-[#16283C] transition text-sm text-slate-700 dark:text-slate-200 file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-slate-50 dark:file:bg-slate-800 file:text-slate-700 dark:file:text-slate-200 hover:file:bg-slate-100 dark:hover:file:bg-slate-700">
                     <p class="text-[10px] text-slate-400 mt-1.5 font-medium">
                         Accepted Formats: JPG, PNG, PDF — Maximum file size: 5MB
                     </p>
-                    @error('document_file')
-                        <p class="text-xs text-red-500 mt-1 font-semibold">{{ $message }}</p>
+                        @error('document_file')
+                            <p class="text-xs text-[var(--color-error-text)] mt-1 font-semibold">{{ $message }}</p>
                     @enderror
                 </div>
 
                 <div class="pt-2">
                     <button type="submit"
-                        class="py-3 px-6 bg-[#3A7D44] hover:bg-[#2E6336] text-white font-bold rounded-xl text-xs transition cursor-pointer shadow-sm shadow-[#3A7D44]/10">
+                        class="py-3 px-6 bg-[#16283C] hover:bg-[#0E1620] text-white font-bold rounded-xl text-xs transition cursor-pointer shadow-sm shadow-[#16283C]/10">
                         Upload Document
                     </button>
                 </div>
@@ -103,18 +102,18 @@
             <h2 class="text-sm font-extrabold text-slate-800 dark:text-white heading-font mb-4 uppercase tracking-wider">Submitted Documents</h2>
 
             @if($documents->isEmpty())
-                <p class="text-sm text-slate-400 dark:text-slate-500 font-semibold text-center py-6">No documents submitted yet.</p>
+                <p class="text-sm text-slate-500 dark:text-slate-400 font-semibold text-center py-6">No documents submitted yet.</p>
             @else
                 <div class="flex flex-col gap-4">
                     @foreach($documents as $doc)
                         @php
                             $statusStyle = match($doc->status) {
-                                'approved' => 'bg-[#3A7D44]/10 dark:bg-[#3A7D44]/10 border-[#3A7D44]/20 dark:border-[#3A7D44]/20 text-[#3A7D44] dark:text-[#3A7D44]',
+                                'approved' => 'bg-[#16283C]/10 dark:bg-[#16283C]/10 border-[#16283C]/20 dark:border-[#16283C]/20 text-[#16283C] dark:text-[#D7BC7A]',
                                 'rejected' => 'bg-red-50 dark:bg-red-950/20 border-red-100 dark:border-red-900/30 text-red-600 dark:text-red-400',
                                 default    => 'bg-slate-50 dark:bg-slate-900/40 border-slate-100 dark:border-slate-800/50 text-slate-600 dark:text-slate-400',
                             };
                             $badgeStyle = match($doc->status) {
-                                'approved' => 'bg-white dark:bg-slate-900 border-[#3A7D44]/20 dark:border-[#3A7D44]/20 text-[#3A7D44] dark:text-[#3A7D44]',
+                                'approved' => 'bg-white dark:bg-slate-900 border-[#16283C]/20 dark:border-[#16283C]/20 text-[#16283C] dark:text-[#D7BC7A]',
                                 'rejected' => 'bg-white dark:bg-slate-900 border-red-250/60 dark:border-red-800/50 text-red-650 dark:text-red-400',
                                 default    => 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400',
                             };
@@ -140,7 +139,7 @@
                                 <span class="text-[10px] font-bold px-2.5 py-1 rounded-lg uppercase tracking-wide border {{ $badgeStyle }}">
                                     {{ $doc->status }}
                                 </span>
-                                <a href="{{ Storage::url($doc->file_path) }}" target="_blank"
+                                <a href="{{ route('files.show', ['type' => 'farmer-document', 'id' => $doc->id]) }}" target="_blank"
                                     class="text-brand dark:text-brand-light hover:text-brand-dark dark:hover:text-brand-light text-xs font-bold hover:underline transition">
                                     View
                                 </a>

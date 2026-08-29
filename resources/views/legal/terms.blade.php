@@ -1,16 +1,27 @@
-﻿<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="en" class="overflow-x-hidden">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Terms and Conditions — HarvestHaul</title>
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700&display=swap" rel="stylesheet" />
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#16283C">
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js').then(function(reg) {
+                    console.log('Service Worker registered: ', reg.scope);
+                }).catch(function(err) {
+                    console.error('Service Worker registration failed: ', err);
+                });
+            });
+        }
+    </script>
+    <title>Terms and Conditions — HarvestHaul</title>    <link rel="stylesheet" href="/fonts/fonts.css" />
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         body {
-            font-family: 'Figtree', sans-serif;
-            background: #f8f6f1;
+            font-family: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+            background: #FAFAFA;
             color: #1b1b18;
             padding: 2rem 1rem;
             line-height: 1.7;
@@ -24,17 +35,17 @@
             box-shadow: 0 4px 20px rgba(0,0,0,0.04);
             border: 1px solid rgba(45,106,47,0.08);
         }
-        h1 { font-size: 1.75rem; font-weight: 700; color: #3A7D44; margin-bottom: 0.25rem; }
+        h1 { font-size: 1.75rem; font-weight: 700; color: #16283C; margin-bottom: 0.25rem; }
         .updated { font-size: 0.8rem; color: #9ca3af; margin-bottom: 2rem; }
         h2 { font-size: 1.1rem; font-weight: 600; color: #1b1b18; margin-top: 2rem; margin-bottom: 0.5rem; }
         p { font-size: 0.9rem; color: #4b5563; margin-bottom: 1rem; }
         ul { margin: 0.5rem 0 1rem 1.5rem; }
         li { font-size: 0.9rem; color: #4b5563; margin-bottom: 0.3rem; }
-        .back { display: inline-block; margin-top: 2rem; font-size: 0.85rem; color: #3A7D44; font-weight: 600; text-decoration: none; }
+        .back { display: inline-block; margin-top: 2rem; font-size: 0.85rem; color: #16283C; font-weight: 600; text-decoration: none; }
         .back:hover { text-decoration: underline; }
     </style>
 </head>
-<body>
+<body class="overflow-x-hidden">
     <div class="container">
         <h1>Terms and Conditions</h1>
         <p class="updated">Last updated: July 7, 2026</p>

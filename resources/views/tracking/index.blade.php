@@ -1,4 +1,4 @@
-﻿<x-layout>
+<x-layout>
     <div class="w-full max-w-7xl mx-auto pb-12">
 
         {{-- Header --}}
@@ -8,12 +8,9 @@
                     <h1 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight heading-font">
                         Live Shipment Tracking
                     </h1>
-                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-1 font-medium">
-                        Real-time GPS tracking and route monitoring of active cargo shipments
-                    </p>
                 </div>
                 <div class="flex items-center gap-3">
-                    <span class="text-xs font-semibold uppercase tracking-wider text-[#3A7D44] dark:text-[#3A7D44] bg-[#3A7D44]/10 dark:bg-[#3A7D44]/10 px-3 py-1.5 rounded-lg border border-[#3A7D44]/10 dark:border-[#3A7D44]/20">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-[#16283C] dark:text-[#D7BC7A] bg-[#16283C]/10 dark:bg-[#16283C]/10 px-3 py-1.5 rounded-lg border border-[#16283C]/10 dark:border-[#16283C]/20">
                         GPS Active
                     </span>
                 </div>
@@ -32,7 +29,7 @@
                 
                 {{-- Left Panel: Shipment List --}}
                 <div class="lg:col-span-4 space-y-4 max-h-[700px] overflow-y-auto pr-2">
-                    <h2 class="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-2">Active Shipments</h2>
+                    <h2 class="text-[10px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-2">Active Shipments</h2>
                     
                     @foreach($activeJobs as $job)
                         <button type="button" 
@@ -55,7 +52,7 @@
                                     })
                                 ]) }})"
                                 id="btn-job-{{ $job->id }}"
-                                class="w-full text-left bg-white dark:bg-slate-805 border-2 border-slate-200/60 dark:border-slate-700/60 hover:border-[#3A7D44]/40 dark:hover:border-[#3A7D44]/40 rounded-2xl p-5 transition-all shadow-sm focus:outline-none flex flex-col justify-between gap-4 group">
+                                class="w-full text-left bg-white dark:bg-slate-805 border-2 border-slate-200/60 dark:border-slate-700/60 hover:border-[#16283C]/40 dark:hover:border-[#16283C]/40 rounded-2xl p-5 transition-all shadow-sm focus:outline-none flex flex-col justify-between gap-4 group">
                             
                             <div class="flex items-start justify-between w-full">
                                 <div>
@@ -63,11 +60,11 @@
                                         Route #{{ $job->id }}
                                     </p>
                                     <p class="text-[10px] font-semibold text-slate-400 mt-0.5">
-                                         {{ $job->truck->plate_number ?? '—' }} · Driver: {{ $job->driver->name ?? '—' }}
+                                         {{ $job->truck->plate_number ?? '—' }}  Driver: {{ $job->driver->name ?? '—' }}
                                     </p>
                                 </div>
-                                <span class="text-[9px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded {{ $job->status === 'in_progress' ? 'bg-[#1F4D25]/10 dark:bg-[#1F4D25]/10 text-[#1F4D25] dark:text-[#1F4D25] border border-[#1F4D25]/20' : 'bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400 border border-amber-200/30' }}">
-                                    {{ $job->status === 'in_progress' ? 'In Transit' : 'Awaiting confirmation' }}
+                                <span class="text-[9px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded {{ $job->status->value === 'in_progress' ? 'bg-[#0E1620]/10 dark:bg-[#0E1620]/10 text-[#0E1620] dark:text-[#bfd6c9] border border-[#0E1620]/20' : 'bg-[var(--color-warning-bg)] text-[var(--color-warning-text)] border border-[var(--color-warning-border)]' }}">
+                                    {{ $job->status->value === 'in_progress' ? 'In Transit' : 'Awaiting confirmation' }}
                                 </span>
                             </div>
 
@@ -81,8 +78,8 @@
                             </div>
 
                             @if($job->latestTracking)
-                                <div class="text-[10px] text-slate-400 dark:text-slate-500 font-medium flex items-center gap-1">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-[#3A7D44]/100 animate-pulse"></span>
+                                <div class="text-[10px] text-slate-500 dark:text-slate-400 font-medium flex items-center gap-1">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-[#16283C]/100 animate-pulse"></span>
                                     Last signal: {{ $job->latestTracking->posted_at->diffForHumans() }}
                                 </div>
                             @else
@@ -99,13 +96,13 @@
                         <div class="bg-slate-50 dark:bg-slate-900/30 px-6 py-4 border-t border-slate-100 dark:border-slate-700/50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs">
                             <div class="flex items-center gap-4 text-slate-500 dark:text-slate-450 font-bold uppercase tracking-wider text-[10px]">
                                 <span class="flex items-center gap-1.5">
-                                    <span class="w-2.5 h-2.5 rounded-full bg-[#3A7D44]/100"></span> Pickup (Farmer)
+                                    <span class="w-2.5 h-2.5 rounded-full bg-[#16283C]/100"></span> Pickup (Farmer)
                                 </span>
                                 <span class="flex items-center gap-1.5">
                                     <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span> Drop-off (Buyer)
                                 </span>
                                 <span class="flex items-center gap-1.5">
-                                    <span class="w-2.5 h-2.5 rounded-full bg-[#1F4D25]/100"></span> Truck GPS
+                                    <span class="w-2.5 h-2.5 rounded-full bg-[#0E1620]/100"></span> Truck GPS
                                 </span>
                             </div>
                             <div id="map-status" class="text-slate-400 font-medium">Select a shipment to begin tracking</div>
@@ -124,8 +121,8 @@
     </div>
 
     @push('head')
-        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+        <link rel="stylesheet" href="{{ asset('vendor/leaflet/leaflet.css') }}" />
+        <script src="{{ asset('vendor/leaflet/leaflet.js') }}"></script>
     @endpush
 
     @push('scripts')
@@ -143,16 +140,15 @@
             if (document.getElementById('liveMap')) {
                 map = L.map('liveMap').setView(GENSAN_CENTER, 12);
 
-                L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-                    attribution: '© OpenStreetMap contributors © CARTO',
-                    subdomains: 'abcd',
-                    maxZoom: 19,
-                }).addTo(map);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: ' OpenStreetMap contributors' }).addTo(map);
 
-                // Select first job automatically if available
+                // Select requested job (from ?job=) if available, otherwise the first
                 @if($activeJobs->isNotEmpty())
                     const firstBtn = document.querySelector('[id^="btn-job-"]');
-                    if (firstBtn) {
+                    const requestedBtn = @if($selectedJobId) document.getElementById('btn-job-{{ $selectedJobId }}') @else null @endif;
+                    if (requestedBtn) {
+                        requestedBtn.click();
+                    } else if (firstBtn) {
                         firstBtn.click();
                     }
                 @endif
@@ -162,15 +158,16 @@
         function selectJob(job) {
             // Highlight button
             document.querySelectorAll('[id^="btn-job-"]').forEach(btn => {
-                btn.classList.remove('border-[#3A7D44]', 'ring-2', 'ring-[#3A7D44]/20');
+                btn.classList.remove('border-[#16283C]', 'ring-2', 'ring-[#16283C]/20');
             });
             const selectedBtn = document.getElementById(`btn-job-${job.id}`);
             if (selectedBtn) {
-                selectedBtn.classList.add('border-[#3A7D44]', 'ring-2', 'ring-[#3A7D44]/20');
+                selectedBtn.classList.add('border-[#16283C]', 'ring-2', 'ring-[#16283C]/20');
             }
 
             selectedJobId = job.id;
-            document.getElementById('map-status').innerHTML = `Tracking Route #${job.id} · Driver: ${job.driver}`;
+            const statusLabel = job.status === 'in_progress' ? 'In Transit' : 'Awaiting Confirmation';
+            document.getElementById('map-status').innerHTML = `Tracking Route #${job.id}  Driver: ${job.driver}  <span class="font-bold ${job.status === 'in_progress' ? 'text-[#16283C]' : 'text-[var(--color-warning-text)]'}">${statusLabel}</span>`;
 
             // Clean map
             activeMarkers.forEach(m => map.removeLayer(m));
@@ -192,7 +189,7 @@
 
             // Custom markers
             const farmerIcon = L.divIcon({
-                html: `<div style="width: 20px; height: 20px; border-radius: 50%; background: #3A7D44; border: 3px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.3)"></div>`,
+                html: `<div style="width: 20px; height: 20px; border-radius: 50%; background: #16283C; border: 3px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.3)"></div>`,
                 className: '', iconSize: [20, 20], iconAnchor: [10, 10]
             });
             const buyerIcon = L.divIcon({
@@ -247,52 +244,59 @@
         }
 
         let socket = null;
+        let socketRequested = false;
         function connectWebSocket() {
-            if (socket) {
-                try { socket.close(); } catch (e) {}
-            }
+            if (socketRequested) return;
+            socketRequested = true;
 
-            const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-            const wsHost = wsProtocol + '//' + window.location.hostname + ':8080';
-            
-            try {
-                socket = new WebSocket(wsHost);
+            fetch('/api/ws-ticket', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                }
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (!data || !data.token) return;
+                    const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+                    const wsHost = wsProtocol + '//' + window.location.hostname + ':8080?ticket=' + encodeURIComponent(data.token);
 
-                socket.onopen = function () {
-                    console.log('Real-time telemetry WebSocket streaming active.');
-                    const statusEl = document.getElementById('map-status');
-                    if (statusEl) {
-                        statusEl.innerHTML = `<span class="text-[#3A7D44] dark:text-[#3A7D44] font-bold">● Live Connection Active</span> · Tracking Route #${selectedJobId}`;
-                    }
-                };
-
-                socket.onmessage = function (event) {
                     try {
-                        const payload = JSON.parse(event.data);
-                        if (payload && payload.pooling_job_id === selectedJobId) {
-                            console.log('Real-time telemetry WebSocket frame received:', payload);
-                            updateTruckMarker(payload.latitude, payload.longitude);
-                        }
+                        socket = new WebSocket(wsHost);
+
+                        socket.onopen = function () {
+                            const statusEl = document.getElementById('map-status');
+                            if (statusEl) {
+                                statusEl.innerHTML = `<span class="text-[#16283C] dark:text-[#D7BC7A] font-bold">● Live Connection Active</span>  Tracking Route #${selectedJobId}`;
+                            }
+                        };
+
+                        socket.onmessage = function (event) {
+                            try {
+                                const payload = JSON.parse(event.data);
+                                if (payload && payload.pooling_job_id === selectedJobId) {
+                                    updateTruckMarker(payload.latitude, payload.longitude);
+                                }
+                            } catch (e) {}
+                        };
+
+                        socket.onerror = function () {};
+
+                        socket.onclose = function () {
+                            socketRequested = false;
+                        };
                     } catch (e) {
-                        console.error('WebSocket frame parsing error', e);
+                        socketRequested = false;
                     }
-                };
-
-                socket.onerror = function (err) {
-                    console.warn('WebSocket connection error. Polling fallback active.', err);
-                };
-
-                socket.onclose = function () {
-                    console.log('WebSocket stream connection closed. Polling remains active.');
-                };
-            } catch (e) {
-                console.warn('Failed to initiate WebSocket connection:', e);
-            }
+                })
+                .catch(() => { socketRequested = false; });
         }
 
         function updateTruckMarker(lat, lng) {
             const truckIcon = L.divIcon({
-                html: `<div style="display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background: #0EA5E9; border: 3px solid white; box-shadow: 0 4px 10px rgba(14, 165, 233, 0.45);"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></svg></div>`,
+                html: `<div style="display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background: #D7BC7A; border: 3px solid white; box-shadow: 0 4px 10px rgba(13, 148, 136, 0.45);"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></svg></div>`,
                 className: '', iconSize: [32, 32], iconAnchor: [16, 16]
             });
 
@@ -342,8 +346,8 @@
             if (speedEl) {
                 speedEl.textContent = speedKmh > 0 ? `${speedKmh.toFixed(1)} km/h` : 'Stopped';
                 speedEl.className = speedKmh > 0
-                    ? 'text-[#3A7D44] dark:text-[#3A7D44] font-bold'
-                    : 'text-amber-600 dark:text-amber-400 font-bold';
+                    ? 'text-[#16283C] dark:text-[#D7BC7A] font-bold'
+                    : 'text-[var(--color-warning-text)] font-bold';
             }
         }
 

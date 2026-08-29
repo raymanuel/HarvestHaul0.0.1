@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\CropPriceHistory;
+use App\Services\Darfo12Service;
 use Illuminate\Http\JsonResponse;
 
 class MarketPriceController extends Controller
 {
     public function getMarketPrice(string $cropName): JsonResponse
     {
-        $price = CropPriceHistory::getLatestForCrop($cropName);
+        $price = app(Darfo12Service::class)->getLatestCropPrice($cropName);
 
         if (!$price) {
             return response()->json(null);

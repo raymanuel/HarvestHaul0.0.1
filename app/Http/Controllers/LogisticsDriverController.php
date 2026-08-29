@@ -6,7 +6,6 @@ use App\Models\User;
 use App\Models\DriverProfile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 
 /**
  * Class LogisticsDriverController
@@ -16,23 +15,8 @@ use Illuminate\Support\Facades\Hash;
  */
 class LogisticsDriverController extends Controller
 {
-    /**
-     * Helper to verify if user has 'logistics_partner' role and profile is active.
-     */
-    private function authorizeLogistics(): void
-    {
-        if (!Auth::check() || Auth::user()->role !== 'logistics_partner') {
-            abort(403, 'Unauthorized access.');
-        }
-
-        if (!Auth::user()->logisticsProfile?->is_verified) {
-            abort(403, 'Your account is pending verification.');
-        }
-    }
-
     public function index()
     {
-        $this->authorizeLogistics();
 
         $partnerId = Auth::user()->logisticsProfile->id;
         $drivers = DriverProfile::where('partner_id', $partnerId)->with('user')->get();
@@ -42,15 +26,11 @@ class LogisticsDriverController extends Controller
 
     public function create()
     {
-        $this->authorizeLogistics();
-
         return view('logistics.drivers.create');
     }
 
     public function store(Request $request)
     {
-        $this->authorizeLogistics();
-
         $request->validate([
             'name' => ['required', 'string', 'max:255', 'unique:users'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
@@ -63,7 +43,7 @@ class LogisticsDriverController extends Controller
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
-            'password' => Hash::make($request->password),
+            'password' => $request->password,
             'role' => 'driver',
             'status' => 'active',
         ]);
@@ -74,7 +54,7 @@ class LogisticsDriverController extends Controller
         DriverProfile::create([
             'user_id' => $user->id,
             'partner_id' => Auth::user()->logisticsProfile->id,
-            'license_number' => $request->license_number,
+            'license_no' => $request->license_number,
             'vehicle_type' => $request->vehicle_type,
             'phone' => $request->phone,
             'status' => 'active',

@@ -10,7 +10,7 @@
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link rel="apple-touch-icon" sizes="32x32" href="/favicon-32x32.png">
     <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#065F46">
+    <meta name="theme-color" content="#16283C">
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function() {
@@ -50,7 +50,7 @@
         }
 
         .brand-title {
-            color: #065F46;
+            color: #16283C;
             font-size: 1.8rem;
             font-weight: 700;
             margin-bottom: 1.5rem;
@@ -69,7 +69,7 @@
             width: 100%;
             padding: 0.8rem 1rem;
             border-radius: 0.75rem;
-            border: 1px solid rgba(6, 95, 70, 0.15);
+            border: 1px solid rgba(22, 40, 60, 0.15);
             box-sizing: border-box;
             font-size: 0.95rem;
             background: rgba(255, 255, 255, 0.85);
@@ -78,14 +78,14 @@
 
         input:focus {
             outline: none;
-            border-color: #065F46;
-            box-shadow: 0 0 0 3px rgba(6, 95, 70, 0.1);
+            border-color: #16283C;
+            box-shadow: 0 0 0 3px rgba(22, 40, 60, 0.1);
         }
 
         button.primary-btn {
             width: 100%;
             padding: 0.9rem;
-            background: #065F46;
+            background: #16283C;
             color: white;
             border: none;
             border-radius: 0.75rem;
@@ -94,14 +94,14 @@
             transition: background 0.2s, transform 0.1s;
         }
 
-        button.primary-btn:hover { background: #022c22; }
+        button.primary-btn:hover { background: #0E1620; }
         button.primary-btn:active { transform: scale(0.98); }
         @keyframes spin { to { transform: rotate(360deg); } }
         #legal-modal-overlay > div::-webkit-scrollbar { width: 6px; }
         #legal-modal-overlay > div::-webkit-scrollbar-track { background: transparent; }
         #legal-modal-overlay > div::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 9999px; }
         #legal-modal-overlay > div::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
-        #legal-modal-body h1 { font-size:1.4rem; font-weight:700; color:#111827; margin:0 0 1.25rem 0; padding:0 0 0.75rem 0; border-bottom:2px solid rgba(6, 95, 70,0.08); line-height:1.3; }
+        #legal-modal-body h1 { font-size:1.4rem; font-weight:700; color:#111827; margin:0 0 1.25rem 0; padding:0 0 0.75rem 0; border-bottom:2px solid rgba(22, 40, 60,0.08); line-height:1.3; }
         #legal-modal-body h2 { font-size:1rem; font-weight:600; color:#1f2937; margin:1.5rem 0 0.5rem 0; padding:0; line-height:1.4; }
         #legal-modal-body p { margin:0 0 1rem 0; padding:0; }
         #legal-modal-body ul { margin:0.25rem 0 1.25rem 1.25rem; padding:0; }

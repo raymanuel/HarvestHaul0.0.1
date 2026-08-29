@@ -9,7 +9,7 @@
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link rel="apple-touch-icon" sizes="32x32" href="/favicon-32x32.png">
     <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#065F46">
+    <meta name="theme-color" content="#16283C">
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function() {
@@ -51,7 +51,7 @@
             width: 100%;
             padding: 0.85rem 1rem;
             border-radius: 0.5rem;
-            border: 1px solid rgba(6, 95, 70, 0.15);
+            border: 1px solid rgba(22, 40, 60, 0.15);
             background: rgba(255, 255, 255, 0.85);
             font-size: 0.95rem;
             color: #1f2937;
@@ -60,14 +60,14 @@
         }
         input:focus {
             outline: none;
-            border-color: #065F46;
-            box-shadow: 0 0 0 3px rgba(6, 95, 70, 0.1);
+            border-color: #16283C;
+            box-shadow: 0 0 0 3px rgba(22, 40, 60, 0.1);
             background: #ffffff;
         }
         button[type="submit"] {
             width: 100%;
             padding: 0.9rem;
-            background: #065F46;
+            background: #16283C;
             color: white;
             border: none;
             border-radius: 0.5rem;
@@ -76,10 +76,10 @@
             cursor: pointer;
             transition: all 0.2s ease;
             margin-top: 0.5rem;
-            box-shadow: 0 4px 6px -1px rgba(6, 95, 70, 0.2);
+            box-shadow: 0 4px 6px -1px rgba(22, 40, 60, 0.2);
         }
         button[type="submit"]:hover {
-            background: #022c22;
+            background: #0E1620;
             transform: translateY(-1px);
         }
         button[type="submit"]:active {

@@ -23,6 +23,8 @@ class UpdateStopStatusAction
         $targetStatus = $validated['status'];
         $currentStopStatus = $harvest->pivot->status;
 
+        $this->validateJobInProgress($poolingJob);
+        $this->validatePickupOrder($poolingJob, $harvest);
         $this->validateSequencing($targetStatus, $currentStopStatus);
         $this->validateGeofenceIfArrived($poolingJob, $harvest, $targetStatus);
         $this->validateLoadedQuantity($harvest, $validated, $targetStatus);
@@ -40,11 +42,17 @@ class UpdateStopStatusAction
             $pivotUpdates['loaded_volume_cubic_meters'] = $validated['loaded_volume_cubic_meters'];
             $pivotUpdates['crop_confirmed'] = !empty($validated['crop_confirmed']);
             $pivotUpdates['loaded_at'] = now();
+            if (request()->hasFile('load_photo')) {
+                $pivotUpdates['load_photo_path'] = request()->file('load_photo')->store('load-photos', 'local');
+            }
             $harvest->update(['status' => HarvestStatus::IN_PROGRESS]);
         }
 
         if ($targetStatus === 'delivered') {
             $pivotUpdates['delivered_at'] = now();
+            if (request()->hasFile('delivery_receipt')) {
+                $pivotUpdates['delivery_receipt_path'] = request()->file('delivery_receipt')->store('delivery-receipts', 'local');
+            }
             $harvest->update(['status' => HarvestStatus::COMPLETED]);
         }
 
@@ -59,6 +67,25 @@ class UpdateStopStatusAction
         ]);
 
         $this->sendNotifications($poolingJob, $harvest, $targetStatus, $validated, $driver);
+    }
+
+    protected function validateJobInProgress(PoolingJob $poolingJob): void
+    {
+        if ($poolingJob->status->value !== 'in_progress') {
+            throw new \RuntimeException('Stop status updates are only allowed while the trip is in progress.');
+        }
+    }
+
+    protected function validatePickupOrder(PoolingJob $poolingJob, Harvest $harvest): void
+    {
+        $nextStop = $poolingJob->harvests()
+            ->wherePivot('status', '!=', 'delivered')
+            ->orderByPivot('pickup_order')
+            ->first();
+
+        if (!$nextStop || $nextStop->id !== $harvest->id) {
+            throw new \RuntimeException('Stops must be completed in order. Finish the previous stop before updating this one.');
+        }
     }
 
     protected function validateSequencing(string $targetStatus, string $current): void

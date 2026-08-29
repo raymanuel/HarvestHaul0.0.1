@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\InvoiceStatus;
 use App\Models\PoolingJob;
+use App\Traits\Notifiable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\UploadReceiptRequest;
@@ -10,6 +12,8 @@ use App\Http\Requests\ConfirmQuantityRequest;
 
 class CostLedgerController extends Controller
 {
+    use Notifiable;
+
     /**
      * List all pooling jobs for this logistics partner (ledger index).
      */
@@ -27,6 +31,22 @@ class CostLedgerController extends Controller
             ->paginate(15);
 
         return view('logistics.cost-ledger-index', compact('jobs'));
+    }
+
+    /**
+     * List all pooling jobs a farmer participates in (ledger index for farmers).
+     */
+    public function farmerIndex()
+    {
+        $jobs = PoolingJob::whereIn('status', ['confirmed', 'in_progress', 'completed'])
+            ->whereHas('harvests', fn($q) => $q->where('user_id', Auth::id()))
+            ->with(['truck', 'logisticsProfile', 'harvests' => function ($q) {
+                $q->where('user_id', Auth::id())->with(['crop', 'cropVariety', 'destination']);
+            }])
+            ->latest()
+            ->paginate(15);
+
+        return view('farmers.farmer-cost-ledger-index', compact('jobs'));
     }
 
     /**
@@ -84,6 +104,7 @@ class CostLedgerController extends Controller
                 'destination'   => $harvest->destination->name ?? $harvest->destination_address ?? '—',
                 'pickup_order'  => $harvest->pivot->pickup_order,
                 'payment_status'  => $harvest->pivot->payment_status ?? 'unpaid',
+                'amount_paid'     => $harvest->pivot->amount_paid,
                 'receipt_path'    => $harvest->pivot->receipt_path,
             ];
         })->sortBy('pickup_order')->values();
@@ -92,8 +113,11 @@ class CostLedgerController extends Controller
         $sumOfShares = $ledgerEntries->sum('cost_share');
         $costMismatch = $totalPrice > 0 && $sumOfShares > 0 && abs($totalPrice - $sumOfShares) > 0.01;
 
+        // Freight invoice issued at route confirmation (payment reference)
+        $invoice = $poolingJob->invoices()->latest()->first();
+
         return view('logistics.cost-ledger', compact(
-            'poolingJob', 'ledgerEntries', 'totalPrice', 'sumOfShares', 'isOwner', 'isFarmer', 'costMismatch'
+            'poolingJob', 'ledgerEntries', 'totalPrice', 'sumOfShares', 'isOwner', 'isFarmer', 'costMismatch', 'invoice'
         ));
     }
 
@@ -112,50 +136,46 @@ class CostLedgerController extends Controller
         }
 
         // Verify job is in an appropriate status for receipt upload
-        $allowedStatuses = ['confirmed', 'in_progress', 'awaiting_confirmation'];
-        if (!in_array($poolingJob->status, $allowedStatuses)) {
-            return back()->with('error', 'Cannot upload receipt. Job must be confirmed, in progress, or awaiting confirmation.');
+        $allowedStatuses = ['confirmed', 'in_progress', 'awaiting_confirmation', 'completed'];
+        if (!in_array($poolingJob->status->value, $allowedStatuses)) {
+            return back()->with('error', 'Cannot upload receipt. Job must be confirmed, in progress, awaiting confirmation, or completed.');
         }
 
         if ($request->hasFile('payment_receipt')) {
             $file = $request->file('payment_receipt');
-
-            // Validate minimum file size (1KB) to prevent empty files
-            if ($file->getSize() < 1024) {
-                return back()->with('error', 'Receipt file is too small. Please upload a valid receipt image.');
-            }
-
-            // Basic image validation: ensure it's a valid image (not a renamed .exe)
-            if (!in_array($file->getMimeType(), ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf'])) {
-                return back()->with('error', 'Invalid file type. Please upload a valid receipt (JPG, PNG, or PDF).');
-            }
-
-            $path = $file->store('payment-receipts/' . $poolingJob->id, 'public');
+            $path = $file->store('payment-receipts/' . $poolingJob->id, 'local');
 
             $poolingJob->harvests()->updateExistingPivot($harvest->id, [
                 'payment_status' => 'submitted',
                 'receipt_path'   => $path,
             ]);
 
-            \App\Models\AuditLog::create([
-                'admin_id'    => $user->id,
-                'action'      => 'farmer_payment_receipt_uploaded',
-                'target_type' => 'pooling_job_harvests',
-                'target_id'   => $poolingJob->id,
-                'notes'       => "Farmer {$user->name} uploaded payment receipt for Harvest #{$harvest->id} on Route #{$poolingJob->id}.",
-            ]);
+            self::logAudit(
+                $user->id,
+                'farmer_payment_receipt_uploaded',
+                'pooling_job_harvests',
+                $poolingJob->id,
+                "Farmer {$user->name} uploaded payment receipt for Harvest #{$harvest->id} on Route #{$poolingJob->id}."
+            );
 
-            // Notify logistics partner
             if ($poolingJob->logisticsProfile && $poolingJob->logisticsProfile->user_id) {
-                \App\Models\Notification::create([
-                    'user_id' => $poolingJob->logisticsProfile->user_id,
-                    'title' => 'Payment Receipt Submitted',
-                    'message' => "Farmer {$user->name} submitted a payment receipt for Route #{$poolingJob->id}.",
-                    'link' => route('pooling.cost-ledger', $poolingJob)
-                ]);
+                self::notifyReceiptSubmitted(
+                    $poolingJob->logisticsProfile->user_id,
+                    $user->name,
+                    $poolingJob->id
+                );
             }
 
-            return back()->with('success', 'Payment receipt uploaded successfully.');
+            return back()->with('success', 'Payment receipt uploaded successfully.')
+                ->with('next_steps', [
+                    'title'   => 'Receipt uploaded',
+                    'message' => 'Payment receipt uploaded successfully.',
+                    'steps'   => [
+                        'Your payment evidence is now pending verification by logistics.',
+                        'Logistics will review and mark the payment as Paid.',
+                        'You will be notified once your payment is confirmed.',
+                    ],
+                ]);
         }
 
         return back()->with('error', 'Please select a valid image file.');
@@ -189,27 +209,51 @@ class CostLedgerController extends Controller
             return back()->with('error', 'Cannot mark as paid. Farmer has not uploaded a payment receipt yet.');
         }
 
+        $validated = $request->validate([
+            'amount_paid' => ['nullable', 'numeric', 'min:0.01'],
+        ]);
+
         $poolingJob->harvests()->updateExistingPivot($harvest->id, [
             'payment_status' => 'paid',
+            'amount_paid'    => $validated['amount_paid'] ?? null,
         ]);
 
-        \App\Models\AuditLog::create([
-            'admin_id'    => $user->id,
-            'action'      => 'logistics_marked_payment_paid',
-            'target_type' => 'pooling_job_harvests',
-            'target_id'   => $poolingJob->id,
-            'notes'       => "Logistics Partner {$user->name} marked payment as Paid for Harvest #{$harvest->id} on Route #{$poolingJob->id}.",
-        ]);
+        // When every stop on the job is paid, settle the freight invoice
+        $allPaid = !$poolingJob->harvests()
+            ->wherePivot('payment_status', '!=', 'paid')
+            ->exists();
+        if ($allPaid) {
+            $invoice = app(\App\Services\InvoiceService::class)->getOrCreateInvoice($poolingJob);
+            if ($invoice->status !== InvoiceStatus::PAID) {
+                $invoice->update(['status' => 'paid', 'paid_at' => now()]);
+            }
+        }
+
+        self::logAudit(
+            $user->id,
+            'logistics_marked_payment_paid',
+            'pooling_job_harvests',
+            $poolingJob->id,
+            "Logistics Partner {$user->name} marked payment as Paid for Harvest #{$harvest->id} on Route #{$poolingJob->id}."
+        );
 
         // Notify farmer
-        \App\Models\Notification::create([
-            'user_id' => $harvest->user_id,
-            'title' => 'Payment Received & Verified',
-            'message' => "Your freight cost payment for '{$harvest->crop->name}' on Route #{$poolingJob->id} has been verified and marked as paid.",
-            'link' => route('pooling.cost-ledger', $poolingJob)
-        ]);
+        self::notifyPaymentVerified(
+            $harvest->user_id,
+            $harvest->crop->name,
+            $poolingJob->id
+        );
 
-        return back()->with('success', 'Payment marked as Paid.');
+        return back()->with('success', 'Payment marked as Paid.')
+            ->with('next_steps', [
+                'title'   => 'Payment settled',
+                'message' => 'Payment marked as Paid.',
+                'steps'   => [
+                    'This stop is now settled and the farmer is notified.',
+                    'When every stop on the route is paid, the full freight invoice automatically settles.',
+                    'You can download the invoice to keep a record.',
+                ],
+            ]);
     }
 
     /**
@@ -243,21 +287,21 @@ class CostLedgerController extends Controller
             'farmer_qty_confirmed' => true,
         ]);
 
-        \App\Models\AuditLog::create([
-            'admin_id'    => $user->id,
-            'action'      => 'farmer_confirmed_quantity',
-            'target_type' => 'pooling_job_harvests',
-            'target_id'   => $poolingJob->id,
-            'notes'       => "Farmer {$user->name} confirmed actual quantity {$validated['actual_quantity_kg']} kg for Harvest #{$harvest->id} on Route #{$poolingJob->id}.",
-        ]);
+        self::logAudit(
+            $user->id,
+            'farmer_confirmed_quantity',
+            'pooling_job_harvests',
+            $poolingJob->id,
+            "Farmer {$user->name} confirmed actual quantity {$validated['actual_quantity_kg']} kg for Harvest #{$harvest->id} on Route #{$poolingJob->id}."
+        );
 
         if ($poolingJob->logisticsProfile && $poolingJob->logisticsProfile->user_id) {
-            \App\Models\Notification::create([
-                'user_id' => $poolingJob->logisticsProfile->user_id,
-                'title'   => 'Actual Quantity Confirmed',
-                'message' => "Farmer {$user->name} confirmed actual quantity of {$validated['actual_quantity_kg']} kg for Route #{$poolingJob->id}.",
-                'link'    => route('pooling.cost-ledger', $poolingJob),
-            ]);
+            self::notifyQuantityConfirmed(
+                $poolingJob->logisticsProfile->user_id,
+                $user->name,
+                $validated['actual_quantity_kg'],
+                $poolingJob->id
+            );
         }
 
         return back()->with('success', 'Actual quantity confirmed successfully.');
@@ -312,12 +356,8 @@ class CostLedgerController extends Controller
                 }
             }
 
-            // Completed jobs and revenue for this truck (from pre-grouped collection)
+            // Completed jobs for this truck (from pre-grouped collection)
             $completedJobs = $completedJobsByTruck->get($truck->id, collect());
-
-            $totalRevenue = (float) $completedJobs->sum(function ($job) {
-                return (float) ($job->negotiated_price ?? $job->price_reference ?? 0);
-            });
 
             return [
                 'id'                => $truck->id,
@@ -329,8 +369,6 @@ class CostLedgerController extends Controller
                 'total_fuel_cost'   => $totalFuelCost,
                 'kpl'               => round($kpl, 2),
                 'completed_trips'   => $completedJobs->count(),
-                'revenue'           => $totalRevenue,
-                'net_income'        => $totalRevenue - $totalFuelCost,
             ];
         });
 
@@ -338,14 +376,10 @@ class CostLedgerController extends Controller
         $totalRefuels     = $fuelLogs->count();
         $totalFuelCost    = $fuelLogs->sum('cost');
         $totalFuelLiters  = $fuelLogs->sum('fuel_liters');
-        
-        $totalRevenue = (float) $completedJobsByTruck->flatten()->sum(function ($job) {
-            return (float) ($job->negotiated_price ?? $job->price_reference ?? 0);
-        });
 
         return view('logistics.analytics', compact(
-            'truckAnalytics', 'fuelLogs', 'totalRefuels', 'totalFuelCost', 
-            'totalFuelLiters', 'totalRevenue'
+            'truckAnalytics', 'fuelLogs', 'totalRefuels',
+            'totalFuelCost', 'totalFuelLiters'
         ));
     }
 }

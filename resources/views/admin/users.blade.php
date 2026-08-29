@@ -1,17 +1,16 @@
-﻿<x-layout>
+<x-layout>
 <div class="w-full max-w-7xl mx-auto">
 
-    <header class="mb-8">
+    <header class="pt-8 mb-8">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
                 <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-550 mb-1">Admin / Security control</p>
                 <h1 class="text-2xl font-extrabold text-slate-800 dark:text-white heading-font tracking-tight">User Management</h1>
-                <p class="text-sm text-slate-400 dark:text-slate-500 mt-1 font-semibold">View, create, edit, and archive all registered platform accounts</p>
             </div>
             <div class="flex items-center gap-3">
-                <span class="text-[10px] font-bold uppercase tracking-widest text-[#3A7D44] dark:text-[#3A7D44] bg-[#3A7D44]/10 dark:bg-[#3A7D44]/10 px-3 py-1.5 rounded-lg border border-[#3A7D44]/10 dark:border-[#3A7D44]/20">{{ $users->count() }} Total Accounts</span>
+                <span class="text-[10px] font-bold uppercase tracking-widest text-[#16283C] dark:text-[#D7BC7A] bg-[#16283C]/10 dark:bg-[#16283C]/10 px-3 py-1.5 rounded-lg border border-[#16283C]/10 dark:border-[#16283C]/20">{{ $users->count() }} Total Accounts</span>
                 <button onclick="openCreateUserModal()"
-                    class="bg-[#3A7D44] hover:bg-[#2E6336] text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-md shadow-[#3A7D44]/10 hover:shadow-lg transition-all flex items-center gap-1.5 cursor-pointer">
+                    class="bg-[#16283C] hover:bg-[#0E1620] text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-md shadow-[#16283C]/10 hover:shadow-lg transition-all flex items-center gap-1.5 cursor-pointer">
                     <x-icon name="plus" class="w-4 h-4" /> Add User
                 </button>
             </div>
@@ -22,7 +21,7 @@
     <x-flash-error />
 
     @if ($errors->any())
-        <div class="mb-6 bg-red-50 dark:bg-red-950/30 border border-red-250 dark:border-red-900/30 text-red-700 dark:text-red-400 rounded-xl px-5 py-4 text-sm font-semibold">
+        <div class="mb-6 bg-[var(--color-error-bg)] border border-[var(--color-error-border)] text-[var(--color-error-text)] rounded-xl px-5 py-4 text-sm font-semibold">
             <span class="font-bold">Errors occurred:</span>
             <ul class="list-disc list-inside mt-1 font-medium text-xs space-y-0.5">
                 @foreach ($errors->all() as $error)
@@ -82,7 +81,7 @@
                         <p>License: {{ $user->driverProfile?->license_number ?? 'No License' }}</p>
                         <p>{{ $user->driverProfile?->phone ?? 'No Phone' }}</p>
                         @if($user->driverProfile?->partner)
-                            <p class="text-[10px] text-[#3A7D44] dark:text-[#3A7D44] font-bold">{{ $user->driverProfile->partner->company_name }}</p>
+                            <p class="text-[10px] text-[#16283C] dark:text-[#D7BC7A] font-bold">{{ $user->driverProfile->partner->company_name }}</p>
                         @endif
                     </div>
                 @elseif($user->role === 'buyer')
@@ -123,7 +122,7 @@
                             'partner_id' => $user->driverProfile?->partner_id ?? '',
                             'vehicle_type' => $user->driverProfile?->vehicle_type ?? '',
                         ]) }})"
-                        class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-[#3A7D44]/10 text-[#3A7D44] hover:bg-[#3A7D44]/15 dark:bg-[#3A7D44]/10 dark:hover:bg-[#3A7D44]/15 dark:text-[#3A7D44] transition"
+                        class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-[#16283C]/10 text-[#16283C] hover:bg-[#16283C]/15 dark:bg-[#16283C]/10 dark:hover:bg-[#16283C]/15 dark:text-[#D7BC7A] transition"
                         title="Edit User">
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
@@ -132,7 +131,7 @@
 
                         @if($user->status === 'active')
                             @if($user->role === 'farmer')
-                                <button type="button" onclick="checkAndArchive({{ $user->id }}, '{{ addslashes($user->name) }}')" class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-amber-50 text-amber-600 hover:bg-amber-100 dark:bg-amber-950/20 dark:hover:bg-amber-950/40 dark:text-amber-400 transition" title="Archive User">
+                                <button type="button" onclick="checkAndArchive({{ $user->id }}, '{{ addslashes($user->name) }}')" class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-amber-50 text-amber-700 hover:bg-amber-100 dark:bg-amber-950/20 dark:hover:bg-amber-950/40 dark:text-amber-400 transition" title="Archive User">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                                     </svg>
@@ -140,7 +139,7 @@
                             @else
                                 <form method="POST" action="{{ route('admin.users.status', $user->id) }}" class="inline" id="archive-form-{{ $user->id }}">
                                     @csrf
-                                    <button type="button" onclick="swalConfirm(this.closest('form'), {title: 'Archive User?', text: 'Archive {{ addslashes($user->name) }}?', confirmText: 'Yes, archive', icon: 'warning', confirmColor: '#f59e0b'})" class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-amber-50 text-amber-600 hover:bg-amber-100 dark:bg-amber-950/20 dark:hover:bg-amber-950/40 dark:text-amber-400 transition" title="Archive User">
+                                    <button type="button" onclick="swalConfirm(this.closest('form'), {title: 'Archive User?', text: 'Archive {{ addslashes($user->name) }}?', confirmText: 'Yes, archive', icon: 'warning', confirmColor: '#f59e0b'})" class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-amber-50 text-amber-700 hover:bg-amber-100 dark:bg-amber-950/20 dark:hover:bg-amber-950/40 dark:text-amber-400 transition" title="Archive User">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                                         </svg>
@@ -150,7 +149,7 @@
                         @else
                             <form method="POST" action="{{ route('admin.users.status', $user->id) }}" class="inline" id="reactivate-form-{{ $user->id }}">
                                 @csrf
-                                <button type="button" onclick="swalConfirm(this.closest('form'), {title: 'Reactivate User?', text: 'Reactivate {{ addslashes($user->name) }}?', confirmText: 'Yes, reactivate', icon: 'question', confirmColor: '#3A7D44'})" class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-[#3A7D44]/10 text-[#3A7D44] hover:bg-[#3A7D44]/15 dark:bg-[#3A7D44]/10 dark:hover:bg-[#3A7D44]/15 dark:text-[#3A7D44] transition" title="Reactivate User">
+                                <button type="button" onclick="swalConfirm(this.closest('form'), {title: 'Reactivate User?', text: 'Reactivate {{ addslashes($user->name) }}?', confirmText: 'Yes, reactivate', icon: 'question', confirmColor: '#16283C'})" class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-[#16283C]/10 text-[#16283C] hover:bg-[#16283C]/15 dark:bg-[#16283C]/10 dark:hover:bg-[#16283C]/15 dark:text-[#D7BC7A] transition" title="Reactivate User">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
                                     </svg>
@@ -174,28 +173,28 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-                <label class="block text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Full Name <span class="text-red-400">*</span></label>
+                <label for="user-name" class="block text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Full Name <span class="text-[var(--color-error-text)]">*</span></label>
                 <input type="text" id="user-name" name="name" required placeholder="John Doe"
-                    class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#3A7D44] focus:ring-2 focus:ring-[#3A7D44]/20 transition" />
+                    class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#16283C] focus:ring-2 focus:ring-[#16283C]/20 transition" />
             </div>
             <div>
-                <label class="block text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Email Address <span class="text-red-400">*</span></label>
+                <label for="user-email" class="block text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Email Address <span class="text-[var(--color-error-text)]">*</span></label>
                 <input type="email" id="user-email" name="email" required placeholder="john@example.com"
-                    class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#3A7D44] focus:ring-2 focus:ring-[#3A7D44]/20 transition" />
+                    class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#16283C] focus:ring-2 focus:ring-[#16283C]/20 transition" />
             </div>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-                <label class="block text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Password <span id="passRequiredStar" class="text-red-400">*</span></label>
+                <label for="user-password" class="block text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Password <span id="passRequiredStar" class="text-red-400">*</span></label>
                 <input type="password" id="user-password" name="password" placeholder="••••••••"
-                    class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#3A7D44] focus:ring-2 focus:ring-[#3A7D44]/20 transition" />
+                    class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#16283C] focus:ring-2 focus:ring-[#16283C]/20 transition" />
                 <p id="passwordHint" class="text-[10px] text-slate-400 mt-1 hidden font-semibold">Leave blank to keep current password.</p>
             </div>
             <div>
-                <label class="block text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Account Role <span class="text-red-400">*</span></label>
+                <label for="user-role" class="block text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Account Role <span class="text-[var(--color-error-text)]">*</span></label>
                 <select id="user-role" name="role" required onchange="handleRoleChange(this.value)"
-                    class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#3A7D44] focus:ring-2 focus:ring-[#3A7D44]/20 transition">
+                    class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#16283C] focus:ring-2 focus:ring-[#16283C]/20 transition">
                     <option value="admin">Administrator</option>
                     <option value="farmer">Farmer Cooperative Member</option>
                     <option value="logistics_partner">Logistics Freight Partner</option>
@@ -207,17 +206,17 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-                <label class="block text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Account Status <span class="text-red-400">*</span></label>
+                <label for="user-status" class="block text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Account Status <span class="text-[var(--color-error-text)]">*</span></label>
                 <select id="user-status" name="status" required
-                    class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#3A7D44] focus:ring-2 focus:ring-[#3A7D44]/20 transition">
+                    class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#16283C] focus:ring-2 focus:ring-[#16283C]/20 transition">
                     <option value="active">Active</option>
                     <option value="inactive">Archived</option>
                 </select>
             </div>
             <div id="phone-container" class="hidden">
-                <label class="block text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Phone Number <span class="text-red-400">*</span></label>
+                <label for="user-phone" class="block text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Phone Number <span class="text-[var(--color-error-text)]">*</span></label>
                 <input type="text" id="user-phone" name="phone" placeholder="e.g. +639123456789"
-                    class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#3A7D44] focus:ring-2 focus:ring-[#3A7D44]/20 transition" />
+                    class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#16283C] focus:ring-2 focus:ring-[#16283C]/20 transition" />
             </div>
         </div>
 
@@ -225,23 +224,23 @@
 
         <div id="farmer-fields" class="hidden space-y-4">
             <div id="farm-location-container">
-                <label class="block text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Farm Location (Address) <span class="text-red-400">*</span></label>
+                <label for="user-farm-location" class="block text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Farm Location (Address) <span class="text-[var(--color-error-text)]">*</span></label>
                 <input type="text" id="user-farm-location" name="farm_location" placeholder="e.g. Barangay Tupi, South Cotabato"
-                    class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#3A7D44] focus:ring-2 focus:ring-[#3A7D44]/20 transition" />
+                    class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#16283C] focus:ring-2 focus:ring-[#16283C]/20 transition" />
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                    <label class="block text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Affiliation Type <span class="text-red-400">*</span></label>
+                    <label for="user-affiliation-type" class="block text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Affiliation Type <span class="text-[var(--color-error-text)]">*</span></label>
                     <select id="user-affiliation-type" name="affiliation_type" onchange="handleAffiliationChange(this.value)"
-                        class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#3A7D44] focus:ring-2 focus:ring-[#3A7D44]/20 transition">
+                        class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#16283C] focus:ring-2 focus:ring-[#16283C]/20 transition">
                         <option value="independent">Independent Farmer</option>
                         <option value="cooperative">Under Cooperative</option>
                     </select>
                 </div>
                 <div id="cooperative-select-container" class="hidden">
-                    <label class="block text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Select Cooperative <span class="text-red-400">*</span></label>
+                    <label for="user-cooperative-id" class="block text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Select Cooperative <span class="text-[var(--color-error-text)]">*</span></label>
                     <select id="user-cooperative-id" name="cooperative_id"
-                        class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#3A7D44] focus:ring-2 focus:ring-[#3A7D44]/20 transition">
+                        class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#16283C] focus:ring-2 focus:ring-[#16283C]/20 transition">
                         <option value="">— Select Cooperative —</option>
                         @foreach($cooperatives as $coop)
                             @if($coop->isCooperative())
@@ -256,29 +255,29 @@
         <div id="logistics-fields" class="hidden space-y-4">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                    <label class="block text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Company / Cooperative Name <span class="text-red-400">*</span></label>
+                    <label for="user-company-name" class="block text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Company / Cooperative Name <span class="text-[var(--color-error-text)]">*</span></label>
                     <input type="text" id="user-company-name" name="company_name" placeholder="e.g. Gensan Logistics"
-                        class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#3A7D44] focus:ring-2 focus:ring-[#3A7D44]/20 transition" />
+                        class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#16283C] focus:ring-2 focus:ring-[#16283C]/20 transition" />
                 </div>
                 <div>
-                    <label class="block text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Business Permit No. <span class="text-red-400">*</span></label>
+                    <label for="user-business-permit-no" class="block text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Business Permit No. <span class="text-[var(--color-error-text)]">*</span></label>
                     <input type="text" id="user-business-permit-no" name="business_permit_no" placeholder="e.g. BP-2026-10294"
-                        class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#3A7D44] focus:ring-2 focus:ring-[#3A7D44]/20 transition" />
+                        class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#16283C] focus:ring-2 focus:ring-[#16283C]/20 transition" />
                 </div>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                    <label class="block text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Logistics Type <span class="text-red-400">*</span></label>
+                    <label for="user-logistics-type" class="block text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Logistics Type <span class="text-[var(--color-error-text)]">*</span></label>
                     <select id="user-logistics-type" name="logistics_type" onchange="handleLogisticsTypeChange(this.value)"
-                        class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#3A7D44] focus:ring-2 focus:ring-[#3A7D44]/20 transition">
+                        class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#16283C] focus:ring-2 focus:ring-[#16283C]/20 transition">
                         <option value="company">Logistics Corporation</option>
                         <option value="cooperative">Transport Cooperative</option>
                     </select>
                 </div>
                 <div id="cda-registration-container" class="hidden">
-                    <label class="block text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">CDA Registration No. <span class="text-red-400">*</span></label>
+                    <label for="user-cda-registration-no" class="block text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">CDA Registration No. <span class="text-[var(--color-error-text)]">*</span></label>
                     <input type="text" id="user-cda-registration-no" name="cda_registration_no" placeholder="CDA-REG-94829"
-                        class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#3A7D44] focus:ring-2 focus:ring-[#3A7D44]/20 transition" />
+                        class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#16283C] focus:ring-2 focus:ring-[#16283C]/20 transition" />
                 </div>
             </div>
         </div>
@@ -286,14 +285,14 @@
         <div id="driver-fields" class="hidden space-y-4">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                    <label class="block text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Professional License No. <span class="text-red-400">*</span></label>
+                    <label for="user-license-number" class="block text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Professional License No. <span class="text-[var(--color-error-text)]">*</span></label>
                     <input type="text" id="user-license-number" name="license_number" placeholder="e.g. N01-12-345678"
-                        class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#3A7D44] focus:ring-2 focus:ring-[#3A7D44]/20 transition" />
+                        class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#16283C] focus:ring-2 focus:ring-[#16283C]/20 transition" />
                 </div>
                 <div>
-                    <label class="block text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Logistics Employer <span class="text-red-400">*</span></label>
+                    <label for="user-partner-id" class="block text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Logistics Employer <span class="text-[var(--color-error-text)]">*</span></label>
                     <select id="user-partner-id" name="partner_id"
-                        class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#3A7D44] focus:ring-2 focus:ring-[#3A7D44]/20 transition">
+                        class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#16283C] focus:ring-2 focus:ring-[#16283C]/20 transition">
                         <option value="">— Select Employer —</option>
                         @foreach($cooperatives as $partner)
                             <option value="{{ $partner->id }}">{{ $partner->company_name }} ({{ $partner->logistics_type }})</option>
@@ -302,9 +301,9 @@
                 </div>
             </div>
             <div>
-                <label class="block text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Assigned Vehicle Category</label>
+                <label for="user-vehicle-type" class="block text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Assigned Vehicle Category</label>
                 <input type="text" id="user-vehicle-type" name="vehicle_type" placeholder="e.g. 10-Wheeler Wing Van (Optional)"
-                    class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#3A7D44] focus:ring-2 focus:ring-[#3A7D44]/20 transition" />
+                    class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#16283C] focus:ring-2 focus:ring-[#16283C]/20 transition" />
             </div>
         </div>
 
@@ -338,7 +337,7 @@
                     Swal.fire({
                         icon: 'warning',
                         title: 'Active Posts Detected',
-                        html: `<p class="mb-2">${userName} currently has <strong>${count}</strong> active harvest post${count > 1 ? 's' : ''}.</p><p class="text-red-500 text-sm font-bold">Proceeding will cancel all active posts and remove this farmer's pins from the logistics map.</p>`,
+                        text: `${userName} currently has ${count} active harvest post${count > 1 ? 's' : ''}. Proceeding will cancel all active posts and remove this farmer's pins from the logistics map.`,
                         showCancelButton: true,
                         confirmButtonText: 'Archive Anyway',
                         cancelButtonText: 'Cancel',
@@ -372,7 +371,7 @@
                                         position: 'top-end',
                                         background: document.documentElement.classList.contains('dark') ? '#1e293b' : '#fff',
                                         color: document.documentElement.classList.contains('dark') ? '#e2e8f0' : '#1e293b',
-                                        iconColor: '#3A7D44'
+                                        iconColor: '#16283C'
                                     });
                                     setTimeout(() => window.location.reload(), 1500);
                                 }
@@ -390,7 +389,7 @@
                         position: 'top-end',
                         background: document.documentElement.classList.contains('dark') ? '#1e293b' : '#fff',
                         color: document.documentElement.classList.contains('dark') ? '#e2e8f0' : '#1e293b',
-                        iconColor: '#3A7D44'
+                        iconColor: '#16283C'
                     });
                     setTimeout(() => window.location.reload(), 1500);
                 }
@@ -406,7 +405,7 @@
 
     const userForm = document.getElementById('userForm');
     const formMethod = document.getElementById('formMethod');
-    const modalTitle = document.getElementById('modalTitle');
+    const modalTitle = document.querySelector('#userModal h3');
     const passRequiredStar = document.getElementById('passRequiredStar');
     const passwordHint = document.getElementById('passwordHint');
 

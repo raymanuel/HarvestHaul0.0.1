@@ -4,18 +4,25 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\Services\Darfo12Service;
+use App\Models\ScraperStatus;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
 
 class ScrapeDarfo12Prices extends Command
 {
-    protected $signature = 'crops:scrape:darfo12 {--force} {--source=auto} {--diagnose}';
+    protected $signature = 'crops:scrape:darfo12 {--force} {--diagnose}';
 
-    protected $description = 'Scrape daily crop prices from DA RFO12 (blog OCR, PDF, or HTML fallback)';
+    protected $description = 'Scrape daily crop prices from DA RFO12 via the Bantay Presyo Google Doc';
+
+    // Below this many stored commodities for a source date, the scrape is treated as incomplete.
+    private const MIN_PLAUSIBLE_COMMODITIES = 10;
 
     public function handle(Darfo12Service $service): int
     {
+        // Give the full PDF → OCR pipeline room to finish under cron and via the Refresh Prices button.
+        @set_time_limit(600);
+
         // Auto-clear compiled classes to prevent stale command cache
         $compiledPath = app()->bootstrapPath('cache/compiled.php');
         if (file_exists($compiledPath)) {
@@ -30,12 +37,23 @@ class ScrapeDarfo12Prices extends Command
             return $this->diagnose($service);
         }
 
-        $source = $this->option('source');
-        if (!in_array($source, ['auto', 'blog', 'pdf', 'html'])) {
-            $this->error("Invalid --source value '{$source}'. Use: auto, blog, pdf, html");
+        // Outer guard: any unexpected error still produces a 'failed' status row + FAILURE exit
+        // instead of silently stopping status logging.
+        try {
+            return $this->runScrape($service);
+        } catch (\Throwable $e) {
+            Log::error('DA RFO12: Unexpected scrape failure.', [
+                'error' => $e->getMessage(),
+                'trace' => substr($e->getTraceAsString(), 0, 1000),
+            ]);
+            $this->error('Unexpected error: ' . $e->getMessage());
+            $this->logStatus('failed', null, 'Unexpected error: ' . $e->getMessage());
             return self::FAILURE;
         }
+    }
 
+    private function runScrape(Darfo12Service $service): int
+    {
         try {
             $latestStoredDate = \App\Models\CropPriceHistory::where('source', 'da_rfo12')
                 ->max('source_date');
@@ -46,109 +64,75 @@ class ScrapeDarfo12Prices extends Command
             return self::FAILURE;
         }
 
-        // Step 1: Blog (always freshest — posts images with price tables)
-        if (in_array($source, ['auto', 'blog'])) {
-            $this->info('Step 1: DA RFO12 Blog (freshest source)...');
-            $post = $service->fetchLatestPost();
+        $this->info('Step 1: Fetch latest date from Bantay Presyo Google Doc...');
+        $latestDocDate = $service->fetchLatestGoogleDocDate();
 
-            if ($post) {
-                $this->info("Found: {$post['title']}");
-                $this->info("Date: {$post['date']}");
-
-                if (!$this->option('force') && $latestStoredDate && $post['date'] <= $latestStoredDate) {
-                    $msg = "Blog post ({$post['date']}) is not newer than stored ({$latestStoredDate}).";
-                    if ($source === 'auto') {
-                        $this->warn($msg . ' Checking HTML...');
-                    } else {
-                        $this->warn($msg);
-                        $this->logStatus('skipped', $post['date'], $msg);
-                        return self::SUCCESS;
-                    }
-                } else {
-                    $imageUrls = $service->fetchPostImages((int) $post['post_id']);
-
-                    if (!empty($imageUrls)) {
-                        $this->info("Found " . count($imageUrls) . " images.");
-
-                        $imagePaths = $service->downloadImages($imageUrls, $post['date']);
-                        if (!empty($imagePaths)) {
-                            $this->info('Running OCR...');
-                            $ocrTexts = $service->ocrImages($imagePaths);
-                            $this->info('OCR complete.');
-
-                            $prices = $service->parseOcrOutput($ocrTexts);
-                            $this->info("Parsed " . count($prices) . " price entries.");
-
-                            if (!empty($prices)) {
-                                try {
-                                    [$stored, $skipped] = $service->storeCommodityPrices($prices, $post['date']);
-                                    $this->info("Stored: {$stored} | Skipped: {$skipped}");
-                                    $service->cleanup($post['date']);
-                                    $this->logStatus('success', $post['date'], "Blog OCR: {$stored} commodities", $stored, $skipped);
-                                    $this->info('Done!');
-                                    return self::SUCCESS;
-                                } catch (\Exception $e) {
-                                    $this->error("DB update failed: {$e->getMessage()}");
-                                    Log::error('DA RFO12: DB update failed (Blog).', ['error' => $e->getMessage()]);
-                                }
-                            }
-                        } else {
-                            $this->warn('Failed to download images.');
-                        }
-                    } else {
-                        $this->warn('No images found in post.');
-                    }
-                }
-            } else {
-                $this->warn('No price index post found on blog.');
-            }
-
-            if ($source !== 'auto') {
-                $this->logStatus('failed', null, 'Blog source failed.');
-                return self::FAILURE;
-            }
+        if (!$latestDocDate) {
+            $msg = 'Could not fetch latest date from the Bantay Presyo Google Doc.';
+            $this->error($msg);
+            $this->logStatus('failed', null, $msg);
+            return self::FAILURE;
         }
 
-        $this->newLine();
+        $this->info("Latest date available: {$latestDocDate}");
+        $this->info('Step 2: Resolve and download the price PDF for that date...');
 
-        // Step 2: Structured HTML fallback (bantaypresyo — slower but reliable)
-        $this->info('Step 2: Structured HTML (bantaypresyo.da.gov.ph)...');
-        $structuredDate = $service->fetchStructuredDate();
+        if (!$this->option('force') && $latestStoredDate && $latestDocDate <= $latestStoredDate) {
+            $storedCount = \App\Models\CropPriceHistory::where('source', 'da_rfo12')
+                ->where('source_date', $latestStoredDate)
+                ->count();
 
-        if ($structuredDate) {
-            $this->info("Data date: {$structuredDate}");
+            $lastRunForDate = ScraperStatus::where('scraper_name', 'darfo12')
+                ->where('source_date', $latestStoredDate)
+                ->latest()
+                ->first();
 
-            if (!$this->option('force') && $latestStoredDate && $structuredDate <= $latestStoredDate) {
-                $msg = "HTML data ($structuredDate) is not newer than stored ($latestStoredDate). Skipping.";
+            $shouldRescrape = false;
+            if ($lastRunForDate) {
+                if ($lastRunForDate->status === 'failed') {
+                    $shouldRescrape = true; // last attempt failed → retry to recover
+                } elseif ($lastRunForDate->status !== 'success' && $storedCount < self::MIN_PLAUSIBLE_COMMODITIES) {
+                    $shouldRescrape = true; // never succeeded and stored data looks incomplete → retry
+                }
+            } elseif ($storedCount < self::MIN_PLAUSIBLE_COMMODITIES) {
+                $shouldRescrape = true; // no run recorded for the date yet and data is thin → retry
+            }
+
+            if (!$shouldRescrape) {
+                $msg = "Google Doc date ($latestDocDate) is not newer than stored ($latestStoredDate). Nothing to do.";
                 $this->warn($msg);
-                $this->logStatus('skipped', $structuredDate, $msg);
+                $this->logStatus('skipped', $latestDocDate, $msg);
                 return self::SUCCESS;
             }
 
-            $this->info('Fetching price data...');
-            $prices = $service->fetchStructuredPrices();
-
-            if (!empty($prices)) {
-                $this->info("Fetched " . count($prices) . " commodities.");
-                try {
-                    [$stored, $skipped] = $service->storeStructuredPrices($prices, $structuredDate);
-                    $this->info("Stored: {$stored} | Skipped: {$skipped}");
-                    $this->logStatus('success', $structuredDate, "HTML source: {$stored} commodities", $stored, $skipped);
-                    $this->info('Done!');
-                    return self::SUCCESS;
-                } catch (\Exception $e) {
-                    $this->error("DB update failed: {$e->getMessage()}");
-                    Log::error('DA RFO12: DB update failed (HTML).', ['error' => $e->getMessage()]);
-                }
-            } else {
-                $this->error('No prices returned from HTML source.');
-            }
-        } else {
-            $this->error('Could not fetch HTML data date.');
+            $this->warn("Stored data for {$latestStoredDate} looks incomplete ({$storedCount} items). Re-scraping to catch corrections.");
         }
 
-        $this->logStatus('failed', null, 'All sources failed.');
-        return self::FAILURE;
+        $prices = $service->fetchRegion12PricesFromPdf($latestDocDate);
+
+        if (empty($prices)) {
+            $msg = 'No prices parsed from the Google Doc PDF for ' . $latestDocDate . '.';
+            $this->error($msg);
+            $this->logStatus('failed', $latestDocDate, $msg);
+            return self::FAILURE;
+        }
+
+        $this->info('Step 3: Storing parsed prices...');
+        $this->info('Parsed ' . count($prices) . ' price entries.');
+
+        try {
+            [$stored, $skipped] = $service->storeCommodityPrices($prices, $latestDocDate);
+            $this->info("Stored: {$stored} | Skipped: {$skipped}");
+            $this->logStatus('success', $latestDocDate, "Google Doc PDF: {$stored} commodities", $stored, $skipped);
+            Cache::forget('darfo12.dashboard');
+            $this->info('Done!');
+            return self::SUCCESS;
+        } catch (\Exception $e) {
+            $this->error("DB update failed: {$e->getMessage()}");
+            Log::error('DA RFO12: DB update failed (Google Doc PDF).', ['error' => $e->getMessage()]);
+            $this->logStatus('failed', $latestDocDate, 'DB update failed: ' . $e->getMessage());
+            return self::FAILURE;
+        }
     }
 
     private function diagnose(Darfo12Service $service): int
@@ -158,26 +142,26 @@ class ScrapeDarfo12Prices extends Command
 
         // Check Tesseract
         $tesseract = config('services.tesseract.binary', 'tesseract');
-        $tesseractPath = trim((string) shell_exec("where {$tesseract} 2>nul"));
+        $tesseractPath = $this->locateBinary($tesseract);
         if ($tesseractPath) {
             $this->info("Tesseract: {$tesseractPath}");
-            $version = trim((string) shell_exec("{$tesseractPath} --version 2>&1"));
+            $version = trim((string) shell_exec("\"{$tesseractPath}\" --version 2>&1"));
             $this->info("  Version: {$version}");
         } else {
             $this->warn("Tesseract: NOT FOUND at '{$tesseract}'");
             $this->warn("  Install: winget install tesseract-ocr.tesseract");
-            $this->warn("  Impact: Blog image OCR and PDF OCR will fail. Only HTML source works (~48 commodities).");
+            $this->warn("  Impact: PDF OCR will fail. The entire pipeline is PDF-only.");
         }
 
         // Check Poppler
         $pdftoppm = config('services.poppler.pdftoppm', 'pdftoppm');
-        $pdftoppmPath = trim((string) shell_exec("where {$pdftoppm} 2>nul"));
+        $pdftoppmPath = $this->locateBinary($pdftoppm);
         if ($pdftoppmPath) {
             $this->info("Poppler (pdftoppm): {$pdftoppmPath}");
         } else {
             $this->warn("Poppler (pdftoppm): NOT FOUND at '{$pdftoppm}'");
             $this->warn("  Install: winget install oschwartz101.poppler.windows");
-            $this->warn("  Impact: PDF-based scraping will fail. Only blog images + HTML source work.");
+            $this->warn("  Impact: PDF-based scraping will fail.");
         }
 
         // Check database
@@ -192,7 +176,7 @@ class ScrapeDarfo12Prices extends Command
 
         // Check scraper_status
         try {
-            $lastRun = DB::table('scraper_status')->where('scraper_name', 'darfo12')->latest()->first();
+            $lastRun = ScraperStatus::where('scraper_name', 'darfo12')->latest()->first();
             if ($lastRun) {
                 $this->info("Last scraper run: {$lastRun->status} at {$lastRun->created_at}");
                 $this->info("  Message: {$lastRun->message}");
@@ -203,15 +187,12 @@ class ScrapeDarfo12Prices extends Command
             $this->error("scraper_status table: {$e->getMessage()}");
         }
 
-        // Check network
+        // Check network — the Bantay Presyo Google Doc
         $this->newLine();
-        $blogUrl = 'https://rfo12.da.gov.ph/category/bantay-presyo/';
-        $htmlUrl = 'http://www.bantaypresyo.da.gov.ph';
-        $blogOk = @strlen(@file_get_contents($blogUrl, false, stream_context_create(['http' => ['timeout' => 5]]))) > 0;
-        $htmlOk = @strlen(@file_get_contents($htmlUrl, false, stream_context_create(['http' => ['timeout' => 5]]))) > 0;
+        $docUrl = 'https://docs.google.com/document/d/1qxIVOa0eShF5sghC3rq8eQRJRyBEi9kyaLxXJj82EbM/export?format=txt';
+        $docOk = @strlen(@file_get_contents($docUrl, false, stream_context_create(['http' => ['timeout' => 5, 'user_agent' => \App\Services\Darfo12Service::HTTP_USER_AGENT]]))) > 0;
 
-        $this->info("Blog URL ({$blogUrl}): " . ($blogOk ? 'REACHABLE' : 'UNREACHABLE'));
-        $this->info("HTML URL ({$htmlUrl}): " . ($htmlOk ? 'REACHABLE' : 'UNREACHABLE'));
+        $this->info("Google Doc ({$docUrl}): " . ($docOk ? 'REACHABLE' : 'UNREACHABLE'));
 
         $this->newLine();
         $this->info('=== Diagnostics Complete ===');
@@ -219,18 +200,26 @@ class ScrapeDarfo12Prices extends Command
         return self::SUCCESS;
     }
 
+    private function locateBinary(string $binary): ?string
+    {
+        if (str_contains($binary, '/') || str_contains($binary, '\\')) {
+            return is_file($binary) ? $binary : null;
+        }
+
+        $path = trim((string) shell_exec("where {$binary} 2>nul"));
+        return $path ?: null;
+    }
+
     private function logStatus(string $status, ?string $sourceDate, string $message, int $matched = 0, int $skipped = 0): void
     {
         try {
-            DB::table('scraper_status')->insert([
+            ScraperStatus::create([
                 'scraper_name'    => 'darfo12',
                 'status'          => $status,
                 'source_date'     => $sourceDate,
                 'message'         => $message,
                 'records_matched' => $matched,
                 'records_skipped' => $skipped,
-                'created_at'      => now(),
-                'updated_at'      => now(),
             ]);
         } catch (\Exception $e) {
             Log::warning('DA RFO12: Could not log scraper status to DB.', [

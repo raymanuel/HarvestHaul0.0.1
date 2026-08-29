@@ -1,14 +1,13 @@
-﻿<x-layout title="Register Fleet Vehicle">
+<x-layout title="Register Fleet Vehicle">
 
     <div class="w-full max-w-2xl mx-auto pb-12">
 
         <header class="pt-8 mb-6 border-b border-slate-200/80 dark:border-slate-700/80 pb-5">
             <a href="{{ route('logistics.vehicles.index') }}" class="text-sm text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 mb-4 inline-block font-semibold transition">
-                ← Back to Fleet Vehicles
+                ← Back to Vehicles
             </a>
-            <span class="text-xs font-bold uppercase tracking-wider text-[#1F4D25] dark:text-[#1F4D25] bg-[#1F4D25]/10 dark:bg-[#1F4D25]/10 px-3 py-1.5 rounded-lg border border-[#1F4D25]/10 dark:border-[#1F4D25]/20 inline-block mb-2">Fleet Integration</span>
+            <span class="text-xs font-bold uppercase tracking-wider text-[#0E1620] dark:text-[#bfd6c9] bg-[#0E1620]/10 dark:bg-[#0E1620]/10 px-3 py-1.5 rounded-lg border border-[#0E1620]/10 dark:border-[#0E1620]/20 inline-block mb-2">Fleet Integration</span>
             <h1 class="text-3xl font-bold text-slate-900 dark:text-white tracking-tight heading-font">Add Fleet Vehicle</h1>
-            <p class="text-slate-500 dark:text-slate-400 mt-1 font-medium">Add a truck, van, or transporter to deploy optimized cargo consolidate routes.</p>
         </header>
 
         {{-- Add Form --}}
@@ -21,11 +20,11 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-5">
                     {{-- Truck Name --}}
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">
+                        <label for="truck_name" class="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">
                             Vehicle Name / Label <span class="text-red-500">*</span>
                         </label>
-                        <input type="text" name="truck_name" value="{{ old('truck_name') }}" required placeholder="e.g. Matutum Transporter A"
-                            class="w-full px-4 py-3 border border-slate-200 dark:border-slate-600 rounded-xl text-sm text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-900/60 focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/30 dark:focus:ring-[#3A7D44]/30 focus:border-[#3A7D44] dark:focus:border-[#3A7D44] transition">
+                        <input type="text" name="truck_name" id="truck_name" value="{{ old('truck_name') }}" required placeholder="e.g. Matutum Transporter A"
+                            class="w-full px-4 py-3 border border-slate-200 dark:border-slate-600 rounded-xl text-sm text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-900/60 focus:outline-none focus:ring-2 focus:ring-[#16283C]/30 dark:focus:ring-[#16283C]/30 focus:border-[#16283C] dark:focus:border-[#16283C] transition">
                         @error('truck_name')
                             <p class="text-red-500 dark:text-red-400 text-xs mt-1.5 font-medium">{{ $message }}</p>
                         @enderror
@@ -33,11 +32,11 @@
 
                     {{-- Plate Number --}}
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">
+                        <label for="plate_number" class="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">
                             Plate Number <span class="text-red-500">*</span>
                         </label>
-                        <input type="text" name="plate_number" value="{{ old('plate_number') }}" required placeholder="e.g. ABC 1234"
-                            class="w-full px-4 py-3 border border-slate-200 dark:border-slate-600 rounded-xl text-sm text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-900/60 focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/30 dark:focus:ring-[#3A7D44]/30 focus:border-[#3A7D44] dark:focus:border-[#3A7D44] transition font-mono uppercase">
+                        <input type="text" name="plate_number" id="plate_number" value="{{ old('plate_number') }}" required placeholder="e.g. ABC 1234"
+                            class="w-full px-4 py-3 border border-slate-200 dark:border-slate-600 rounded-xl text-sm text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-900/60 focus:outline-none focus:ring-2 focus:ring-[#16283C]/30 dark:focus:ring-[#16283C]/30 focus:border-[#16283C] dark:focus:border-[#16283C] transition font-mono uppercase">
                         @error('plate_number')
                             <p class="text-red-500 dark:text-red-400 text-xs mt-1.5 font-medium">{{ $message }}</p>
                         @enderror
@@ -47,11 +46,11 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-5">
                     {{-- Vehicle Type --}}
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">
+                        <label for="vehicle_type" class="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">
                             Vehicle Type <span class="text-red-500">*</span>
                         </label>
-                        <select name="vehicle_type" required
-                            class="w-full px-4 py-3 border border-slate-200 dark:border-slate-600 rounded-xl text-sm text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-900/60 focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/30 dark:focus:ring-[#3A7D44]/30 focus:border-[#3A7D44] dark:focus:border-[#3A7D44] transition">
+                        <select name="vehicle_type" id="vehicle_type" required
+                            class="w-full px-4 py-3 border border-slate-200 dark:border-slate-600 rounded-xl text-sm text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-900/60 focus:outline-none focus:ring-2 focus:ring-[#16283C]/30 dark:focus:ring-[#16283C]/30 focus:border-[#16283C] dark:focus:border-[#16283C] transition">
                             <option value="" disabled selected>Select vehicle type</option>
                             <option value="6-Wheeler Flatbed" {{ old('vehicle_type') === '6-Wheeler Flatbed' ? 'selected' : '' }}>6-Wheeler Flatbed</option>
                             <option value="10-Wheeler Wing Van" {{ old('vehicle_type') === '10-Wheeler Wing Van' ? 'selected' : '' }}>10-Wheeler Wing Van</option>
@@ -65,11 +64,11 @@
 
                     {{-- Capacity in KG --}}
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">
+                        <label for="capacity_kg" class="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">
                             Weight Capacity (kg) <span class="text-red-500">*</span>
                         </label>
-                        <input type="number" name="capacity_kg" value="{{ old('capacity_kg') }}" required min="0" placeholder="e.g. 5000"
-                            class="w-full px-4 py-3 border border-slate-200 dark:border-slate-600 rounded-xl text-sm text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-900/60 focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/30 dark:focus:ring-[#3A7D44]/30 focus:border-[#3A7D44] dark:focus:border-[#3A7D44] transition">
+                        <input type="number" name="capacity_kg" id="capacity_kg" value="{{ old('capacity_kg') }}" required min="0" placeholder="e.g. 5000"
+                            class="w-full px-4 py-3 border border-slate-200 dark:border-slate-600 rounded-xl text-sm text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-900/60 focus:outline-none focus:ring-2 focus:ring-[#16283C]/30 dark:focus:ring-[#16283C]/30 focus:border-[#16283C] dark:focus:border-[#16283C] transition">
                         @error('capacity_kg')
                             <p class="text-red-500 dark:text-red-400 text-xs mt-1.5 font-medium">{{ $message }}</p>
                         @enderror
@@ -79,11 +78,11 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-5">
                     {{-- Assigned Driver --}}
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">
+                        <label for="driver_id" class="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">
                             Assigned Driver
                         </label>
-                        <select name="driver_id"
-                            class="w-full px-4 py-3 border border-slate-200 dark:border-slate-600 rounded-xl text-sm text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-900/60 focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/30 dark:focus:ring-[#3A7D44]/30 focus:border-[#3A7D44] dark:focus:border-[#3A7D44] transition">
+                        <select name="driver_id" id="driver_id"
+                            class="w-full px-4 py-3 border border-slate-200 dark:border-slate-600 rounded-xl text-sm text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-900/60 focus:outline-none focus:ring-2 focus:ring-[#16283C]/30 dark:focus:ring-[#16283C]/30 focus:border-[#16283C] dark:focus:border-[#16283C] transition">
                             <option value="">No Driver / Idle Vehicle</option>
                             @foreach($drivers as $driver)
                                 <option value="{{ $driver->id }}" {{ old('driver_id') == $driver->id ? 'selected' : '' }}>
@@ -98,11 +97,11 @@
 
                     {{-- Vehicle Status --}}
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">
+                        <label for="status" class="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">
                             Initial Fleet Status <span class="text-red-500">*</span>
                         </label>
-                        <select name="status" required
-                            class="w-full px-4 py-3 border border-slate-200 dark:border-slate-600 rounded-xl text-sm text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-900/60 focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/30 dark:focus:ring-[#3A7D44]/30 focus:border-[#3A7D44] dark:focus:border-[#3A7D44] transition">
+                        <select name="status" id="status" required
+                            class="w-full px-4 py-3 border border-slate-200 dark:border-slate-600 rounded-xl text-sm text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-900/60 focus:outline-none focus:ring-2 focus:ring-[#16283C]/30 dark:focus:ring-[#16283C]/30 focus:border-[#16283C] dark:focus:border-[#16283C] transition">
                             <option value="available" {{ old('status', 'available') === 'available' ? 'selected' : '' }}>Available</option>
                             <option value="in_transit" {{ old('status') === 'in_transit' ? 'selected' : '' }}>In Transit</option>
                             <option value="maintenance" {{ old('status') === 'maintenance' ? 'selected' : '' }}>Maintenance</option>
@@ -115,24 +114,22 @@
 
                 {{-- Notes --}}
                 <div class="mb-8">
-                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">
+                    <label for="notes" class="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">
                         Notes
                     </label>
-                    <textarea name="notes" placeholder="Optional notes regarding vehicle height limits, refrigeration status, or driver specifications..." rows="4"
-                        class="w-full px-4 py-3 border border-slate-200 dark:border-slate-600 rounded-xl text-sm text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-900/60 focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/30 dark:focus:ring-[#3A7D44]/30 focus:border-[#3A7D44] dark:focus:border-[#3A7D44] transition"></textarea>
+                    <textarea name="notes" id="notes" placeholder="Optional notes regarding vehicle height limits, refrigeration status, or driver specifications..." rows="4"
+                        class="w-full px-4 py-3 border border-slate-200 dark:border-slate-600 rounded-xl text-sm text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-900/60 focus:outline-none focus:ring-2 focus:ring-[#16283C]/30 dark:focus:ring-[#16283C]/30 focus:border-[#16283C] dark:focus:border-[#16283C] transition"></textarea>
                     @error('notes')
                         <p class="text-red-500 dark:text-red-400 text-xs mt-1.5 font-medium">{{ $message }}</p>
                     @enderror
                 </div>
 
                 <div class="flex items-center gap-3">
-                    <button type="submit"
-                        class="bg-gradient-to-tr from-[#3A7D44] to-[#2E6336] hover:from-[#3A7D44] hover:to-[#2E6336] text-white text-sm font-bold px-6 py-3.5 rounded-xl border border-[#3A7D44]/20 dark:border-[#3A7D44]/25 shadow-md shadow-[#3A7D44]/15 dark:shadow-[#3A7D44]/30 hover:shadow-lg hover:translate-y-[-1px] active:translate-y-0 transition-all duration-200"
-                        >
+                    <x-button type="submit" size="lg" class=".5 border border-[#16283C]/20 dark:border-[#16283C]/25">
                         Add Vehicle
-                    </button>
+                    </x-button>
                     <a href="{{ route('logistics.vehicles.index') }}" 
-                        class="text-xs font-bold text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-350 px-4 py-3.5 rounded-xl border border-slate-200/60 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-900/30 transition">
+                        class="text-xs font-bold text-slate-500 dark:text-slate-400 hover:text-slate-600 dark:hover:text-slate-350 px-4 py-3.5 rounded-xl border border-slate-200/60 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-900/30 transition">
                         Cancel
                     </a>
                 </div>

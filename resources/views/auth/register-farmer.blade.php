@@ -1,11 +1,11 @@
 <x-register-layout maxWidth="480px">
 
     @push('head')
-        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+        <link rel="stylesheet" href="{{ asset('vendor/leaflet/leaflet.css') }}" />
     @endpush
 
     <div class="mb-8 text-center">
-        <div class="w-14 h-14 bg-gradient-to-tr from-[#3A7D44] to-[#2E6336] text-white rounded-2xl flex items-center justify-center mx-auto mb-3.5 shadow-md shadow-[#3A7D44]/10">
+        <div class="w-14 h-14 bg-brand-700 text-white rounded-2xl flex items-center justify-center mx-auto mb-3.5 shadow-md shadow-[#16283C]/10">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.271.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.271.477-4.5 1.253" />
             </svg>
@@ -15,12 +15,12 @@
     </div>
 
     @if ($errors->any())
-        <div class="mb-6 p-4 bg-red-50 dark:bg-red-950/20 border border-red-200/50 dark:border-red-900/30 rounded-xl">
+        <div class="mb-6 p-4 bg-[var(--color-error-bg)] border border-[var(--color-error-border)] rounded-xl">
             <div class="flex items-start gap-2.5">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-red-500 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-[var(--color-error-text)] mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                 </svg>
-                <ul class="text-xs text-red-600 dark:text-red-400 list-disc list-inside space-y-1 text-left">
+                <ul class="text-xs text-[var(--color-error-text)] list-disc list-inside space-y-1 text-left">
                     @foreach ($errors->all() as $error)
                         <li>{{ $error }}</li>
                     @endforeach
@@ -37,7 +37,7 @@
         <div class="form-group">
             <div class="relative">
                 <input type="text" name="name" placeholder="Full Name" required value="{{ old('name') }}" autocomplete="name"
-                    class="px-4 py-3 w-full bg-white/80 border border-[#3A7D44]/15 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/10 focus:border-[#3A7D44] transition">
+                    class="px-4 py-3 w-full bg-white/80 border border-[#16283C]/15 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#16283C]/10 focus:border-[#16283C] transition">
             </div>
         </div>
 
@@ -45,7 +45,7 @@
         <div class="form-group">
             <div class="relative">
                 <input type="email" name="email" placeholder="Email Address" required value="{{ old('email') }}" autocomplete="email"
-                    class="px-4 py-3 w-full bg-white/80 border border-[#3A7D44]/15 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/10 focus:border-[#3A7D44] transition">
+                    class="px-4 py-3 w-full bg-white/80 border border-[#16283C]/15 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#16283C]/10 focus:border-[#16283C] transition">
             </div>
         </div>
 
@@ -53,7 +53,7 @@
         <div class="form-group">
             <div class="relative">
                 <input type="text" name="phone" placeholder="Phone Number" required value="{{ old('phone') }}" autocomplete="tel"
-                    class="px-4 py-3 w-full bg-white/80 border border-[#3A7D44]/15 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/10 focus:border-[#3A7D44] transition">
+                    class="px-4 py-3 w-full bg-white/80 border border-[#16283C]/15 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#16283C]/10 focus:border-[#16283C] transition">
             </div>
         </div>
 
@@ -61,9 +61,9 @@
         <div class="form-group">
             <div class="relative">
                 <input type="password" id="password" name="password" placeholder="Password" required autocomplete="new-password"
-                    class="pl-4 pr-12 py-3 w-full bg-white/80 border border-[#3A7D44]/15 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/10 focus:border-[#3A7D44] transition">
+                    class="pl-4 pr-12 py-3 w-full bg-white/80 border border-[#16283C]/15 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#16283C]/10 focus:border-[#16283C] transition">
                 <button type="button" onclick="togglePassword('password', 'eye-password')"
-                    class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#3A7D44] transition focus:outline-none">
+                    class="absolute right-1 top-1/2 -translate-y-1/2 w-12 h-12 flex items-center justify-center text-slate-400 hover:text-[#16283C] transition focus:outline-none">
                     <svg id="eye-password" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                         stroke-linecap="round" stroke-linejoin="round">
@@ -87,9 +87,9 @@
         <div class="form-group">
             <div class="relative">
                 <input type="password" id="password_confirmation" name="password_confirmation" placeholder="Confirm Password" required autocomplete="new-password"
-                    class="pl-4 pr-12 py-3 w-full bg-white/80 border border-[#3A7D44]/15 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/10 focus:border-[#3A7D44] transition">
+                    class="pl-4 pr-12 py-3 w-full bg-white/80 border border-[#16283C]/15 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#16283C]/10 focus:border-[#16283C] transition">
                 <button type="button" onclick="togglePassword('password_confirmation', 'eye-confirm')"
-                    class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#3A7D44] transition focus:outline-none">
+                    class="absolute right-1 top-1/2 -translate-y-1/2 w-12 h-12 flex items-center justify-center text-slate-400 hover:text-[#16283C] transition focus:outline-none">
                     <svg id="eye-confirm" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                         stroke-linecap="round" stroke-linejoin="round">
@@ -103,12 +103,12 @@
         {{-- FARM LOCATION — MAP PIN --}}
         <div class="form-group space-y-2">
             <label class="text-xs font-bold text-slate-650 block">
-                Farm Location <span class="text-red-505">*</span>
+                Farm Location <span class="text-[var(--color-error-text)]">*</span>
             </label>
 
             <div class="relative">
                 <input type="text" id="farm_location_display" name="farm_location" placeholder="Pin your farm on the map below" required readonly value="{{ old('farm_location') }}"
-                    class="px-4 py-3 w-full bg-slate-50 border border-[#3A7D44]/15 rounded-xl focus:outline-none cursor-default text-slate-600 font-medium">
+                    class="px-4 py-3 w-full bg-slate-50 border border-[#16283C]/15 rounded-xl focus:outline-none cursor-default text-slate-600 font-medium">
             </div>
 
             {{-- Hidden coordinate inputs --}}
@@ -116,7 +116,7 @@
             <input type="hidden" id="longitude" name="longitude" value="{{ old('longitude') }}">
 
             {{-- GPS button --}}
-            <button type="button" id="use-my-location" class="w-full flex items-center justify-center gap-2 py-2.5 bg-[#EFF2E9] hover:bg-[#EFF2E9]/80 text-[#3A7D44] border border-[#3A7D44]/20 rounded-xl text-xs font-bold transition shadow-sm">
+            <button type="button" id="use-my-location" class="w-full flex items-center justify-center gap-2 py-2.5 bg-[#f5f3ff] hover:bg-[#f5f3ff]/80 text-[#16283C] border border-[#16283C]/20 rounded-xl text-xs font-bold transition shadow-sm">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                     <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -125,9 +125,9 @@
             </button>
 
             {{-- Map container --}}
-            <div id="farm-map-wrapper" class="w-full h-[200px] rounded-xl border border-[#3A7D44]/15 shadow-sm overflow-hidden z-0" style="position:relative;">
-                <div id="map-skeleton" style="position:absolute;inset:0;z-index:400;background:linear-gradient(135deg,#f0f7f0,#e8f5e9);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;transition:opacity 0.3s;">
-                    <div style="width:28px;height:28px;border:3px solid #e5e7eb;border-top-color:#3A7D44;border-radius:50%;animation:spin 0.8s linear infinite;"></div>
+            <div id="farm-map-wrapper" class="w-full h-[200px] rounded-xl border border-[#16283C]/15 shadow-sm overflow-hidden z-0" style="position:relative;">
+                <div id="map-skeleton" style="position:absolute;inset:0;z-index:400;background:linear-gradient(135deg,#f5f3ff,#ede9fe);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;transition:opacity 0.3s;">
+                    <div style="width:28px;height:28px;border:3px solid #e5e7eb;border-top-color:#16283C;border-radius:50%;animation:spin 0.8s linear infinite;"></div>
                     <p style="font-size:11px;color:#9ca3af;font-weight:500;margin:0;">Loading map...</p>
                 </div>
                 <div id="farm-map" class="w-full h-full"></div>
@@ -141,12 +141,12 @@
         {{-- AFFILIATION --}}
         <div class="form-group space-y-2">
             <label class="text-xs font-bold text-slate-655 block">
-                Are you a member of a cooperative? <span class="text-red-505">*</span>
+                Are you a member of a cooperative? <span class="text-[var(--color-error-text)]">*</span>
             </label>
 
             <div class="grid grid-cols-2 gap-3.5">
                 <!-- Independent Card -->
-                <label id="label-independent" class="flex flex-col items-center justify-center p-4 border-2 border-slate-200/80 rounded-2xl cursor-pointer transition-all duration-200 text-center gap-1 hover:border-amber-300 hover:bg-amber-50/10">
+                <label id="label-independent" class="flex flex-col items-center justify-center p-4 border-2 border-slate-200/80 rounded-2xl cursor-pointer transition-all duration-200 text-center gap-1 hover:border-[var(--color-warning-border)] hover:bg-[var(--color-warning-bg)]">
                     <input type="radio" name="affiliation_type" value="independent"
                         {{ old('affiliation_type') === 'independent' ? 'checked' : '' }}
                         class="hidden" onchange="handleAffiliation()">
@@ -155,7 +155,7 @@
                 </label>
 
                 <!-- Cooperative Card -->
-                <label id="label-cooperative" class="flex flex-col items-center justify-center p-4 border-2 border-slate-200/80 rounded-2xl cursor-pointer transition-all duration-200 text-center gap-1 hover:border-[#3A7D44]/30 hover:bg-[#EFF2E9]/10">
+                <label id="label-cooperative" class="flex flex-col items-center justify-center p-4 border-2 border-slate-200/80 rounded-2xl cursor-pointer transition-all duration-200 text-center gap-1 hover:border-[#16283C]/30 hover:bg-[#f5f3ff]/10">
                     <input type="radio" name="affiliation_type" value="cooperative"
                         {{ old('affiliation_type') === 'cooperative' ? 'checked' : '' }}
                         class="hidden" onchange="handleAffiliation()">
@@ -172,7 +172,7 @@
             </label>
             <div class="relative">
                 <select name="cooperative_id" id="cooperative_id"
-                    class="pl-4 pr-10 py-3 w-full bg-white/80 border border-[#3A7D44]/15 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3A7D44]/10 focus:border-[#3A7D44] transition appearance-none cursor-pointer text-sm text-slate-700">
+                    class="pl-4 pr-10 py-3 w-full bg-white/80 border border-[#16283C]/15 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#16283C]/10 focus:border-[#16283C] transition appearance-none cursor-pointer text-sm text-slate-700">
                     <option value="">— Select your cooperative —</option>
                     @foreach($cooperatives as $coop)
                         <option value="{{ $coop->id }}"
@@ -191,7 +191,7 @@
                 You can skip this and join a cooperative later from your dashboard profile settings.
             </p>
             @error('cooperative_id')
-                <p class="text-xs text-red-500 mt-1 font-semibold">{{ $message }}</p>
+                <p class="text-xs text-[var(--color-error-text)] mt-1 font-semibold">{{ $message }}</p>
             @enderror
             @if($cooperatives->isEmpty())
                 <p class="text-xs text-slate-500 mt-1 font-medium bg-slate-50 p-2.5 rounded-lg border border-slate-200/50">
@@ -202,47 +202,47 @@
 
         {{-- TERMS & CONDITIONS --}}
         <div class="form-group pt-1">
-            <label class="flex items-start gap-3 cursor-pointer p-3 rounded-xl bg-[#EFF2E9]/40 border border-[#3A7D44]/10">
+            <label class="flex items-start gap-3 cursor-pointer p-3 rounded-xl bg-[#f5f3ff]/40 border border-[#16283C]/10">
                 <input type="checkbox" name="accepted_terms" value="1" {{ old('accepted_terms') ? 'checked' : '' }}
-                    class="mt-0.5 w-4 h-4 rounded border-slate-300 text-[#3A7D44] focus:ring-[#3A7D44] cursor-pointer shrink-0">
+                    class="mt-0.5 w-4 h-4 rounded border-slate-300 text-[#16283C] focus:ring-[#16283C] cursor-pointer shrink-0">
                 <span class="text-xs text-slate-500 leading-relaxed">
                     I agree to the
-                    <a href="javascript:void(0)" onclick="openLegalModal('{{ route('legal.terms') }}')" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#3A7D44]/10 text-[#3A7D44] font-semibold hover:bg-[#3A7D44]/20 hover:text-[#1f4d21] transition-all text-[11px]">Terms & Conditions <span style="font-size:10px;">↗</span></a>
+                    <a href="{{ route('legal.terms') }}" onclick="event.preventDefault(); openLegalModal('{{ route('legal.terms') }}')" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#16283C]/10 text-[#16283C] font-semibold hover:bg-[#16283C]/20 hover:text-[#0E1620] transition-all text-[11px]">Terms & Conditions <span style="font-size:10px;">←—</span></a>
                     and
-                    <a href="javascript:void(0)" onclick="openLegalModal('{{ route('legal.privacy') }}')" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#3A7D44]/10 text-[#3A7D44] font-semibold hover:bg-[#3A7D44]/20 hover:text-[#1f4d21] transition-all text-[11px]">Privacy Policy <span style="font-size:10px;">↗</span></a>.
+                    <a href="{{ route('legal.privacy') }}" onclick="event.preventDefault(); openLegalModal('{{ route('legal.privacy') }}')" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#16283C]/10 text-[#16283C] font-semibold hover:bg-[#16283C]/20 hover:text-[#0E1620] transition-all text-[11px]">Privacy Policy <span style="font-size:10px;">←—</span></a>.
                 </span>
             </label>
             @error('accepted_terms')
-                <p class="text-xs text-red-500 mt-1 font-semibold">{{ $message }}</p>
+                <p class="text-xs text-[var(--color-error-text)] mt-1 font-semibold">{{ $message }}</p>
             @enderror
         </div>
 
         <div class="pt-1">
-            <button type="submit" class="w-full py-3 bg-gradient-to-r from-[#3A7D44] to-[#2E6336] hover:brightness-105 text-white font-bold rounded-xl text-sm shadow-md shadow-[#3A7D44]/10 hover:shadow-lg transition duration-200 transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer">
+            <x-button type="submit" size="lg" full>
                 Register as Farmer
-            </button>
+            </x-button>
         </div>
 
         <div class="mt-6 pt-5 border-t border-slate-100/80 text-center text-xs font-semibold text-slate-450">
             Not a farmer?
             <a href="{{ route('register.role', 'logistics_partner') }}"
-                class="text-[#3A7D44] hover:text-[#3A7D44]/80 transition ml-1 hover:underline">
+                class="text-[#16283C] hover:text-[#16283C]/80 transition ml-1 hover:underline">
                 Sign up as Logistics Coordinator
             </a>
         </div>
         <div class="mt-3 text-center">
-            <a href="/" class="text-slate-400 hover:text-[#3A7D44] text-xs font-bold flex items-center justify-center gap-1">
+            <a href="/" class="text-slate-400 hover:text-[#16283C] text-xs font-bold flex items-center justify-center gap-1">
                 ← Return to Homepage
             </a>
         </div>
         {{-- LEGAL MODAL --}}
         <div id="legal-modal-overlay" style="position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);" onclick="if(event.target===this)closeLegalModal()">
             <div onclick="event.stopPropagation()" style="background:#fff;border-radius:1.5rem;max-width:640px;width:100%;max-height:80vh;overflow-y:auto;position:relative;box-shadow:0 25px 50px -12px rgba(0,0,0,0.3);scrollbar-width:thin;scrollbar-color:#d1d5db transparent;">
-                <div style="position:sticky;top:0;z-index:10;background:linear-gradient(135deg,#3A7D44,#2E6336);border-radius:1.5rem 1.5rem 0 0;padding:1.25rem 2rem 1rem;margin:0;">
+                <div style="position:sticky;top:0;z-index:10;background:linear-gradient(135deg,#16283C,#0E1620);border-radius:1.5rem 1.5rem 0 0;padding:1.25rem 2rem 1rem;margin:0;">
                     <div style="display:flex;align-items:center;justify-content:space-between;">
                         <div>
                             <span style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.7);">HarvestHaul</span>
-                            <div id="legal-modal-title" style="font-size:1.1rem;font-weight:700;color:#fff;font-family:'Instrument Serif',sans-serif;margin-top:0.15rem;">Loading...</div>
+                            <div id="legal-modal-title" style="font-size:1.1rem;font-weight:700;color:#fff;font-family:'Schibsted Grotesk',sans-serif;margin-top:0.15rem;">Loading...</div>
                         </div>
                         <button onclick="closeLegalModal()" style="width:30px;height:30px;display:flex;align-items:center;justify-content:center;border-radius:50%;border:none;background:rgba(255,255,255,0.2);color:#fff;cursor:pointer;font-size:1.1rem;transition:all 0.15s;font-family:inherit;backdrop-filter:blur(4px);" onmouseover="this.style.background='rgba(255,255,255,0.35)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'">&times;</button>
                     </div>
@@ -269,7 +269,7 @@
             const container = document.getElementById('pw-strength');
             const bars = [1,2,3,4].map(i => document.getElementById('pw-bar-'+i));
             const label = document.getElementById('pw-label');
-            const colors = ['#ef4444','#f59e0b','#eab308','#3A7D44'];
+            const colors = ['#ef4444','#f59e0b','#eab308','#16283C'];
             const labels = ['Weak','Fair','Good','Strong'];
             const pw = document.getElementById('password').value;
             if (!pw) { container.style.display='none'; return; }
@@ -295,7 +295,7 @@
                 if (h1) title.textContent = h1.textContent;
                 return;
             }
-            body.innerHTML = '<div style="text-align:center;padding:3rem 1rem;"><div style="width:32px;height:32px;border:3px solid #e5e7eb;border-top-color:#3A7D44;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 1rem;"></div><p style="color:#9ca3af;font-size:0.85rem;">Loading...</p></div>';
+            body.innerHTML = '<div style="text-align:center;padding:3rem 1rem;"><div style="width:32px;height:32px;border:3px solid #e5e7eb;border-top-color:#16283C;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 1rem;"></div><p style="color:#9ca3af;font-size:0.85rem;">Loading...</p></div>';
             fetch(url).then(r => r.text()).then(html => {
                 const parser = new DOMParser();
                 const doc = parser.parseFromString(html, 'text/html');
@@ -314,7 +314,7 @@
             if (e.target.id === 'legal-modal-overlay') closeLegalModal();
         });
     </script>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="{{ asset('vendor/leaflet/leaflet.js') }}"></script>
     <script>
         // PASSWORD TOGGLE
         function togglePassword(fieldId, iconId) {
@@ -342,17 +342,13 @@
             if (skeleton) { skeleton.style.opacity = '0'; setTimeout(() => skeleton.style.display = 'none', 300); }
         });
 
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-            attribution: '© OpenStreetMap contributors © CARTO',
-            subdomains: 'abcd',
-            maxZoom: 19,
-        }).addTo(map);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: ' OpenStreetMap contributors' }).addTo(map);
 
-        // Custom green marker matching #3A7D44
+        // Custom green marker matching #16283C
         const greenIcon = L.divIcon({
             html: `<div style="
                 width: 18px; height: 18px; border-radius: 50%;
-                background: #3A7D44; border: 3px solid white;
+                background: #16283C; border: 3px solid white;
                 box-shadow: 0 3px 8px rgba(45, 106, 47, 0.4);
             "></div>`,
             className: '',
@@ -451,15 +447,15 @@
             const labelCoop   = document.getElementById('label-cooperative');
 
             if (independent.checked) {
-                labelInd.className = "flex flex-col items-center justify-center p-4 border-2 border-amber-500 bg-amber-50/20 rounded-2xl cursor-pointer transition-all duration-200 text-center gap-1 scale-[1.02] shadow-sm";
+                labelInd.className = "flex flex-col items-center justify-center p-4 border-2 border-[var(--color-warning-border)] bg-[var(--color-warning-bg)] rounded-2xl cursor-pointer transition-all duration-200 text-center gap-1 scale-[1.02] shadow-sm";
             } else {
-                labelInd.className = "flex flex-col items-center justify-center p-4 border-2 border-slate-200/80 rounded-2xl cursor-pointer transition-all duration-200 text-center gap-1 hover:border-amber-300 hover:bg-amber-50/10";
+                labelInd.className = "flex flex-col items-center justify-center p-4 border-2 border-slate-200/80 rounded-2xl cursor-pointer transition-all duration-200 text-center gap-1 hover:border-[var(--color-warning-border)] hover:bg-[var(--color-warning-bg)]";
             }
 
             if (cooperative.checked) {
-                labelCoop.className = "flex flex-col items-center justify-center p-4 border-2 border-[#3A7D44] bg-[#EFF2E9]/30 rounded-2xl cursor-pointer transition-all duration-200 text-center gap-1 scale-[1.02] shadow-sm";
+                labelCoop.className = "flex flex-col items-center justify-center p-4 border-2 border-[#16283C] bg-[#f5f3ff]/30 rounded-2xl cursor-pointer transition-all duration-200 text-center gap-1 scale-[1.02] shadow-sm";
             } else {
-                labelCoop.className = "flex flex-col items-center justify-center p-4 border-2 border-slate-200/80 rounded-2xl cursor-pointer transition-all duration-200 text-center gap-1 hover:border-[#3A7D44]/30 hover:bg-[#EFF2E9]/10";
+                labelCoop.className = "flex flex-col items-center justify-center p-4 border-2 border-slate-200/80 rounded-2xl cursor-pointer transition-all duration-200 text-center gap-1 hover:border-[#16283C]/30 hover:bg-[#f5f3ff]/10";
             }
 
             coopField.style.display = cooperative.checked ? 'block' : 'none';

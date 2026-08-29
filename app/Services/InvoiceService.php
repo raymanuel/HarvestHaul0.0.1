@@ -41,13 +41,11 @@ class InvoiceService
 
         $html = $this->renderInvoiceHtml($job, $invoice);
         $pdfPath = "invoices/{$invoiceNumber}.pdf";
-        Storage::disk('public')->put($pdfPath, '');
 
-        Pdf::loadHTML($html)->save(storage_path("app/public/{$pdfPath}"));
+        Pdf::loadHTML($html)->save(storage_path("app/private/{$pdfPath}"));
 
         $invoice->update([
             'pdf_path' => $pdfPath,
-            'status' => 'generated',
         ]);
 
         $this->sendInvoiceEmails($job, $invoice);
@@ -102,40 +100,54 @@ class InvoiceService
     {
         $recipientEmails = [];
 
+        // Logistics partner receives the full route invoice.
         if ($job->logisticsProfile?->user_id) {
             $user = User::find($job->logisticsProfile->user_id);
             if ($user?->email) {
                 $recipientEmails[] = $user->email;
                 $user->notify(new InvoiceReady($invoice));
+                Mail::to($user->email)->send(new \App\Mail\InvoiceMail($invoice));
             }
         }
 
+        // Each farmer receives a scoped invoice showing only their share.
         foreach ($job->harvests as $h) {
-            if ($h->user_id) {
-                $user = User::find($h->user_id);
-                if ($user?->email) {
-                    $recipientEmails[] = $user->email;
-                    $user->notify(new InvoiceReady($invoice));
-                }
+            if (!$h->user_id) {
+                continue;
             }
+            $user = User::find($h->user_id);
+            if (!$user?->email) {
+                continue;
+            }
+
+            $recipientEmails[] = $user->email;
+
+            $scopedHtml = $this->renderInvoiceHtml($job, $invoice, (int) $h->user_id);
+            $scopedPath = "invoices/{$invoice->invoice_number}-farmer-{$h->user_id}.pdf";
+            try {
+                Pdf::loadHTML($scopedHtml)->save(storage_path("app/private/{$scopedPath}"));
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning("Failed to generate scoped invoice PDF for farmer {$h->user_id}: {$e->getMessage()}");
+                $scopedPath = $invoice->pdf_path;
+            }
+
+            $share = (float) ($h->pivot->cost_share ?? 0);
+            $user->notify(new InvoiceReady($invoice, $share));
+            Mail::to($user->email)->send(new \App\Mail\InvoiceMail($invoice, $scopedPath, $share));
         }
 
         $recipientEmails = array_unique($recipientEmails);
 
-        foreach ($recipientEmails as $email) {
-            try {
-                Mail::to($email)->send(new \App\Mail\InvoiceMail($invoice));
-            } catch (\Throwable $e) {
-                \Illuminate\Support\Facades\Log::warning("Failed to send invoice email to {$email}: {$e->getMessage()}");
-            }
-        }
-
-        $invoice->update(['sent_at' => now()]);
+        $invoice->update(['sent_at' => now(), 'status' => 'sent']);
     }
 
-    private function renderInvoiceHtml(PoolingJob $job, Invoice $invoice): string
+    public function renderInvoiceHtml(PoolingJob $job, Invoice $invoice, ?int $scopeFarmerId = null): string
     {
-        $entries = $job->harvests->map(function ($h) {
+        $harvests = $scopeFarmerId !== null
+            ? $job->harvests->filter(fn($h) => (int) $h->user_id === $scopeFarmerId)->values()
+            : $job->harvests;
+
+        $entries = $harvests->map(function ($h) {
             $costShare = $h->pivot->cost_share !== null
                 ? (float) $h->pivot->cost_share
                 : 0;
@@ -144,9 +156,14 @@ class InvoiceService
                 'farmer' => $h->farmer->name ?? 'Unknown',
                 'crop' => $h->crop->name ?? $h->crop_type ?? '—',
                 'qty' => (float) $h->pivot->quantity_kg,
+                'cost_raw' => $costShare,
                 'cost' => number_format($costShare, 2),
             ];
         });
+
+        $displayTotal = round($entries->sum('cost_raw'), 2);
+        $displayKg = $entries->sum('qty');
+        $totalLabel = $scopeFarmerId !== null ? 'Your Total' : 'Total';
 
         $rows = '';
         foreach ($entries as $i => $e) {
@@ -169,37 +186,37 @@ class InvoiceService
         <head><meta charset="UTF-8"><title>Invoice {$invoice->invoice_number}</title>
         <style>
             body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 40px; color: #1e293b; }
-            .header { border-bottom: 3px solid #059669; padding-bottom: 20px; margin-bottom: 30px; }
-            .header h1 { font-size: 28px; color: #059669; margin: 0; }
+            .header { border-bottom: 3px solid #16283C; padding-bottom: 20px; margin-bottom: 30px; }
+            .header h1 { font-size: 28px; color: #16283C; margin: 0; }
             .header p { color: #64748b; margin: 4px 0 0; }
             .meta { display: flex; justify-content: space-between; margin-bottom: 30px; }
             .meta-box { background: #f8fafc; padding: 16px; border-radius: 8px; flex: 1; margin: 0 8px; }
             .meta-box h3 { margin: 0 0 4px; font-size: 11px; text-transform: uppercase; color: #94a3b8; }
             .meta-box p { margin: 0; font-size: 16px; font-weight: 700; }
             table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-            th { background: #059669; color: white; padding: 10px 8px; text-align: left; font-size: 12px; text-transform: uppercase; }
-            .total-row td { font-weight: 700; padding: 12px 8px; border-top: 2px solid #059669; font-size: 16px; }
+            th { background: #16283C; color: white; padding: 10px 8px; text-align: left; font-size: 12px; text-transform: uppercase; }
+            .total-row td { font-weight: 700; padding: 12px 8px; border-top: 2px solid #16283C; font-size: 16px; }
             .footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid #e5e7eb; text-align: center; color: #94a3b8; font-size: 12px; }
         </style>
         </head>
         <body>
             <div class="header">
-                <h1>INVOICE</h1>
-                <p>{$company} — Route #{$job->id}</p>
+                <h1>HAULING INVOICE</h1>
+                <p>{$company} — Route #{$job->id} (hauling services only)</p>
             </div>
             <div class="meta">
                 <div class="meta-box"><h3>Invoice No.</h3><p>{$invoice->invoice_number}</p></div>
                 <div class="meta-box"><h3>Date</h3><p>{$date}</p></div>
                 <div class="meta-box"><h3>Vehicle</h3><p>{$plate}</p></div>
-                <div class="meta-box"><h3>Total</h3><p>₱" . number_format($invoice->total_amount, 2) . "</p></div>
+                <div class="meta-box"><h3>{$totalLabel}</h3><p>₱" . number_format($displayTotal, 2) . "</p></div>
             </div>
             <table>
                 <tr><th>#</th><th>Farmer</th><th>Crop</th><th style='text-align:right'>Qty (kg)</th><th style='text-align:right'>Amount</th></tr>
                 {$rows}
                 <tr class="total-row">
                     <td colspan="3"></td>
-                    <td style='text-align:right'>" . number_format($invoice->total_kg, 2) . " kg</td>
-                    <td style='text-align:right'>₱" . number_format($invoice->total_amount, 2) . "</td>
+                    <td style='text-align:right'>" . number_format($displayKg, 2) . " kg</td>
+                    <td style='text-align:right'>₱" . number_format($displayTotal, 2) . "</td>
                 </tr>
             </table>
             <div class="footer">

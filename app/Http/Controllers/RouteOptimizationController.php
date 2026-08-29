@@ -4,10 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
-use App\Models\HarvestStatus;
+use App\Models\NegotiationStatus;
 use App\Models\PoolingJob;
 use App\Models\Truck;
-use App\Models\HaulRequest;
 use App\Services\DriverAssignmentService;
 use Illuminate\Support\Facades\Auth;
 
@@ -54,12 +53,15 @@ class RouteOptimizationController extends Controller
                 }
             })
             ->whereHas('harvests', function ($query) {
-                $query->whereIn('status', HarvestStatus::logisticsVisible());
+                $query->whereIn('status', ['sold', 'partially_sold', 'booked']);
             })
             ->with([
                 'farmerProfile',
-                'harvests' => fn($query) => $query->whereIn('status', HarvestStatus::logisticsVisible())
-                                                   ->with(['crop', 'cropVariety', 'destination', 'haulRequest']),
+                'harvests' => fn($query) => $query->whereIn('status', ['sold', 'partially_sold', 'booked'])
+                                                   ->with(['crop', 'cropVariety', 'destination',
+                                                       'negotiations' => fn($q) => $q->where('status', NegotiationStatus::COMPLETED)
+                                                                                      ->with('buyer')->latest('last_activity_at'),
+                                                   ]),
             ])
             ->get();
 
@@ -74,6 +76,7 @@ class RouteOptimizationController extends Controller
                     'farm_location' => $f->farmerProfile->farm_location,
                 ],
                 'harvests' => $f->harvests->map(function ($h) {
+                    $completedNeg = $h->negotiations->first();
                     return [
                         'id'       => $h->id,
                         'crop'     => $h->crop->name ?? $h->crop_type ?? '—',
@@ -84,20 +87,27 @@ class RouteOptimizationController extends Controller
                             'name'    => $h->destination->name,
                             'address' => $h->destination->address,
                         ] : null,
-                        'destination_address'   => $h->destination_address,
-                        'destination_latitude'  => $h->destination_latitude,
-                        'destination_longitude' => $h->destination_longitude,
-                        'has_open_haul_request' => $h->haulRequest && $h->haulRequest->status === 'open',
-                        'haul_request_id'       => $h->haulRequest?->id,
+                        'destination_address'   => $h->destination_address   ?? $completedNeg?->destination_address,
+                        'destination_latitude'  => $h->destination_latitude  ?? $completedNeg?->destination_latitude,
+                        'destination_longitude' => $h->destination_longitude ?? $completedNeg?->destination_longitude,
+                        'completed_negotiation' => $completedNeg ? [
+                            'price'               => $completedNeg->negotiated_price,
+                            'volume'              => $completedNeg->negotiated_volume,
+                            'hauling_rate_per_kg' => $completedNeg->hauling_rate_per_kg !== null
+                                ? (float) $completedNeg->hauling_rate_per_kg
+                                : null,
+                            'buyer'   => $completedNeg->buyer->name ?? '—',
+                            'dropoff' => $completedNeg->destination_address,
+                        ] : null,
                     ];
                 })->values(),
                 'destination'           => $firstHarvest?->destination ? [
                     'name'    => $firstHarvest->destination->name,
                     'address' => $firstHarvest->destination->address,
                 ] : null,
-                'destination_address'   => $firstHarvest?->destination_address,
-                'destination_latitude'  => $firstHarvest?->destination_latitude,
-                'destination_longitude' => $firstHarvest?->destination_longitude,
+                'destination_address'   => $firstHarvest?->destination_address   ?? $firstHarvest?->negotiations->first()?->destination_address,
+                'destination_latitude'  => $firstHarvest?->destination_latitude  ?? $firstHarvest?->negotiations->first()?->destination_latitude,
+                'destination_longitude' => $firstHarvest?->destination_longitude ?? $firstHarvest?->negotiations->first()?->destination_longitude,
             ];
         });
 
@@ -188,14 +198,14 @@ class RouteOptimizationController extends Controller
             ->map(fn($d) => [
                 'id'            => $d->id,
                 'name'          => $d->name,
-                'active_jobs'   => $d->driverProfile->activePoolingJobsCount(),
+                'active_jobs'   => PoolingJob::where('driver_id', $d->id)->whereIn('status', ['confirmed', 'in_progress'])->count(),
                 'last_assigned' => $d->driverProfile->last_assigned_at,
             ]);
 
         return view('logistics.route-optimization', compact(
             'farmersData', 'trucks', 'suggestedTruckId', 'nearestDriver', 'myRoutes',
-            'hubLat', 'hubLng', 'availableDrivers'
-        ));
+            'hubLat', 'hubLng', 'availableDrivers', 'logisticsProfile'
+        ))->with('isCoop', $logisticsProfile->logistics_type === 'cooperative');
     }
 
     /**
@@ -211,8 +221,8 @@ class RouteOptimizationController extends Controller
 
         $request->validate([
             'truck_id' => 'required|integer|exists:trucks,id',
-            'pickup_lat' => 'required|numeric',
-            'pickup_lng' => 'required|numeric',
+            'pickup_lat' => 'required|numeric|between:-90,90',
+            'pickup_lng' => 'required|numeric|between:-180,180',
         ]);
 
         $truck = Truck::where('id', $request->truck_id)

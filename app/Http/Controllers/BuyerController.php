@@ -8,7 +8,7 @@ use App\Models\Negotiation;
 use App\Models\PoolingJob;
 use App\Models\PoolingJobStatus;
 use App\Services\Darfo12Service;
-use Illuminate\Http\Request;
+use App\Traits\Notifiable;
 use Illuminate\Support\Facades\Auth;
 
 /**
@@ -22,6 +22,8 @@ use Illuminate\Support\Facades\Auth;
  */
 class BuyerController extends Controller
 {
+    use Notifiable;
+
     /**
      * Buyer Dashboard — overview metrics and active negotiations.
      */
@@ -118,7 +120,12 @@ class BuyerController extends Controller
      */
     public function negotiations()
     {
-        return redirect()->route('dashboard');
+        $user = Auth::user();
+        $negotiations = Negotiation::where('buyer_id', $user->id)
+            ->with(['farmer', 'harvest.crop', 'harvest.cropVariety'])
+            ->latest('last_activity_at')
+            ->paginate(20);
+        return view('buyer.negotiations', compact('negotiations'));
     }
 
     /**
@@ -169,25 +176,29 @@ class BuyerController extends Controller
             'buyer_confirmed_at' => now(),
         ]);
 
-        \App\Models\AuditLog::create([
-            'admin_id'    => $user->id,
-            'action'      => 'buyer_confirmed_receipt',
-            'target_type' => 'pooling_jobs',
-            'target_id'   => $poolingJob->id,
-            'notes'       => "Buyer {$user->name} confirmed receipt for Route #{$poolingJob->id}.",
-        ]);
+        self::logAudit($user->id, 'buyer_confirmed_receipt', 'pooling_jobs', $poolingJob->id,
+            "Buyer {$user->name} confirmed receipt for Route #{$poolingJob->id}.");
 
         // Notify logistics partner
         if ($poolingJob->logisticsProfile && $poolingJob->logisticsProfile->user_id) {
-            \App\Models\Notification::create([
-                'user_id' => $poolingJob->logisticsProfile->user_id,
-                'title'   => 'Buyer Confirmed Receipt',
-                'message' => "Buyer {$user->name} confirmed receipt for Route #{$poolingJob->id}.",
-                'link'    => route('pooling.cost-ledger', $poolingJob),
-            ]);
+            self::notifyBuyerConfirmedReceipt(
+                $poolingJob->logisticsProfile->user_id,
+                $user->name,
+                $poolingJob->id
+            );
         }
 
-        return back()->with('success', 'Delivery receipt confirmed! Thank you.');
+        return back()->with('success', 'Delivery receipt confirmed! Thank you.')
+            ->with('next_steps', [
+                'title'   => 'Delivery complete',
+                'message' => 'Delivery receipt confirmed! Thank you.',
+                'steps'   => [
+                    'This route is now completed and moved to your Completed deliveries.',
+                    'Logistics partners will now handle invoicing and payment settlement.',
+                    'Farmers on this route receive payment settlement next.',
+                ],
+                'cta' => ['label' => 'View Deliveries', 'url' => route('buyer.tracking')],
+            ]);
     }
 
     /**
@@ -196,6 +207,21 @@ class BuyerController extends Controller
     public function showCropDetail(Harvest $harvest)
     {
         $buyer = Auth::user();
+
+        // Hide harvests that are no longer purchasable (sold, booked, assigned,
+        // in progress, completed, cancelled) — prevents IDOR access to stale listings.
+        if (!in_array($harvest->status, HarvestStatus::buyerAvailable(), true)
+            && $harvest->status !== HarvestStatus::NEGOTIATING) {
+            abort(404);
+        }
+
+        // Restrict cooperative buyers to their cooperative's harvests
+        if ($buyer->affiliation_type === 'cooperative' && $buyer->cooperative_id) {
+            $farmerCooperative = $harvest->farmer->cooperative_id ?? null;
+            if ($farmerCooperative !== $buyer->cooperative_id) {
+                abort(404);
+            }
+        }
 
         // If product is under negotiation by another buyer, block initiation
         if ($harvest->status === HarvestStatus::NEGOTIATING) {

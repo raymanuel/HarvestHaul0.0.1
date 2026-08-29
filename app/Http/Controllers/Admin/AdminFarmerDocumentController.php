@@ -3,24 +3,16 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\AuditLog;
 use App\Models\FarmerDocument;
 use App\Models\FarmerProfile;
+use App\Models\User;
+use App\Traits\Notifiable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class AdminFarmerDocumentController extends Controller
 {
-    private function log(string $action, string $targetType, int $targetId, string $notes): void
-    {
-        AuditLog::create([
-            'admin_id'    => Auth::id(),
-            'action'      => $action,
-            'target_type' => $targetType,
-            'target_id'   => $targetId,
-            'notes'       => $notes,
-        ]);
-    }
+    use Notifiable;
 
     public function index()
     {
@@ -36,25 +28,38 @@ class AdminFarmerDocumentController extends Controller
 
     public function approve(Request $request, FarmerDocument $document)
     {
+        $request->validate([
+            'notes' => ['nullable', 'string', 'max:1000'],
+        ]);
+
         $document->update(['status' => 'approved', 'notes' => $request->input('notes')]);
 
-        $this->log(
+        self::logAudit(
+            Auth::id(),
             'approved_farmer_document',
             'farmer',
             $document->user_id,
             "Approved document \"{$document->original_filename}\" (type: {$document->document_type}) for farmer ID {$document->user_id}."
         );
 
-        \App\Models\Notification::create([
-            'user_id' => $document->user_id,
-            'title' => 'Document Approved',
-            'message' => "Your uploaded document '{$document->original_filename}' has been approved.",
-            'link' => route('farmer.documents'),
-        ]);
+        self::notifyDocumentApproved(
+            User::find($document->user_id),
+            $document->original_filename,
+            route('farmer.documents')
+        );
 
         $this->checkAndVerifyFarmer($document->user_id);
 
-        return back()->with('success', 'Document approved.');
+        return back()->with('success', 'Document approved.')
+            ->with('next_steps', [
+                'title'   => 'Document approved',
+                'message' => 'Document approved.',
+                'steps'   => [
+                    'The farmer is notified of the outcome.',
+                    'If their government ID and secondary documents are now approved, their profile auto-verifies so they can post and trade.',
+                    'Continue with the next document in the review queue.',
+                ],
+            ]);
     }
 
     public function reject(Request $request, FarmerDocument $document)
@@ -65,21 +70,31 @@ class AdminFarmerDocumentController extends Controller
 
         $document->update(['status' => 'rejected', 'notes' => $request->input('notes')]);
 
-        $this->log(
+        self::logAudit(
+            Auth::id(),
             'rejected_farmer_document',
             'farmer',
             $document->user_id,
             "Rejected document \"{$document->original_filename}\" (type: {$document->document_type}) for farmer ID {$document->user_id}. Reason: {$request->input('notes')}"
         );
 
-        \App\Models\Notification::create([
-            'user_id' => $document->user_id,
-            'title' => 'Document Rejected',
-            'message' => "Your uploaded document '{$document->original_filename}' was rejected. Reason: {$request->input('notes')}",
-            'link' => route('farmer.documents'),
-        ]);
+        self::notifyDocumentRejected(
+            User::find($document->user_id),
+            $document->original_filename,
+            $request->input('notes'),
+            route('farmer.documents')
+        );
 
-        return back()->with('success', 'Document rejected.');
+        return back()->with('success', 'Document rejected.')
+            ->with('next_steps', [
+                'title'   => 'Document rejected',
+                'message' => 'Document rejected.',
+                'steps'   => [
+                    'The farmer is notified with your reason.',
+                    'They may re-upload a corrected document.',
+                    'If required documents are missing, the farmer stays unverified until re-approved.',
+                ],
+            ]);
     }
 
     /**
@@ -103,7 +118,8 @@ class AdminFarmerDocumentController extends Controller
             if ($profile && !$profile->is_verified) {
                 $profile->update(['is_verified' => true]);
 
-                $this->log(
+                self::logAudit(
+                    Auth::id(),
                     'verified_farmer',
                     'farmer',
                     $userId,

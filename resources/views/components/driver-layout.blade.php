@@ -1,4 +1,4 @@
-@props(['title' => 'HarvestHaul — Driver Portal', 'themeColor' => '#065F46'])
+@props(['title' => 'HarvestHaul — Driver Portal', 'themeColor' => '#16283C'])
 
 <!DOCTYPE html>
 <html lang="en" class="overflow-x-hidden">
@@ -11,6 +11,9 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link rel="apple-touch-icon" sizes="32x32" href="/favicon-32x32.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="HarvestHaul">
     <link rel="manifest" href="/manifest.json">
     <script>
         if ('serviceWorker' in navigator) {
@@ -67,10 +70,13 @@
     </script>
 
     <script src="{{ asset('vendor/sweetalert2/sweetalert2.all.min.js') }}"></script>
+    <script src="{{ asset('assets/js/swal-helpers.js') }}"></script>
 
     {{-- SweetAlert Global Flash Handler --}}
     <script>
+        window.__nextSteps = @json(session('next_steps'));
         document.addEventListener('DOMContentLoaded', function() {
+            showNextSteps();
             @if(session('error'))
                 @php
                     $errorText = session('error');
@@ -84,7 +90,7 @@
                     timerProgressBar: true,
                     showConfirmButton: true,
                     confirmButtonText: 'OK',
-                    confirmButtonColor: '{{ $isGateNotice ? '#059669' : '#ef4444' }}',
+                    confirmButtonColor: '{{ $isGateNotice ? '#16283C' : '#ef4444' }}',
                     toast: false,
                     background: document.documentElement.classList.contains('dark') ? '#1e293b' : '#fff',
                     color: document.documentElement.classList.contains('dark') ? '#e2e8f0' : '#1e293b',
@@ -100,7 +106,7 @@
                 icon: opts.icon || 'warning',
                 confirmText: opts.confirmText || 'Yes, proceed',
                 cancelText: opts.cancelText || 'Cancel',
-                confirmColor: opts.confirmColor || '#065F46',
+                confirmColor: opts.confirmColor || '#16283C',
                 cancelColor: opts.cancelColor || '#64748b'
             };
 

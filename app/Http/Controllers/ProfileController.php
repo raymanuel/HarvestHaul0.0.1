@@ -54,6 +54,7 @@ class ProfileController extends Controller
         $userRules = [
             'name'  => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
+            'current_password' => ['required', 'string'],
         ];
 
         // ── Role-specific profile rules ──
@@ -66,7 +67,9 @@ class ProfileController extends Controller
                 'farm_location'  => ['nullable', 'string', 'max:500'],
                 'latitude'       => ['nullable', 'numeric', 'between:-90,90'],
                 'longitude'      => ['nullable', 'numeric', 'between:-180,180'],
-                'cooperative_id' => ['nullable', 'exists:logistics_profiles,id'],
+                'cooperative_id' => ['nullable', Rule::exists('logistics_profiles', 'id')
+                    ->where('logistics_type', 'cooperative')
+                    ->where('is_verified', true)],
             ];
 
             $validated = $request->validate(array_merge($userRules, $profileRules));
@@ -78,9 +81,18 @@ class ProfileController extends Controller
                 'longitude'     => $validated['longitude'] ?? $user->farmerProfile->longitude,
             ];
 
-            // Only allow cooperative_id changes if farmer is a coop member
+            // Cooperative membership is approved by administrators. Farmers may only
+            // join a cooperative once (independent → cooperative) but cannot switch
+            // cooperatives through self-service.
             if ($user->farmerProfile->affiliation_type === 'cooperative') {
-                $profileData['cooperative_id'] = $validated['cooperative_id'] ?? $user->farmerProfile->cooperative_id;
+                $submittedCoop = $validated['cooperative_id'] ?? null;
+                $currentCoop   = $user->farmerProfile->cooperative_id;
+
+                if ($submittedCoop && $currentCoop && (int) $submittedCoop !== (int) $currentCoop) {
+                    return back()->with('error', 'You cannot switch cooperatives yourself. Contact your cooperative administrator to change your affiliation.');
+                }
+
+                $profileData['cooperative_id'] = $submittedCoop ?? $currentCoop;
             }
 
             $user->farmerProfile->update($profileData);
@@ -92,10 +104,13 @@ class ProfileController extends Controller
 
         } elseif ($user->role === 'logistics_partner' && $user->logisticsProfile) {
             $profileRules = [
-                'phone'               => ['nullable', 'string', 'max:20'],
+                'phone'               => ['required', 'string', 'max:20'],
                 'company_name'        => ['required', 'string', 'max:255'],
                 'business_permit_no'  => ['nullable', 'string', 'max:100'],
                 'cda_registration_no' => ['nullable', 'string', 'max:100'],
+                'office_address'      => ['nullable', 'string', 'max:500'],
+                'latitude'            => ['nullable', 'numeric', 'between:-90,90'],
+                'longitude'           => ['nullable', 'numeric', 'between:-180,180'],
             ];
 
             $validated = $request->validate(array_merge($userRules, $profileRules));
@@ -104,6 +119,9 @@ class ProfileController extends Controller
                 'phone'              => $validated['phone'] ?? $user->logisticsProfile->phone,
                 'company_name'       => $validated['company_name'],
                 'business_permit_no' => $validated['business_permit_no'] ?? $user->logisticsProfile->business_permit_no,
+                'office_address'     => $validated['office_address'] ?? $user->logisticsProfile->office_address,
+                'latitude'           => $validated['latitude'] ?? $user->logisticsProfile->latitude,
+                'longitude'          => $validated['longitude'] ?? $user->logisticsProfile->longitude,
             ];
 
             // Only save CDA reg if cooperative type
@@ -128,6 +146,11 @@ class ProfileController extends Controller
 
         } else {
             $validated = $request->validate($userRules);
+        }
+
+        // ── Confirm identity before applying changes ──
+        if (!Hash::check($validated['current_password'], $user->password)) {
+            return back()->withErrors(['current_password' => 'The current password is incorrect.'])->withInput();
         }
 
         // ── Track email change before updating ──
@@ -182,6 +205,75 @@ class ProfileController extends Controller
             'password' => $request->password,
         ]);
 
+        // Invalidate the session and regenerate the CSRF token so the old
+        // session cannot be replayed after the credential change.
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        Auth::login($user);
+
         return back()->with('password_success', 'Password changed successfully.');
+    }
+
+    /**
+     * Save location from the location picker popup (AJAX endpoint).
+     */
+    public function saveLocation(Request $request)
+    {
+        $user = Auth::user();
+        $validated = $request->validate([
+            'latitude' => ['required', 'numeric', 'between:-90,90'],
+            'longitude' => ['required', 'numeric', 'between:-180,180'],
+            'farm_location' => ['nullable', 'string', 'max:500'],
+        ]);
+
+        if ($user->role === 'farmer' && $user->farmerProfile) {
+            $user->farmerProfile->update($validated);
+        } elseif ($user->role === 'logistics_partner' && $user->logisticsProfile) {
+            $user->logisticsProfile->update($validated);
+        } elseif ($user->role === 'buyer' && $user->buyerProfile) {
+            $user->buyerProfile->update($validated);
+        }
+
+        return response()->json(['success' => true]);
+    }
+
+    /**
+     * Show the route pricing settings page for logistics partners.
+     */
+    public function showRoutePricing()
+    {
+        $user = Auth::user();
+
+        if ($user->role !== 'logistics_partner' || !$user->logisticsProfile) {
+            return redirect()->route('dashboard');
+        }
+
+        return view('logistics.route-pricing', [
+            'user'    => $user,
+            'profile' => $user->logisticsProfile,
+        ]);
+    }
+
+    /**
+     * Update the default hauling rate for a logistics partner.
+     */
+    public function updateRoutePricing(Request $request)
+    {
+        $user = Auth::user();
+
+        if ($user->role !== 'logistics_partner' || !$user->logisticsProfile) {
+            return redirect()->route('dashboard');
+        }
+
+        $validated = $request->validate([
+            'default_hauling_rate' => ['required', 'numeric', 'min:0.10', 'max:99.99'],
+        ]);
+
+        $user->logisticsProfile->update([
+            'default_hauling_rate' => $validated['default_hauling_rate'],
+        ]);
+
+        return back()->with('success', 'Default hauling rate updated.');
     }
 }

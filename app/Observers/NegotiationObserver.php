@@ -27,24 +27,59 @@ class NegotiationObserver
 
     private function onAgreed(Negotiation $negotiation): void
     {
-        $negotiation->load('harvest.crop', 'buyer', 'farmer');
+        $negotiation->load('harvest.crop', 'buyer.logisticsProfile', 'farmer');
 
-        // Notify buyer that farmer agreed
+        $actorId = auth()->id();
+
+        // No authenticated actor (seeders/console) — notify both parties as before.
+        if (!$actorId) {
+            self::sendNotification(
+                $negotiation->buyer_id,
+                'Terms Agreed',
+                "The farmer has agreed to your terms for '{$negotiation->harvest?->crop?->name}'. Ready to finalize.",
+                route('buyer.negotiations'),
+                'negotiation_agreed',
+                'negotiation'
+            );
+
+            self::sendNotification(
+                $negotiation->farmer_id,
+                'Terms Agreed',
+                "The buyer has agreed to your terms. Ready to finalize the deal.",
+                route('farmer.negotiations'),
+                'negotiation_agreed',
+                'negotiation'
+            );
+            return;
+        }
+
+        if ((int) $actorId === (int) $negotiation->buyer_id) {
+            // Buyer/cooperative agreed — notify only the farmer.
+            $buyer = $negotiation->buyer;
+            $isCoop = $buyer->role === 'logistics_partner'
+                && $buyer->logisticsProfile
+                && $buyer->logisticsProfile->isCooperative();
+            $who = $isCoop
+                ? ($buyer->logisticsProfile->company_name ?: $buyer->name)
+                : $buyer->name;
+
+            self::sendNotification(
+                $negotiation->farmer_id,
+                'Terms Agreed',
+                "{$who} has agreed to your terms for '{$negotiation->harvest?->crop?->name}'. Ready to finalize.",
+                route('farmer.negotiations'),
+                'negotiation_agreed',
+                'negotiation'
+            );
+            return;
+        }
+
+        // Farmer agreed — notify only the buyer side.
         self::sendNotification(
             $negotiation->buyer_id,
             'Terms Agreed',
             "The farmer has agreed to your terms for '{$negotiation->harvest?->crop?->name}'. Ready to finalize.",
             route('buyer.negotiations'),
-            'negotiation_agreed',
-            'negotiation'
-        );
-
-        // Notify farmer that buyer agreed
-        self::sendNotification(
-            $negotiation->farmer_id,
-            'Terms Agreed',
-            "The buyer has agreed to your terms. Ready to finalize the deal.",
-            route('farmer.negotiations'),
             'negotiation_agreed',
             'negotiation'
         );

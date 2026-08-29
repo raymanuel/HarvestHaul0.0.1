@@ -57,3 +57,45 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+---
+
+## Going Online — Deployment
+
+### Scheduler (Market Price Scraper)
+
+The scheduler must run continuously for prices to update. Locally, `start-dev.ps1` launches it with a watchdog. On a VPS, use system cron.
+
+**Windows (local dev):**
+
+Run `scheduler.bat` as Administrator once to register the task.
+
+**Linux VPS (Ubuntu/Debian):**
+
+```bash
+# Add to crontab (crontab -e)
+* * * * * cd /path/to/HarvestHaul && php artisan schedule:run >> /dev/null 2>&1
+```
+
+**Shared hosting (no shell):**
+
+Create a cron job pointing to a lightweight endpoint. Add this route to `routes/web.php`:
+
+```php
+Route::get('/cron/schedule-run', function () {
+    \Illuminate\Support\Facades\Artisan::call('schedule:run');
+    return response('ok', 200);
+});
+```
+
+Set the hosting panel's cron to hit `https://yourdomain.com/cron/schedule-run` every minute.
+
+### Required Binaries
+
+The price scraper depends on:
+- **Tesseract OCR** (`tesseract`) — install via `apt install tesseract-ocr` or `winget install tesseract-ocr.tesseract`
+- **Poppler** (`pdftoppm`) — install via `apt install poppler-utils` or `winget install oschwartz101.poppler.windows`
+
+### DNS Reliability
+
+The scraper fetches from Google Docs. If your DNS is unreliable, the scraper will fail with `cURL error 6: Could not resolve host`. On a VPS this is rare. Locally, ensure your DNS resolver is working (try `nslookup docs.google.com`).

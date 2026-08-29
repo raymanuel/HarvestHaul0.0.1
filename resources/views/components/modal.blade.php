@@ -21,7 +21,7 @@
             <div class="flex items-center justify-between mb-4">
                 <h3 class="text-base font-extrabold text-slate-800 dark:text-white heading-font">{{ $title }}</h3>
                 @if($closeable)
-                    <button onclick="closeModal('{{ $id }}')" class="text-slate-400 hover:text-slate-800 dark:hover:text-white text-lg leading-none transition cursor-pointer">&times;</button>
+                    <button onclick="closeModal('{{ $id }}')" aria-label="Close modal" class="text-slate-400 hover:text-slate-800 dark:hover:text-white text-lg leading-none transition cursor-pointer">&times;</button>
                 @endif
             </div>
         @endif

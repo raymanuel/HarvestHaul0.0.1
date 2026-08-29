@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -19,6 +20,12 @@ class WeatherService
     {
         if (empty($this->apiKey)) {
             return $this->getFallbackWeather();
+        }
+
+        $cacheKey = 'weather:' . round($lat, 2) . ':' . round($lng, 2);
+
+        if ($poolingJobId === null && ($cached = Cache::get($cacheKey))) {
+            return $cached;
         }
 
         try {
@@ -76,6 +83,12 @@ class WeatherService
                 }
             }
 
+            // Cache successful non-persisted lookups for 30 minutes to avoid
+            // hammering the external API during route planning previews.
+            if ($poolingJobId === null) {
+                Cache::put($cacheKey, $result, now()->addMinutes(30));
+            }
+
             return $result;
         } catch (\Exception $e) {
             Log::error('WeatherService: ' . $e->getMessage());
@@ -103,6 +116,11 @@ class WeatherService
     {
         if (empty($this->apiKey)) return null;
 
+        $cacheKey = 'weather-forecast:' . round($lat, 2) . ':' . round($lng, 2);
+        if ($cached = Cache::get($cacheKey)) {
+            return $cached;
+        }
+
         try {
             $response = Http::timeout(5)->get("{$this->baseUrl}/forecast", [
                 'lat' => $lat,
@@ -114,7 +132,10 @@ class WeatherService
 
             if (!$response->successful()) return null;
 
-            return $response->json();
+            $data = $response->json();
+            Cache::put($cacheKey, $data, now()->addMinutes(30));
+
+            return $data;
         } catch (\Exception $e) {
             Log::error('WeatherService forecast: ' . $e->getMessage());
             return null;

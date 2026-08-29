@@ -29,7 +29,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
                         </svg>
                     @endif
-                    <span class="text-slate-400 dark:text-slate-500 text-sm font-semibold">{{ $emptyMessage }}</span>
+                    <span class="text-slate-500 dark:text-slate-400 text-sm font-semibold">{{ $emptyMessage }}</span>
                 </div>
             </div>
         @endif

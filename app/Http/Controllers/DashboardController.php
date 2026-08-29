@@ -2,15 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use App\Models\User;
+use App\Models\CropPriceHistory;
 use App\Models\Harvest;
 use App\Models\HarvestStatus;
 use App\Models\PoolingJob;
+use App\Models\ScraperStatus;
+use App\Models\User;
 use App\Services\Darfo12Service;
-use Carbon\Carbon;
-use App\Http\Controllers\BuyerController;
+use App\Http\Controllers\Admin\AdminDashboardController;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
 class DashboardController extends Controller
 {
@@ -37,7 +41,7 @@ class DashboardController extends Controller
 
                     if ($logisticsProfile->logistics_type === 'cooperative') {
                         $query->where('affiliation_type', 'cooperative')
-                              ->where('cooperative_id', $logisticsProfile->id);
+                            ->where('cooperative_id', $logisticsProfile->id);
                     } elseif ($logisticsProfile->logistics_type === 'company') {
                         $query->where('affiliation_type', 'independent');
                     }
@@ -68,8 +72,8 @@ class DashboardController extends Controller
          * Driver dashboard metrics.
          * Scoped strictly to jobs assigned to the authenticated driver's user ID.
          */
-        $driverJobs      = collect();
-        $completedJobs   = 0;
+        $driverJobs = collect();
+        $completedJobs = 0;
 
         if ($user->role === 'driver') {
             $driverJobs = PoolingJob::where('driver_id', $user->id)
@@ -91,15 +95,15 @@ class DashboardController extends Controller
 
         if ($user->role === 'farmer') {
             $activeHarvests = $user->harvests()->whereIn('status', [...HarvestStatus::buyerAvailable(), HarvestStatus::NEGOTIATING])->with(['crop', 'cropVariety', 'destination'])->latest()->take(3)->get();
-            $pendingProposals = PoolingJob::whereHas('harvests', function($query) use ($user) {
+            $pendingProposals = PoolingJob::whereHas('harvests', function ($query) use ($user) {
                 $query->where('user_id', $user->id);
             })->where('status', 'pending')->with(['logisticsProfile', 'truck', 'harvests.crop'])->latest()->take(5)->get();
-            $activeShipments = PoolingJob::whereHas('harvests', function($query) use ($user) {
+            $activeShipments = PoolingJob::whereHas('harvests', function ($query) use ($user) {
                 $query->where('user_id', $user->id);
             })->where('status', 'in_progress')->with(['driver', 'truck', 'harvests.crop'])->latest()->take(5)->get();
         }
 
-        return match($user->role) {
+        return match ($user->role) {
             'farmer' => view('farmers.farmer-view', [
                 'activeHarvests' => $activeHarvests,
                 'activeHarvestsCount' => $activeHarvests->count(),
@@ -115,19 +119,19 @@ class DashboardController extends Controller
 
             'logistics_partner' => view('logistics.logistics-view', [
                 'activeHarvestCount' => $activeHarvestCount,
-                'availableHarvests'  => $availableHarvests,
+                'availableHarvests' => $availableHarvests,
                 'activeDispatchRuns' => $activeDispatchRuns,
-                'latestProposals'    => $latestProposals,
+                'latestProposals' => $latestProposals,
                 'daPrices' => $daPrices,
                 'priceTrends' => $priceTrends,
                 'latestDaDate' => $latestDaDate,
                 'scraperStatus' => $scraperStatus,
             ]),
 
-            'admin'  => app(AdminController::class)->index(),
+            'admin' => app(AdminDashboardController::class)->index(),
 
             'driver' => view('driver.driver-view', [
-                'jobs'          => $driverJobs,
+                'jobs' => $driverJobs,
                 'completedJobs' => $completedJobs,
             ]),
 
@@ -143,10 +147,49 @@ class DashboardController extends Controller
         ['latestDate' => $latestDaDate, 'daPrices' => $daPrices, 'priceTrends' => $priceTrends, 'scraperStatus' => $scraperStatus] = $daService->getDashboardData();
 
         return view('prices.full', [
-            'daPrices'      => $daPrices,
-            'priceTrends'   => $priceTrends,
-            'latestDate'    => $latestDaDate,
+            'daPrices' => $daPrices,
+            'priceTrends' => $priceTrends,
+            'latestDate' => $latestDaDate,
             'scraperStatus' => $scraperStatus,
         ]);
+    }
+
+    public function refreshPrices()
+    {
+        // Guard against concurrent refreshes double-running the OCR pipeline.
+        $lock = Cache::lock('darfo12.scrape', 600);
+
+        if (! $lock->get()) {
+            return redirect()->route('prices.full')->with('error', 'A price refresh is already in progress. Please wait a moment and try again.');
+        }
+
+        try {
+            $previousDate = CropPriceHistory::where('source', 'da_rfo12')->max('source_date');
+
+            Artisan::call('crops:scrape:darfo12');
+
+            // Outcome derives from the status row the command just wrote, not from re-reading stored prices.
+            $run = ScraperStatus::where('scraper_name', 'darfo12')->latest()->first();
+
+            if (! $run || $run->status === 'failed') {
+                return redirect()->route('prices.full')->with('error', 'Could not reach the DA RFO12 source. Existing prices are unchanged.');
+            }
+
+            $sourceDate = $run->source_date;
+
+            if ($run->status === 'success' && $run->records_matched > 0 && ($previousDate === null || $sourceDate > $previousDate)) {
+                return redirect()->route('prices.full')->with('success', 'Prices updated from the DA RFO12 source. Data as of '.Carbon::parse($sourceDate)->format('M j, Y').'.');
+            }
+
+            $asOf = $previousDate ? Carbon::parse($previousDate)->format('M j, Y') : 'now';
+
+            return redirect()->route('prices.full')->with('warning', 'No new data from the DA RFO12 source yet. Prices remain as of '.$asOf.'.');
+        } catch (\Throwable $e) {
+            Log::error('Price refresh failed.', ['error' => $e->getMessage()]);
+
+            return redirect()->route('prices.full')->with('error', 'Price refresh could not run (database unavailable or busy). Please try again shortly.');
+        } finally {
+            $lock->release();
+        }
     }
 }

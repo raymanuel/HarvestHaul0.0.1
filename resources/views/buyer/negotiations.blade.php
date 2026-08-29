@@ -1,9 +1,9 @@
-﻿<x-layout>
+<x-layout>
 <div class="w-full max-w-7xl mx-auto pb-12">
 
     <div class="relative z-10">
         <!-- Page Header -->
-        <header class="mb-8 pt-6">
+        <header class="mb-8 pt-8">
             <div class="flex items-center gap-2 mb-2">
                 <a href="{{ route('dashboard') }}" class="text-xs font-bold text-harvest dark:text-harvest hover:underline flex items-center gap-1">
                     ← Dashboard
@@ -11,12 +11,12 @@
             </div>
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <span class="text-[10px] font-bold uppercase tracking-widest text-harvest dark:text-harvest bg-harvest/10 dark:bg-harvest/10 px-3 py-1 rounded-full border border-harvest/20">Deals Workspace</span>
-                    <h1 class="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight heading-font mt-3">My B2B Negotiations</h1>
-                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-1 font-medium">Trace ongoing crop pricing offers, message logs, and close transaction deals.</p>
+                    <h1 class="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight heading-font">My B2B Negotiations</h1>
                 </div>
             </div>
         </header>
+
+        <x-flash-success />
 
         <!-- Negotiations List -->
         @if($negotiations->isEmpty())
@@ -36,12 +36,12 @@
                     <table class="w-full text-sm text-left">
                         <thead>
                             <tr class="border-b border-slate-100 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-900/30">
-                                <th class="p-5 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Crop / Lot</th>
-                                <th class="p-5 text-[10px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-widest">Farmer</th>
-                                <th class="p-5 text-[10px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-widest text-right">Negotiated Price</th>
-                                <th class="p-5 text-[10px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-widest text-right">Quantity</th>
-                                <th class="p-5 text-[10px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-widest text-center">Status</th>
-                                <th class="p-5 text-[10px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-widest text-center">Workspace</th>
+                                <th class="p-5 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Crop / Lot</th>
+                                <th class="p-5 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Farmer</th>
+                                <th class="p-5 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest text-right">Negotiated Price</th>
+                                <th class="p-5 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest text-right">Quantity</th>
+                                <th class="p-5 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest text-center">Status</th>
+                                <th class="p-5 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest text-center">Workspace</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100/50 dark:divide-slate-700/30">
@@ -51,7 +51,7 @@
                                         <div class="font-bold text-slate-800 dark:text-slate-200 text-xs">
                                             {{ $negotiation->harvest->crop->name ?? $negotiation->harvest->crop_type ?? 'Unknown Crop' }}
                                         </div>
-                                        <div class="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">
+                                        <div class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">
                                             Product #{{ $negotiation->harvest_id }} • {{ $negotiation->harvest->cropVariety->name ?? $negotiation->harvest->variety ?? 'Standard' }}
                                         </div>
                                     </td>
@@ -66,11 +66,11 @@
                                     </td>
                                     <td class="p-5 text-center whitespace-nowrap">
                                         <span class="text-[9px] font-extrabold uppercase tracking-widest px-2.5 py-1 rounded border
-                                            @if($negotiation->status === 'OPEN') text-harvest-700 dark:text-harvest bg-harvest/10 border-harvest/10 dark:text-harvest dark:bg-harvest/10 dark:border-harvest/20
-                                            @elseif($negotiation->status === 'AGREED') text-[#3A7D44] bg-[#3A7D44]/10 border-[#3A7D44]/10 dark:text-[#5DAF68] dark:bg-[#5DAF68]/10 dark:border-[#5DAF68]/20
-                                            @elseif($negotiation->status === 'COMPLETED') text-[#1F4D25] bg-[#1F4D25]/10 border-[#1F4D25]/10 dark:text-[#4CAF50] dark:bg-[#4CAF50]/10 dark:border-[#4CAF50]/20
+                                            @if($negotiation->status->value === 'OPEN') text-harvest-700 dark:text-harvest bg-harvest/10 border-harvest/10 dark:text-harvest dark:bg-harvest/10 dark:border-harvest/20
+                                            @elseif($negotiation->status->value === 'AGREED') text-[#16283C] bg-[#16283C]/10 border-[#16283C]/10 dark:text-[#D7BC7A] dark:bg-[#D7BC7A]/10 dark:border-[#D7BC7A]/20
+                                            @elseif($negotiation->status->value === 'COMPLETED') text-[#0E1620] bg-[#0E1620]/10 border-[#0E1620]/10 dark:text-[#4CAF50] dark:bg-[#4CAF50]/10 dark:border-[#4CAF50]/20
                                             @else text-slate-500 bg-slate-500/10 border-slate-500/10 dark:text-slate-400 dark:bg-slate-400/10 dark:border-slate-400/20 @endif">
-                                            {{ $negotiation->status }}
+                                            {{ $negotiation->status->value }}
                                         </span>
                                     </td>
                                     <td class="p-5 text-center whitespace-nowrap">

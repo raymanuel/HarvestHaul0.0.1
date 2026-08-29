@@ -2,8 +2,10 @@
 
 namespace App\Console\Commands;
 
+use App\Models\HarvestStatus;
 use App\Models\PoolingJob;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 
 class AutoRejectExpiredProposals extends Command
 {
@@ -15,7 +17,7 @@ class AutoRejectExpiredProposals extends Command
         $cutoff = now()->subHours(48);
 
         $expiredJobs = PoolingJob::where('status', 'pending')
-            ->where('created_at', '<=', $cutoff)
+            ->where(DB::raw('COALESCE(proposal_expires_at, created_at)'), '<=', $cutoff)
             ->get();
 
         $count = 0;
@@ -41,7 +43,7 @@ class AutoRejectExpiredProposals extends Command
 
             // Free harvests back to 'sold'
             foreach ($job->harvests as $harvest) {
-                if ($harvest->status === 'assigned') {
+                if ($harvest->status === HarvestStatus::ASSIGNED) {
                     $harvest->update(['status' => 'sold']);
                 }
             }

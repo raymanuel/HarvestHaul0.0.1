@@ -5,9 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use App\Models\FarmerProfile;
+use App\Models\AuditLog;
 use App\Models\LogisticsProfile;
-use App\Models\Harvest;
+use App\Traits\HasFarmerRelations;
+use App\Traits\HasDriverRelations;
+use App\Traits\HasLogisticsRelations;
+use App\Traits\HasBuyerRelations;
 
 /**
  * ═══════════════════════════════════════════════════════════════
@@ -28,7 +31,7 @@ use App\Models\Harvest;
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, HasFarmerRelations, HasDriverRelations, HasLogisticsRelations, HasBuyerRelations;
 
     /**
      * Mass-assignable fields.
@@ -44,8 +47,6 @@ class User extends Authenticatable
         'phone',
         'affiliation_type',
         'cooperative_id',
-        'email_otp',
-        'email_otp_expires_at',
     ];
 
     /**
@@ -74,106 +75,27 @@ class User extends Authenticatable
 
     // ─────────────────────────────────────────────────────────
     // RELATIONSHIPS
-    // Each User can have exactly ONE role-specific profile.
-    // The profile holds extended attributes (farm_location, company_name, etc.)
+    // Role-specific relations are provided by traits: HasFarmerRelations,
+    // HasDriverRelations, HasLogisticsRelations, HasBuyerRelations.
     // ─────────────────────────────────────────────────────────
 
-    /**
-     * Cooperative that this user belongs to.
-     */
     public function cooperative()
     {
         return $this->belongsTo(LogisticsProfile::class, 'cooperative_id');
     }
 
-    /**
-     * Audit trail: admin actions recorded against target users.
-     * Used by the admin audit log panel.
-     */
     public function auditLogs()
     {
         return $this->hasMany(AuditLog::class, 'target_id');
     }
 
-    /**
-     * Farmer extended profile (farm_location, barangay, cooperative_id, is_verified, etc.)
-     * NULL if the user is not a farmer.
-     */
-    public function farmerProfile()
+    public function negotiations()
     {
-        return $this->hasOne(FarmerProfile::class);
-    }
-
-    /**
-     * Logistics partner profile (company_name, logistics_type, is_verified, etc.)
-     * NULL if the user is not a logistics partner.
-     */
-    public function logisticsProfile()
-    {
-        return $this->hasOne(LogisticsProfile::class);
-    }
-
-    /**
-     * Driver profile (license_number, assigned truck, etc.)
-     * NULL if the user is not a driver.
-     */
-    public function driverProfile()
-    {
-        return $this->hasOne(DriverProfile::class);
-    }
-
-    /**
-     * All harvests POSTED by this farmer user.
-     * Foreign key: harvests.user_id → users.id
-     */
-    public function harvests()
-    {
-        return $this->hasMany(Harvest::class, 'user_id');
-    }
-
-    /**
-     * Harvests ASSIGNED to this user as driver for pickup.
-     * Foreign key: harvests.driver_id → users.id
-     */
-    public function assignedHarvests()
-    {
-        return $this->hasMany(Harvest::class, 'driver_id');
-    }
-
-    /** Compliance documents uploaded by this farmer for admin verification. */
-    public function farmerDocuments()
-    {
-        return $this->hasMany(FarmerDocument::class, 'user_id');
-    }
-
-    /** Compliance documents uploaded by this logistics partner for admin verification. */
-    public function logisticsDocuments()
-    {
-        return $this->hasMany(LogisticsDocument::class, 'user_id');
-    }
-
-    public function buyerProfile()
-    {
-        return $this->hasOne(BuyerProfile::class);
+        return $this->hasMany(\App\Models\Negotiation::class);
     }
 
     public function isBuyer()
     {
         return $this->role === 'buyer';
-    }
-
-    public function buyerNegotiations()
-    {
-        return $this->hasMany(Negotiation::class, 'buyer_id');
-    }
-
-    public function farmerNegotiations()
-    {
-        return $this->hasMany(Negotiation::class, 'farmer_id');
-    }
-
-    public function fuelLogs()
-    {
-        return $this->hasMany(FuelLog::class, 'driver_id');
     }
 }

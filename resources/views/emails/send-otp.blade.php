@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8">
@@ -7,12 +7,12 @@
     <style>
         body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f4f4f4; margin: 0; padding: 0; }
         .wrapper { max-width: 480px; margin: 40px auto; background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
-        .header { background: linear-gradient(135deg, #3A7D44, #3A7D44); padding: 32px 24px; text-align: center; }
+        .header { background: linear-gradient(135deg, #16283C, #16283C); padding: 32px 24px; text-align: center; }
         .header h1 { margin: 0; color: #fff; font-size: 22px; font-weight: 800; letter-spacing: 1px; }
         .body { padding: 32px 24px; }
         .body p { color: #374151; font-size: 15px; line-height: 1.6; margin: 0 0 16px; }
-        .otp-box { background: #f0fdf4; border: 2px dashed #3A7D44; border-radius: 12px; padding: 20px; text-align: center; margin: 20px 0; }
-        .otp-code { font-size: 36px; font-weight: 800; letter-spacing: 8px; color: #3A7D44; font-family: 'Courier New', monospace; }
+        .otp-box { background: #f5f3ff; border: 2px dashed #16283C; border-radius: 12px; padding: 20px; text-align: center; margin: 20px 0; }
+        .otp-code { font-size: 36px; font-weight: 800; letter-spacing: 8px; color: #16283C; font-family: 'Courier New', monospace; }
         .expiry { font-size: 12px; color: #9ca3af; margin-top: 8px; }
         .footer { padding: 20px 24px; border-top: 1px solid #e5e7eb; text-align: center; font-size: 12px; color: #9ca3af; }
     </style>

@@ -22,9 +22,14 @@ class AdminUpdateUserRequest extends FormRequest
         $rules = [
             'name'     => ['required', 'string', 'max:255', 'unique:users,name,' . $userId],
             'email'    => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $userId],
-            'password' => ['nullable', 'string', 'min:8', 'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s])[A-Za-z\d\W_]{8,}$/'],
+            'password' => ['nullable', 'string', 'min:8'],
             'role'     => ['required', 'in:admin,farmer,logistics_partner,driver,buyer'],
             'status'   => ['required', 'in:active,inactive'],
+            'latitude'       => ['nullable', 'numeric', 'between:-90,90'],
+            'longitude'      => ['nullable', 'numeric', 'between:-180,180'],
+            'vehicle_type'   => ['nullable', 'string', 'max:50'],
+            'partner_id'     => ['required_if:role,driver', 'nullable', 'integer', 'exists:logistics_profiles,id'],
+            'license_number' => ['required_if:role,driver', 'nullable', 'string', 'max:50'],
         ];
 
         return array_merge($rules, $this->roleSpecificRules($userId));

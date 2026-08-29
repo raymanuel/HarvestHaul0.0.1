@@ -56,6 +56,7 @@ class ResourcePoolingService
      * @param float $startLat/Lng      Logistics depot / truck base GPS coords
      * @param float $endLat/Lng        Return destination (fleet base) GPS coords
      * @param float $radiusKm          Search radius from the dispatch console
+     * @param float $haulingRatePerKg  Flat hauling rate (₱/kg) quoted by logistics
      * @return array                   Plan array or ['success' => false, ...] on failure
      */
     public function plan(
@@ -65,7 +66,8 @@ class ResourcePoolingService
         float $startLng,
         float $endLat,
         float $endLng,
-        float $radiusKm
+        float $radiusKm,
+        float $haulingRatePerKg = 0
     ): array {
         // STEP 1: Fetch only SOLD/PARTIALLY_SOLD harvests with GPS coords and full relationships.
         // Inactive/assigned harvests are excluded — prevents double-booking.
@@ -179,17 +181,33 @@ class ResourcePoolingService
         $totalKg     = $selected->sum('quantity_kg');
         $loadPercent = round(($totalKg / $truck->capacity_kg) * 100, 1);
 
-        // Reference price formula:
-        //   Distance component: ₱15.00 per km
-        //   Weight component:   ₱0.50 per kg
-        //   Fixed base fee:     ₱250.00
-        // NOTE: This is an estimate — can be overridden by negotiated_price.
-        $priceReference = ($totalDistance * 15.00) + ($totalKg * 0.50) + 250.00;
+        // Per-farmer hauling rates agreed in the chat are the source of truth
+        // for the cooperative path: each farmer's share is their rate x their kg.
+        // Otherwise fall back to the flat rate / distance estimate.
+        $perFarmerRates = $selected->mapWithKeys(function ($h) {
+            $rate = collect(is_array($h) ? ($h['negotiations'] ?? []) : $h->negotiations)
+                ->firstWhere('status', 'COMPLETED');
+            return [$h->id => $rate && isset($rate['hauling_rate_per_kg']) && $rate['hauling_rate_per_kg'] !== null
+                ? (float) $rate['hauling_rate_per_kg']
+                : null];
+        });
 
-        // STEP 6: Proportional cost allocation.
-        // Each farmer's share = based on (their_weight × their_haul_distance).
-        // This is fairer than pure weight-only splitting because farmers
-        // with distant drop-offs consume more fuel per kg.
+        $hasPerFarmerRates = $perFarmerRates->contains(fn($r) => $r !== null);
+
+        if ($hasPerFarmerRates) {
+            $priceReference = $selected->sum(function ($h) use ($perFarmerRates) {
+                $rate = $perFarmerRates[$h->id];
+                $qty  = (float) $h->quantity_kg;
+                return ($rate ?? 0) * $qty;
+            });
+        } elseif ($haulingRatePerKg > 0) {
+            $priceReference = $haulingRatePerKg * $totalKg;
+        } else {
+            $priceReference = ($totalDistance * 15.00) + ($totalKg * 0.50) + 250.00;
+        }
+
+        // STEP 6: Cost allocation — per-farmer rate x kg when rates exist,
+        // otherwise the weight x distance rule.
         $allocationScores = [];
         $totalAllocationScore = 0.0;
 
@@ -205,23 +223,28 @@ class ResourcePoolingService
             $individualDistance = $this->haversine($hLat, $hLng, $dLat, $dLng);
             if ($individualDistance < 1.0) $individualDistance = 1.0;
 
-            // Allocation score = weight × distance (heavier AND farther = larger share)
-            $score = $qty * $individualDistance;
-            $allocationScores[$harvest->id] = $score;
-            $totalAllocationScore += $score;
+            if ($hasPerFarmerRates) {
+                // Prefer the agreed per-farmer rate; fall back to flat rate.
+                $rate = $perFarmerRates[$harvest->id] ?? null;
+                if ($rate === null) {
+                    $rate = $haulingRatePerKg;
+                }
+                $share = $rate * $qty;
+                $allocationScores[$harvest->id] = $share;
+                $totalAllocationScore += $share;
+            } else {
+                // Allocation score = weight × distance.
+                $score = $qty * $individualDistance;
+                $allocationScores[$harvest->id] = $score;
+                $totalAllocationScore += $score;
+            }
         }
 
         // Map each pickup stop into the output format, attaching the per-farmer cost split.
-        $stops = $orderedPickups->values()->map(function ($harvest, $index) use ($priceReference, $allocationScores, $totalAllocationScore) {
+        $stops = $orderedPickups->values()->map(function ($harvest, $index) use ($priceReference, $allocationScores, $totalAllocationScore, $hasPerFarmerRates, $perFarmerRates) {
             $h = is_array($harvest) ? $harvest : $harvest->toArray();
 
             $harvestId    = $h['id'];
-            $harvestScore = $allocationScores[$harvestId] ?? 0;
-
-            // This farmer's proportion of total cost.
-            $costProportion = $totalAllocationScore > 0 ? ($harvestScore / $totalAllocationScore) : 0;
-            $farmerShare    = $priceReference * $costProportion;
-
             return [
                 'pickup_order'       => $index + 1,                          // Stop number in driver sequence
                 'harvest_id'         => $harvestId,
@@ -235,7 +258,17 @@ class ResourcePoolingService
                 'destination_label'  => $h['destination']['name'] ?? '—',
                 'destination_lat'    => (float) ($h['destination_latitude'] ?? 0),
                 'destination_lng'    => (float) ($h['destination_longitude'] ?? 0),
-                'individual_cost'    => round($farmerShare, 2)               // Per-farmer cost estimate
+                // Per-farmer rate x kg when rates are agreed; otherwise the
+                // weight x distance share of the total route price.
+                'individual_cost'    => $hasPerFarmerRates
+                    ? round($allocationScores[$harvestId], 2)
+                    : round(
+                        $totalAllocationScore > 0
+                            ? $priceReference * ($allocationScores[$harvestId] / $totalAllocationScore)
+                            : 0,
+                        2
+                    ),
+                'rate'               => $perFarmerRates[$harvestId] ?? ($hasPerFarmerRates ? null : $haulingRatePerKg),
             ];
         });
 
@@ -257,6 +290,7 @@ class ResourcePoolingService
             'radius_km'         => $radiusKm,
             'total_distance_km' => round($totalDistance, 2),
             'price_reference'   => round($priceReference, 2),
+            'hauling_rate_per_kg' => round($haulingRatePerKg, 2),
             'stops'             => $stops,
             // Simplified harvest list (used by confirm endpoint to re-attach to pivot)
             'selected_harvests' => $stops->map(fn($s) => [
@@ -266,7 +300,8 @@ class ResourcePoolingService
                 'crop'          => $s['crop'] . ($s['variety'] !== '—' ? ' (' . $s['variety'] . ')' : ''),
                 'quantity_kg'   => $s['quantity_kg'],
                 'pickup_order'  => $s['pickup_order'],
-                'split_cost'    => $s['individual_cost']
+                'split_cost'    => $s['individual_cost'],
+                'split_rate'    => $s['rate'] ?? null,
             ])->values(),
         ];
     }
@@ -321,14 +356,37 @@ class ResourcePoolingService
                 }
             }
 
+            // Pessimistically lock the harvest rows so two concurrent confirms
+            // cannot both pass the status re-check (TOCTOU double-booking).
+            $harvestIds = collect($plan['selected_harvests'])
+                ->map(fn ($item) => is_array($item) || is_object($item)
+                    ? data_get($item, 'harvest_id') ?? data_get($item, 'id')
+                    : $item)
+                ->values();
+            $lockedHarvests = Harvest::whereIn('id', $harvestIds)
+                ->lockForUpdate()
+                ->get()
+                ->keyBy('id');
+
+            if ($lockedHarvests->count() !== $harvestIds->count()) {
+                throw new \RuntimeException('Some harvests no longer exist.');
+            }
+
             // Re-verify harvests still have sold/partially_sold status (could have changed since plan preview)
-            $soldCount = Harvest::whereIn('id', collect($plan['selected_harvests'])->pluck('harvest_id'))
-                ->whereIn('status', HarvestStatus::logisticsVisible())
-                ->count();
-            $expectedCount = count($plan['selected_harvests']);
-            if ($soldCount !== $expectedCount) {
+            $soldCount = $lockedHarvests->whereIn('status', HarvestStatus::logisticsVisible())->count();
+            if ($soldCount !== $harvestIds->count()) {
                 throw new \RuntimeException('Some harvests are no longer available (status changed since plan preview).');
             }
+
+            // BUSL-06: all pooled harvests must be sold to the SAME buyer (single delivery route)
+            $negotiations = \App\Models\Negotiation::whereIn('harvest_id', $harvestIds)
+                ->where('status', 'COMPLETED')
+                ->get();
+            $buyerIds = $negotiations->pluck('buyer_id')->filter()->unique();
+            if ($buyerIds->count() !== 1) {
+                throw new \RuntimeException('All harvests in a route must be sold to the same buyer.');
+            }
+            $jobBuyerId = $buyerIds->first();
 
             // Build and save the PoolingJob record.
             $job = new PoolingJob();
@@ -346,22 +404,15 @@ class ResourcePoolingService
             $job->radius_km            = $plan['radius_km'];
             $job->planned_distance_km  = $plan['total_distance_km'] ?? null;
             $job->price_reference      = $plan['price_reference'] ?? null;
-            $job->negotiated_price     = $plan['price_reference'] ?? null; // initial bid is reference price
+            $job->negotiated_price     = $plan['price_reference'] ?? null; // auto total = rate × total kg
+            $job->hauling_rate_per_kg  = $plan['hauling_rate_per_kg'] ?? null;
             $job->notes                = $plan['notes'] ?? null;
             $job->proposal_expires_at  = $plan['proposal_expires_at'] ?? now()->addHours(48);
             $job->confirmed_at         = null;                // will be populated once confirmed
             $job->route_geometry       = $plan['route_geometry'] ?? null; // OSRM route JSON for map display
 
-            // Set buyer_id from the first harvest stop's completed negotiation
-            $firstStop = $plan['stops'][0] ?? null;
-            if ($firstStop) {
-                $negotiation = \App\Models\Negotiation::where('harvest_id', $firstStop['harvest_id'])
-                    ->where('status', 'COMPLETED')
-                    ->first();
-                if ($negotiation) {
-                    $job->buyer_id = $negotiation->buyer_id;
-                }
-            }
+            // Set buyer_id from the single shared buyer across all stops
+            $job->buyer_id = $jobBuyerId;
 
             $job->save();
 

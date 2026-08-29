@@ -3,21 +3,18 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
-use Symfony\Component\DomCrawler\Crawler;
-use thiagoalessio\TesseractOCR\TesseractOCR;
+use Illuminate\Support\Facades\Cache;
 use App\Models\Crop;
 use App\Models\CropPriceHistory;
+use App\Models\ScraperStatus;
 use Carbon\Carbon;
 
 class Darfo12Service
 {
-    private const ARCHIVE_URL = 'https://rfo12.da.gov.ph/category/bantay-presyo/';
-
     private const CROP_CATEGORIES = [
-        'Rice'                  => ['rice', 'glutinous', 'gutnous', 'giutnous', 'milled', 'miles', 'miled',
+        'Rice'                  => ['rice', 'glutinous', 'gutnous', 'giutnous', 'basmati', 'milled', 'miles', 'miled',
                                      'jasponica', 'sinandomeng', 'ir48', 'ir64', 'ir76', 'ir78',
                                      'premium', 'well milled', 'regular milled', 'repolished'],
         'Corn'                  => ['corn', 'com ', 'com(', 'comg', 'yellow corn', 'white corn',
@@ -26,8 +23,8 @@ class Darfo12Service
         'Lowland Vegetables'    => ['tomato', 'kamatis', 'eggplant', 'talong', 'string bean', 'sitaw',
                                      'bitter gourd', 'ampalaya', 'squash', 'kalabasa', 'okra',
                                      'winged bean', 'patola', 'upo', 'bottle gourd', 'sponge gourd',
-                                     'bell pepper', 'siling', 'chili', 'chili pepper', 'green chili',
-                                     'eoopant', 'pole stao', 'bel pepper', 'chit '],
+                                     'bell pepper', 'siling', 'chili', 'chilli', 'chili pepper', 'green chili',
+                                     'eoopant', 'pole stao', 'sitao', 'bel pepper', 'chit '],
         'Highland Vegetables'   => ['cabbage', 'repolyo', 'carrot', 'carrots', 'potato', 'patatas',
                                      'broccoli', 'cauliflower', 'lettuce', 'celery',
                                      'spring onion', 'green onion', 'onion leeks', 'leeks',
@@ -36,8 +33,8 @@ class Darfo12Service
         'Spices'                => ['garlic', 'bawang', 'onion', 'sibuyas', 'ginger', 'luya',
                                      'turmeric', 'luyang dilaw', 'lemon grass', 'lemongrass',
                                      'horseradish', 'malunggay'],
-        'Legumes'               => ['mung bean', 'monggo', 'mongo', 'mungbean', 'peanut', 'mani',
-                                     'winged bean', 'kadiwa', 'legume', 'hobichuelas'],
+        'Legumes'               => ['mung bean', 'monggo', 'mongo', 'mung', 'mungbean', 'mungbea', 'peanut', 'mani',
+                                     'winged bean', 'kadiwa', 'legume', 'hobichuelas', 'habichuelas', 'beans'],
         'Fruits'                => ['mango', 'mangga', 'banana', 'saging', 'pineapple', 'pinya',
                                      'papaya', 'calamansi', 'kalamansi', 'claman', 'watermelon', 'pakwan',
                                      'melon', 'cantaloupe', 'avocado', 'guava', 'bayabas',
@@ -112,9 +109,11 @@ class Darfo12Service
         'soe ate'                     => 'Soy Sauce',
 
         // String Beans
+        'pole sitao'                 => 'Sitao',
         'pole stao'                  => 'String Beans (Sitaw)',
         'sitaw'                      => 'String Beans (Sitaw)',
         'hobichuelas'                => 'String Beans',
+        'habichuelas'                => 'Habichuelas',
         'bel pepper (green, local'   => 'Bell Pepper (Green)',
         'bel pepper (green)'         => 'Bell Pepper (Green)',
         'bel pepper (red), local'    => 'Bell Pepper (Red)',
@@ -168,6 +167,7 @@ class Darfo12Service
         // Legumes
         'monggo'                     => 'Mung Bean',
         'mongo'                      => 'Mung Bean',
+        'mungbea'                    => 'Mung Bean',
         'mungbean'                   => 'Mung Bean',
         'mani'                       => 'Peanut',
 
@@ -225,298 +225,11 @@ class Darfo12Service
         'tabata', 'sau ust', 'simon head', 'cicken', 'eog', 'egg',
     ];
 
-    // ─── Public: Archive & Image Fetching ────────────────────────
+    // ─── Public: PDF-Based Scraping (Primary — Google Doc Bantay Presyo) ─────
 
-    public function fetchLatestPost(): ?array
-    {
-        $response = Http::timeout(15)->get(self::ARCHIVE_URL);
+    private const GOOGLE_DOC_ID = '1qxIVOa0eShF5sghC3rq8eQRJRyBEi9kyaLxXJj82EbM';
 
-        if ($response->failed()) {
-            Log::warning('DA RFO12: Failed to fetch archive page.', ['status' => $response->status()]);
-            return null;
-        }
-
-        $crawler = new Crawler($response->body());
-
-        $posts = $crawler->filter('article.mg-posts-sec-post')->each(function (Crawler $node) {
-            $title = $node->filter('h4.entry-title a')->text('');
-            $href = $node->filter('h4.entry-title a')->attr('href');
-            $dateText = $node->filter('span.mg-blog-date a')->text('');
-
-            preg_match('/\?p=(\d+)/', $href, $matches);
-            $postId = $matches[1] ?? null;
-
-            $thumbHtml = $node->filter('div.mg-post-thumb')->attr('style', '');
-            preg_match("/background-image:\s*url\(['\"]?(.+?)['\"]?\)/", $thumbHtml, $thumbMatches);
-            $thumbnail = $thumbMatches[1] ?? null;
-
-            return [
-                'post_id' => $postId,
-                'title' => trim($title),
-                'date_text' => trim($dateText),
-                'thumbnail' => $thumbnail,
-                'href' => $href,
-            ];
-        });
-
-        foreach ($posts as $post) {
-            if (str_contains($post['title'], 'Average Daily Price Index')) {
-                preg_match('/\((.+?)\)\s*$/', $post['title'], $dateMatches);
-                $dateStr = $dateMatches[1] ?? $post['date_text'];
-                $date = $this->parseDate($dateStr);
-
-                return [
-                    'post_id' => $post['post_id'],
-                    'title' => $post['title'],
-                    'date' => $date,
-                    'thumbnail' => $post['thumbnail'],
-                ];
-            }
-        }
-
-        return null;
-    }
-
-    public function fetchPostImages(int $postId): array
-    {
-        $url = "https://rfo12.da.gov.ph/?p={$postId}";
-        $response = Http::timeout(15)->get($url);
-
-        if ($response->failed()) {
-            Log::warning('DA RFO12: Failed to fetch post page.', ['post_id' => $postId]);
-            return [];
-        }
-
-        $crawler = new Crawler($response->body());
-
-        $images = $crawler->filter('figure.wp-block-gallery img')->each(function (Crawler $node) {
-            return $node->attr('src');
-        });
-
-        return array_filter($images);
-    }
-
-    public function downloadImages(array $urls, string $dateDir): array
-    {
-        $paths = [];
-        $dir = "da-prices/{$dateDir}";
-
-        foreach ($urls as $index => $url) {
-            try {
-                $response = Http::timeout(15)->get($url);
-
-                if ($response->failed()) {
-                    Log::warning('DA RFO12: Failed to download image.', ['url' => $url]);
-                    continue;
-                }
-
-                $filename = "page_{$index}.jpg";
-                $path = "{$dir}/{$filename}";
-
-                Storage::disk('local')->put($path, $response->body());
-                $paths[] = Storage::disk('local')->path($path);
-            } catch (\Exception $e) {
-                Log::warning('DA RFO12: Image download error.', ['url' => $url, 'error' => $e->getMessage()]);
-            }
-        }
-
-        return $paths;
-    }
-
-    public function cleanup(string $dateDir): void
-    {
-        $dir = "da-prices/{$dateDir}";
-        $files = Storage::disk('local')->files($dir);
-
-        foreach ($files as $file) {
-            Storage::disk('local')->delete($file);
-        }
-
-        Storage::disk('local')->deleteDirectory($dir);
-    }
-
-    // ─── Public: Structured HTML Scraping (Primary) ──────────────
-
-    private const BANTAY_BASE_URL = 'http://www.bantaypresyo.da.gov.ph';
-    private const REGION_XII_CODE = '120000000';
-
-    private const BANTAY_CATEGORY_MAP = [
-        1  => 'Rice',
-        2  => 'Corn',
-        3  => 'Legumes',
-        5  => 'Fruits',
-        6  => 'Highland Vegetables',
-        7  => 'Lowland Vegetables',
-        9  => 'Spices',
-    ];
-
-    public function fetchStructuredDate(): ?string
-    {
-        try {
-            $response = Http::timeout(30)->asForm()->post(
-                self::BANTAY_BASE_URL . '/tbl_price_get_date_rice.php',
-                ['commodity' => 1, 'region' => self::REGION_XII_CODE]
-            );
-
-            if ($response->failed()) return null;
-
-            $dateStr = trim($response->body());
-            $date = Carbon::createFromFormat('F j, Y', $dateStr);
-            return $date ? $date->toDateString() : null;
-        } catch (\Exception $e) {
-            Log::warning('DA Bantay Presyo: Failed to fetch date.', ['error' => $e->getMessage()]);
-            return null;
-        }
-    }
-
-    public function fetchStructuredPrices(): array
-    {
-        $allPrices = [];
-
-        foreach (self::BANTAY_CATEGORY_MAP as $categoryId => $categoryName) {
-            try {
-                $prices = $this->fetchCategoryPrices($categoryId, $categoryName);
-                $allPrices = array_merge($allPrices, $prices);
-            } catch (\Exception $e) {
-                Log::warning("DA Bantay Presyo: Failed to fetch category {$categoryName}.", [
-                    'error' => $e->getMessage(),
-                ]);
-            }
-        }
-
-        return $allPrices;
-    }
-
-    private function fetchCategoryPrices(int $categoryId, string $categoryName): array
-    {
-        $base = self::BANTAY_BASE_URL;
-        $region = self::REGION_XII_CODE;
-
-        // Get header to determine column count
-        $headerResp = Http::timeout(30)->asForm()->post("{$base}/tbl_price_get_comm_header.php", [
-            'commodity' => $categoryId,
-            'region'    => $region,
-        ]);
-
-        if ($headerResp->failed()) return [];
-
-        $headerHtml = $headerResp->body();
-        $count = $this->countTableColumns($headerHtml);
-
-        // Get price data
-        $priceResp = Http::timeout(30)->asForm()->post("{$base}/tbl_price_get_comm_price.php", [
-            'commodity' => $categoryId,
-            'count'     => $count,
-            'region'    => $region,
-        ]);
-
-        if ($priceResp->failed()) return [];
-
-        return $this->parseBantayTableRows($priceResp->body(), $categoryName);
-    }
-
-    private function countTableColumns(string $headerHtml): int
-    {
-        preg_match_all('/colspan\s*=\s*["\']?(\d+)["\']?/', $headerHtml, $matches);
-        $count = 0;
-        foreach ($matches[1] as $colspan) {
-            $count += (int) $colspan;
-        }
-        if ($count === 0) {
-            $count = substr_count($headerHtml, '<td');
-        }
-        return max($count, 1);
-    }
-
-    private function parseBantayTableRows(string $html, string $categoryName): array
-    {
-        $prices = [];
-        $dom = new \DOMDocument();
-        libxml_use_internal_errors(true);
-        $dom->loadHTML('<table>' . $html . '</table>');
-        libxml_clear_errors();
-
-        $trElements = $dom->getElementsByTagName('tr');
-        foreach ($trElements as $tr) {
-            $tds = $tr->getElementsByTagName('td');
-            if ($tds->length < 3) continue;
-
-            $commodity = trim($tds->item(0)->textContent);
-            $specification = trim($tds->item(1)->textContent);
-
-            // Collect all market prices, skip N/A
-            $marketPrices = [];
-            for ($i = 2; $i < $tds->length; $i++) {
-                $text = trim($tds->item($i)->textContent);
-                if ($text !== 'N/A' && is_numeric($text) && (float) $text > 0) {
-                    $marketPrices[] = (float) $text;
-                }
-            }
-
-            // Need at least one valid market price
-            if (empty($marketPrices)) continue;
-
-            $prices[] = [
-                'commodity'      => $commodity,
-                'commodity_raw'  => $commodity,
-                'specification'  => $specification,
-                'category'       => $categoryName,
-                'low_price'      => min($marketPrices),
-                'high_price'     => max($marketPrices),
-                'common_price'   => round(array_sum($marketPrices) / count($marketPrices), 2),
-                'dpi_price'      => round(array_sum($marketPrices) / count($marketPrices), 2),
-                'market_count'   => count($marketPrices),
-            ];
-        }
-
-        return $prices;
-    }
-
-    // ─── Public: Store structured prices ─────────────────────────
-
-    public function storeStructuredPrices(array $prices, string $sourceDate): array
-    {
-        $stored = 0;
-        $skipped = 0;
-
-        DB::transaction(function () use ($prices, $sourceDate, &$stored, &$skipped) {
-            foreach ($prices as $price) {
-                $category = $price['category'] ?? null;
-
-                if (!$category) {
-                    $skipped++;
-                    continue;
-                }
-
-                $rawName = $price['commodity'];
-                $displayName = $this->normalizeCommodityName($rawName);
-
-                CropPriceHistory::updateOrCreate(
-                    [
-                        'commodity_name' => $displayName,
-                        'source'         => 'da_rfo12',
-                        'source_date'    => $sourceDate,
-                    ],
-                    [
-                        'commodity_category' => $category,
-                        'price_per_kg'       => $price['dpi_price'],
-                        'low_price'          => $price['low_price'],
-                        'high_price'         => $price['high_price'],
-                        'common_price'       => $price['common_price'],
-                        'crop_id'            => $this->findOptionalCropId(strtolower($displayName)),
-                    ]
-                );
-
-                $stored++;
-            }
-        });
-
-        return [$stored, $skipped];
-    }
-
-    // ─── Public: PDF-Based Scraping (Primary for Region 12) ─────
-
-    private const PDF_BASE_URL = 'https://rfo12.da.gov.ph/wp-content/uploads';
+    public const HTTP_USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
 
     // Map PDF category headers to our categories
     private const PDF_CATEGORY_MAP = [
@@ -536,24 +249,102 @@ class Darfo12Service
         'WHOLESALE', 'OTHER BASIC COMMODITIES',
     ];
 
-    public function buildPdfUrl(string $dateStr): ?string
+    public function fetchLatestGoogleDocDate(): ?string
     {
-        $date = Carbon::parse($dateStr);
-        $monthName = $date->format('F');
-        $day = $date->format('j');
-        $year = $date->format('Y');
-        $month = $date->format('m');
+        $exportUrl = "https://docs.google.com/document/d/" . self::GOOGLE_DOC_ID . "/export?format=txt";
 
-        return self::PDF_BASE_URL . "/{$year}/{$month}/Average-Daily-Price-Index-of-Agricultural-Commodities-in-SOCCSKSARGEN-Region-{$monthName}-{$day}-{$year}.pdf";
+        $response = $this->httpGetWithRetry($exportUrl);
+        if (!$response) {
+            Log::warning('DA RFO12: Google Doc latest-date fetch failed after retries.');
+            return null;
+        }
+
+        $text = html_entity_decode($response->body(), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        $text = preg_replace('/\s+/u', ' ', $text);
+
+        preg_match_all('/\((January|February|March|April|May|June|July|August|September|October|November|December)\s+(\d{1,2}),\s+(\d{4})\)/', $text, $matches, PREG_SET_ORDER);
+
+        $latest = null;
+        foreach ($matches as $match) {
+            try {
+                $date = Carbon::createFromFormat('F j, Y', "{$match[1]} {$match[2]}, {$match[3]}");
+                if ($date && (!$latest || $date->gt($latest))) {
+                    $latest = $date;
+                }
+            } catch (\Exception $e) {
+                continue;
+            }
+        }
+
+        if ($latest) {
+            Log::info('DA RFO12: Latest Google Doc date.', ['date' => $latest->toDateString()]);
+            return $latest->toDateString();
+        }
+
+        Log::warning('DA RFO12: No dated entries found in Google Doc.');
+        return null;
+    }
+
+    public function resolvePdfUrlFromGoogleDoc(string $dateStr): ?string
+    {
+        $exportUrl = "https://docs.google.com/document/d/" . self::GOOGLE_DOC_ID . "/export?format=html";
+
+        $response = $this->httpGetWithRetry($exportUrl);
+        if (!$response) {
+            Log::warning('DA RFO12: Google Doc fetch failed after retries.', ['date' => $dateStr]);
+            return null;
+        }
+
+        $html = $response->body();
+        $targetDate = Carbon::parse($dateStr);
+
+        preg_match_all(
+            '/<a[^>]*href="([^"]*)"[^>]*>\(([^)]+)\)<\/a>/',
+            $html,
+            $matches,
+            PREG_SET_ORDER
+        );
+
+        foreach ($matches as $match) {
+            $href = html_entity_decode($match[1], ENT_QUOTES | ENT_HTML5, 'UTF-8');
+            $dateText = trim(html_entity_decode($match[2], ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+
+            $fileId = null;
+            if (preg_match('#drive\.google\.com/file/d/([a-zA-Z0-9_-]+)#', $href, $idMatch)) {
+                $fileId = $idMatch[1];
+            } elseif (preg_match('#[?&]id=([a-zA-Z0-9_-]+)#', $href, $idMatch)) {
+                $fileId = $idMatch[1];
+            }
+
+            if (!$fileId) continue;
+
+            try {
+                $entryDate = Carbon::parse($dateText);
+                if ($entryDate->toDateString() === $targetDate->toDateString()) {
+                    Log::info('DA RFO12: Found Google Drive PDF.', ['file_id' => $fileId, 'date' => $dateStr]);
+                    return 'https://drive.usercontent.google.com/download?id=' . $fileId . '&export=download&confirm=t';
+                }
+            } catch (\Exception $e) {
+                continue;
+            }
+        }
+
+        Log::warning('DA RFO12: No Google Drive PDF found for date.', ['date' => $dateStr]);
+        return null;
     }
 
     public function fetchRegion12PricesFromPdf(?string $dateStr = null): ?array
     {
         if (!$dateStr) {
-            $dateStr = Carbon::now()->toDateString();
+            $dateStr = $this->fetchLatestGoogleDocDate();
+            if (!$dateStr) {
+                Log::warning('DA RFO12 PDF: Could not determine latest date from Google Doc.');
+                return null;
+            }
         }
 
-        $pdfUrl = $this->buildPdfUrl($dateStr);
+        $pdfUrl = $this->resolvePdfUrlFromGoogleDoc($dateStr);
+
         if (!$pdfUrl) return null;
 
         Log::info('DA RFO12 PDF: Attempting download.', ['url' => $pdfUrl, 'date' => $dateStr]);
@@ -562,20 +353,24 @@ class Darfo12Service
         if (!is_dir($tmpDir)) mkdir($tmpDir, 0755, true);
         $pdfPath = "{$tmpDir}/dpi.pdf";
 
-        try {
-            $response = Http::timeout(30)->get($pdfUrl);
-            if ($response->failed()) {
-                Log::warning('DA RFO12 PDF: Download failed.', ['url' => $pdfUrl, 'status' => $response->status()]);
-                $this->cleanupTempDir($tmpDir);
-                return null;
-            }
-            file_put_contents($pdfPath, $response->body());
-            Log::info('DA RFO12 PDF: Downloaded.', ['bytes' => filesize($pdfPath)]);
-        } catch (\Exception $e) {
-            Log::warning('DA RFO12 PDF: Download error.', ['error' => $e->getMessage()]);
+        $response = $this->httpGetWithRetry($pdfUrl, 2, [5, 15], 60);
+        if (!$response) {
+            Log::warning('DA RFO12 PDF: Download failed after retries.', ['url' => $pdfUrl]);
             $this->cleanupTempDir($tmpDir);
             return null;
         }
+
+        $body = $response->body();
+
+        // Guard: must be a real PDF, not an HTML interstitial/virus-scan page
+        if (stripos($body, '%PDF') !== 0) {
+            Log::warning('DA RFO12 PDF: Response was not a PDF (HTML interstitial or error page).', ['url' => $pdfUrl, 'bytes' => strlen($body)]);
+            $this->cleanupTempDir($tmpDir);
+            return null;
+        }
+
+        file_put_contents($pdfPath, $body);
+        Log::info('DA RFO12 PDF: Downloaded.', ['bytes' => filesize($pdfPath)]);
 
         try {
             $renderedPages = $this->renderPdfPages($pdfPath, $tmpDir);
@@ -631,15 +426,22 @@ class Darfo12Service
     private function ocrSingleImage(string $imagePath): ?string
     {
         $tesseract = config('services.tesseract.binary', 'tesseract');
-        $cmd = escapeshellarg($tesseract) . ' ' . escapeshellarg($imagePath) . ' stdout --psm 6 2>&1';
-        exec($cmd, $output, $exitCode);
 
-        if ($exitCode !== 0 || empty($output)) {
-            Log::warning('DA RFO12 PDF: Tesseract OCR failed (binary may be missing).', ['binary' => $tesseract, 'exit_code' => $exitCode]);
-            return null;
+        foreach (['6', '4'] as $psm) {
+            $cmd = escapeshellarg($tesseract) . ' ' . escapeshellarg($imagePath) . ' stdout --psm ' . $psm . ' 2>&1';
+            $output = [];
+            $exitCode = -1;
+            exec($cmd, $output, $exitCode);
+
+            $text = implode("\n", $output);
+            if ($exitCode === 0 && trim($text) !== '') {
+                return $text;
+            }
+
+            Log::warning('DA RFO12 PDF: Tesseract OCR yielded no text.', ['binary' => $tesseract, 'psm' => $psm, 'exit_code' => $exitCode]);
         }
 
-        return implode("\n", $output);
+        return null;
     }
 
     private function parsePdfOcrOutput(array $texts, string $sourceDate): array
@@ -696,22 +498,45 @@ class Darfo12Service
                     if ($isCategoryHeader) continue;
                 }
 
-                // Skip lines not in a crop category
-                if ($currentCategory === null) continue;
+                // Handle OCR artifacts
+                $cleanLine = str_replace(['|', ']'], ' ', $line); // pipes/stray brackets → spaces
+                $cleanLine = str_replace('}', ')', $cleanLine);   // OCR often reads ) as }
+                $cleanLine = str_replace('§', '5', $cleanLine);   // § → 5 (not space!)
+                $cleanLine = preg_replace('/(\d),(\d)/', '$1.$2', $cleanLine); // decimal commas → dots
+                $cleanLine = str_replace(',', '', $cleanLine);    // remove remaining commas
 
-                // Handle OCR artifacts: § → 5 (not space!), strip | and ]
-                $cleanLine = str_replace(['|', ']'], ' ', $line);
-                $cleanLine = str_replace('§', '5', $cleanLine);
-                $cleanLine = str_replace(',', '', $cleanLine);
-
+                $priceMatch = false;
                 if (preg_match('/^(.+?)\s+(\d+\.?\d*)\s+(\d+\.?\d*)\s+(\d+\.?\d*)\s+(\d+\.?\d*)/', $cleanLine, $matches)) {
                     $commodity = trim($matches[1]);
                     $low = (float) $matches[2];
                     $high = (float) $matches[3];
                     $common = (float) $matches[4];
                     $dpi = (float) $matches[5];
+                    $priceMatch = true;
+                } elseif (preg_match('/^(.+?)\s+(\d+\.?\d*)\s+(\d+\.?\d*)\s+(\d+\.?\d*)\s*$/', $cleanLine, $matches)) {
+                    $commodity = trim($matches[1]);
+                    $low = (float) $matches[2];
+                    $high = (float) $matches[3];
+                    $common = (float) $matches[4];
+                    $dpi = $common;
+                    $priceMatch = true;
+                }
+
+                if ($priceMatch) {
 
                     if ($low <= 0 && $high <= 0) continue;
+
+                    // OCR occasionally drops the decimal point in DPI (e.g. "7549" for 75.49)
+                    if ($dpi > $high * 2) {
+                        $dpi = $dpi / 100;
+                    }
+
+                    // Category comes from the detected section header, else from the commodity name
+                    $category = $currentCategory;
+                    if ($category === null) {
+                        $category = $this->classifyCropByName($commodity);
+                    }
+                    if ($category === null) continue;
 
                     // Prefix Imported/Local to differentiate within same category
                     if ($currentSubSection) {
@@ -721,7 +546,7 @@ class Darfo12Service
                     if ($low > 0 && $high >= $low && $common > 0) {
                         $prices[] = [
                             'commodity' => $commodity,
-                            'category' => $currentCategory,
+                            'category' => $category,
                             'low_price' => $low,
                             'high_price' => $high,
                             'common_price' => $common,
@@ -752,81 +577,33 @@ class Darfo12Service
         rmdir($dir);
     }
 
-    // ─── Public: OCR (Fallback) ─────────────────────────────────
-
-    public function ocrImages(array $paths): array
+    private function httpGetWithRetry(string $url, int $maxAttempts = 3, array $delays = [10, 30, 60], int $timeout = 30): ?\Illuminate\Http\Client\Response
     {
-        $results = [];
-
-        foreach ($paths as $path) {
+        for ($attempt = 1; $attempt <= $maxAttempts; $attempt++) {
             try {
-                $ocr = new TesseractOCR($path);
-                $ocr->executable(config('services.tesseract.binary', 'tesseract'));
-                $ocr->lang('eng');
-                $ocr->psm(6);
-
-                $text = $ocr->run();
-                $results[] = $text;
+                $response = Http::withHeaders(['User-Agent' => self::HTTP_USER_AGENT])
+                    ->timeout($timeout)
+                    ->connectTimeout(10)
+                    ->get($url);
+                if ($response->successful()) {
+                    return $response;
+                }
+                Log::warning('DA RFO12: HTTP request failed.', [
+                    'url' => $url, 'status' => $response->status(), 'attempt' => $attempt,
+                ]);
             } catch (\Exception $e) {
-                Log::warning('DA RFO12: OCR failed.', ['path' => $path, 'error' => $e->getMessage()]);
-                $results[] = '';
+                Log::warning('DA RFO12: HTTP request error.', [
+                    'url' => $url, 'error' => $e->getMessage(), 'attempt' => $attempt,
+                ]);
+            }
+
+            if ($attempt < $maxAttempts) {
+                $delay = $delays[$attempt - 1] ?? end($delays);
+                sleep($delay);
             }
         }
 
-        return $results;
-    }
-
-    // ─── Public: Parsing ─────────────────────────────────────────
-
-    public function parseOcrOutput(array $texts): array
-    {
-        $prices = [];
-
-        foreach ($texts as $text) {
-            $lines = explode("\n", $text);
-
-            foreach ($lines as $line) {
-                $line = str_replace(['|', ']', '[', ':'], ' ', $line);
-                $line = trim($line);
-                if (empty($line)) continue;
-
-                if (preg_match('/^(commodity|lowest|highest|common|dpi|price|market|total|source|note|as of|agriculture|fishery|retail)/i', $line)) {
-                    continue;
-                }
-
-                if (preg_match('/^(.+?)\s+(\d+[\.,]?\d*)\s+(\d+[\.,]?\d*)\s+(\d+[\.,]?\d*)\s+(\d+[\.,]?\d*)/', $line, $matches)) {
-                    $commodity = trim($matches[1]);
-                    $rawLow = $matches[2];
-                    $rawHigh = $matches[3];
-                    $rawCommon = $matches[4];
-                    $rawDpi = $matches[5];
-
-                    $low = $this->parsePrice($rawLow);
-                    $high = $this->parsePrice($rawHigh);
-                    $common = $this->parsePrice($rawCommon);
-                    $dpi = $this->parsePrice($rawDpi);
-
-                    // Correct OCR decimal drops — pass raw strings to check for actual decimal points
-                    // Order: high→common→low→DPI (correct larger values first, use them as references for low)
-                    $high = $this->correctPriceFromRaw($high, $rawHigh, 0, 0);
-                    $common = $this->correctPriceFromRaw($common, $rawCommon, $high, 0);
-                    $low = $this->correctPriceFromRaw($low, $rawLow, max($high, $common), 0);
-                    $dpi = $this->correctPriceFromRaw($dpi, $rawDpi, $common, 0);
-
-                    if ($low > 0 && $high >= $low && $low >= 1) {
-                        $prices[] = [
-                            'commodity' => $commodity,
-                            'low_price' => $low,
-                            'high_price' => $high,
-                            'common_price' => $common,
-                            'dpi_price' => $dpi,
-                        ];
-                    }
-                }
-            }
-        }
-
-        return $prices;
+        return null;
     }
 
     // ─── Public: Store ALL crop prices ───────────────────────────
@@ -878,45 +655,47 @@ class Darfo12Service
 
     public function getDashboardData(): array
     {
-        $latestDate = CropPriceHistory::where('source', 'da_rfo12')
-            ->max('source_date');
+        return Cache::remember('darfo12.dashboard', 1800, function () {
+            $latestDate = CropPriceHistory::where('source', 'da_rfo12')
+                ->max('source_date');
 
-        $priceTrends = collect();
-        $daPrices = collect();
+            $priceTrends = collect();
+            $daPrices = collect();
 
-        if ($latestDate) {
-            $daPrices = CropPriceHistory::where('source', 'da_rfo12')
-                ->where('source_date', $latestDate)
-                ->get();
+            if ($latestDate) {
+                $daPrices = CropPriceHistory::where('source', 'da_rfo12')
+                    ->where('source_date', $latestDate)
+                    ->get();
 
-            $previousPrices = $this->getPreviousPrices($latestDate);
+                $previousPrices = $this->getPreviousPrices($latestDate);
 
-            $priceTrends = $daPrices->map(function ($price) use ($previousPrices) {
-                $prev = $previousPrices->get($price->commodity_name);
-                $change = $prev && $prev->price_per_kg > 0
-                    ? (($price->price_per_kg - $prev->price_per_kg) / $prev->price_per_kg) * 100
-                    : 0;
+                $priceTrends = $daPrices->map(function ($price) use ($previousPrices) {
+                    $prev = $previousPrices->get($price->commodity_name);
+                    $change = $prev && $prev->price_per_kg > 0
+                        ? (($price->price_per_kg - $prev->price_per_kg) / $prev->price_per_kg) * 100
+                        : 0;
 
-                return [
-                    'commodity'   => $price->commodity_name,
-                    'category'   => $price->commodity_category,
-                    'price'      => $price->price_per_kg,
-                    'low'        => $price->low_price,
-                    'high'       => $price->high_price,
-                    'common'     => $price->common_price,
-                    'trend'      => $change > 1 ? 'up' : ($change < -1 ? 'down' : 'stable'),
-                    'change_pct' => round($change, 1),
-                    'date'       => $price->source_date,
-                ];
-            })->sortBy('category');
-        }
+                    return [
+                        'commodity'   => $price->commodity_name,
+                        'category'   => $price->commodity_category,
+                        'price'      => $price->price_per_kg,
+                        'low'        => $price->low_price,
+                        'high'       => $price->high_price,
+                        'common'     => $price->common_price,
+                        'trend'      => $change > 1 ? 'up' : ($change < -1 ? 'down' : 'stable'),
+                        'change_pct' => round($change, 1),
+                        'date'       => $price->source_date,
+                    ];
+                })->sortBy('category');
+            }
 
-        return [
-            'latestDate'    => $latestDate,
-            'daPrices'      => $daPrices,
-            'priceTrends'   => $priceTrends,
-            'scraperStatus' => $this->getScraperStatus(),
-        ];
+            return [
+                'latestDate'    => $latestDate,
+                'daPrices'      => $daPrices,
+                'priceTrends'   => $priceTrends,
+                'scraperStatus' => $this->getScraperStatus(),
+            ];
+        });
     }
 
     public function getPreviousPrices(string $currentDate)
@@ -938,8 +717,7 @@ class Darfo12Service
     public function getScraperStatus(): array
     {
         try {
-            $lastRun = DB::table('scraper_status')
-                ->where('scraper_name', 'darfo12')
+            $lastRun = ScraperStatus::where('scraper_name', 'darfo12')
                 ->latest()
                 ->first();
         } catch (\Exception $e) {
@@ -968,62 +746,6 @@ class Darfo12Service
     }
 
     // ─── Private Helpers ────────────────────────────────────────
-
-    private function parseDate(string $dateStr): ?string
-    {
-        $dateStr = trim($dateStr, '()');
-
-        try {
-            $date = Carbon::parse($dateStr);
-            return $date->toDateString();
-        } catch (\Exception $e) {
-            $date = Carbon::createFromFormat('F j, Y', $dateStr);
-            return $date ? $date->toDateString() : null;
-        }
-    }
-
-    private function parsePrice(string $value): float
-    {
-        $cleaned = str_replace(['P', ' '], '', $value);
-        $cleaned = trim($cleaned, ',');
-        return (float) $cleaned;
-    }
-
-    private function correctPriceFromRaw(float $value, string $raw, float $low, float $high): float
-    {
-        if ($value <= 0) return $value;
-
-        // If the raw OCR text already contains a decimal or comma-as-decimal, it was read correctly
-        if (str_contains($raw, '.') || str_contains($raw, ',')) {
-            return $value;
-        }
-
-        // Raw text has no decimal — OCR likely dropped it
-        // Try all possible corrections and pick the one closest to the reference
-        $ref = max($low, $high);
-        $candidates = [$value]; // original as fallback
-
-        if ($value > 10) $candidates[] = $value / 10;     // dropped decimal point
-        if ($value > 100) $candidates[] = $value / 100;   // dropped two decimals
-        if ($value < 100) $candidates[] = $value * 10;    // dropped trailing zero
-        if ($value < 10) $candidates[] = $value * 100;    // dropped two trailing zeros
-
-        if ($ref > 0) {
-            // Pick the candidate within reasonable range of ref, closest to ref
-            $valid = array_filter($candidates, fn($v) => $v >= 1 && $v <= $ref * 5);
-            if (!empty($valid)) {
-                usort($valid, fn($a, $b) => abs($a - $ref) <=> abs($b - $ref));
-                return $valid[0];
-            }
-        }
-
-        // Standalone: prices over ₱800 with no decimal are suspicious for crops
-        if ($value > 800) {
-            return $value / 100;
-        }
-
-        return $value;
-    }
 
     private function normalizeCommodityName(string $name): string
     {
@@ -1115,10 +837,17 @@ class Darfo12Service
         return $this->normalizeCommodityName($name);
     }
 
-    private function categorizeCommodity(string $normalizedName): ?string
+    private function classifyCropByName(string $commodity): ?string
     {
+        return $this->matchCategory($commodity);
+    }
+
+    private function matchCategory(string $name): ?string
+    {
+        $name = strtolower($name);
+
         foreach (self::NON_CROP_KEYWORDS as $keyword) {
-            if (str_contains($normalizedName, $keyword)) {
+            if (str_contains($name, $keyword)) {
                 return null;
             }
         }
@@ -1132,13 +861,34 @@ class Darfo12Service
         foreach ($order as $category) {
             $keywords = self::CROP_CATEGORIES[$category];
             foreach ($keywords as $keyword) {
-                if (str_contains($normalizedName, $keyword)) {
+                if (str_contains($name, $keyword)) {
                     return $category;
                 }
             }
         }
 
-        return 'Other Crops';
+        return null;
+    }
+
+    private function categorizeCommodity(string $normalizedName): ?string
+    {
+        foreach (self::NON_CROP_KEYWORDS as $keyword) {
+            if (str_contains($normalizedName, $keyword)) {
+                return null;
+            }
+        }
+
+        return $this->matchCategory($normalizedName) ?? 'Other Crops';
+    }
+
+    public function getLatestCropPrice(string $cropName): ?CropPriceHistory
+    {
+        $escaped = str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $cropName);
+
+        return CropPriceHistory::where('source', 'da_rfo12')
+            ->where('commodity_name', 'LIKE', '%' . $escaped . '%')
+            ->orderBy('source_date', 'desc')
+            ->first();
     }
 
     private function findOptionalCropId(string $normalizedName): ?int

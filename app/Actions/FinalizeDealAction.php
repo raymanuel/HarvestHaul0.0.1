@@ -44,6 +44,7 @@ class FinalizeDealAction
                 'destination_address'  => $validated['destination_address'],
                 'destination_latitude' => $validated['destination_latitude'],
                 'destination_longitude' => $validated['destination_longitude'],
+                'hauling_rate_per_kg'  => $validated['hauling_rate_per_kg'] ?? null,
                 'last_activity_at'     => now(),
             ]);
 

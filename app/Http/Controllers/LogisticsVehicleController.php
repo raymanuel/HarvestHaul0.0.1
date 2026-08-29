@@ -16,24 +16,8 @@ use Illuminate\Support\Facades\Auth;
  */
 class LogisticsVehicleController extends Controller
 {
-    /**
-     * Helper to verify if user has 'logistics_partner' role and profile is active.
-     */
-    private function authorizeLogistics(): void
-    {
-        if (!Auth::check() || Auth::user()->role !== 'logistics_partner') {
-            abort(403, 'Unauthorized access.');
-        }
-
-        if (!Auth::user()->logisticsProfile?->is_verified) {
-            abort(403, 'Your account is pending verification.');
-        }
-    }
-
     public function index()
     {
-        $this->authorizeLogistics();
-
         $partnerId = Auth::user()->logisticsProfile->id;
         $vehicles = Truck::where('logistics_profile_id', $partnerId)->with('driver')->get();
 
@@ -42,8 +26,6 @@ class LogisticsVehicleController extends Controller
 
     public function create()
     {
-        $this->authorizeLogistics();
-
         $partnerId = Auth::user()->logisticsProfile->id;
         // Fetch all driver user accounts belonging to this partner
         $driverProfiles = DriverProfile::where('partner_id', $partnerId)->with('user')->get();
@@ -56,20 +38,28 @@ class LogisticsVehicleController extends Controller
 
     public function store(Request $request)
     {
-        $this->authorizeLogistics();
+        $partnerId = Auth::user()->logisticsProfile->id;
 
         $request->validate([
             'truck_name'   => ['required', 'string', 'max:255'],
             'plate_number' => ['required', 'string', 'max:50', 'unique:trucks,plate_number'],
             'vehicle_type' => ['required', 'string', 'max:55'],
             'capacity_kg'  => ['required', 'numeric', 'min:0'],
-            'driver_id'    => ['nullable', 'exists:users,id'],
+            'driver_id'    => ['nullable', 'exists:users,id', function ($attribute, $value, $fail) use ($partnerId) {
+                $ownsDriver = DriverProfile::where('user_id', $value)
+                    ->where('partner_id', $partnerId)
+                    ->exists();
+
+                if (!$ownsDriver) {
+                    $fail('The selected driver does not belong to your fleet.');
+                }
+            }],
             'status'       => ['required', 'in:available,in_transit,maintenance'],
             'notes'        => ['nullable', 'string', 'max:500'],
         ]);
 
         $truck = Truck::create([
-            'logistics_profile_id' => Auth::user()->logisticsProfile->id,
+            'logistics_profile_id' => $partnerId,
             'driver_id'            => $request->driver_id,
             'truck_name'           => $request->truck_name,
             'plate_number'         => $request->plate_number,

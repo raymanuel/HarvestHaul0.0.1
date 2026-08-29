@@ -1,4 +1,4 @@
-﻿<x-layout>
+<x-layout>
     <div class="w-full max-w-4xl mx-auto pb-12">
 
         {{-- Header --}}
@@ -6,11 +6,8 @@
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                     <h1 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight heading-font">Cost Ledger</h1>
-                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-1 font-medium">
-                        Select a job to view per-farmer proportional freight cost breakdown
-                    </p>
                 </div>
-                <span class="text-xs font-semibold uppercase tracking-wider text-[#3A7D44] dark:text-[#3A7D44] bg-[#3A7D44]/10 dark:bg-[#3A7D44]/10 px-3 py-1.5 rounded-lg border border-[#3A7D44]/10 dark:border-[#3A7D44]/20 self-start">
+                <span class="text-xs font-semibold uppercase tracking-wider text-[#16283C] dark:text-[#D7BC7A] bg-[#16283C]/10 dark:bg-[#16283C]/10 px-3 py-1.5 rounded-lg border border-[#16283C]/10 dark:border-[#16283C]/20 self-start">
                     Cost Ledger
                 </span>
             </div>
@@ -24,11 +21,11 @@
                     </svg>
                 </div>
                 <p class="text-slate-600 dark:text-slate-400 font-bold text-sm heading-font">No confirmed jobs yet</p>
-                <p class="text-xs text-slate-400 dark:text-slate-500 mt-2 leading-relaxed">
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">
                     Cost ledgers are generated once a pooling job is confirmed. Go to Route Planning to create one.
                 </p>
                 <a href="{{ route('route.optimization') }}"
-                   class="mt-5 inline-flex items-center gap-2 bg-[#3A7D44] hover:bg-[#2E6336] text-white text-xs font-bold px-4 py-2.5 rounded-xl transition shadow-sm">
+                   class="mt-5 inline-flex items-center gap-2 bg-[#16283C] hover:bg-[#0E1620] text-white text-xs font-bold px-4 py-2.5 rounded-xl transition shadow-sm">
                     Open Route Planning →
                 </a>
             </div>
@@ -41,10 +38,10 @@
                 <div class="divide-y divide-slate-100 dark:divide-slate-700/60">
                     @foreach($jobs as $job)
                         @php
-                            $statusColor = match($job->status) {
-                                'completed'   => 'text-[#3A7D44] dark:text-[#3A7D44] bg-[#3A7D44]/10 dark:bg-[#3A7D44]/10 border-[#3A7D44]/20 dark:border-[#3A7D44]/15',
-                                'in_progress' => 'text-[#1F4D25] dark:text-[#1F4D25] bg-[#1F4D25]/10 dark:bg-[#1F4D25]/10 border-[#1F4D25]/20 dark:border-[#1F4D25]/15',
-                                'confirmed'   => 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/20 border-amber-200/50 dark:border-amber-800/30',
+                            $statusColor = match($job->status->value) {
+                                'completed'   => 'text-[#16283C] dark:text-[#D7BC7A] bg-[#16283C]/10 dark:bg-[#16283C]/10 border-[#16283C]/20 dark:border-[#16283C]/15',
+                                'in_progress' => 'text-[#0E1620] dark:text-[#bfd6c9] bg-[#0E1620]/10 dark:bg-[#0E1620]/10 border-[#0E1620]/20 dark:border-[#0E1620]/15',
+                                'confirmed'   => 'text-[var(--color-warning-text)] bg-[var(--color-warning-bg)] border-[var(--color-warning-border)]',
                                 default       => 'text-slate-500 bg-slate-50 dark:bg-slate-900/30 border-slate-200/50',
                             };
                             $totalKg    = (float) $job->total_kg;
@@ -61,19 +58,19 @@
 
                                 <div class="min-w-0">
                                     <div class="flex items-center gap-2 flex-wrap">
-                                        <p class="text-sm font-bold text-slate-800 dark:text-slate-200 group-hover:text-[#3A7D44] dark:group-hover:text-[#3A7D44] transition heading-font truncate">
+                                        <p class="text-sm font-bold text-slate-800 dark:text-slate-200 group-hover:text-[#16283C] dark:group-hover:text-[#16283C] transition heading-font truncate">
                                              {{ $job->truck->truck_name ?? 'Fleet Hauler' }}
                                         </p>
                                         <span class="text-[10px] font-bold px-2 py-0.5 rounded-md border {{ $statusColor }} capitalize shrink-0">
-                                            {{ str_replace('_', ' ', $job->status) }}
+                                            {{ str_replace('_', ' ', $job->status->value) }}
                                         </span>
                                     </div>
-                                    <div class="flex items-center gap-3 mt-1 text-[11px] text-slate-400 dark:text-slate-500 font-semibold flex-wrap">
+                                    <div class="flex items-center gap-3 mt-1 text-[11px] text-slate-500 dark:text-slate-400 font-semibold flex-wrap">
                                         <span>{{ $job->harvests->count() }} {{ Str::plural('farm', $job->harvests->count()) }}</span>
-                                        <span class="text-slate-300 dark:text-slate-600">·</span>
+                                        <span class="text-slate-300 dark:text-slate-600"></span>
                                         <span>{{ number_format($totalKg, 1) }} kg</span>
                                         @if($job->truck->plate_number ?? false)
-                                            <span class="text-slate-300 dark:text-slate-600">·</span>
+                                            <span class="text-slate-300 dark:text-slate-600"></span>
                                             <span class="font-mono">{{ $job->truck->plate_number }}</span>
                                         @endif
                                     </div>
@@ -85,14 +82,14 @@
                                 <div class="text-right hidden sm:block">
                                     @if($basePrice > 0)
                                         <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{{ $job->negotiated_price ? 'Negotiated' : 'Reference' }}</p>
-                                        <p class="text-sm font-extrabold text-[#3A7D44] dark:text-[#3A7D44] mt-0.5">₱{{ number_format($basePrice, 2) }}</p>
+                                        <p class="text-sm font-extrabold text-[#16283C] dark:text-[#D7BC7A] mt-0.5">₱{{ number_format($basePrice, 2) }}</p>
                                     @else
                                         <p class="text-xs text-slate-400 italic">Price TBD</p>
                                     @endif
                                 </div>
 
                                 {{-- Arrow --}}
-                                <div class="text-slate-300 group-hover:text-[#3A7D44] dark:group-hover:text-[#3A7D44] transition">
+                                <div class="text-slate-300 group-hover:text-[#16283C] dark:group-hover:text-[#16283C] transition">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
                                     </svg>

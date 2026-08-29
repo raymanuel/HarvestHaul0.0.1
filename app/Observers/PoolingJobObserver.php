@@ -3,6 +3,7 @@
 namespace App\Observers;
 
 use App\Models\PoolingJob;
+use App\Models\PoolingJobStatus;
 use App\Models\Notification;
 use App\Traits\Notifiable;
 
@@ -17,8 +18,8 @@ class PoolingJobObserver
         }
 
         match ($job->status) {
-            'confirmed' => $this->onConfirmed($job),
-            'cancelled' => $this->onCancelled($job),
+            PoolingJobStatus::CONFIRMED => $this->onConfirmed($job),
+            PoolingJobStatus::CANCELLED => $this->onCancelled($job),
             default => null,
         };
     }
