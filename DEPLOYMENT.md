@@ -62,7 +62,56 @@ decisions and procedures so any future session can pick up where we left off.
 
 - The queue runs synchronously (`QUEUE_CONNECTION=sync`) — no queue worker is needed in any environment.
 
-## 7. Future / when we make it "real"
+## 7. Shared-hosting handoff checklist
+
+Concrete build/upload steps for pushing the app to a Hostinger-style shared
+account. Follow these in order after (or in place of) the notes above.
+
+1. **Build the frontend locally and upload the compiled assets.** Run
+   `npm run build` on the dev machine (Vite), then upload the `public/build`
+   directory plus any static assets under `public/` that are not regenerated
+   (fonts, images, favicons, vendor files). Never run npm/Vite on the shared
+   host.
+2. **Install PHP dependencies locally and upload `vendor/`.** Run
+   `composer install --no-dev --optimize-autoloader` on the dev machine, then
+   upload the whole `vendor/` directory. Shared hosting usually cannot run
+   composer; if the host does offer SSH + composer, that path is acceptable too.
+3. **Point the web root at `public/`** (hPanel "Document Root"), never the
+   project root — this is the same security-critical rule as section 3.
+4. **Server `.env` (production):**
+   - `APP_ENV=production`
+   - `APP_DEBUG=false`
+   - `APP_URL=https://<real-url>` (must match the actual domain)
+   - Real DB credentials.
+   - `QUEUE_CONNECTION=sync` — no queue worker (or drop the line; the shipped
+     default is already sync).
+   - `SESSION_DRIVER`, `CACHE_DRIVER`, and `QUEUE_CONNECTION` all database-backed.
+   - HTTPS-only.
+5. **One-time server setup:** `php artisan key:generate`, then
+   `php artisan storage:link`, then `php artisan migrate --force`, and finally
+   `php artisan config:cache` + `route:cache` + `view:cache`.
+6. **Cron for scheduled work (mandatory).** The scheduled tasks drive the
+   hourly DA-AMAS Bantay Presyo price scrape (which also keeps prices fresh, so
+   there is no background worker or polling process to babysit), the stale-price
+   checks, invoice generation, overdue-marking, and auto-completions. From hPanel
+   create a cron job on the documented 1-minute interval:
+
+   ```
+   * * * * * php /path/to/artisan schedule:run >> /dev/null 2>&1
+   ```
+
+   If the host restricts pass-through to PHP via cron, an alternative is to
+   fetch the schedule URL via wget/curl with `php artisan schedule:run` behind a
+   URL-governed route — treat this only as a fallback option, not a recommended
+   setup.
+7. **Reviewer verification checklist after upload:**
+   - Market prices page loads and shows the source date and rows.
+   - Live tracking page polls every 10 seconds (no WebSocket).
+   - A "Refresh prices" click triggers a real scrape (verify via scraper status).
+   - Inter-role notifications are delivered synchronously (in-request).
+   - File uploads (identity, warehouse, invoice) work.
+
+## 8. Future / when we make it "real"
 
 - **Subdomain → primary domain migration:** buy a domain if desired, change
   `APP_URL` + vhost. ~30 min. Subdomain choice keeps this painless.
