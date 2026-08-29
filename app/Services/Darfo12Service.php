@@ -225,374 +225,99 @@ class Darfo12Service
         'tabata', 'sau ust', 'simon head', 'cicken', 'eog', 'egg',
     ];
 
-    // ─── Public: PDF-Based Scraping (Primary — Google Doc Bantay Presyo) ─────
-
-    private const GOOGLE_DOC_ID = '1qxIVOa0eShF5sghC3rq8eQRJRyBEi9kyaLxXJj82EbM';
+    // ─── Public: Bantay Presyo HTTP scraping (DA-AMAS Region XII) ─────
 
     public const HTTP_USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
 
-    // Map PDF category headers to our categories
-    private const PDF_CATEGORY_MAP = [
-        'IMPORTED COMMERCIAL RICE'  => 'Rice',
-        'LOCAL COMMERCIAL RICE'     => 'Rice',
-        'CORN'                      => 'Corn',
-        'LEGUMES'                   => 'Legumes',
-        'LOWLAND VEGETABLES'        => 'Lowland Vegetables',
-        'HIGHLAND VEGETABLES'       => 'Highland Vegetables',
-        'SPICES'                    => 'Spices',
-        'FRUITS'                    => 'Fruits',
-    ];
+    private const BANTAY_PRICES_URL = 'http://www.bantaypresyo.da.gov.ph/tbl_price_get_comm_price_veg.php';
+    private const BANTAY_DATE_URL = 'http://www.bantaypresyo.da.gov.ph/tbl_veg.php';
+    private const BANTAY_REGION = '120000000';
+    private const BANTAY_CATEGORY_MAP = [1 => 'Rice', 2 => 'Corn', 3 => 'Legumes', 5 => 'Fruits', 6 => 'Highland Vegetables', 7 => 'Lowland Vegetables', 9 => 'Spices'];
+    private const CROP_COMMODITY_CODES = [1, 2, 3, 5, 6, 7, 9];
+    private const MIN_PLAUSIBLE_COMMODITIES = 10;
 
-    // Categories in the PDF that are NOT crops (we skip these entirely)
-    private const PDF_SKIP_CATEGORIES = [
-        'FISH', 'BEEF', 'PORK', 'POULTRY', 'OTHER LIVESTOCK',
-        'WHOLESALE', 'OTHER BASIC COMMODITIES',
-    ];
-
-    public function fetchLatestGoogleDocDate(): ?string
+    public function fetchLatestBantayDate(): ?string
     {
-        $exportUrl = "https://docs.google.com/document/d/" . self::GOOGLE_DOC_ID . "/export?format=txt";
+        $response = $this->httpPostWithRetry(self::BANTAY_DATE_URL, [
+            'action'    => 'get_latest_date',
+            'commodity' => 6,
+            'region'    => self::BANTAY_REGION,
+        ]);
 
-        $response = $this->httpGetWithRetry($exportUrl);
         if (!$response) {
-            Log::warning('DA RFO12: Google Doc latest-date fetch failed after retries.');
+            Log::warning('DA RFO12: Bantay Presyo latest-date fetch failed after retries.');
             return null;
         }
 
-        $text = html_entity_decode($response->body(), ENT_QUOTES | ENT_HTML5, 'UTF-8');
-        $text = preg_replace('/\s+/u', ' ', $text);
-
-        preg_match_all('/\((January|February|March|April|May|June|July|August|September|October|November|December)\s+(\d{1,2}),\s+(\d{4})\)/', $text, $matches, PREG_SET_ORDER);
-
-        $latest = null;
-        foreach ($matches as $match) {
-            try {
-                $date = Carbon::createFromFormat('F j, Y', "{$match[1]} {$match[2]}, {$match[3]}");
-                if ($date && (!$latest || $date->gt($latest))) {
-                    $latest = $date;
-                }
-            } catch (\Exception $e) {
-                continue;
-            }
-        }
-
-        if ($latest) {
-            Log::info('DA RFO12: Latest Google Doc date.', ['date' => $latest->toDateString()]);
-            return $latest->toDateString();
-        }
-
-        Log::warning('DA RFO12: No dated entries found in Google Doc.');
-        return null;
-    }
-
-    public function resolvePdfUrlFromGoogleDoc(string $dateStr): ?string
-    {
-        $exportUrl = "https://docs.google.com/document/d/" . self::GOOGLE_DOC_ID . "/export?format=html";
-
-        $response = $this->httpGetWithRetry($exportUrl);
-        if (!$response) {
-            Log::warning('DA RFO12: Google Doc fetch failed after retries.', ['date' => $dateStr]);
-            return null;
-        }
-
-        $html = $response->body();
-        $targetDate = Carbon::parse($dateStr);
-
-        preg_match_all(
-            '/<a[^>]*href="([^"]*)"[^>]*>\(([^)]+)\)<\/a>/',
-            $html,
-            $matches,
-            PREG_SET_ORDER
-        );
-
-        foreach ($matches as $match) {
-            $href = html_entity_decode($match[1], ENT_QUOTES | ENT_HTML5, 'UTF-8');
-            $dateText = trim(html_entity_decode($match[2], ENT_QUOTES | ENT_HTML5, 'UTF-8'));
-
-            $fileId = null;
-            if (preg_match('#drive\.google\.com/file/d/([a-zA-Z0-9_-]+)#', $href, $idMatch)) {
-                $fileId = $idMatch[1];
-            } elseif (preg_match('#[?&]id=([a-zA-Z0-9_-]+)#', $href, $idMatch)) {
-                $fileId = $idMatch[1];
-            }
-
-            if (!$fileId) continue;
-
-            try {
-                $entryDate = Carbon::parse($dateText);
-                if ($entryDate->toDateString() === $targetDate->toDateString()) {
-                    Log::info('DA RFO12: Found Google Drive PDF.', ['file_id' => $fileId, 'date' => $dateStr]);
-                    return 'https://drive.usercontent.google.com/download?id=' . $fileId . '&export=download&confirm=t';
-                }
-            } catch (\Exception $e) {
-                continue;
-            }
-        }
-
-        Log::warning('DA RFO12: No Google Drive PDF found for date.', ['date' => $dateStr]);
-        return null;
-    }
-
-    public function fetchRegion12PricesFromPdf(?string $dateStr = null): ?array
-    {
-        if (!$dateStr) {
-            $dateStr = $this->fetchLatestGoogleDocDate();
-            if (!$dateStr) {
-                Log::warning('DA RFO12 PDF: Could not determine latest date from Google Doc.');
-                return null;
-            }
-        }
-
-        $pdfUrl = $this->resolvePdfUrlFromGoogleDoc($dateStr);
-
-        if (!$pdfUrl) return null;
-
-        Log::info('DA RFO12 PDF: Attempting download.', ['url' => $pdfUrl, 'date' => $dateStr]);
-
-        $tmpDir = storage_path('app/pdf-scrape-' . bin2hex(random_bytes(8)));
-        if (!is_dir($tmpDir)) mkdir($tmpDir, 0755, true);
-        $pdfPath = "{$tmpDir}/dpi.pdf";
-
-        $response = $this->httpGetWithRetry($pdfUrl, 2, [5, 15], 60);
-        if (!$response) {
-            Log::warning('DA RFO12 PDF: Download failed after retries.', ['url' => $pdfUrl]);
-            $this->cleanupTempDir($tmpDir);
-            return null;
-        }
-
-        $body = $response->body();
-
-        // Guard: must be a real PDF, not an HTML interstitial/virus-scan page
-        if (stripos($body, '%PDF') !== 0) {
-            Log::warning('DA RFO12 PDF: Response was not a PDF (HTML interstitial or error page).', ['url' => $pdfUrl, 'bytes' => strlen($body)]);
-            $this->cleanupTempDir($tmpDir);
-            return null;
-        }
-
-        file_put_contents($pdfPath, $body);
-        Log::info('DA RFO12 PDF: Downloaded.', ['bytes' => filesize($pdfPath)]);
+        $text = trim($response->body());
 
         try {
-            $renderedPages = $this->renderPdfPages($pdfPath, $tmpDir);
-            Log::info('DA RFO12 PDF: Rendered pages.', ['count' => count($renderedPages)]);
-            if (empty($renderedPages)) {
-                return null;
+            $date = Carbon::createFromFormat('F j, Y', $text);
+            if (!$date) {
+                throw new \Exception('Unparseable Bantay Presyo date.');
             }
-
-            $allOcrText = [];
-            foreach ($renderedPages as $pagePath) {
-                $text = $this->ocrSingleImage($pagePath);
-                if ($text) {
-                    $allOcrText[] = $text;
-                    Log::info('DA RFO12 PDF: OCR page ok.', ['path' => basename($pagePath), 'len' => strlen($text)]);
-                } else {
-                    Log::warning('DA RFO12 PDF: OCR page empty.', ['path' => basename($pagePath)]);
-                }
-            }
-
-            Log::info('DA RFO12 PDF: OCR results.', ['pages_with_text' => count($allOcrText)]);
-
-            if (empty($allOcrText)) {
-                return null;
-            }
-
-            $prices = $this->parsePdfOcrOutput($allOcrText, $dateStr);
-            Log::info('DA RFO12 PDF: Parsed prices.', ['count' => count($prices)]);
-            return $prices;
-        } finally {
-            $this->cleanupTempDir($tmpDir);
+            Log::info('DA RFO12: Latest Bantay Presyo date.', ['date' => $date->toDateString()]);
+            return $date->toDateString();
+        } catch (\Exception $e) {
+            Log::warning('DA RFO12: Bantay Presyo returned an unparseable date.', ['text' => $text]);
+            return null;
         }
     }
 
-    private function renderPdfPages(string $pdfPath, string $tmpDir): array
+    public function fetchRegion12Prices(?string $dateStr = null): array
     {
-        $outputDir = "{$tmpDir}/pages";
-        if (!is_dir($outputDir)) mkdir($outputDir, 0755, true);
+        $prices = [];
+        $httpFailed = false;
 
-        $pdftoppm = config('services.poppler.pdftoppm', 'pdftoppm');
-        $cmd = escapeshellarg($pdftoppm) . ' -png -r 300 ' . escapeshellarg($pdfPath) . ' ' . escapeshellarg("{$outputDir}/page");
-        exec($cmd . ' 2>&1', $output, $exitCode);
+        foreach (self::CROP_COMMODITY_CODES as $code) {
+            $response = $this->httpPostWithRetry(self::BANTAY_PRICES_URL, [
+                'commodity' => $code,
+                'region'    => self::BANTAY_REGION,
+            ]);
 
-        if ($exitCode !== 0) {
-            Log::warning('DA RFO12 PDF: pdftoppm failed (binary may be missing).', ['binary' => $pdftoppm, 'output' => implode("\n", $output)]);
+            if (!$response) {
+                $httpFailed = true;
+                Log::warning('DA RFO12: Bantay Presyo request failed.', ['commodity' => $code]);
+                break;
+            }
+
+            $category = self::BANTAY_CATEGORY_MAP[$code] ?? 'Other Crops';
+            $rows = $this->parseBantayPriceRows($response->body(), $category);
+            foreach ($rows as $row) {
+                $prices[] = $row;
+            }
+        }
+
+        if ($httpFailed) {
+            Log::warning('DA RFO12: Bantay Presyo fetch aborted due to HTTP failure. Returning empty set.');
             return [];
         }
 
-        $pages = glob("{$outputDir}/page-*.png");
-        sort($pages);
-        return $pages;
-    }
-
-    private function ocrSingleImage(string $imagePath): ?string
-    {
-        $tesseract = config('services.tesseract.binary', 'tesseract');
-
-        foreach (['6', '4'] as $psm) {
-            $cmd = escapeshellarg($tesseract) . ' ' . escapeshellarg($imagePath) . ' stdout --psm ' . $psm . ' 2>&1';
-            $output = [];
-            $exitCode = -1;
-            exec($cmd, $output, $exitCode);
-
-            $text = implode("\n", $output);
-            if ($exitCode === 0 && trim($text) !== '') {
-                return $text;
-            }
-
-            Log::warning('DA RFO12 PDF: Tesseract OCR yielded no text.', ['binary' => $tesseract, 'psm' => $psm, 'exit_code' => $exitCode]);
-        }
-
-        return null;
-    }
-
-    private function parsePdfOcrOutput(array $texts, string $sourceDate): array
-    {
-        $prices = [];
-        $currentCategory = null;
-        $currentSubSection = null;
-
-        foreach ($texts as $text) {
-            $text = str_replace("\r\n", "\n", $text);
-            $lines = explode("\n", $text);
-
-            foreach ($lines as $line) {
-                $line = trim($line);
-                if (empty($line)) continue;
-
-                // Skip header/footer lines
-                if (preg_match('/^(SOCCSKSARGEN|AGRICULTURE AND FISHERY|AS OF|Low\s*\||HIGH\s*\||COMMON\s*\||DPI\s*\||Prevailing|@ |please|Agri Tayo|AMAD|GD\.)/i', $line)) {
-                    continue;
-                }
-
-                // Detect category headers — try exact ALL CAPS first, then case-insensitive fallback
-                $upper = strtoupper($line);
-                $isCategoryHeader = false;
-
-                if (strlen($line) > 3 && !preg_match('/\d/', $line)) {
-                    // Check crop categories
-                    foreach (self::PDF_CATEGORY_MAP as $pdfCat => $ourCat) {
-                        if (str_contains($upper, $pdfCat)) {
-                            $currentCategory = $ourCat;
-                            // Track Imported vs Local sub-sections within Rice
-                            if (str_contains($upper, 'IMPORTED')) {
-                                $currentSubSection = 'Imported';
-                            } elseif (str_contains($upper, 'LOCAL')) {
-                                $currentSubSection = 'Local';
-                            } else {
-                                $currentSubSection = null;
-                            }
-                            $isCategoryHeader = true;
-                            break;
-                        }
-                    }
-                    // Check skip categories
-                    if (!$isCategoryHeader) {
-                        foreach (self::PDF_SKIP_CATEGORIES as $skipCat) {
-                            if (str_contains($upper, $skipCat)) {
-                                $currentCategory = null;
-                                $currentSubSection = null;
-                                $isCategoryHeader = true;
-                                break;
-                            }
-                        }
-                    }
-                    if ($isCategoryHeader) continue;
-                }
-
-                // Handle OCR artifacts
-                $cleanLine = str_replace(['|', ']'], ' ', $line); // pipes/stray brackets → spaces
-                $cleanLine = str_replace('}', ')', $cleanLine);   // OCR often reads ) as }
-                $cleanLine = str_replace('§', '5', $cleanLine);   // § → 5 (not space!)
-                $cleanLine = preg_replace('/(\d),(\d)/', '$1.$2', $cleanLine); // decimal commas → dots
-                $cleanLine = str_replace(',', '', $cleanLine);    // remove remaining commas
-
-                $priceMatch = false;
-                if (preg_match('/^(.+?)\s+(\d+\.?\d*)\s+(\d+\.?\d*)\s+(\d+\.?\d*)\s+(\d+\.?\d*)/', $cleanLine, $matches)) {
-                    $commodity = trim($matches[1]);
-                    $low = (float) $matches[2];
-                    $high = (float) $matches[3];
-                    $common = (float) $matches[4];
-                    $dpi = (float) $matches[5];
-                    $priceMatch = true;
-                } elseif (preg_match('/^(.+?)\s+(\d+\.?\d*)\s+(\d+\.?\d*)\s+(\d+\.?\d*)\s*$/', $cleanLine, $matches)) {
-                    $commodity = trim($matches[1]);
-                    $low = (float) $matches[2];
-                    $high = (float) $matches[3];
-                    $common = (float) $matches[4];
-                    $dpi = $common;
-                    $priceMatch = true;
-                }
-
-                if ($priceMatch) {
-
-                    if ($low <= 0 && $high <= 0) continue;
-
-                    // OCR occasionally drops the decimal point in DPI (e.g. "7549" for 75.49)
-                    if ($dpi > $high * 2) {
-                        $dpi = $dpi / 100;
-                    }
-
-                    // Category comes from the detected section header, else from the commodity name
-                    $category = $currentCategory;
-                    if ($category === null) {
-                        $category = $this->classifyCropByName($commodity);
-                    }
-                    if ($category === null) continue;
-
-                    // Prefix Imported/Local to differentiate within same category
-                    if ($currentSubSection) {
-                        $commodity = "{$commodity} ({$currentSubSection})";
-                    }
-
-                    if ($low > 0 && $high >= $low && $common > 0) {
-                        $prices[] = [
-                            'commodity' => $commodity,
-                            'category' => $category,
-                            'low_price' => $low,
-                            'high_price' => $high,
-                            'common_price' => $common,
-                            'dpi_price' => $dpi,
-                        ];
-                    }
-                }
-            }
+        if (count($prices) < self::MIN_PLAUSIBLE_COMMODITIES) {
+            Log::warning('DA RFO12: Bantay Presyo payload too thin; returning empty set.', ['rows' => count($prices)]);
+            return [];
         }
 
         return $prices;
     }
 
-    private function cleanupTempDir(string $dir): void
-    {
-        if (!is_dir($dir)) return;
-        $files = new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator($dir, \RecursiveDirectoryIterator::SKIP_DOTS),
-            \RecursiveIteratorIterator::CHILD_FIRST
-        );
-        foreach ($files as $file) {
-            if ($file->isDir()) {
-                rmdir($file->getRealPath());
-            } else {
-                unlink($file->getRealPath());
-            }
-        }
-        rmdir($dir);
-    }
-
-    private function httpGetWithRetry(string $url, int $maxAttempts = 3, array $delays = [10, 30, 60], int $timeout = 30): ?\Illuminate\Http\Client\Response
+    private function httpPostWithRetry(string $url, array $formData, int $maxAttempts = 3, array $delays = [10, 30, 60], int $timeout = 30): ?\Illuminate\Http\Client\Response
     {
         for ($attempt = 1; $attempt <= $maxAttempts; $attempt++) {
             try {
                 $response = Http::withHeaders(['User-Agent' => self::HTTP_USER_AGENT])
                     ->timeout($timeout)
                     ->connectTimeout(10)
-                    ->get($url);
+                    ->asForm()
+                    ->post($url, $formData);
                 if ($response->successful()) {
                     return $response;
                 }
-                Log::warning('DA RFO12: HTTP request failed.', [
+                Log::warning('DA RFO12: HTTP POST failed.', [
                     'url' => $url, 'status' => $response->status(), 'attempt' => $attempt,
                 ]);
             } catch (\Exception $e) {
-                Log::warning('DA RFO12: HTTP request error.', [
+                Log::warning('DA RFO12: HTTP POST error.', [
                     'url' => $url, 'error' => $e->getMessage(), 'attempt' => $attempt,
                 ]);
             }
@@ -604,6 +329,58 @@ class Darfo12Service
         }
 
         return null;
+    }
+
+    private function parseBantayPriceRows(string $html, string $category): array
+    {
+        $crawler = new \Symfony\Component\DomCrawler\Crawler($html);
+
+        $rows = [];
+        foreach ($crawler->filter('tr') as $trNode) {
+            $tr = new \Symfony\Component\DomCrawler\Crawler($trNode);
+            $textWraps = $tr->filter('td.text-wrap');
+
+            if ($textWraps->count() === 0) {
+                continue;
+            }
+
+            $name = trim($textWraps->eq(0)->text());
+            if ($name === '') {
+                continue;
+            }
+
+            $priceLevels = $tr->filter('td')->reduce(function ($node) {
+                $class = $node->attr('class') ?? '';
+                return $class === '' || !str_contains($class, 'text-wrap');
+            });
+
+            $numeric = [];
+            foreach ($priceLevels as $tdNode) {
+                $td = new \Symfony\Component\DomCrawler\Crawler($tdNode);
+                $value = trim($td->text());
+                if ($value === '' || strtoupper($value) === 'N/A' || !is_numeric($value)) {
+                    continue;
+                }
+                $numeric[] = (float) $value;
+            }
+
+            if (count($numeric) === 0) {
+                continue;
+            }
+
+            $common = round(array_sum($numeric) / count($numeric), 2);
+
+            $rows[] = [
+                'commodity'    => $name,
+                'category'     => $category,
+                'low_price'    => min($numeric),
+                'high_price'   => max($numeric),
+                'common_price' => $common,
+                'dpi_price'    => $common,
+            ];
+        }
+
+        return $rows;
     }
 
     // ─── Public: Store ALL crop prices ───────────────────────────
