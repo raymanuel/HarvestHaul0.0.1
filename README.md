@@ -90,12 +90,6 @@ Route::get('/cron/schedule-run', function () {
 
 Set the hosting panel's cron to hit `https://yourdomain.com/cron/schedule-run` every minute.
 
-### Required Binaries
-
-The price scraper depends on:
-- **Tesseract OCR** (`tesseract`) — install via `apt install tesseract-ocr` or `winget install tesseract-ocr.tesseract`
-- **Poppler** (`pdftoppm`) — install via `apt install poppler-utils` or `winget install oschwartz101.poppler.windows`
-
 ### DNS Reliability
 
 The scraper fetches from Google Docs. If your DNS is unreliable, the scraper will fail with `cURL error 6: Could not resolve host`. On a VPS this is rare. Locally, ensure your DNS resolver is working (try `nslookup docs.google.com`).
