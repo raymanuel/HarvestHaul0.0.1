@@ -52,7 +52,7 @@ class HealthEndpointTest extends TestCase
         DB::table('scraper_status')->insert([
             'scraper_name'    => 'darfo12',
             'status'          => 'failed',
-            'message'         => 'Google Doc unreachable',
+            'message'         => 'DA Bantay Presyo unreachable',
             'created_at'      => now(),
             'updated_at'      => now(),
         ]);

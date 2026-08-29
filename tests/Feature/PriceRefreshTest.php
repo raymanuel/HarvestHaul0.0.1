@@ -42,7 +42,7 @@ class PriceRefreshTest extends TestCase
             'scraper_name' => 'darfo12',
             'status' => 'success',
             'source_date' => '2026-08-21',
-            'message' => 'Google Doc PDF: 25 commodities',
+            'message' => 'DA Bantay Presyo: 25 commodities',
             'records_matched' => 25,
             'records_skipped' => 0,
         ], $attributes));

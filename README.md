@@ -92,4 +92,4 @@ Set the hosting panel's cron to hit `https://yourdomain.com/cron/schedule-run` e
 
 ### DNS Reliability
 
-The scraper fetches from Google Docs. If your DNS is unreliable, the scraper will fail with `cURL error 6: Could not resolve host`. On a VPS this is rare. Locally, ensure your DNS resolver is working (try `nslookup docs.google.com`).
+The scraper fetches market prices from the DA Bantay Presyo endpoint. If your DNS is unreliable, the scrape will fail with a connection error (e.g. `cURL error 6: Could not resolve host`). On a VPS this is rare. Locally, ensure your DNS resolver is working (try `nslookup bantaypresyo.da.gov.ph`).
