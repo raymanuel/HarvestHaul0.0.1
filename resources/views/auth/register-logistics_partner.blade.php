@@ -81,7 +81,7 @@
             @enderror
             <div class="grid grid-cols-2 gap-3.5">
                 <!-- Company Card -->
-                <label id="label-company" class="flex flex-col items-center justify-center p-4 border-2 border-slate-200/80 rounded-2xl cursor-pointer transition-all duration-200 text-center gap-1 hover:border-[#16283C]/30 hover:bg-[#f5f3ff]/10">
+                <label id="label-company" class="flex flex-col items-center justify-center p-4 border-2 border-slate-200/80 rounded-2xl cursor-pointer transition-all duration-200 text-center gap-1 hover:border-[#16283C]/30 hover:bg-[#EEF0EB]/10">
                     <input type="radio" name="logistics_type" value="company"
                         {{ old('logistics_type') === 'company' ? 'checked' : '' }}
                         class="hidden" onchange="handleLogisticsType()">
@@ -90,7 +90,7 @@
                 </label>
 
                 <!-- Cooperative Card -->
-                <label id="label-cooperative" class="flex flex-col items-center justify-center p-4 border-2 border-slate-200/80 rounded-2xl cursor-pointer transition-all duration-200 text-center gap-1 hover:border-[#16283C]/30 hover:bg-[#f5f3ff]/10">
+                <label id="label-cooperative" class="flex flex-col items-center justify-center p-4 border-2 border-slate-200/80 rounded-2xl cursor-pointer transition-all duration-200 text-center gap-1 hover:border-[#16283C]/30 hover:bg-[#EEF0EB]/10">
                     <input type="radio" name="logistics_type" value="cooperative"
                         {{ old('logistics_type') === 'cooperative' ? 'checked' : '' }}
                         class="hidden" onchange="handleLogisticsType()">
@@ -157,7 +157,7 @@
 
         {{-- TERMS & CONDITIONS --}}
         <div class="form-group pt-1">
-            <label class="flex items-start gap-3 cursor-pointer p-3 rounded-xl bg-[#f5f3ff]/40 border border-[#16283C]/10">
+            <label class="flex items-start gap-3 cursor-pointer p-3 rounded-xl bg-[#EEF0EB]/40 border border-[#16283C]/10">
                 <input type="checkbox" name="accepted_terms" value="1" {{ old('accepted_terms') ? 'checked' : '' }}
                     class="mt-0.5 w-4 h-4 rounded border-slate-300 text-[#16283C] focus:ring-[#16283C] cursor-pointer shrink-0">
                 <span class="text-xs text-slate-500 leading-relaxed">
@@ -277,15 +277,15 @@
             const labelCoop   = document.getElementById('label-cooperative');
 
             if (company.checked) {
-                labelCo.className = "flex flex-col items-center justify-center p-4 border-2 border-[#16283C] bg-[#f5f3ff]/30 rounded-2xl cursor-pointer transition-all duration-200 text-center gap-1 scale-[1.02] shadow-sm";
+                labelCo.className = "flex flex-col items-center justify-center p-4 border-2 border-[#16283C] bg-[#EEF0EB]/30 rounded-2xl cursor-pointer transition-all duration-200 text-center gap-1 scale-[1.02] shadow-sm";
             } else {
-                labelCo.className = "flex flex-col items-center justify-center p-4 border-2 border-slate-200/80 rounded-2xl cursor-pointer transition-all duration-200 text-center gap-1 hover:border-[#16283C]/30 hover:bg-[#f5f3ff]/10";
+                labelCo.className = "flex flex-col items-center justify-center p-4 border-2 border-slate-200/80 rounded-2xl cursor-pointer transition-all duration-200 text-center gap-1 hover:border-[#16283C]/30 hover:bg-[#EEF0EB]/10";
             }
 
             if (cooperative.checked) {
-                labelCoop.className = "flex flex-col items-center justify-center p-4 border-2 border-[#16283C] bg-[#f5f3ff]/30 rounded-2xl cursor-pointer transition-all duration-200 text-center gap-1 scale-[1.02] shadow-sm";
+                labelCoop.className = "flex flex-col items-center justify-center p-4 border-2 border-[#16283C] bg-[#EEF0EB]/30 rounded-2xl cursor-pointer transition-all duration-200 text-center gap-1 scale-[1.02] shadow-sm";
             } else {
-                labelCoop.className = "flex flex-col items-center justify-center p-4 border-2 border-slate-200/80 rounded-2xl cursor-pointer transition-all duration-200 text-center gap-1 hover:border-[#16283C]/30 hover:bg-[#f5f3ff]/10";
+                labelCoop.className = "flex flex-col items-center justify-center p-4 border-2 border-slate-200/80 rounded-2xl cursor-pointer transition-all duration-200 text-center gap-1 hover:border-[#16283C]/30 hover:bg-[#EEF0EB]/10";
             }
 
             cdaField.style.display = cooperative.checked ? 'block' : 'none';

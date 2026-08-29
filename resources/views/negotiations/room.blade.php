@@ -17,7 +17,7 @@
             ->first();
         $viewerProposedLast = $lastProposal && $lastProposal->sender_id === Auth::id();
         
-        $accentText = $isBuyer ? 'text-harvest dark:text-harvest' : 'text-[#16283C] dark:text-[#D7BC7A]';
+        $accentText = $isBuyer ? 'text-harvest-dark dark:text-harvest-light' : 'text-[#16283C] dark:text-[#D7BC7A]';
         $accentBg = $isBuyer ? 'bg-harvest hover:bg-harvest-dark dark:bg-harvest dark:hover:bg-harvest-dark' : 'bg-[#16283C] hover:bg-[#0E1620] dark:bg-[#16283C]/100 dark:hover:bg-[#16283C]';
         $accentBorder = $isBuyer ? 'border-harvest/20' : 'border-[#16283C]/20';
         $accentBadge = $isBuyer ? 'bg-harvest/10' : 'bg-[#16283C]/10';
@@ -113,7 +113,7 @@
                                     <!-- Bubble -->
                                     <div class="px-4 py-3 rounded-2xl text-xs leading-relaxed shadow-sm font-medium
                                         @if($isMine)
-                                            {{ $isBuyer ? 'bg-harvest dark:bg-harvest text-white rounded-br-none' : 'bg-[#16283C] dark:bg-[#16283C]/100 text-white rounded-br-none' }}
+                                            {{ $isBuyer ? 'bg-harvest dark:bg-harvest text-[#17202B] rounded-br-none' : 'bg-[#16283C] dark:bg-[#16283C]/100 text-white rounded-br-none' }}
                                         @else
                                             bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-bl-none border border-slate-200/40 dark:border-slate-700/60
                                         @endif">
@@ -133,7 +133,7 @@
                 <div class="p-4 border-t border-slate-150 dark:border-slate-700/60 bg-slate-50/50 dark:bg-slate-900/30 shrink-0">
                     @if($negotiation->status->value === 'COMPLETED')
                         <div class="text-center p-4 bg-[#0E1620]/10 border border-[#0E1620]/20 rounded-xl">
-                            <p class="text-[#0E1620] dark:text-[#bfd6c9] text-xs font-bold leading-none mb-3"><x-icon name="check" class="w-4 h-4" /> B2B deal finalized and closed. Chat room is locked to read-only.</p>
+                            <p class="text-[#0E1620] dark:text-[#E9EEF4] text-xs font-bold leading-none mb-3"><x-icon name="check" class="w-4 h-4" /> B2B deal finalized and closed. Chat room is locked to read-only.</p>
                             <div class="flex flex-wrap gap-2 justify-center">
                                 @if(auth()->user()->role === 'logistics_partner')
                                     <a href="{{ route('route.optimization') }}"
@@ -212,7 +212,7 @@
                         <div class="flex justify-between items-center py-2 border-b border-slate-100 dark:border-slate-700/40">
                             <span class="text-slate-500 dark:text-slate-400">Type:</span>
                             @if($isCoopBuyer)
-                                <span class="font-bold text-harvest dark:text-harvest bg-harvest/10 dark:bg-harvest/20 px-2 py-0.5 rounded-md">Cooperative</span>
+                                <span class="font-bold text-harvest-dark dark:text-harvest-light bg-harvest/10 dark:bg-harvest/20 px-2 py-0.5 rounded-md">Cooperative</span>
                             @elseif($counterparty->role === 'logistics_partner')
                                 <span class="font-bold text-[var(--color-warning-text)] bg-[var(--color-warning-bg)] px-2 py-0.5 rounded-md">Logistics Company</span>
                             @else
@@ -244,7 +244,7 @@
                         <div class="flex justify-between items-center py-2 border-b border-slate-100 dark:border-slate-700/40">
                             <span class="text-slate-500 dark:text-slate-400">Affiliation:</span>
                             @if($fp && $fp->affiliation_type === 'cooperative')
-                                <span class="font-bold text-harvest dark:text-harvest bg-harvest/10 dark:bg-harvest/20 px-2 py-0.5 rounded-md">Cooperative Member</span>
+                                <span class="font-bold text-harvest-dark dark:text-harvest-light bg-harvest/10 dark:bg-harvest/20 px-2 py-0.5 rounded-md">Cooperative Member</span>
                             @else
                                 <span class="font-bold text-[#16283C] dark:text-[#D7BC7A] bg-[#16283C]/10 px-2 py-0.5 rounded-md">Independent</span>
                             @endif
@@ -381,7 +381,7 @@
                 @endphp
 
                 <div class="bg-white dark:bg-slate-800/80 backdrop-blur border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6 shadow-sm">
-                    <h3 class="text-sm font-extrabold text-slate-850 dark:text-white heading-font mb-2 uppercase tracking-wider text-harvest dark:text-harvest">Finalize & Submit Drop-off</h3>
+                    <h3 class="text-sm font-extrabold text-slate-850 dark:text-white heading-font mb-2 uppercase tracking-wider text-harvest-dark dark:text-harvest-light">Finalize & Submit Drop-off</h3>
                     <p class="text-[11px] text-slate-505 dark:text-slate-400 mb-4 leading-relaxed font-semibold">Terms are agreed. Choose the drop-off point below to lock the transaction deal.</p>
 
                     <form action="{{ route('negotiations.finalize', $negotiation->id) }}" method="POST" class="space-y-4" id="finalize-form">
@@ -663,7 +663,7 @@
         var isMine = msg.sender_id === userId;
         var align = isMine ? 'justify-end items-end' : 'justify-start items-start';
         var bubble = isMine
-            ? (isBuyer ? 'bg-harvest dark:bg-harvest text-white rounded-br-none' : 'bg-[#16283C] dark:bg-[#16283C]/100 text-white rounded-br-none')
+            ? (isBuyer ? 'bg-harvest dark:bg-harvest text-[#17202B] rounded-br-none' : 'bg-[#16283C] dark:bg-[#16283C]/100 text-white rounded-br-none')
             : 'bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-bl-none border border-slate-200/40 dark:border-slate-700/60';
         var name = (msg.sender && msg.sender.name) ? msg.sender.name : 'Unknown';
 
@@ -888,7 +888,7 @@
             icon: 'question',
             confirmText: 'Yes, agree',
             cancelText: 'Not yet',
-            confirmColor: isBuyer ? '#E14B3D' : '#16283C'
+            confirmColor: isBuyer ? '#BFA05A' : '#16283C'
         });
         return false;
     }

@@ -113,7 +113,7 @@
                                         'booked'         => 'bg-purple-50 text-purple-700 border-purple-500/10 dark:bg-purple-950/20 dark:text-purple-400',
                                         'assigned'       => 'bg-purple-50 text-purple-700 border-purple-500/10 dark:bg-purple-950/20 dark:text-purple-400',
                                         'in_progress'    => 'bg-orange-50 text-orange-700 border-orange-500/10 dark:bg-orange-950/20 dark:text-orange-400',
-                                        'completed'      => 'bg-[#0E1620]/10 text-[#0E1620] border-[#0E1620]/10 dark:text-[#bfd6c9]',
+                                        'completed'      => 'bg-[#0E1620]/10 text-[#0E1620] border-[#0E1620]/10 dark:text-[#E9EEF4]',
                                         'cancelled'      => 'bg-rose-50 text-rose-700 border-rose-500/10 dark:bg-rose-950/20 dark:text-rose-400',
                                     ];
                                     $statusKey = $harvest->status->value ?? 'active';

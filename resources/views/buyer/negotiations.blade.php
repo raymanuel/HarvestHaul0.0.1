@@ -5,7 +5,7 @@
         <!-- Page Header -->
         <header class="mb-8 pt-8">
             <div class="flex items-center gap-2 mb-2">
-                <a href="{{ route('dashboard') }}" class="text-xs font-bold text-harvest dark:text-harvest hover:underline flex items-center gap-1">
+                <a href="{{ route('dashboard') }}" class="text-xs font-bold text-harvest-dark dark:text-harvest-light hover:underline flex items-center gap-1">
                     ← Dashboard
                 </a>
             </div>
@@ -25,7 +25,7 @@
                 <h3 class="text-lg font-bold text-slate-800 dark:text-white heading-font">No Negotiations Found</h3>
                 <p class="text-sm text-slate-500 dark:text-slate-400 mt-2 max-w-md mx-auto">You have not started any crop purchase deals yet. Head to the Crop Board to find fresh harvests.</p>
                 <div class="mt-6">
-                    <a href="{{ route('buyer.crop-board') }}" class="inline-flex items-center justify-center px-5 py-3 bg-harvest hover:bg-harvest-dark dark:bg-harvest dark:hover:bg-harvest-dark text-white font-bold rounded-xl text-xs transition duration-200 shadow-sm shadow-harvest/10 cursor-pointer">
+                    <a href="{{ route('buyer.crop-board') }}" class="inline-flex items-center justify-center px-5 py-3 bg-harvest hover:bg-harvest-dark dark:bg-harvest dark:hover:bg-harvest-dark text-[#17202B] font-bold rounded-xl text-xs transition duration-200 shadow-sm shadow-harvest/10 cursor-pointer">
                         Browse Crop Board
                     </a>
                 </div>
@@ -66,7 +66,7 @@
                                     </td>
                                     <td class="p-5 text-center whitespace-nowrap">
                                         <span class="text-[9px] font-extrabold uppercase tracking-widest px-2.5 py-1 rounded border
-                                            @if($negotiation->status->value === 'OPEN') text-harvest-700 dark:text-harvest bg-harvest/10 border-harvest/10 dark:text-harvest dark:bg-harvest/10 dark:border-harvest/20
+                                            @if($negotiation->status->value === 'OPEN') text-harvest-700 dark:text-harvest-light bg-harvest/10 border-harvest/10 dark:text-harvest-light dark:bg-harvest/10 dark:border-harvest/20
                                             @elseif($negotiation->status->value === 'AGREED') text-[#16283C] bg-[#16283C]/10 border-[#16283C]/10 dark:text-[#D7BC7A] dark:bg-[#D7BC7A]/10 dark:border-[#D7BC7A]/20
                                             @elseif($negotiation->status->value === 'COMPLETED') text-[#0E1620] bg-[#0E1620]/10 border-[#0E1620]/10 dark:text-[#4CAF50] dark:bg-[#4CAF50]/10 dark:border-[#4CAF50]/20
                                             @else text-slate-500 bg-slate-500/10 border-slate-500/10 dark:text-slate-400 dark:bg-slate-400/10 dark:border-slate-400/20 @endif">
@@ -74,7 +74,7 @@
                                         </span>
                                     </td>
                                     <td class="p-5 text-center whitespace-nowrap">
-                                        <a href="{{ route('negotiations.room', $negotiation->id) }}" class="inline-flex items-center gap-1 text-xs font-bold text-harvest dark:text-harvest hover:underline">
+                                        <a href="{{ route('negotiations.room', $negotiation->id) }}" class="inline-flex items-center gap-1 text-xs font-bold text-harvest-dark dark:text-harvest-light hover:underline">
                                             Enter Room <span>→</span>
                                         </a>
                                     </td>

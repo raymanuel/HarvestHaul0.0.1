@@ -176,13 +176,13 @@
         list.innerHTML = '';
         items.forEach(item => {
             const statusClass = item.status === 'OPEN'
-                ? 'text-harvest-700 dark:text-harvest bg-harvest/10 border border-harvest/10'
+                ? 'text-harvest-700 dark:text-harvest-light bg-harvest/10 border border-harvest/10'
                 : item.status === 'AGREED'
                 ? 'text-[#16283C] dark:text-[#D7BC7A] bg-[#16283C]/10 border border-[#16283C]/10'
-                : 'text-[#0E1620] dark:text-[#bfd6c9] bg-[#0E1620]/10 border border-[#0E1620]/10';
+                : 'text-[#0E1620] dark:text-[#E9EEF4] bg-[#0E1620]/10 border border-[#0E1620]/10';
             const initial = item.counterpart_name ? item.counterpart_name.charAt(0).toUpperCase() : '?';
             const avatarBg = item.is_buyer
-                ? 'bg-harvest/10 dark:bg-harvest/20 text-harvest dark:text-harvest'
+                ? 'bg-harvest/10 dark:bg-harvest/20 text-harvest-dark dark:text-harvest-light'
                 : 'bg-[#16283C]/10 dark:bg-[#16283C]/10 text-[#16283C] dark:text-[#D7BC7A]';
             const volume = item.volume ? ' ' + Number(item.volume).toLocaleString() + ' kg' : '';
 

@@ -91,7 +91,7 @@
                 </div>
                 <h1 style="font-size:2.5rem; font-weight:800; color:white; line-height:1.15; letter-spacing:-0.03em; margin-bottom:16px; font-family:'Schibsted Grotesk',sans-serif;">
                     Bridge the<br>
-                    <span style="color:#F26B5E;">Supply Chain</span>
+                    <span style="color:#D7BC7A;">Supply Chain</span>
                 </h1>
                 <p style="font-size:0.9rem; color:rgba(255,255,255,0.6); line-height:1.7; font-weight:500; max-width:400px;">
                     Connect growers with haulers and buyers across Southern Mindanao. 
@@ -130,12 +130,12 @@
                     <defs>
                         <linearGradient id="pearl-leaf" x1="0" y1="0" x2="0" y2="1">
                             <stop offset="0%" stop-color="#FFFFFF"/>
-                            <stop offset="45%" stop-color="#ede9fe"/>
-                            <stop offset="100%" stop-color="#ddd6fe"/>
+<stop offset="45%" stop-color="#F5F6F2"/>
+<stop offset="100%" stop-color="#D7BC7A"/>
                         </linearGradient>
                         <linearGradient id="pearl-stem" x1="0" y1="0" x2="0" y2="1">
                             <stop offset="0%" stop-color="#FFFFFF"/>
-                            <stop offset="100%" stop-color="#bfd6c9"/>
+                            <stop offset="100%" stop-color="#D7BC7A"/>
                         </linearGradient>
                     </defs>
                     <path d="M12 10a4 4 0 00-4-4H4v4a4 4 0 004 4h4z" fill="url(#pearl-leaf)"/>
@@ -144,13 +144,13 @@
                     <path d="M10 3l2 2 2-2" stroke="url(#pearl-stem)" stroke-width="2.2"/>
                     <ellipse cx="6.4" cy="8" rx="1.4" ry="2.6" fill="#FFFFFF" opacity="0.6" transform="rotate(-25 6.4 8)"/>
                     <ellipse cx="17.6" cy="8" rx="1.4" ry="2.6" fill="#FFFFFF" opacity="0.6" transform="rotate(25 17.6 8)"/>
-                    <circle cx="12" cy="20.5" r="1.6" fill="#bfd6c9"/>
+                    <circle cx="12" cy="20.5" r="1.6" fill="#D7BC7A"/>
                 </svg>
             </div>
         </div>
 
         {{-- ====== RIGHT: AUTH PANELS CONTAINER ====== --}}
-        <div class="auth-right" style="flex:1; display:flex; align-items:center; justify-content:center; padding:3rem; background:#FAFAFA; position:relative; overflow-y:auto;">
+        <div class="auth-right" style="flex:1; display:flex; align-items:center; justify-content:center; padding:3rem; background:#F5F6F2; position:relative; overflow-y:auto;">
 
             {{-- Panel wrapper for slide transitions --}}
             <div class="auth-right-inner" style="position:relative; width:100%; max-width:420px;">
@@ -161,8 +161,8 @@
 
 
                     <div style="margin-bottom:28px;">
-                        <h2 style="font-size:1.6rem; font-weight:800; color:#1a1a1a; letter-spacing:-0.02em; line-height:1.2;">Welcome,</h2>
-                        <p style="font-size:13px; color:#64748b; font-weight:500; margin-top:6px;">Log in to manage your operations</p>
+                        <h2 style="font-size:1.6rem; font-weight:800; color:#17202B; letter-spacing:-0.02em; line-height:1.2;">Welcome,</h2>
+                        <p style="font-size:13px; color:#5A6573; font-weight:500; margin-top:6px;">Log in to manage your operations</p>
                     </div>
 
                     @if ($errors->any() && !old('role'))
@@ -181,18 +181,18 @@
                     <form method="POST" action="{{ route('login') }}">
                         @csrf
                         <div style="margin-bottom:18px;">
-                            <label for="login-email" style="display:block; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:#64748b; margin-bottom:6px;">Email</label>
+                            <label for="login-email" style="display:block; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:#5A6573; margin-bottom:6px;">Email</label>
                             <input type="email" id="login-email" name="email" value="{{ old('email') }}" placeholder="you@example.com" required autofocus autocomplete="email"
-                                style="width:100%; padding:12px 16px; border-radius:12px; border:1.5px solid #e5e7eb; background:white; font-size:14px; color:#1a1a1a; transition:all 0.2s; font-family:inherit;"
+                                style="width:100%; padding:12px 16px; border-radius:12px; border:1.5px solid #e5e7eb; background:white; font-size:14px; color:#17202B; transition:all 0.2s; font-family:inherit;"
                                 onfocus="this.style.borderColor='#16283C'; this.style.boxShadow='0 0 0 4px rgba(22, 40, 60,0.08)'"
                                 onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none'">
                         </div>
 
                         <div style="margin-bottom:16px;">
-                            <label for="login-password" style="display:block; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:#64748b; margin-bottom:6px;">Password</label>
+                            <label for="login-password" style="display:block; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:#5A6573; margin-bottom:6px;">Password</label>
                             <div style="position:relative;">
                                 <input type="password" id="login-password" name="password" placeholder="Enter your password" required autocomplete="current-password"
-                                    style="width:100%; padding:12px 44px 12px 16px; border-radius:12px; border:1.5px solid #e5e7eb; background:white; font-size:14px; color:#1a1a1a; transition:all 0.2s; font-family:inherit;"
+                                    style="width:100%; padding:12px 44px 12px 16px; border-radius:12px; border:1.5px solid #e5e7eb; background:white; font-size:14px; color:#17202B; transition:all 0.2s; font-family:inherit;"
                                     onfocus="this.style.borderColor='#16283C'; this.style.boxShadow='0 0 0 4px rgba(22, 40, 60,0.08)'"
                                     onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none'">
                                 <button type="button" onclick="toggleLoginPassword()" aria-label="Toggle password visibility" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; color:#b0b0b0; padding:4px; display:flex;">
@@ -242,13 +242,13 @@
                 <div id="register-panel" class="panel-slide" style="position:absolute; top:0; left:0; right:0; transform:translateX(100%); opacity:0; pointer-events:none;">
 
                     <div style="margin-bottom:22px; display:flex; align-items:center; gap:12px;">
-                        <button onclick="showLogin()" aria-label="Back to login" style="background:none; border:none; cursor:pointer; color:#64748b; padding:4px; display:flex; transition:color 0.2s;"
-                            onmouseover="this.style.color='#16283C'" onmouseout="this.style.color='#64748b'">
+                        <button onclick="showLogin()" aria-label="Back to login" style="background:none; border:none; cursor:pointer; color:#5A6573; padding:4px; display:flex; transition:color 0.2s;"
+                            onmouseover="this.style.color='#16283C'" onmouseout="this.style.color='#5A6573'">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
                         </button>
                         <div>
-                            <h2 style="font-size:1.2rem; font-weight:800; color:#1a1a1a; letter-spacing:-0.02em;">Create your account</h2>
-                            <p style="font-size:12px; color:#64748b; font-weight:500; margin-top:1px;">Fill in your details to get started</p>
+                            <h2 style="font-size:1.2rem; font-weight:800; color:#17202B; letter-spacing:-0.02em;">Create your account</h2>
+                            <p style="font-size:12px; color:#5A6573; font-weight:500; margin-top:1px;">Fill in your details to get started</p>
                         </div>
                     </div>
 
@@ -270,9 +270,9 @@
                         <input type="hidden" name="role" id="register-role-input" value="">
 
                         <div style="margin-bottom:16px; position:relative;">
-                            <label for="register-role-select" style="display:block; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:#64748b; margin-bottom:5px;">I am a</label>
+                            <label for="register-role-select" style="display:block; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:#5A6573; margin-bottom:5px;">I am a</label>
                             <select id="register-role-select" required onchange="document.getElementById('register-role-input').value=this.value"
-                                style="width:100%; padding:11px 14px; border-radius:10px; border:1.5px solid #e5e7eb; background:white; font-size:13px; color:#1a1a1a; transition:all 0.2s; font-family:inherit; appearance:none; cursor:pointer;"
+                                style="width:100%; padding:11px 14px; border-radius:10px; border:1.5px solid #e5e7eb; background:white; font-size:13px; color:#17202B; transition:all 0.2s; font-family:inherit; appearance:none; cursor:pointer;"
                                 onfocus="this.style.borderColor='#16283C'; this.style.boxShadow='0 0 0 4px rgba(22, 40, 60,0.08)'"
                                 onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none'">
                                 <option value="" disabled {{ old('role') ? '' : 'selected' }}>Select your role</option>
@@ -286,34 +286,34 @@
                         </div>
 
                         <div style="margin-bottom:14px;">
-                            <label for="reg-name" style="display:block; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:#64748b; margin-bottom:5px;">Full Name</label>
+                            <label for="reg-name" style="display:block; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:#5A6573; margin-bottom:5px;">Full Name</label>
                             <input type="text" id="reg-name" name="name" placeholder="Juan Dela Cruz" required value="{{ old('name') }}" autocomplete="name"
-                                style="width:100%; padding:11px 14px; border-radius:10px; border:1.5px solid #e5e7eb; background:white; font-size:13px; color:#1a1a1a; transition:all 0.2s; font-family:inherit;"
+                                style="width:100%; padding:11px 14px; border-radius:10px; border:1.5px solid #e5e7eb; background:white; font-size:13px; color:#17202B; transition:all 0.2s; font-family:inherit;"
                                 onfocus="this.style.borderColor='#16283C'; this.style.boxShadow='0 0 0 4px rgba(22, 40, 60,0.08)'"
                                 onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none'">
                         </div>
 
                         <div style="margin-bottom:14px;">
-                            <label for="reg-email" style="display:block; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:#64748b; margin-bottom:5px;">Email</label>
+                            <label for="reg-email" style="display:block; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:#5A6573; margin-bottom:5px;">Email</label>
                             <input type="email" id="reg-email" name="email" placeholder="you@example.com" required value="{{ old('email') }}" autocomplete="email"
-                                style="width:100%; padding:11px 14px; border-radius:10px; border:1.5px solid #e5e7eb; background:white; font-size:13px; color:#1a1a1a; transition:all 0.2s; font-family:inherit;"
+                                style="width:100%; padding:11px 14px; border-radius:10px; border:1.5px solid #e5e7eb; background:white; font-size:13px; color:#17202B; transition:all 0.2s; font-family:inherit;"
                                 onfocus="this.style.borderColor='#16283C'; this.style.boxShadow='0 0 0 4px rgba(22, 40, 60,0.08)'"
                                 onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none'">
                         </div>
 
                         <div style="margin-bottom:14px;">
-                            <label for="reg-phone" style="display:block; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:#64748b; margin-bottom:5px;">Phone Number</label>
+                            <label for="reg-phone" style="display:block; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:#5A6573; margin-bottom:5px;">Phone Number</label>
                             <input type="text" id="reg-phone" name="phone" placeholder="09XX XXX XXXX" required value="{{ old('phone') }}" autocomplete="tel"
-                                style="width:100%; padding:11px 14px; border-radius:10px; border:1.5px solid #e5e7eb; background:white; font-size:13px; color:#1a1a1a; transition:all 0.2s; font-family:inherit;"
+                                style="width:100%; padding:11px 14px; border-radius:10px; border:1.5px solid #e5e7eb; background:white; font-size:13px; color:#17202B; transition:all 0.2s; font-family:inherit;"
                                 onfocus="this.style.borderColor='#16283C'; this.style.boxShadow='0 0 0 4px rgba(22, 40, 60,0.08)'"
                                 onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none'">
                         </div>
 
                         <div style="margin-bottom:14px;">
-                            <label for="reg-password" style="display:block; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:#64748b; margin-bottom:5px;">Password</label>
+                            <label for="reg-password" style="display:block; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:#5A6573; margin-bottom:5px;">Password</label>
                             <div style="position:relative;">
                                 <input type="password" id="reg-password" name="password" placeholder="Min. 8 characters" required autocomplete="new-password"
-                                    style="width:100%; padding:11px 40px 11px 14px; border-radius:10px; border:1.5px solid #e5e7eb; background:white; font-size:13px; color:#1a1a1a; transition:all 0.2s; font-family:inherit;"
+                                    style="width:100%; padding:11px 40px 11px 14px; border-radius:10px; border:1.5px solid #e5e7eb; background:white; font-size:13px; color:#17202B; transition:all 0.2s; font-family:inherit;"
                                     onfocus="this.style.borderColor='#16283C'; this.style.boxShadow='0 0 0 4px rgba(22, 40, 60,0.08)'"
                                     onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none'">
                                 <button type="button" onclick="toggleRegPassword('reg-password','reg-eye-1')" aria-label="Toggle password visibility" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; color:#b0b0b0; padding:4px; display:flex;">
@@ -323,10 +323,10 @@
                         </div>
 
                         <div style="margin-bottom:16px;">
-                            <label for="reg-password-confirm" style="display:block; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:#64748b; margin-bottom:5px;">Confirm Password</label>
+                            <label for="reg-password-confirm" style="display:block; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:#5A6573; margin-bottom:5px;">Confirm Password</label>
                             <div style="position:relative;">
                                 <input type="password" id="reg-password-confirm" name="password_confirmation" placeholder="Repeat password" required autocomplete="new-password"
-                                    style="width:100%; padding:11px 40px 11px 14px; border-radius:10px; border:1.5px solid #e5e7eb; background:white; font-size:13px; color:#1a1a1a; transition:all 0.2s; font-family:inherit;"
+                                    style="width:100%; padding:11px 40px 11px 14px; border-radius:10px; border:1.5px solid #e5e7eb; background:white; font-size:13px; color:#17202B; transition:all 0.2s; font-family:inherit;"
                                     onfocus="this.style.borderColor='#16283C'; this.style.boxShadow='0 0 0 4px rgba(22, 40, 60,0.08)'"
                                     onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none'">
                                 <button type="button" onclick="toggleRegPassword('reg-password-confirm','reg-eye-2')" aria-label="Toggle password visibility" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; color:#b0b0b0; padding:4px; display:flex;">

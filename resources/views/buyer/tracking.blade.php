@@ -9,7 +9,7 @@
                         Deliveries
                     </h1>
                 </div>
-                <span class="text-xs font-semibold uppercase tracking-wider text-[#0E1620] dark:text-[#bfd6c9] bg-[#0E1620]/10 dark:bg-[#0E1620]/10 px-3 py-1.5 rounded-lg border border-[#0E1620]/10 dark:border-[#0E1620]/20 self-start">
+                <span class="text-xs font-semibold uppercase tracking-wider text-[#0E1620] dark:text-[#E9EEF4] bg-[#0E1620]/10 dark:bg-[#0E1620]/10 px-3 py-1.5 rounded-lg border border-[#0E1620]/10 dark:border-[#0E1620]/20 self-start">
                     Buyer Portal
                 </span>
             </div>
@@ -51,7 +51,7 @@
                                 </a>
                                 @php
                                     $statusBadge = match($delivery->status->value) {
-                                        'in_progress'             => ['bg-[#0E1620]/10 text-[#0E1620] border-[#0E1620]/20 dark:bg-[#0E1620]/10 dark:text-[#bfd6c9]', 'In Transit'],
+                                        'in_progress'             => ['bg-[#0E1620]/10 text-[#0E1620] border-[#0E1620]/20 dark:bg-[#0E1620]/10 dark:text-[#E9EEF4]', 'In Transit'],
                                         'awaiting_confirmation'   => ['bg-[var(--color-warning-bg)] text-[var(--color-warning-text)] border-[var(--color-warning-border)]', 'Awaiting Your Confirmation'],
                                         default                   => ['bg-slate-50 dark:bg-slate-700 text-slate-500 dark:text-slate-400 border-slate-200/50 dark:border-slate-600', ucfirst($delivery->status->value)],
                                     };

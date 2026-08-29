@@ -4,13 +4,13 @@
     <div class="relative z-10">
         <header class="mb-8 pt-8">
             <div class="flex items-center gap-2 mb-2">
-                <a href="{{ route('dashboard') }}" class="text-xs font-bold text-harvest dark:text-harvest hover:underline flex items-center gap-1">
+                <a href="{{ route('dashboard') }}" class="text-xs font-bold text-harvest-dark dark:text-harvest-light hover:underline flex items-center gap-1">
                     ← Dashboard
                 </a>
             </div>
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <span class="text-[10px] font-bold uppercase tracking-widest text-harvest dark:text-harvest bg-harvest/10 dark:bg-harvest/10 px-3 py-1 rounded-full border border-harvest/20">Crop Board</span>
+                    <span class="text-[10px] font-bold uppercase tracking-widest text-harvest-dark dark:text-harvest-light bg-harvest/10 dark:bg-harvest/10 px-3 py-1 rounded-full border border-harvest/20">Crop Board</span>
                     <h1 class="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight heading-font mt-3">Available Posts</h1>
                 </div>
             </div>
@@ -35,7 +35,7 @@
                             @else
                                 <x-icon name="folder" class="w-12 h-12 text-harvest/40 dark:text-harvest/30" />
                             @endif
-                            <span class="absolute top-3 left-3 text-[9px] font-extrabold uppercase tracking-widest text-harvest dark:text-harvest bg-white/70 dark:bg-slate-900/70 backdrop-blur-sm px-2 py-0.5 rounded border border-harvest/20">Post #{{ $post->id }}</span>
+                            <span class="absolute top-3 left-3 text-[9px] font-extrabold uppercase tracking-widest text-harvest-dark dark:text-harvest-light bg-white/70 dark:bg-slate-900/70 backdrop-blur-sm px-2 py-0.5 rounded border border-harvest/20">Post #{{ $post->id }}</span>
                         </div>
                         <div class="p-5 flex flex-col flex-1">
                             <div class="flex items-start justify-between gap-2 mb-1">
@@ -106,7 +106,7 @@
                                     <form action="{{ route('negotiations.start') }}" method="POST">
                                         @csrf
                                         <input type="hidden" name="harvest_id" value="{{ $post->id }}">
-                                        <button type="submit" class="w-full flex items-center justify-center gap-2 py-2.5 bg-harvest hover:bg-harvest-dark dark:bg-harvest dark:hover:bg-harvest-dark text-white font-bold rounded-xl text-xs transition-colors shadow-sm shadow-harvest/10 cursor-pointer">
+                                        <button type="submit" class="w-full flex items-center justify-center gap-2 py-2.5 bg-harvest hover:bg-harvest-dark dark:bg-harvest dark:hover:bg-harvest-dark text-[#17202B] font-bold rounded-xl text-xs transition-colors shadow-sm shadow-harvest/10 cursor-pointer">
                                             <x-icon name="plus" class="w-3.5 h-3.5" />
                                             Initiate Negotiation
                                         </button>

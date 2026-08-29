@@ -102,7 +102,7 @@
             </div>
             <div class="bg-white dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700/80 rounded-2xl p-5 shadow-sm">
                 <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Avg Trip Duration</p>
-                <p class="text-2xl font-bold text-[#0E1620] dark:text-[#bfd6c9]">
+                <p class="text-2xl font-bold text-[#0E1620] dark:text-[#E9EEF4]">
                     {{ $fleetMetrics->avg_trip_days ? number_format($fleetMetrics->avg_trip_days, 1) . 'd' : '—' }}
                 </p>
             </div>

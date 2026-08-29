@@ -8,7 +8,7 @@
             </a>
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <span class="text-xs font-bold uppercase tracking-wider text-harvest dark:text-harvest bg-harvest/10 dark:bg-harvest/20 px-3 py-1.5 rounded-lg border border-harvest/10 dark:border-harvest/20 inline-block mb-2">Driver Fleet</span>
+                    <span class="text-xs font-bold uppercase tracking-wider text-harvest-dark dark:text-harvest-light bg-harvest/10 dark:bg-harvest/20 px-3 py-1.5 rounded-lg border border-harvest/10 dark:border-harvest/20 inline-block mb-2">Driver Fleet</span>
                     <h1 class="text-3xl font-bold text-slate-900 dark:text-white tracking-tight heading-font">Drivers</h1>
                 </div>
                 <div>
@@ -74,7 +74,7 @@
                                 <tr>
                                     <td class="py-4 pr-3">
                                         <div class="flex items-center gap-3">
-                                            <div class="w-10 h-10 rounded-xl bg-harvest/10 dark:bg-harvest/20 border border-harvest/20 dark:border-harvest/20 flex items-center justify-center text-harvest dark:text-harvest font-extrabold uppercase text-sm select-none">
+                                            <div class="w-10 h-10 rounded-xl bg-harvest/10 dark:bg-harvest/20 border border-harvest/20 dark:border-harvest/20 flex items-center justify-center text-harvest-dark dark:text-harvest-light font-extrabold uppercase text-sm select-none">
                                                 {{ substr($driver->user->name, 0, 2) }}
                                             </div>
                                             <div>

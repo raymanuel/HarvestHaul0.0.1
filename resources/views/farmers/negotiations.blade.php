@@ -60,7 +60,7 @@
                                     </td>
                                     <td class="p-5 text-center whitespace-nowrap">
                                         <span class="text-[9px] font-extrabold uppercase tracking-widest px-2.5 py-1 rounded border
-                                            @if($negotiation->status->value === 'OPEN') text-harvest-700 bg-harvest/10 border-harvest/10 dark:text-harvest dark:bg-harvest/20 dark:border-harvest/20
+                                            @if($negotiation->status->value === 'OPEN') text-harvest-700 bg-harvest/10 border-harvest/10 dark:text-harvest-light dark:bg-harvest/20 dark:border-harvest/20
                                             @elseif($negotiation->status->value === 'AGREED') text-[#16283C] bg-[#16283C]/10 border-[#16283C]/10 dark:text-[#D7BC7A] dark:bg-[#16283C]/20 dark:border-[#16283C]/20
                                             @elseif($negotiation->status->value === 'COMPLETED') text-[#0E1620] bg-[#0E1620]/10 border-[#0E1620]/10 dark:text-[#D7BC7A] dark:bg-[#16283C]/20 dark:border-[#16283C]/20
                                             @else text-slate-500 bg-slate-500/10 border-slate-500/10 dark:text-slate-400 dark:bg-slate-500/20 dark:border-slate-500/20 @endif">

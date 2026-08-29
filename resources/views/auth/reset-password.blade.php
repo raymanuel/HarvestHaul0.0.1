@@ -52,7 +52,7 @@
             <div style="position:relative; z-index:1; max-width:480px;">
                 <h1 style="font-size:2.5rem; font-weight:800; color:white; line-height:1.15; letter-spacing:-0.03em; margin-bottom:16px; font-family:'Schibsted Grotesk',sans-serif;">
                     Create New<br>
-                    <span style="color:#F26B5E;">Password</span>
+                    <span style="color:#7C6527;">Password</span>
                 </h1>
                 <p style="font-size:0.9rem; color:rgba(255,255,255,0.6); line-height:1.7; font-weight:500; max-width:400px;">
                     Choose a strong password for your account.
@@ -69,12 +69,12 @@
         </div>
 
         {{-- Right Panel --}}
-        <div style="flex:1; display:flex; align-items:center; justify-content:center; padding:3rem; background:#FAFAFA;">
+        <div style="flex:1; display:flex; align-items:center; justify-content:center; padding:3rem; background:#F5F6F2;">
             <div style="width:100%; max-width:420px;">
 
                 <div style="margin-bottom:28px;">
-                    <h2 style="font-size:1.6rem; font-weight:800; color:#1a1a1a; letter-spacing:-0.02em; line-height:1.2;">Reset Password</h2>
-                    <p style="font-size:13px; color:#64748b; font-weight:500; margin-top:6px;">Enter your new password below</p>
+                    <h2 style="font-size:1.6rem; font-weight:800; color:#17202B; letter-spacing:-0.02em; line-height:1.2;">Reset Password</h2>
+                    <p style="font-size:13px; color:#5A6573; font-weight:500; margin-top:6px;">Enter your new password below</p>
                 </div>
 
                 @if ($errors->any())
@@ -92,23 +92,23 @@
                     <input type="hidden" name="token" value="{{ $token }}">
 
                     <div style="margin-bottom:18px;">
-                        <label for="email" style="display:block; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:#64748b; margin-bottom:6px;">Email</label>
+                        <label for="email" style="display:block; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:#5A6573; margin-bottom:6px;">Email</label>
                         <input type="email" name="email" id="email" value="{{ $email ?? old('email') }}" required readonly
                             style="width:100%; padding:12px 16px; border-radius:12px; border:1.5px solid #e5e7eb; background:#f5f4f1; font-size:14px; color:#6a6a6a; font-family:inherit; cursor:not-allowed;">
                     </div>
 
                     <div style="margin-bottom:18px;">
-                        <label for="password" style="display:block; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:#64748b; margin-bottom:6px;">New Password</label>
+                        <label for="password" style="display:block; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:#5A6573; margin-bottom:6px;">New Password</label>
                         <input type="password" name="password" id="password" placeholder="Min. 8 characters" required autocomplete="new-password"
-                            style="width:100%; padding:12px 16px; border-radius:12px; border:1.5px solid #e5e7eb; background:white; font-size:14px; color:#1a1a1a; transition:all 0.2s; font-family:inherit;"
+                            style="width:100%; padding:12px 16px; border-radius:12px; border:1.5px solid #e5e7eb; background:white; font-size:14px; color:#17202B; transition:all 0.2s; font-family:inherit;"
                             onfocus="this.style.borderColor='#16283C'; this.style.boxShadow='0 0 0 4px rgba(22, 40, 60,0.08)'"
                             onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none'">
                     </div>
 
                     <div style="margin-bottom:20px;">
-                        <label for="password_confirmation" style="display:block; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:#64748b; margin-bottom:6px;">Confirm Password</label>
+                        <label for="password_confirmation" style="display:block; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:#5A6573; margin-bottom:6px;">Confirm Password</label>
                         <input type="password" name="password_confirmation" id="password_confirmation" placeholder="Repeat password" required autocomplete="new-password"
-                            style="width:100%; padding:12px 16px; border-radius:12px; border:1.5px solid #e5e7eb; background:white; font-size:14px; color:#1a1a1a; transition:all 0.2s; font-family:inherit;"
+                            style="width:100%; padding:12px 16px; border-radius:12px; border:1.5px solid #e5e7eb; background:white; font-size:14px; color:#17202B; transition:all 0.2s; font-family:inherit;"
                             onfocus="this.style.borderColor='#16283C'; this.style.boxShadow='0 0 0 4px rgba(22, 40, 60,0.08)'"
                             onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none'">
                     </div>

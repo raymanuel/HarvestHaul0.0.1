@@ -133,8 +133,8 @@
             top: 50%;
             transform: translateY(-50%);
             margin-left: 12px;
-            background: #334155;
-            color: #e2e8f0;
+            background: #14202D;
+            color: #E9EEF4;
             padding: 6px 12px;
             border-radius: 8px;
             font-size: 12px;
@@ -203,7 +203,7 @@
             color: #0f172a;
         }
         #top-navbar #notifications-menu #notification-badge {
-            border-color: #e2e8f0;
+            border-color: #E9EEF4;
         }
 
         /* Dark mode: neutral slate topbar with white ghost bell button */
@@ -235,7 +235,7 @@
             left: 50%;
             transform: translateX(-50%);
             background: #1e293b;
-            color: #e2e8f0;
+            color: #E9EEF4;
             padding: 6px 10px;
             border-radius: 8px;
             font-size: 11px;

@@ -47,7 +47,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
         body {
-            background: #FAFAFA;
+            background: #F5F6F2;
             transition: background 0.3s ease, color 0.3s ease;
         }
         html.dark body {
@@ -107,7 +107,7 @@
                 confirmText: opts.confirmText || 'Yes, proceed',
                 cancelText: opts.cancelText || 'Cancel',
                 confirmColor: opts.confirmColor || '#16283C',
-                cancelColor: opts.cancelColor || '#64748b'
+                cancelColor: opts.cancelColor || '#5A6573'
             };
 
             Swal.fire({

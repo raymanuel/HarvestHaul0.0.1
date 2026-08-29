@@ -97,7 +97,7 @@
 
         {{-- TERMS & CONDITIONS --}}
         <div class="form-group pt-1">
-            <label class="flex items-start gap-3 cursor-pointer p-3 rounded-xl bg-[#f5f3ff]/40 border border-[#16283C]/10">
+            <label class="flex items-start gap-3 cursor-pointer p-3 rounded-xl bg-[#EEF0EB]/40 border border-[#16283C]/10">
                 <input type="checkbox" name="accepted_terms" value="1" {{ old('accepted_terms') ? 'checked' : '' }}
                     class="mt-0.5 w-4 h-4 rounded border-slate-300 text-[#16283C] focus:ring-[#16283C] cursor-pointer shrink-0">
                 <span class="text-xs text-slate-500 leading-relaxed">

@@ -8,7 +8,7 @@
             </a>
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <span class="text-xs font-bold uppercase tracking-wider text-[#0E1620] dark:text-[#bfd6c9] bg-[#0E1620]/10 dark:bg-[#0E1620]/10 px-3 py-1.5 rounded-lg border border-[#0E1620]/10 dark:border-[#0E1620]/20 inline-block mb-2">Fleet Management</span>
+                    <span class="text-xs font-bold uppercase tracking-wider text-[#0E1620] dark:text-[#E9EEF4] bg-[#0E1620]/10 dark:bg-[#0E1620]/10 px-3 py-1.5 rounded-lg border border-[#0E1620]/10 dark:border-[#0E1620]/20 inline-block mb-2">Fleet Management</span>
                     <h1 class="text-3xl font-bold text-slate-900 dark:text-white tracking-tight heading-font">Vehicles</h1>
                 </div>
                 <div>
@@ -73,7 +73,7 @@
                                 <tr>
                                     <td class="py-4 pr-3">
                                         <div class="flex items-center gap-3">
-                                            <div class="w-10 h-10 rounded-xl bg-[#0E1620]/10 dark:bg-[#0E1620]/10 border border-[#0E1620]/15 dark:border-[#0E1620]/15 flex items-center justify-center text-[#0E1620] dark:text-[#bfd6c9] font-extrabold uppercase text-sm select-none">
+                                            <div class="w-10 h-10 rounded-xl bg-[#0E1620]/10 dark:bg-[#0E1620]/10 border border-[#0E1620]/15 dark:border-[#0E1620]/15 flex items-center justify-center text-[#0E1620] dark:text-[#E9EEF4] font-extrabold uppercase text-sm select-none">
                                                  {{ substr($vehicle->truck_name, 0, 1) }}
                                             </div>
                                             <div>
@@ -96,7 +96,7 @@
                                     <td class="py-4 px-3">
                                         @if($vehicle->driver)
                                             <div class="flex items-center gap-2">
-                                                <div class="w-6 h-6 rounded-lg bg-harvest/10 dark:bg-harvest/20 border border-harvest/20 dark:border-harvest/20 flex items-center justify-center text-harvest dark:text-harvest font-bold uppercase text-[10px] select-none shrink-0">
+                                                <div class="w-6 h-6 rounded-lg bg-harvest/10 dark:bg-harvest/20 border border-harvest/20 dark:border-harvest/20 flex items-center justify-center text-harvest-dark dark:text-harvest-light font-bold uppercase text-[10px] select-none shrink-0">
                                                     {{ substr($vehicle->driver->name, 0, 2) }}
                                                 </div>
                                                 <span class="text-xs font-bold text-slate-800 dark:text-slate-250">{{ $vehicle->driver->name }}</span>

@@ -34,7 +34,7 @@
         body {
             margin: 0;
             padding: 2rem 1rem;
-            background: linear-gradient(135deg, #FAFAFA 0%, #F5F5F5 50%, #EEEEEE 100%);
+            background: linear-gradient(135deg, #F5F6F2 0%, #EEF0EB 50%, #E7EAE4 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;

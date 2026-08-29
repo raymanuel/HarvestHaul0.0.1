@@ -39,7 +39,7 @@
         ],
         'harvest', 'harvest-dark' => [
             'bar' => 'border-l-harvest-500',
-            'text' => 'text-harvest dark:text-harvest',
+            'text' => 'text-harvest-dark dark:text-harvest-light',
             'bg' => 'bg-harvest/10',
             'border' => 'border-harvest/10',
             'hoverShadow' => 'hover:shadow-harvest/5',

@@ -7,7 +7,7 @@
             <div>
                 <h1 class="text-2xl font-extrabold text-slate-800 dark:text-white heading-font tracking-tight">Logistics Documents</h1>
             </div>
-            <span class="text-[10px] font-bold uppercase tracking-widest text-harvest dark:text-harvest bg-harvest/10 dark:bg-harvest/20 px-3 py-1.5 rounded-lg border border-harvest/10 dark:border-harvest/20 self-start">Verification</span>
+            <span class="text-[10px] font-bold uppercase tracking-widest text-harvest-dark dark:text-harvest-light bg-harvest/10 dark:bg-harvest/20 px-3 py-1.5 rounded-lg border border-harvest/10 dark:border-harvest/20 self-start">Verification</span>
         </div>
     </header>
 
@@ -39,7 +39,7 @@
                 {{-- Partner Header --}}
                 <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-700/60 bg-slate-50/50 dark:bg-slate-900/40 flex-wrap gap-3">
                     <div class="flex items-center gap-3">
-                        <div class="w-9 h-9 rounded-lg bg-gradient-to-tr from-harvest/20 to-harvest/10 dark:from-harvest/20 dark:to-harvest/10 border border-harvest/20 dark:border-harvest/20 flex items-center justify-center text-[10px] font-extrabold text-harvest dark:text-harvest uppercase">{{ substr($profile->company_name ?? $partner->name ?? '?', 0, 2) }}</div>
+                        <div class="w-9 h-9 rounded-lg bg-gradient-to-tr from-harvest/20 to-harvest/10 dark:from-harvest/20 dark:to-harvest/10 border border-harvest/20 dark:border-harvest/20 flex items-center justify-center text-[10px] font-extrabold text-harvest-dark dark:text-harvest-light uppercase">{{ substr($profile->company_name ?? $partner->name ?? '?', 0, 2) }}</div>
                         <div>
                             <p class="text-sm font-extrabold text-slate-800 dark:text-slate-200">{{ $profile->company_name ?? $partner->name }}</p>
                             <p class="text-[10px] text-slate-500 dark:text-slate-400 font-semibold">{{ $partner->email }} — ID #{{ $userId }}</p>

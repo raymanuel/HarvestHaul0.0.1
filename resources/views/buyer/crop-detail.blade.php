@@ -3,7 +3,7 @@
 
     <header class="mb-8 pt-8">
         <div class="flex items-center gap-2 mb-4">
-            <a href="{{ route('buyer.crop-board') }}" class="text-xs font-bold text-harvest dark:text-harvest hover:underline flex items-center gap-1">
+            <a href="{{ route('buyer.crop-board') }}" class="text-xs font-bold text-harvest-dark dark:text-harvest-light hover:underline flex items-center gap-1">
                 ← Back to Crop Board
             </a>
         </div>
@@ -91,7 +91,7 @@
                 <h2 class="text-sm font-extrabold text-slate-900 dark:text-white heading-font mb-4">Farmer</h2>
                 <div class="flex items-center gap-3 mb-4">
                     <div class="w-10 h-10 rounded-full bg-harvest/10 dark:bg-harvest/50 flex items-center justify-center">
-                        <svg class="w-5 h-5 text-harvest dark:text-harvest" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <svg class="w-5 h-5 text-harvest-dark dark:text-harvest-light" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                         </svg>
                     </div>
@@ -139,7 +139,7 @@
                     <form action="{{ route('negotiations.start') }}" method="POST">
                         @csrf
                         <input type="hidden" name="harvest_id" value="{{ $harvest->id }}">
-                        <button type="submit" class="w-full flex items-center justify-center gap-2 py-3 bg-harvest hover:bg-harvest-dark dark:bg-harvest dark:hover:bg-harvest-dark text-white font-bold rounded-2xl text-sm transition-colors shadow-sm shadow-harvest/10 cursor-pointer">
+                        <button type="submit" class="w-full flex items-center justify-center gap-2 py-3 bg-harvest hover:bg-harvest-dark dark:bg-harvest dark:hover:bg-harvest-dark text-[#17202B] font-bold rounded-2xl text-sm transition-colors shadow-sm shadow-harvest/10 cursor-pointer">
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12M6 12h12" />
                             </svg>

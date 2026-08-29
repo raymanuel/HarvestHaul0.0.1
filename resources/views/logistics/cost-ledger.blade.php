@@ -66,7 +66,7 @@
                 @php
                     $statusColor = match($poolingJob->status->value) {
                         'confirmed'   => 'text-amber-700 dark:text-amber-400',
-                        'in_progress' => 'text-[#0E1620] dark:text-[#bfd6c9]',
+                        'in_progress' => 'text-[#0E1620] dark:text-[#E9EEF4]',
                         'completed'   => 'text-[#16283C] dark:text-[#D7BC7A]',
                         default       => 'text-slate-500',
                     };

@@ -84,7 +84,7 @@
                                         @csrf
                                         <button type="button"
                                             onclick="swalConfirm(this.closest('form'), {title:'Confirm Receipt?', text:'Mark delivery #{{ $job->id }} as received?', confirmText:'Yes, confirm', icon:'question', confirmColor:'#16283C'})"
-                                            class="inline-flex items-center gap-1.5 px-4 py-2 bg-harvest hover:bg-harvest-dark text-white text-[10px] font-bold rounded-xl transition shadow-sm shadow-harvest/10 cursor-pointer">
+                                            class="inline-flex items-center gap-1.5 px-4 py-2 bg-harvest hover:bg-harvest-dark text-[#17202B] text-[10px] font-bold rounded-xl transition shadow-sm shadow-harvest/10 cursor-pointer">
                                             Confirm Receipt
                                         </button>
                                     </form>

@@ -79,7 +79,7 @@
             @endif
 
             @if($nearestDriver)
-                <div class="text-xs text-[#0E1620] dark:text-[#bfd6c9] bg-[#0E1620]/10 dark:bg-[#0E1620]/10 border border-[#0E1620]/20 dark:border-[#0E1620]/10 rounded-xl px-4 py-2.5 font-semibold flex items-center gap-2">
+                <div class="text-xs text-[#0E1620] dark:text-[#E9EEF4] bg-[#0E1620]/10 dark:bg-[#0E1620]/10 border border-[#0E1620]/20 dark:border-[#0E1620]/10 rounded-xl px-4 py-2.5 font-semibold flex items-center gap-2">
                     <span><x-icon name="pin" class="w-4 h-4" /></span> Nearest Driver: {{ $nearestDriver['driver']->name }} ({{ $nearestDriver['distance_km'] }} km)
                 </div>
             @endif
@@ -624,17 +624,17 @@
                         : '<li class="text-slate-400">No active posts</li>';
 
                     const destinationHtml = farm.destination
-                        ? `<div style="margin-top:8px;padding-top:8px;border-top:1px solid ${isDark ? '#334155' : '#e2e8f0'};">
-                            <b style="font-size:11px;color:${isDark ? '#94a3b8' : '#64748b'};letter-spacing:0.05em;text-transform:uppercase;">Destination</b>
+                        ? `<div style="margin-top:8px;padding-top:8px;border-top:1px solid ${isDark ? '#14202D' : '#E7EAE4'};">
+                            <b style="font-size:11px;color:${isDark ? '#94A3B4' : '#5A6573'};letter-spacing:0.05em;text-transform:uppercase;">Destination</b>
                             <p style="margin:4px 0 0;font-size:12px;font-weight:700;color:${isDark ? '#e2e8f0' : '#1e293b'};"><svg class="w-4 h-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg> ${farm.destination.name}</p>
-                            <p style="margin:2px 0 0;font-size:11px;color:${isDark ? '#94a3b8' : '#64748b'};">${farm.destination.address}</p>
+                            <p style="margin:2px 0 0;font-size:11px;color:${isDark ? '#94A3B4' : '#5A6573'};">${farm.destination.address}</p>
                            </div>`
                         : farm.destination_address
-                            ? `<div style="margin-top:8px;padding-top:8px;border-top:1px solid ${isDark ? '#334155' : '#e2e8f0'};">
-                                <b style="font-size:11px;color:${isDark ? '#94a3b8' : '#64748b'};letter-spacing:0.05em;text-transform:uppercase;">Destination</b>
+                            ? `<div style="margin-top:8px;padding-top:8px;border-top:1px solid ${isDark ? '#14202D' : '#E7EAE4'};">
+                                <b style="font-size:11px;color:${isDark ? '#94A3B4' : '#5A6573'};letter-spacing:0.05em;text-transform:uppercase;">Destination</b>
                                 <p style="margin:4px 0 0;font-size:12px;font-weight:700;color:${isDark ? '#e2e8f0' : '#1e293b'};"><svg class="w-4 h-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg> ${farm.destination_address}</p>
                                </div>`
-                            : `<div style="margin-top:8px;padding-top:8px;border-top:1px solid ${isDark ? '#334155' : '#e2e8f0'};">
+                            : `<div style="margin-top:8px;padding-top:8px;border-top:1px solid ${isDark ? '#14202D' : '#E7EAE4'};">
                                 <p style="font-size:11px;color:${isDark ? '#cbd5e1' : '#94a3b8'};">No destination set.</p>
                                </div>`;
 
@@ -644,18 +644,18 @@
                             style="margin-top:10px;width:100%;background:#16283C;color:white;border:none;border-radius:8px;padding:8px 0;font-size:12px;font-weight:700;cursor:pointer;box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
                             <svg class="w-4 h-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg> Plot Route
                            </button>`
-                        : `<button disabled style="margin-top:10px;width:100%;background:${isDark ? '#334155' : '#f1f5f9'};color:${isDark ? '#64748b' : '#94a3b8'};border:none;border-radius:8px;padding:8px 0;font-size:12px;font-weight:700;cursor:not-allowed;">
+                        : `<button disabled style="margin-top:10px;width:100%;background:${isDark ? '#14202D' : '#F5F6F2'};color:${isDark ? '#5A6573' : '#94A3B4'};border:none;border-radius:8px;padding:8px 0;font-size:12px;font-weight:700;cursor:not-allowed;">
                             No destination set
                            </button>`;
 
                     const dealHtml = farm.harvests && farm.harvests.some(h => h.completed_negotiation)
                         ? (() => {
                             const deal = farm.harvests.find(h => h.completed_negotiation).completed_negotiation;
-                            return `<div style="margin-top:8px;padding-top:8px;border-top:1px solid ${isDark ? '#334155' : '#e2e8f0'};">
-                                <b style="font-size:11px;color:${isDark ? '#94a3b8' : '#64748b'};letter-spacing:0.05em;text-transform:uppercase;">Done Deal</b>
-                                <p style="margin:4px 0 0;font-size:11px;color:${isDark ? '#cbd5e1' : '#334155'};">&#8369;${Number(deal.price).toLocaleString(undefined, {minimumFractionDigits:2})}/kg &bull; ${Number(deal.volume).toLocaleString()} kg</p>
-                                <p style="margin:2px 0 0;font-size:11px;color:${isDark ? '#94a3b8' : '#64748b'};">Buyer: ${deal.buyer}</p>
-                                <p style="margin:2px 0 0;font-size:11px;color:${isDark ? '#94a3b8' : '#64748b'};">Drop-off: ${deal.dropoff || '—'}</p>
+                            return `<div style="margin-top:8px;padding-top:8px;border-top:1px solid ${isDark ? '#14202D' : '#E7EAE4'};">
+                                <b style="font-size:11px;color:${isDark ? '#94A3B4' : '#5A6573'};letter-spacing:0.05em;text-transform:uppercase;">Done Deal</b>
+                                <p style="margin:4px 0 0;font-size:11px;color:${isDark ? '#E9EEF4' : '#17202B'};">&#8369;${Number(deal.price).toLocaleString(undefined, {minimumFractionDigits:2})}/kg &bull; ${Number(deal.volume).toLocaleString()} kg</p>
+                                <p style="margin:2px 0 0;font-size:11px;color:${isDark ? '#94A3B4' : '#5A6573'};">Buyer: ${deal.buyer}</p>
+                                <p style="margin:2px 0 0;font-size:11px;color:${isDark ? '#94A3B4' : '#5A6573'};">Drop-off: ${deal.dropoff || '—'}</p>
                             </div>`;
                         })()
                         : '';
@@ -663,10 +663,10 @@
                     marker.bindPopup(`
                         <div style="min-width:200px;font-family:'DM Sans',sans-serif;">
                             <b style="font-size:14px;color:${isDark ? '#e2e8f0' : '#0f172a'};">${farm.name}</b>
-                            <br><span style="color:${isDark ? '#94a3b8' : '#64748b'};font-size:12px;"><svg class="w-4 h-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg> ${farm.farmer_profile.farm_location}</span>
-                            <hr style="margin:8px 0;border:0;border-top:1px solid ${isDark ? '#334155' : '#f1f5f9'};">
-                            <b style="font-size:11px;color:${isDark ? '#94a3b8' : '#64748b'};letter-spacing:0.05em;text-transform:uppercase;">Active Harvests</b>
-                            <ul style="margin:4px 0 0;padding-left:14px;font-size:12px;color:${isDark ? '#cbd5e1' : '#334155'};list-style-type:square;">${harvestList}</ul>
+                            <br><span style="color:${isDark ? '#94A3B4' : '#5A6573'};font-size:12px;"><svg class="w-4 h-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg> ${farm.farmer_profile.farm_location}</span>
+                            <hr style="margin:8px 0;border:0;border-top:1px solid ${isDark ? '#14202D' : '#F5F6F2'};">
+                            <b style="font-size:11px;color:${isDark ? '#94A3B4' : '#5A6573'};letter-spacing:0.05em;text-transform:uppercase;">Active Harvests</b>
+                            <ul style="margin:4px 0 0;padding-left:14px;font-size:12px;color:${isDark ? '#E9EEF4' : '#17202B'};list-style-type:square;">${harvestList}</ul>
                             ${destinationHtml}
                             ${plotButtonHtml}
                             ${dealHtml}

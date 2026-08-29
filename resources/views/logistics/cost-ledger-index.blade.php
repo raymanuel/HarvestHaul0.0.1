@@ -40,7 +40,7 @@
                         @php
                             $statusColor = match($job->status->value) {
                                 'completed'   => 'text-[#16283C] dark:text-[#D7BC7A] bg-[#16283C]/10 dark:bg-[#16283C]/10 border-[#16283C]/20 dark:border-[#16283C]/15',
-                                'in_progress' => 'text-[#0E1620] dark:text-[#bfd6c9] bg-[#0E1620]/10 dark:bg-[#0E1620]/10 border-[#0E1620]/20 dark:border-[#0E1620]/15',
+                                'in_progress' => 'text-[#0E1620] dark:text-[#E9EEF4] bg-[#0E1620]/10 dark:bg-[#0E1620]/10 border-[#0E1620]/20 dark:border-[#0E1620]/15',
                                 'confirmed'   => 'text-[var(--color-warning-text)] bg-[var(--color-warning-bg)] border-[var(--color-warning-border)]',
                                 default       => 'text-slate-500 bg-slate-50 dark:bg-slate-900/30 border-slate-200/50',
                             };

@@ -342,7 +342,7 @@
                         confirmButtonText: 'Archive Anyway',
                         cancelButtonText: 'Cancel',
                         confirmButtonColor: '#ef4444',
-                        cancelButtonColor: '#64748b',
+                        cancelButtonColor: '#5A6573',
                         background: document.documentElement.classList.contains('dark') ? '#1e293b' : '#fff',
                         color: document.documentElement.classList.contains('dark') ? '#e2e8f0' : '#1e293b',
                         customClass: { popup: 'rounded-xl shadow-2xl' },

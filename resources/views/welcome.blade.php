@@ -36,7 +36,7 @@
             --soil: #17202B;
             --leaf: #16283C;
             --leaf-dark: #0E1620;
-            --wheat: #F26B5E;
+            --wheat: #BFA05A;
         }
 
         body { font-family: 'DM Sans', sans-serif; }
@@ -85,7 +85,7 @@
         }
     </style>
 </head>
-<body class="bg-[#FAFAFA] text-[#17202B] antialiased overflow-x-hidden">
+<body class="bg-[#F5F6F2] text-[#17202B] antialiased overflow-x-hidden">
 
     <!-- Header -->
     <header id="main-header" class="fixed top-0 left-0 right-0 z-50 transition-all duration-300">
@@ -121,7 +121,7 @@
             <div class="hidden md:flex items-center gap-3">
                 @if (Route::has('login'))
                     @auth
-                        <a href="{{ url('/dashboard') }}" class="px-4 py-2 bg-[#F26B5E] text-[#17202B] rounded-lg text-sm font-bold hover:bg-[#F26B5E]/90 transition">
+                        <a href="{{ url('/dashboard') }}" class="px-4 py-2 bg-[#BFA05A] text-[#17202B] rounded-lg text-sm font-bold hover:bg-[#BFA05A]/90 transition">
                             Dashboard
                         </a>
                     @else
@@ -129,7 +129,7 @@
                             Log in
                         </a>
                         @if (Route::has('register'))
-                            <a href="{{ url('/register') }}" class="px-4 py-2 bg-[#F26B5E] text-[#17202B] rounded-lg text-sm font-bold hover:bg-[#F26B5E]/90 transition">
+                            <a href="{{ url('/register') }}" class="px-4 py-2 bg-[#BFA05A] text-[#17202B] rounded-lg text-sm font-bold hover:bg-[#BFA05A]/90 transition">
                                 Get Started
                             </a>
                         @endif
@@ -152,9 +152,9 @@
             <div class="pt-3 border-t border-white/10 space-y-2">
                 @guest
                     <a href="{{ url('/login') }}" class="block w-full text-center px-4 py-2.5 bg-white/10 text-white rounded-lg font-bold text-sm">Log in</a>
-                    <a href="{{ url('/register') }}" class="block w-full text-center px-4 py-2.5 bg-[#F26B5E] text-[#17202B] rounded-lg font-bold text-sm">Get Started</a>
+                    <a href="{{ url('/register') }}" class="block w-full text-center px-4 py-2.5 bg-[#BFA05A] text-[#17202B] rounded-lg font-bold text-sm">Get Started</a>
                 @else
-                    <a href="{{ url('/dashboard') }}" class="block w-full text-center px-4 py-2.5 bg-[#F26B5E] text-[#17202B] rounded-lg font-bold text-sm">Dashboard</a>
+                    <a href="{{ url('/dashboard') }}" class="block w-full text-center px-4 py-2.5 bg-[#BFA05A] text-[#17202B] rounded-lg font-bold text-sm">Dashboard</a>
                 @endguest
             </div>
         </div>
@@ -180,14 +180,14 @@
 
                 <div class="flex flex-wrap gap-4">
                     @guest
-                        <a href="{{ url('/register') }}" class="px-6 py-3.5 bg-[#F26B5E] text-[#17202B] rounded-xl font-bold text-sm hover:bg-[#F26B5E]/90 transition shadow-lg">
+                        <a href="{{ url('/register') }}" class="px-6 py-3.5 bg-[#BFA05A] text-[#17202B] rounded-xl font-bold text-sm hover:bg-[#BFA05A]/90 transition shadow-lg">
                             Get Started
                         </a>
                         <a href="#about" class="px-6 py-3.5 border border-white/20 text-white rounded-xl font-semibold text-sm hover:bg-white/5 transition">
                             Learn More
                         </a>
                     @else
-                        <a href="{{ url('/dashboard') }}" class="px-6 py-3.5 bg-[#F26B5E] text-[#17202B] rounded-xl font-bold text-sm hover:bg-[#F26B5E]/90 transition shadow-lg">
+                        <a href="{{ url('/dashboard') }}" class="px-6 py-3.5 bg-[#BFA05A] text-[#17202B] rounded-xl font-bold text-sm hover:bg-[#BFA05A]/90 transition shadow-lg">
                             Open Dashboard
                         </a>
                     @endguest
@@ -215,7 +215,7 @@
                             <span class="w-8 h-8 rounded-lg bg-white/5 text-white/70 text-xs font-bold flex items-center justify-center border border-white/10">T</span>
                             <span class="w-8 h-8 rounded-lg bg-[#BFA05A]/25 text-[#D7BC7A] text-xs font-bold flex items-center justify-center border border-[#BFA05A]/40">M</span>
                         </div>
-                        <div class="flex-1 bg-[#FAFAFA] p-5 sm:p-7">
+                        <div class="flex-1 bg-[#F5F6F2] p-5 sm:p-7">
                             <div class="flex items-center justify-between mb-5">
                                 <p class="text-sm font-extrabold text-[#17202B]">Farmer Dashboard</p>
                                 <span class="text-[10px] font-extrabold uppercase tracking-widest text-[#7C6527] bg-[#BFA05A]/15 border border-[#BFA05A]/30 px-2 py-1 rounded">Sample</span>
@@ -223,11 +223,11 @@
 
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div class="border-l-4 border-l-[#16283C] bg-white rounded-2xl p-4 shadow-sm">
-                                    <p class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Active Harvests</p>
+                                    <p class="text-[10px] font-bold uppercase tracking-widest text-[#5A6573]">Active Harvests</p>
                                     <p class="text-2xl font-extrabold text-[#16283C] heading-font mt-1">3</p>
-                                    <div class="pt-2 mt-2 border-t border-slate-100 flex flex-wrap gap-1.5">
-                                        <span class="text-[9px] font-semibold text-slate-600 bg-slate-50 border border-slate-200 px-2 py-0.5 rounded">240 kg rice</span>
-                                        <span class="text-[9px] font-semibold text-slate-600 bg-slate-50 border border-slate-200 px-2 py-0.5 rounded">310 kg banana</span>
+                                    <div class="pt-2 mt-2 border-t border-[#0E1620]/8 flex flex-wrap gap-1.5">
+                                        <span class="text-[9px] font-semibold text-[#5A6573] bg-[#F5F6F2] border border-[#0E1620]/8 px-2 py-0.5 rounded">240 kg rice</span>
+                                        <span class="text-[9px] font-semibold text-[#5A6573] bg-[#F5F6F2] border border-[#0E1620]/8 px-2 py-0.5 rounded">310 kg banana</span>
                                     </div>
                                 </div>
                                 <div class="border-l-4 border-l-white/25 bg-[#16283C] rounded-2xl p-4 text-white shadow-sm">
@@ -239,57 +239,57 @@
                                 </div>
                             </div>
 
-                            <div class="mt-4 bg-white rounded-2xl border border-slate-200/60 overflow-hidden">
-                                <div class="flex items-center justify-between px-4 py-2.5 border-b border-slate-100 bg-slate-50/50">
+                            <div class="mt-4 bg-white rounded-2xl border border-[#0E1620]/8 overflow-hidden">
+                                <div class="flex items-center justify-between px-4 py-2.5 border-b border-[#0E1620]/8 bg-[#F5F6F2]/60">
                                     <p class="text-[10px] font-extrabold uppercase tracking-widest text-[#16283C]">DA RFO12 — Market Prices</p>
-                                    <span class="text-[9px] font-bold text-slate-500">Today</span>
+                                    <span class="text-[9px] font-bold text-[#5A6573]">Today</span>
                                 </div>
                                 <table class="w-full text-left">
                                     <thead>
-                                        <tr class="border-b border-slate-100">
-                                            <th class="px-4 py-2 text-[9px] font-extrabold uppercase tracking-widest text-slate-500">Category</th>
-                                            <th class="px-3 py-2 text-[9px] font-extrabold uppercase tracking-widest text-slate-500">Commodity</th>
-                                            <th class="px-3 py-2 text-[9px] font-extrabold uppercase tracking-widest text-slate-500 text-right">Low</th>
-                                            <th class="px-3 py-2 text-[9px] font-extrabold uppercase tracking-widest text-slate-500 text-right">High</th>
-                                            <th class="px-3 py-2 text-[9px] font-extrabold uppercase tracking-widest text-slate-500 text-right">Common</th>
-                                            <th class="px-4 py-2 text-[9px] font-extrabold uppercase tracking-widest text-slate-500 text-right">DPI</th>
+                                        <tr class="border-b border-[#0E1620]/8">
+                                            <th class="px-4 py-2 text-[9px] font-extrabold uppercase tracking-widest text-[#5A6573]">Category</th>
+                                            <th class="px-3 py-2 text-[9px] font-extrabold uppercase tracking-widest text-[#5A6573]">Commodity</th>
+                                            <th class="px-3 py-2 text-[9px] font-extrabold uppercase tracking-widest text-[#5A6573] text-right">Low</th>
+                                            <th class="px-3 py-2 text-[9px] font-extrabold uppercase tracking-widest text-[#5A6573] text-right">High</th>
+                                            <th class="px-3 py-2 text-[9px] font-extrabold uppercase tracking-widest text-[#5A6573] text-right">Common</th>
+                                            <th class="px-4 py-2 text-[9px] font-extrabold uppercase tracking-widest text-[#5A6573] text-right">DPI</th>
                                         </tr>
                                     </thead>
-                                    <tbody class="divide-y divide-slate-50">
+                                    <tbody class="divide-y divide-[#0E1620]/8">
                                         <tr>
-                                            <td class="px-4 py-2 text-[10px] font-bold text-slate-500">Fruit &amp; Veg</td>
-                                            <td class="px-3 py-2 text-[11px] font-bold text-slate-800">Banana (Lakatan)</td>
-                                            <td class="px-3 py-2 text-[11px] text-slate-700 text-right">25</td>
-                                            <td class="px-3 py-2 text-[11px] text-slate-700 text-right">35</td>
-                                            <td class="px-3 py-2 text-[11px] text-slate-700 text-right">32</td>
+                                            <td class="px-4 py-2 text-[10px] font-bold text-[#5A6573]">Fruit &amp; Veg</td>
+                                            <td class="px-3 py-2 text-[11px] font-bold text-[#17202B]">Banana (Lakatan)</td>
+                                            <td class="px-3 py-2 text-[11px] text-[#17202B] text-right">25</td>
+                                            <td class="px-3 py-2 text-[11px] text-[#17202B] text-right">35</td>
+                                            <td class="px-3 py-2 text-[11px] text-[#17202B] text-right">32</td>
                                             <td class="px-4 py-2 text-[11px] font-bold text-[#16283C] text-right">30</td>
                                         </tr>
                                         <tr>
-                                            <td class="px-4 py-2 text-[10px] font-bold text-slate-500">Fruit &amp; Veg</td>
-                                            <td class="px-3 py-2 text-[11px] font-bold text-slate-800">Banana (Saba)</td>
-                                            <td class="px-3 py-2 text-[11px] text-slate-700 text-right">20</td>
-                                            <td class="px-3 py-2 text-[11px] text-slate-700 text-right">28</td>
-                                            <td class="px-3 py-2 text-[11px] text-slate-700 text-right">25</td>
+                                            <td class="px-4 py-2 text-[10px] font-bold text-[#5A6573]">Fruit &amp; Veg</td>
+                                            <td class="px-3 py-2 text-[11px] font-bold text-[#17202B]">Banana (Saba)</td>
+                                            <td class="px-3 py-2 text-[11px] text-[#17202B] text-right">20</td>
+                                            <td class="px-3 py-2 text-[11px] text-[#17202B] text-right">28</td>
+                                            <td class="px-3 py-2 text-[11px] text-[#17202B] text-right">25</td>
                                             <td class="px-4 py-2 text-[11px] font-bold text-[#16283C] text-right">23</td>
                                         </tr>
                                     </tbody>
                                 </table>
                             </div>
 
-                            <div class="mt-4 bg-white rounded-2xl border border-slate-200/60 px-4 py-3 flex flex-wrap items-center gap-4">
-                                <span class="text-[9px] font-extrabold uppercase tracking-widest text-slate-500">Route</span>
+                            <div class="mt-4 bg-white rounded-2xl border border-[#0E1620]/8 px-4 py-3 flex flex-wrap items-center gap-4">
+                                <span class="text-[9px] font-extrabold uppercase tracking-widest text-[#5A6573]">Route</span>
                                 <div class="flex items-center gap-2">
                                     <span class="w-2.5 h-2.5 rounded-full bg-[#BFA05A]"></span>
-                                    <span class="text-[10px] font-semibold text-slate-600">Farm A</span>
+                                    <span class="text-[10px] font-semibold text-[#5A6573]">Farm A</span>
                                     <span class="w-14 border-t-2 border-dashed border-[#16283C]/30"></span>
                                     <span class="w-2.5 h-2.5 rounded-full bg-[#BFA05A]"></span>
-                                    <span class="text-[10px] font-semibold text-slate-600">Farm B</span>
+                                    <span class="text-[10px] font-semibold text-[#5A6573]">Farm B</span>
                                     <span class="w-14 border-t-2 border-dashed border-[#16283C]/30"></span>
                                     <span class="w-2.5 h-2.5 rounded-full bg-[#16283C]"></span>
-                                    <span class="text-[10px] font-bold text-slate-800">Hub</span>
+                                    <span class="text-[10px] font-bold text-[#17202B]">Hub</span>
                                 </div>
-                                <span class="text-[9px] font-semibold text-slate-500 bg-slate-50 border border-slate-200 px-2 py-0.5 rounded">2 stops</span>
-                                <span class="text-[9px] font-semibold text-slate-500 bg-slate-50 border border-slate-200 px-2 py-0.5 rounded">38 km</span>
+                                <span class="text-[9px] font-semibold text-[#5A6573] bg-[#F5F6F2] border border-[#0E1620]/8 px-2 py-0.5 rounded">2 stops</span>
+                                <span class="text-[9px] font-semibold text-[#5A6573] bg-[#F5F6F2] border border-[#0E1620]/8 px-2 py-0.5 rounded">38 km</span>
                             </div>
                         </div>
                     </div>
@@ -306,13 +306,13 @@
     </section>
 
     <!-- About -->
-    <section id="about" class="py-24 bg-[#FAFAFA] scroll-mt-20">
+    <section id="about" class="py-24 bg-[#F5F6F2] scroll-mt-20">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="max-w-3xl scroll-reveal">
                 <h2 class="text-3xl sm:text-4xl font-display text-[#17202B] leading-tight">
                     A localized digital solution for crop distribution and logistics coordination
                 </h2>
-                <p class="text-[#64748B] mt-6 text-lg leading-relaxed">
+                <p class="text-[#5A6573] mt-6 text-lg leading-relaxed">
                     HarvestHaul addresses the challenges of fragmented communication, underutilized vehicles, and limited delivery visibility in agricultural transport. By integrating mapping, route planning, tracking, and reporting into one web-based platform, we aim to support a more organized and efficient transport process for registered stakeholders in General Santos City and Polomolok.
                 </p>
             </div>
@@ -320,7 +320,7 @@
     </section>
 
     <!-- Services -->
-    <section id="services" class="py-24 bg-[#FAFAFA] scroll-mt-20">
+    <section id="services" class="py-24 bg-[#F5F6F2] scroll-mt-20">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center max-w-2xl mx-auto mb-16 scroll-reveal">
                 <h2 class="text-3xl sm:text-4xl font-display text-[#17202B]">Our Services</h2>
@@ -330,13 +330,13 @@
                 <!-- Service 01 -->
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 py-10 items-start scroll-reveal">
                     <div class="lg:col-span-1">
-                        <span class="font-mono text-sm font-bold text-[#C23A2E]">01</span>
+                        <span class="font-mono text-sm font-bold text-[#7C6527]">01</span>
                     </div>
                     <div class="lg:col-span-4">
                         <h3 class="text-xl font-display text-[#17202B]">Route-Pooling Logistics</h3>
                     </div>
                     <div class="lg:col-span-4">
-                        <p class="text-[#64748B] leading-relaxed">
+                        <p class="text-[#5A6573] leading-relaxed">
                             We aggregate crop dimensions and pickup dates from posted harvests and partner cooperatives. The routing engine sequences farm locations along a single path, matching them to high-capacity freight trucks.
                         </p>
                     </div>
@@ -349,12 +349,12 @@
                                         <stop offset="100%" stop-color="#0E1620"/>
                                     </linearGradient>
                                     <radialGradient id="s1-g" cx="35%" cy="30%" r="80%">
-                                        <stop offset="0%" stop-color="#bfd6c9"/>
+                                        <stop offset="0%" stop-color="#FFFFFF"/>
                                         <stop offset="100%" stop-color="#0E1620"/>
                                     </radialGradient>
                                     <radialGradient id="s1-a" cx="35%" cy="30%" r="80%">
-                                        <stop offset="0%" stop-color="#F98B80"/>
-                                        <stop offset="100%" stop-color="#C23A2E"/>
+                                        <stop offset="0%" stop-color="#FFFFFF"/>
+                                        <stop offset="100%" stop-color="#BFA05A"/>
                                     </radialGradient>
                                 </defs>
                                 <path d="M6 38 L18 22 L30 28 L42 12" stroke="url(#s1-line)" stroke-width="4"/>
@@ -376,13 +376,13 @@
                 <!-- Service 02 -->
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 py-10 items-start scroll-reveal">
                     <div class="lg:col-span-1">
-                        <span class="font-mono text-sm font-bold text-[#C23A2E]">02</span>
+                        <span class="font-mono text-sm font-bold text-[#7C6527]">02</span>
                     </div>
                     <div class="lg:col-span-4">
                         <h3 class="text-xl font-display text-[#17202B]">Real-Time GPS Tracking</h3>
                     </div>
                     <div class="lg:col-span-4">
-                        <p class="text-[#64748B] leading-relaxed">
+                        <p class="text-[#5A6573] leading-relaxed">
                             Drivers broadcast GPS location live. You see your crop move from farm to hub to buyer in real time, with delay detection and weather-aware ETA predictions.
                         </p>
                     </div>
@@ -395,11 +395,11 @@
                                         <stop offset="100%" stop-color="#0E1620"/>
                                     </linearGradient>
                                     <radialGradient id="s2-center" cx="35%" cy="30%" r="80%">
-                                        <stop offset="0%" stop-color="#F98B80"/>
-                                        <stop offset="100%" stop-color="#C23A2E"/>
+                                        <stop offset="0%" stop-color="#FFFFFF"/>
+                                        <stop offset="100%" stop-color="#BFA05A"/>
                                     </radialGradient>
                                     <radialGradient id="s2-dot" cx="35%" cy="30%" r="80%">
-                                        <stop offset="0%" stop-color="#bfd6c9"/>
+                                        <stop offset="0%" stop-color="#FFFFFF"/>
                                         <stop offset="100%" stop-color="#0E1620"/>
                                     </radialGradient>
                                 </defs>
@@ -420,13 +420,13 @@
                 <!-- Service 03 -->
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 py-10 items-start scroll-reveal">
                     <div class="lg:col-span-1">
-                        <span class="font-mono text-sm font-bold text-[#C23A2E]">03</span>
+                        <span class="font-mono text-sm font-bold text-[#7C6527]">03</span>
                     </div>
                     <div class="lg:col-span-4">
                         <h3 class="text-xl font-display text-[#17202B]">Cost-Split Management</h3>
                     </div>
                     <div class="lg:col-span-4">
-                        <p class="text-[#64748B] leading-relaxed">
+                        <p class="text-[#5A6573] leading-relaxed">
                             Per-farmer cost allocation based on the hauling rate agreed in each negotiation chat, applied to each farmer's crop weight. Automated invoicing and payment tracking between all parties.
                         </p>
                     </div>
@@ -439,8 +439,8 @@
                                         <stop offset="100%" stop-color="#0E1620"/>
                                     </linearGradient>
                                     <radialGradient id="s3-coin" cx="35%" cy="30%" r="80%">
-                                        <stop offset="0%" stop-color="#F98B80"/>
-                                        <stop offset="100%" stop-color="#C23A2E"/>
+                                        <stop offset="0%" stop-color="#FFFFFF"/>
+                                        <stop offset="100%" stop-color="#BFA05A"/>
                                     </radialGradient>
                                 </defs>
                                 <g stroke="#0E1620" stroke-width="1.5">
@@ -448,7 +448,7 @@
                                 </g>
                                 <rect x="9" y="9" width="30" height="30" rx="4" fill="none" stroke="#FFFFFF" stroke-opacity="0.28" stroke-width="1.2"/>
                                 <path d="M8 18h32M18 8v32" stroke="#FFFFFF" stroke-opacity="0.5" stroke-width="1.4"/>
-                                <circle cx="30" cy="30" r="6.5" fill="url(#s3-coin)" stroke="#C23A2E" stroke-width="1"/>
+                                <circle cx="30" cy="30" r="6.5" fill="url(#s3-coin)" stroke="#BFA05A" stroke-width="1"/>
                                 <path d="M28 30h4M30 28v4" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round"/>
                                 <circle cx="28.4" cy="28.4" r="1.4" fill="#FFFFFF" opacity="0.6"/>
                             </svg>
@@ -483,11 +483,11 @@
             </div>
 
             <!-- Farmer Panel -->
-            <div id="role-farmer" role="tabpanel" aria-labelledby="role-btn-farmer" class="role-panel bg-[#FAFAFA] rounded-3xl border border-[#17202B]/5 overflow-hidden">
+            <div id="role-farmer" role="tabpanel" aria-labelledby="role-btn-farmer" class="role-panel bg-[#F5F6F2] rounded-3xl border border-[#17202B]/5 overflow-hidden">
                 <div class="grid grid-cols-1 lg:grid-cols-2">
                     <div class="p-8 sm:p-12 flex flex-col justify-center">
                         <h3 class="text-2xl font-display text-[#17202B] mb-4">Ship full loads without meeting minimums</h3>
-                        <p class="text-[#64748B] leading-relaxed mb-6">
+                        <p class="text-[#5A6573] leading-relaxed mb-6">
                             Submit your harvest. Our engine finds nearby farms within your pickup radius and groups compatible crops into a single optimized truckload. You pay only for the space you use.
                         </p>
                         <div class="flex flex-wrap gap-3">
@@ -501,9 +501,9 @@
                             <svg class="w-16 h-16 mx-auto mb-4" viewBox="0 0 64 64" fill="none" stroke-linecap="round" stroke-linejoin="round" style="filter: drop-shadow(1px 3px 3px rgba(0,0,0,0.35));">
                                 <defs>
                                     <radialGradient id="rf-drop" cx="38%" cy="28%" r="85%">
-                                        <stop offset="0%" stop-color="#F98B80"/>
-                                        <stop offset="55%" stop-color="#F26B5E"/>
-                                        <stop offset="100%" stop-color="#C23A2E"/>
+                                        <stop offset="0%" stop-color="#FFFFFF"/>
+                                        <stop offset="55%" stop-color="#BFA05A"/>
+                                        <stop offset="100%" stop-color="#BFA05A"/>
                                     </radialGradient>
                                     <radialGradient id="rf-core" cx="38%" cy="28%" r="85%">
                                         <stop offset="0%" stop-color="#D7BC7A"/>
@@ -527,17 +527,17 @@
             </div>
 
             <!-- Logistics Panel -->
-            <div id="role-logistics" role="tabpanel" aria-labelledby="role-btn-logistics" class="role-panel hidden bg-[#FAFAFA] rounded-3xl border border-[#17202B]/5 overflow-hidden">
+            <div id="role-logistics" role="tabpanel" aria-labelledby="role-btn-logistics" class="role-panel hidden bg-[#F5F6F2] rounded-3xl border border-[#17202B]/5 overflow-hidden">
                 <div class="grid grid-cols-1 lg:grid-cols-2">
                     <div class="p-8 sm:p-12 flex flex-col justify-center">
                         <h3 class="text-2xl font-display text-[#17202B] mb-4">Build optimized multi-stop routes in one screen</h3>
-                        <p class="text-[#64748B] leading-relaxed mb-6">
+                        <p class="text-[#5A6573] leading-relaxed mb-6">
                             View regional farm posts, select compatible harvests, and generate sequential pickup routes. Track truck capacity and assign drivers instantly.
                         </p>
                         <div class="flex flex-wrap gap-3">
-                            <span class="px-3 py-1.5 rounded-full bg-[#F26B5E]/10 text-[#E14B3D] text-xs font-semibold">Sequential Routing</span>
-                            <span class="px-3 py-1.5 rounded-full bg-[#F26B5E]/10 text-[#E14B3D] text-xs font-semibold">Fleet Monitoring</span>
-                            <span class="px-3 py-1.5 rounded-full bg-[#F26B5E]/10 text-[#E14B3D] text-xs font-semibold">Knapsack Optimization</span>
+                            <span class="px-3 py-1.5 rounded-full bg-[#BFA05A]/10 text-[#7C6527] text-xs font-semibold">Sequential Routing</span>
+                            <span class="px-3 py-1.5 rounded-full bg-[#BFA05A]/10 text-[#7C6527] text-xs font-semibold">Fleet Monitoring</span>
+                            <span class="px-3 py-1.5 rounded-full bg-[#BFA05A]/10 text-[#7C6527] text-xs font-semibold">Knapsack Optimization</span>
                         </div>
                     </div>
                     <div class="bg-[#0E1620] flex items-center justify-center p-8 sm:p-12">
@@ -549,16 +549,16 @@
                                         <stop offset="100%" stop-color="#0E1620"/>
                                     </radialGradient>
                                     <radialGradient id="rl-a" cx="35%" cy="30%" r="80%">
-                                        <stop offset="0%" stop-color="#F98B80"/>
-                                        <stop offset="100%" stop-color="#C23A2E"/>
+                                        <stop offset="0%" stop-color="#FFFFFF"/>
+                                        <stop offset="100%" stop-color="#BFA05A"/>
                                     </radialGradient>
                                     <linearGradient id="rl-truck" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="0%" stop-color="#F26B5E"/>
-                                        <stop offset="100%" stop-color="#E14B3D"/>
+                                        <stop offset="0%" stop-color="#BFA05A"/>
+                                        <stop offset="100%" stop-color="#BFA05A"/>
                                     </linearGradient>
                                     <linearGradient id="rl-road" x1="0" y1="0" x2="1" y2="0">
-                                        <stop offset="0%" stop-color="#F26B5E"/>
-                                        <stop offset="100%" stop-color="#C23A2E"/>
+                                        <stop offset="0%" stop-color="#BFA05A"/>
+                                        <stop offset="100%" stop-color="#BFA05A"/>
                                     </linearGradient>
                                 </defs>
                                 <path d="M8 48 Q20 32 32 36 T56 28" stroke="url(#rl-road)" stroke-width="4" stroke-dasharray="6 5"/>
@@ -583,11 +583,11 @@
             </div>
 
             <!-- Driver Panel -->
-            <div id="role-driver" role="tabpanel" aria-labelledby="role-btn-driver" class="role-panel hidden bg-[#FAFAFA] rounded-3xl border border-[#17202B]/5 overflow-hidden">
+            <div id="role-driver" role="tabpanel" aria-labelledby="role-btn-driver" class="role-panel hidden bg-[#F5F6F2] rounded-3xl border border-[#17202B]/5 overflow-hidden">
                 <div class="grid grid-cols-1 lg:grid-cols-2">
                     <div class="p-8 sm:p-12 flex flex-col justify-center">
                         <h3 class="text-2xl font-display text-[#17202B] mb-4">Mobile-first dispatch with live GPS</h3>
-                        <p class="text-[#64748B] leading-relaxed mb-6">
+                        <p class="text-[#5A6573] leading-relaxed mb-6">
                             Drivers use a lightweight PWA. View stops, tap milestones as you load, and broadcast GPS — no app install needed. Works offline in low-signal areas.
                         </p>
                         <div class="flex flex-wrap gap-3">
@@ -601,11 +601,11 @@
                             <svg class="w-16 h-16 mx-auto mb-4" viewBox="0 0 64 64" fill="none" stroke-linecap="round" stroke-linejoin="round" style="filter: drop-shadow(1px 3px 3px rgba(0,0,0,0.35));">
                                 <defs>
                                     <linearGradient id="rd-body" x1="0" y1="0" x2="1" y2="1">
-                                        <stop offset="0%" stop-color="#F26B5E"/>
-                                        <stop offset="100%" stop-color="#C23A2E"/>
+                                        <stop offset="0%" stop-color="#BFA05A"/>
+                                        <stop offset="100%" stop-color="#BFA05A"/>
                                     </linearGradient>
                                     <linearGradient id="rd-screen" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="0%" stop-color="#16233B"/>
+                                        <stop offset="0%" stop-color="#14202D"/>
                                         <stop offset="100%" stop-color="#0E1620"/>
                                     </linearGradient>
                                     <linearGradient id="rd-signal" x1="0" y1="0" x2="0" y2="1">
@@ -617,10 +617,10 @@
                                 <rect x="18.5" y="7.5" width="6" height="50" rx="3" fill="#FFFFFF" opacity="0.25"/>
                                 <rect x="22" y="14" width="20" height="32" rx="3" fill="url(#rd-screen)"/>
                                 <rect x="23.5" y="15.5" width="17" height="29" rx="2.5" fill="#FFFFFF" opacity="0.06"/>
-                                <path d="M28 22 L32 18 L36 22" stroke="#F26B5E" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M28 22 L32 18 L36 22" stroke="#BFA05A" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
                                 <path d="M26 34 L30 30 L34 34 L38 28" stroke="url(#rd-signal)" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-                                <circle cx="30" cy="40" r="2.4" fill="#F26B5E"/>
-                                <circle cx="32" cy="52" r="2.6" fill="#16233B"/>
+                                <circle cx="30" cy="40" r="2.4" fill="#BFA05A"/>
+                                <circle cx="32" cy="52" r="2.6" fill="#14202D"/>
                                 <rect x="28.5" y="48.5" width="7" height="3" rx="1.5" fill="#FFFFFF" opacity="0.35"/>
                             </svg>
                             <p class="text-white/60 text-sm">View stops, track GPS, mark delivered</p>
@@ -630,11 +630,11 @@
             </div>
 
             <!-- Buyer Panel -->
-            <div id="role-buyer" role="tabpanel" aria-labelledby="role-btn-buyer" class="role-panel hidden bg-[#FAFAFA] rounded-3xl border border-[#17202B]/5 overflow-hidden">
+            <div id="role-buyer" role="tabpanel" aria-labelledby="role-btn-buyer" class="role-panel hidden bg-[#F5F6F2] rounded-3xl border border-[#17202B]/5 overflow-hidden">
                 <div class="grid grid-cols-1 lg:grid-cols-2">
                     <div class="p-8 sm:p-12 flex flex-col justify-center">
                         <h3 class="text-2xl font-display text-[#17202B] mb-4">Buy crops with price data on your side</h3>
-                        <p class="text-[#64748B] leading-relaxed mb-6">
+                        <p class="text-[#5A6573] leading-relaxed mb-6">
                             Browse farmer postings on the crop board, compare them against DA RFO12 government price benchmarks, and negotiate deals in a structured negotiation room. Track every purchase from farm to delivery.
                         </p>
                         <div class="flex flex-wrap gap-3">
@@ -652,12 +652,12 @@
                                         <stop offset="100%" stop-color="#0E1620"/>
                                     </linearGradient>
                                     <radialGradient id="rb-bar" cx="35%" cy="30%" r="80%">
-                                        <stop offset="0%" stop-color="#bfd6c9"/>
+                                        <stop offset="0%" stop-color="#FFFFFF"/>
                                         <stop offset="100%" stop-color="#16283C"/>
                                     </radialGradient>
                                     <radialGradient id="rb-tag" cx="35%" cy="30%" r="80%">
-                                        <stop offset="0%" stop-color="#F98B80"/>
-                                        <stop offset="100%" stop-color="#C23A2E"/>
+                                        <stop offset="0%" stop-color="#FFFFFF"/>
+                                        <stop offset="100%" stop-color="#BFA05A"/>
                                     </radialGradient>
                                 </defs>
                                 <g stroke="#0E1620" stroke-width="1.5">
@@ -680,7 +680,7 @@
         </div>
     </section>
 <!-- FAQ -->
-    <section id="faq" class="py-24 bg-[#FAFAFA] scroll-mt-20">
+    <section id="faq" class="py-24 bg-[#F5F6F2] scroll-mt-20">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="max-w-2xl mx-auto mb-12">
                 <h2 class="text-3xl sm:text-4xl font-display text-[#17202B]">Your Questions, Answered</h2>
@@ -690,40 +690,40 @@
                 <div class="bg-white rounded-2xl border border-[#17202B]/5 overflow-hidden">
                     <button onclick="toggleFaq(0)" aria-expanded="false" class="w-full px-6 py-5 flex items-center justify-between text-left">
                         <span class="text-sm font-bold text-[#17202B]">How does route-pooling work?</span>
-                        <span id="faq-icon-0" class="text-[#C23A2E] font-bold text-lg transition-transform duration-300">+</span>
+                        <span id="faq-icon-0" class="text-[#7C6527] font-bold text-lg transition-transform duration-300">+</span>
                     </button>
                     <div id="faq-0" class="faq-content px-6 pb-5">
-                        <p class="text-sm text-[#64748B] leading-relaxed">We aggregate crop dimensions and pickup dates from posted harvests and partner cooperatives. The routing engine sequences these farm locations along a single path, matching them to a high-capacity freight truck.</p>
+                        <p class="text-sm text-[#5A6573] leading-relaxed">We aggregate crop dimensions and pickup dates from posted harvests and partner cooperatives. The routing engine sequences these farm locations along a single path, matching them to a high-capacity freight truck.</p>
                     </div>
                 </div>
 
                 <div class="bg-white rounded-2xl border border-[#17202B]/5 overflow-hidden">
                     <button onclick="toggleFaq(1)" aria-expanded="false" class="w-full px-6 py-5 flex items-center justify-between text-left">
                         <span class="text-sm font-bold text-[#17202B]">Is GPS tracking secure?</span>
-                        <span id="faq-icon-1" class="text-[#C23A2E] font-bold text-lg transition-transform duration-300">+</span>
+                        <span id="faq-icon-1" class="text-[#7C6527] font-bold text-lg transition-transform duration-300">+</span>
                     </button>
                     <div id="faq-1" class="faq-content px-6 pb-5">
-                        <p class="text-sm text-[#64748B] leading-relaxed">Yes. Drivers broadcast location only while their route is active. Broadcasters disconnect automatically upon route completion.</p>
+                        <p class="text-sm text-[#5A6573] leading-relaxed">Yes. Drivers broadcast location only while their route is active. Broadcasters disconnect automatically upon route completion.</p>
                     </div>
                 </div>
 
                 <div class="bg-white rounded-2xl border border-[#17202B]/5 overflow-hidden">
                     <button onclick="toggleFaq(2)" aria-expanded="false" class="w-full px-6 py-5 flex items-center justify-between text-left">
                         <span class="text-sm font-bold text-[#17202B]">Is there a registration fee?</span>
-                        <span id="faq-icon-2" class="text-[#C23A2E] font-bold text-lg transition-transform duration-300">+</span>
+                        <span id="faq-icon-2" class="text-[#7C6527] font-bold text-lg transition-transform duration-300">+</span>
                     </button>
                     <div id="faq-2" class="faq-content px-6 pb-5">
-                        <p class="text-sm text-[#64748B] leading-relaxed">No — registering is free. Accounts are open to farmers, buyers, and freight operators in General Santos City, Polomolok, and nearby areas, subject to admin verification.</p>
+                        <p class="text-sm text-[#5A6573] leading-relaxed">No — registering is free. Accounts are open to farmers, buyers, and freight operators in General Santos City, Polomolok, and nearby areas, subject to admin verification.</p>
                     </div>
                 </div>
 
                 <div class="bg-white rounded-2xl border border-[#17202B]/5 overflow-hidden">
                     <button onclick="toggleFaq(3)" aria-expanded="false" class="w-full px-6 py-5 flex items-center justify-between text-left">
                         <span class="text-sm font-bold text-[#17202B]">How are fuel costs split?</span>
-                        <span id="faq-icon-3" class="text-[#C23A2E] font-bold text-lg transition-transform duration-300">+</span>
+                        <span id="faq-icon-3" class="text-[#7C6527] font-bold text-lg transition-transform duration-300">+</span>
                     </button>
                     <div id="faq-3" class="faq-content px-6 pb-5">
-                        <p class="text-sm text-[#64748B] leading-relaxed">HarvestHaul calculates each farmer's share from the hauling rate (₱/kg) agreed in their negotiation chat, applied to the crop weight registered for that farmer's route.</p>
+                        <p class="text-sm text-[#5A6573] leading-relaxed">HarvestHaul calculates each farmer's share from the hauling rate (₱/kg) agreed in their negotiation chat, applied to the crop weight registered for that farmer's route.</p>
                     </div>
                 </div>
             </div>
@@ -731,7 +731,7 @@
     </section>
 
     <!-- Value Outcomes -->
-    <section class="py-24 bg-[#FAFAFA]">
+    <section class="py-24 bg-[#F5F6F2]">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center max-w-2xl mx-auto mb-14 scroll-reveal">
                 <h2 class="text-3xl sm:text-4xl font-display text-[#17202B]">Outcomes from HarvestHaul</h2>
@@ -742,27 +742,27 @@
                     <div class="w-1.5 h-14 rounded-full bg-[#16283C] flex-shrink-0 mt-0.5"></div>
                     <div>
                         <h3 class="text-lg font-bold text-[#17202B]">Farmers</h3>
-                        <p class="text-sm text-[#64748B] mt-1 leading-relaxed max-w-2xl">
+                        <p class="text-sm text-[#5A6573] mt-1 leading-relaxed max-w-2xl">
                             Track profit per harvest. The Profit & Expense report shows revenue, costs, and net profit per crop. Know what you earned — per crop, per season.
                         </p>
                     </div>
                 </div>
 
                 <div class="bg-white rounded-2xl p-6 sm:p-8 border border-[#17202B]/5 flex items-start gap-5 scroll-reveal">
-                    <div class="w-1.5 h-14 rounded-full bg-[#F26B5E] flex-shrink-0 mt-0.5"></div>
+                    <div class="w-1.5 h-14 rounded-full bg-[#BFA05A] flex-shrink-0 mt-0.5"></div>
                     <div>
                         <h3 class="text-lg font-bold text-[#17202B]">Logistics (Cooperative)</h3>
-                        <p class="text-sm text-[#64748B] mt-1 leading-relaxed max-w-2xl">
+                        <p class="text-sm text-[#5A6573] mt-1 leading-relaxed max-w-2xl">
                             Fleet-wide visibility. The Analytics Hub shows trips completed, fuel efficiency (KPL), and refuel expenditure per truck. The Fleet Capacity page shows how many trucks your active harvests require.
                         </p>
                     </div>
                 </div>
 
                 <div class="bg-white rounded-2xl p-6 sm:p-8 border border-[#17202B]/5 flex items-start gap-5 scroll-reveal">
-                    <div class="w-1.5 h-14 rounded-full bg-[#334155] flex-shrink-0 mt-0.5"></div>
+                    <div class="w-1.5 h-14 rounded-full bg-[#BFA05A] flex-shrink-0 mt-0.5"></div>
                     <div>
                         <h3 class="text-lg font-bold text-[#17202B]">Logistics (Commercial)</h3>
-                        <p class="text-sm text-[#64748B] mt-1 leading-relaxed max-w-2xl">
+                        <p class="text-sm text-[#5A6573] mt-1 leading-relaxed max-w-2xl">
                             Operational reporting. Trip reports break down completed trips, fuel costs, KPL, and revenue per truck.
                         </p>
                     </div>
@@ -772,7 +772,7 @@
                     <div class="w-1.5 h-14 rounded-full bg-[#16283C] flex-shrink-0 mt-0.5"></div>
                     <div>
                         <h3 class="text-lg font-bold text-[#17202B]">Buyers</h3>
-                        <p class="text-sm text-[#64748B] mt-1 leading-relaxed max-w-2xl">
+                        <p class="text-sm text-[#5A6573] mt-1 leading-relaxed max-w-2xl">
                             Buy smarter with real market data. Browse DA RFO12 government price benchmarks alongside farmer listings. Track deals and deliveries with live GPS. Every purchase backed by market intelligence.
                         </p>
                     </div>
@@ -787,7 +787,7 @@
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center scroll-reveal">
                 <div>
                     <h2 class="text-3xl sm:text-4xl font-display text-[#17202B] leading-tight">Get Started with HarvestHaul</h2>
-                    <p class="text-[#64748B] mt-6 text-lg leading-relaxed">
+                    <p class="text-[#5A6573] mt-6 text-lg leading-relaxed">
                         Register your cooperative or freight operator account to start coordinating crop pickups and deliveries through a centralized platform.
                     </p>
 
@@ -800,20 +800,20 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
                                 </svg>
                             </div>
-                            <span class="text-sm text-[#64748B]">General Santos City, Mindanao</span>
+                            <span class="text-sm text-[#5A6573]">General Santos City, Mindanao</span>
                         </div>
                     </div>
 
                     <div class="mt-10 flex flex-wrap gap-4">
                         @guest
-                            <a href="{{ url('/register') }}" class="px-8 py-4 bg-[#F26B5E] text-[#17202B] rounded-xl font-bold hover:bg-[#F26B5E]/90 transition shadow-lg">
+                            <a href="{{ url('/register') }}" class="px-8 py-4 bg-[#BFA05A] text-[#17202B] rounded-xl font-bold hover:bg-[#BFA05A]/90 transition shadow-lg">
                                 Register Your Organization
                             </a>
                             <a href="{{ route('login') }}" class="px-8 py-4 bg-[#0E1620] text-white rounded-xl font-semibold hover:bg-[#0E1620]/90 transition">
                                 Access Portal
                             </a>
                         @else
-                            <a href="{{ url('/dashboard') }}" class="px-8 py-4 bg-[#F26B5E] text-[#17202B] rounded-xl font-bold hover:bg-[#F26B5E]/90 transition shadow-lg">
+                            <a href="{{ url('/dashboard') }}" class="px-8 py-4 bg-[#BFA05A] text-[#17202B] rounded-xl font-bold hover:bg-[#BFA05A]/90 transition shadow-lg">
                                 Open Dashboard
                             </a>
                         @endguest
@@ -821,27 +821,27 @@
                 </div>
 
                 <div class="relative">
-                    <div class="bg-[#FAFAFA] rounded-3xl p-8 border border-[#17202B]/5">
+                    <div class="bg-[#F5F6F2] rounded-3xl p-8 border border-[#17202B]/5">
                         <div class="space-y-6">
                             <div class="flex items-start gap-4">
-                                <span class="font-mono text-sm font-bold text-[#C23A2E] mt-0.5">01</span>
+                                <span class="font-mono text-sm font-bold text-[#7C6527] mt-0.5">01</span>
                                 <div>
                                     <p class="text-sm font-bold text-[#17202B]">Register your organization</p>
-                                    <p class="text-xs text-[#64748B] mt-0.5 leading-relaxed">Create a farmer, buyer, or freight operator account with your details.</p>
+                                    <p class="text-xs text-[#5A6573] mt-0.5 leading-relaxed">Create a farmer, buyer, or freight operator account with your details.</p>
                                 </div>
                             </div>
                             <div class="flex items-start gap-4">
-                                <span class="font-mono text-sm font-bold text-[#C23A2E] mt-0.5">02</span>
+                                <span class="font-mono text-sm font-bold text-[#7C6527] mt-0.5">02</span>
                                 <div>
                                     <p class="text-sm font-bold text-[#17202B]">Get verified</p>
-                                    <p class="text-xs text-[#64748B] mt-0.5 leading-relaxed">An administrator reviews and verifies your account before you can post, bid, or haul.</p>
+                                    <p class="text-xs text-[#5A6573] mt-0.5 leading-relaxed">An administrator reviews and verifies your account before you can post, bid, or haul.</p>
                                 </div>
                             </div>
                             <div class="flex items-start gap-4">
-                                <span class="font-mono text-sm font-bold text-[#C23A2E] mt-0.5">03</span>
+                                <span class="font-mono text-sm font-bold text-[#7C6527] mt-0.5">03</span>
                                 <div>
                                     <p class="text-sm font-bold text-[#17202B]">Start coordinating</p>
-                                    <p class="text-xs text-[#64748B] mt-0.5 leading-relaxed">Post harvests, build pooled routes, negotiate deals, and track deliveries end to end.</p>
+                                    <p class="text-xs text-[#5A6573] mt-0.5 leading-relaxed">Post harvests, build pooled routes, negotiate deals, and track deliveries end to end.</p>
                                 </div>
                             </div>
                         </div>

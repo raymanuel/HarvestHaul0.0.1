@@ -112,7 +112,7 @@
             {{-- ── BUSINESS DETAILS ── --}}
             <div class="bg-white dark:bg-slate-800/80 backdrop-blur border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6 sm:p-8 shadow-sm">
                 <div class="flex items-center gap-3 mb-6">
-                    <div class="w-10 h-10 rounded-2xl bg-[#0E1620]/10 border border-[#0E1620]/15 flex items-center justify-center text-[#0E1620] dark:text-[#bfd6c9] shrink-0">
+                    <div class="w-10 h-10 rounded-2xl bg-[#0E1620]/10 border border-[#0E1620]/15 flex items-center justify-center text-[#0E1620] dark:text-[#E9EEF4] shrink-0">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                         </svg>
@@ -145,7 +145,7 @@
                                 Cooperative
                             </span>
                         @else
-                            <span class="inline-flex items-center gap-1 px-3 py-1 bg-[#0E1620]/10 border border-[#0E1620]/20 text-[#0E1620] dark:text-[#bfd6c9] rounded-lg text-xs font-bold">
+                            <span class="inline-flex items-center gap-1 px-3 py-1 bg-[#0E1620]/10 border border-[#0E1620]/20 text-[#0E1620] dark:text-[#E9EEF4] rounded-lg text-xs font-bold">
                                  Private Company
                             </span>
                         @endif
@@ -157,7 +157,7 @@
             @if($profile?->logistics_type === 'cooperative')
                 <div class="bg-white dark:bg-slate-800/80 backdrop-blur border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6 sm:p-8 shadow-sm">
                     <div class="flex items-center gap-3 mb-6">
-                        <div class="w-10 h-10 rounded-2xl bg-harvest/10 border border-harvest/15 flex items-center justify-center text-harvest dark:text-harvest shrink-0">
+                        <div class="w-10 h-10 rounded-2xl bg-harvest/10 border border-harvest/15 flex items-center justify-center text-harvest-dark dark:text-harvest-light shrink-0">
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />

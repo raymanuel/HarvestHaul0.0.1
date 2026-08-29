@@ -132,7 +132,7 @@
                                     <div>
                                         <div class="flex items-center gap-2">
                                             <span class="font-bold text-slate-800 dark:text-slate-200 text-xs">{{ $partner->name }}</span>
-                                            <span class="text-[9px] font-extrabold uppercase tracking-widest text-harvest dark:text-harvest bg-harvest/10 px-2 py-0.5 rounded border border-harvest/10">Logistics</span>
+                                            <span class="text-[9px] font-extrabold uppercase tracking-widest text-harvest-dark dark:text-harvest-light bg-harvest/10 px-2 py-0.5 rounded border border-harvest/10">Logistics</span>
                                         </div>
                                         <p class="text-[10px] text-slate-455 dark:text-slate-455 mt-1 font-semibold">
                                             Company: {{ $partner->logisticsProfile->company_name ?? 'Not set' }}
@@ -211,7 +211,7 @@
                                     <div>
                                         <div class="flex items-center gap-2">
                                             <span class="font-bold text-slate-800 dark:text-slate-200 text-xs">{{ $doc->document_type }}</span>
-                                            <span class="text-[9px] font-extrabold uppercase tracking-widest text-harvest dark:text-harvest bg-harvest/10 px-2 py-0.5 rounded border border-harvest/10">Logistics</span>
+                                            <span class="text-[9px] font-extrabold uppercase tracking-widest text-harvest-dark dark:text-harvest-light bg-harvest/10 px-2 py-0.5 rounded border border-harvest/10">Logistics</span>
                                         </div>
                                         <p class="text-[10px] text-slate-455 mt-1 font-semibold">
                                             User: {{ $doc->user->name ?? 'Unknown' }}

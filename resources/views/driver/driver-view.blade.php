@@ -50,12 +50,12 @@
 
             <div class="glass-card rounded-3xl p-5 flex items-center gap-3.5 relative overflow-hidden group hover:border-[#0E1620]/20 transition-all duration-300 shadow-sm">
                 <div class="absolute -right-3 -bottom-3 w-16 h-16 bg-[#0E1620]/5 rounded-full group-hover:scale-150 transition-all duration-500" aria-hidden="true"></div>
-                <div class="w-10 h-10 rounded-xl bg-[#0E1620]/10 border border-[#0E1620]/20 flex items-center justify-center text-[#0E1620] dark:text-[#bfd6c9] shrink-0">
+                <div class="w-10 h-10 rounded-xl bg-[#0E1620]/10 border border-[#0E1620]/20 flex items-center justify-center text-[#0E1620] dark:text-[#E9EEF4] shrink-0">
                     <x-icon name="check" class="w-5 h-5" />
                 </div>
                 <div>
                     <p class="text-[9px] text-slate-500 font-bold uppercase tracking-wider leading-none">Completed</p>
-                    <p class="text-2xl font-black text-[#0E1620] dark:text-[#bfd6c9] heading-font mt-1.5 leading-none">{{ $completedJobs }}</p>
+                    <p class="text-2xl font-black text-[#0E1620] dark:text-[#E9EEF4] heading-font mt-1.5 leading-none">{{ $completedJobs }}</p>
                 </div>
             </div>
         </div>
@@ -73,7 +73,7 @@
                     @php
                         $badge = match($job->status->value) {
                             'confirmed'   => ['bg-[var(--color-warning-bg)] text-[var(--color-warning-text)] border-[var(--color-warning-border)]', 'Ready'],
-                            'in_progress' => ['bg-[#0E1620]/10 text-[#0E1620] dark:text-[#bfd6c9] border-[#0E1620]/20', 'In Transit'],
+                            'in_progress' => ['bg-[#0E1620]/10 text-[#0E1620] dark:text-[#E9EEF4] border-[#0E1620]/20', 'In Transit'],
                             default       => ['bg-slate-500/10 text-slate-500 dark:text-slate-400 border-slate-500/20', $job->status->label()],
                         };
                     @endphp
@@ -94,7 +94,7 @@
                     </div>
 
                     <div class="px-5 py-4 flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-lg bg-harvest/10 border border-harvest/20 flex items-center justify-center text-harvest dark:text-harvest shrink-0">
+                        <div class="w-8 h-8 rounded-lg bg-harvest/10 border border-harvest/20 flex items-center justify-center text-harvest-dark dark:text-harvest-light shrink-0">
                             <x-icon name="gauge" class="w-4 h-4" />
                         </div>
                         <div>

@@ -9,7 +9,7 @@
         .wrapper { max-width: 600px; margin: 40px auto; background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
         .header { background: #16283C; padding: 32px 24px; text-align: center; }
         .header h1 { margin: 0; color: #fff; font-size: 24px; font-weight: 800; }
-        .header p { color: #ede9fe; margin: 4px 0 0; font-size: 14px; }
+        .header p { color: #94A3B4; margin: 4px 0 0; font-size: 14px; }
         .body { padding: 32px 24px; }
         .body p { color: #374151; font-size: 15px; line-height: 1.6; margin: 0 0 12px; }
         .details { background: #f9fafb; border-radius: 12px; padding: 20px; margin: 20px 0; }

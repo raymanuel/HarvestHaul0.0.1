@@ -23,7 +23,7 @@
 
         body {
             font-family: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
-            background: #FAFAFA;
+            background: #F5F6F2;
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -54,13 +54,13 @@
             font-size: 1.4rem;
             font-weight: 800;
             font-family: 'Schibsted Grotesk', 'DM Sans', sans-serif;
-            color: #111827;
+            color: #17202B;
             margin-bottom: 0.5rem;
         }
 
         .sub {
             font-size: 0.875rem;
-            color: #6b7280;
+            color: #5A6573;
             line-height: 1.6;
             margin-bottom: 2rem;
         }
@@ -90,13 +90,13 @@
 
         .countdown-msg {
             font-size: 0.78rem;
-            color: #9ca3af;
+            color: #5A6573;
             margin-bottom: 1.5rem;
         }
 
         .countdown-msg span {
             font-weight: 700;
-            color: #374151;
+            color: #17202B;
         }
 
         .fallback-btn {

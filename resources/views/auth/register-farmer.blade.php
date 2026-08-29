@@ -116,7 +116,7 @@
             <input type="hidden" id="longitude" name="longitude" value="{{ old('longitude') }}">
 
             {{-- GPS button --}}
-            <button type="button" id="use-my-location" class="w-full flex items-center justify-center gap-2 py-2.5 bg-[#f5f3ff] hover:bg-[#f5f3ff]/80 text-[#16283C] border border-[#16283C]/20 rounded-xl text-xs font-bold transition shadow-sm">
+            <button type="button" id="use-my-location" class="w-full flex items-center justify-center gap-2 py-2.5 bg-[#EEF0EB] hover:bg-[#EEF0EB]/80 text-[#16283C] border border-[#16283C]/20 rounded-xl text-xs font-bold transition shadow-sm">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                     <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -126,7 +126,7 @@
 
             {{-- Map container --}}
             <div id="farm-map-wrapper" class="w-full h-[200px] rounded-xl border border-[#16283C]/15 shadow-sm overflow-hidden z-0" style="position:relative;">
-                <div id="map-skeleton" style="position:absolute;inset:0;z-index:400;background:linear-gradient(135deg,#f5f3ff,#ede9fe);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;transition:opacity 0.3s;">
+                <div id="map-skeleton" style="position:absolute;inset:0;z-index:400;background:linear-gradient(135deg,#F5F6F2,#E7EAE4);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;transition:opacity 0.3s;">
                     <div style="width:28px;height:28px;border:3px solid #e5e7eb;border-top-color:#16283C;border-radius:50%;animation:spin 0.8s linear infinite;"></div>
                     <p style="font-size:11px;color:#9ca3af;font-weight:500;margin:0;">Loading map...</p>
                 </div>
@@ -155,7 +155,7 @@
                 </label>
 
                 <!-- Cooperative Card -->
-                <label id="label-cooperative" class="flex flex-col items-center justify-center p-4 border-2 border-slate-200/80 rounded-2xl cursor-pointer transition-all duration-200 text-center gap-1 hover:border-[#16283C]/30 hover:bg-[#f5f3ff]/10">
+                <label id="label-cooperative" class="flex flex-col items-center justify-center p-4 border-2 border-slate-200/80 rounded-2xl cursor-pointer transition-all duration-200 text-center gap-1 hover:border-[#16283C]/30 hover:bg-[#EEF0EB]/10">
                     <input type="radio" name="affiliation_type" value="cooperative"
                         {{ old('affiliation_type') === 'cooperative' ? 'checked' : '' }}
                         class="hidden" onchange="handleAffiliation()">
@@ -202,7 +202,7 @@
 
         {{-- TERMS & CONDITIONS --}}
         <div class="form-group pt-1">
-            <label class="flex items-start gap-3 cursor-pointer p-3 rounded-xl bg-[#f5f3ff]/40 border border-[#16283C]/10">
+            <label class="flex items-start gap-3 cursor-pointer p-3 rounded-xl bg-[#EEF0EB]/40 border border-[#16283C]/10">
                 <input type="checkbox" name="accepted_terms" value="1" {{ old('accepted_terms') ? 'checked' : '' }}
                     class="mt-0.5 w-4 h-4 rounded border-slate-300 text-[#16283C] focus:ring-[#16283C] cursor-pointer shrink-0">
                 <span class="text-xs text-slate-500 leading-relaxed">
@@ -453,9 +453,9 @@
             }
 
             if (cooperative.checked) {
-                labelCoop.className = "flex flex-col items-center justify-center p-4 border-2 border-[#16283C] bg-[#f5f3ff]/30 rounded-2xl cursor-pointer transition-all duration-200 text-center gap-1 scale-[1.02] shadow-sm";
+                labelCoop.className = "flex flex-col items-center justify-center p-4 border-2 border-[#16283C] bg-[#EEF0EB]/30 rounded-2xl cursor-pointer transition-all duration-200 text-center gap-1 scale-[1.02] shadow-sm";
             } else {
-                labelCoop.className = "flex flex-col items-center justify-center p-4 border-2 border-slate-200/80 rounded-2xl cursor-pointer transition-all duration-200 text-center gap-1 hover:border-[#16283C]/30 hover:bg-[#f5f3ff]/10";
+                labelCoop.className = "flex flex-col items-center justify-center p-4 border-2 border-slate-200/80 rounded-2xl cursor-pointer transition-all duration-200 text-center gap-1 hover:border-[#16283C]/30 hover:bg-[#EEF0EB]/10";
             }
 
             coopField.style.display = cooperative.checked ? 'block' : 'none';
