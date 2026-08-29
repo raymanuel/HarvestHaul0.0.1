@@ -34,3 +34,8 @@ skills-lock.json
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+/.superpowers
+/docs/superpowers/
+/docs/activity-log.md
+/PENTEST-REVIEW.md
+/scheduler.bat
