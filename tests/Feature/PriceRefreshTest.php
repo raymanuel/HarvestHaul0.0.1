@@ -49,7 +49,7 @@ class PriceRefreshTest extends TestCase
     }
 
     /**
-     * Replace the real OCR scraper with a recording stub so tests never hit the network.
+     * Replace the real scraper command with a recording stub so tests never hit the network.
      * Invocations land in self::$scraperCalls as ['force' => bool].
      */
     private function fakeScraper(): void

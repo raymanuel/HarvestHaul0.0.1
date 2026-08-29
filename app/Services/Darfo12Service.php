@@ -48,7 +48,7 @@ class Darfo12Service
                                      'asukal', 'honey'],
     ];
 
-    // Known commodity name aliases — maps OCR-mangled text to display names
+    // Known commodity name aliases — maps source-name variants to display names
     // IMPORTANT: Longer/more specific aliases MUST come before shorter ones
     //            because partial matching checks in order
     private const COMMODITY_ALIASES = [
@@ -71,7 +71,7 @@ class Darfo12Service
         'other special ice'          => 'Other Special Rice',
         'premium'                    => 'Premium Rice',
 
-        // Corn — specific sub-types first (OCR mangles: com, cor, corn)
+        // Corn — specific sub-types first (source variants: com, cor, corn)
         'corn cracked (yellow feed grade)'  => 'Corn Cracked (Yellow, Feed Grade)',
         'corn cracked (yellow, feed grade)' => 'Corn Cracked (Yellow, Feed Grade)',
         'com cracked (yeon, feed grade)'    => 'Corn Cracked (Yellow, Feed Grade)',
@@ -209,7 +209,7 @@ class Darfo12Service
         'pomelo'                     => 'Pomelo',
     ];
 
-    // Non-crop commodities to skip entirely — includes OCR-mangled variants
+    // Non-crop commodities to skip entirely — includes mangled variants
     private const NON_CROP_KEYWORDS = [
         'pork', 'baboy', 'perk', 'pek ', 'ork ', 'portier', 'chicken', 'manok', 'chckon', 'core!',
         'beef', 'baka', 'boot ', 'bootr', 'bee ', 'be tong', 'be rib', 'oof ', 'short fib', 'meat', 'karne',
@@ -526,7 +526,7 @@ class Darfo12Service
 
     private function normalizeCommodityName(string $name): string
     {
-        // Strip leading/trailing quotes, apostrophes, and stray OCR characters
+        // Strip leading/trailing quotes, apostrophes, and stray characters
         $name = preg_replace('/^[\x{2018}\x{2019}\x{201C}\x{201D}\'"`\s]+/u', '', $name);
         $name = preg_replace('/[\x{2018}\x{2019}\x{201C}\x{201D}\'"`\s]+$/u', '', $name);
         $name = trim($name);

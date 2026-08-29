@@ -52,8 +52,8 @@ Schedule::command('negotiations:auto-close-stale')->daily();
 // Clean up stale tracking records, old notifications, and weather logs (daily)
 Schedule::command('data:cleanup')->daily();
 
-// Scrape DA RFO12 prices from the Bantay Presyo Google Doc (hourly lightweight check;
-// heavy PDF→OCR work only runs when the source date advances)
+// Scrape DA RFO12 prices from the Bantay Presyo endpoint (hourly lightweight check;
+// the heavy re-fetch only runs when the source date advances)
 Schedule::command('crops:scrape:darfo12')->hourly()->withoutOverlapping()
     ->onFailure(function () {
         // Instant signal; prices:check-stale remains the twice-daily deep check.

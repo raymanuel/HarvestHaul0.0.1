@@ -156,7 +156,7 @@ class DashboardController extends Controller
 
     public function refreshPrices()
     {
-        // Guard against concurrent refreshes double-running the OCR pipeline.
+        // Guard against concurrent refreshes double-running the scrape pipeline.
         $lock = Cache::lock('darfo12.scrape', 600);
 
         if (! $lock->get()) {
