@@ -63,7 +63,7 @@
                                          {{ $job->truck->plate_number ?? '—' }}  Driver: {{ $job->driver->name ?? '—' }}
                                     </p>
                                 </div>
-                                <span class="text-[9px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded {{ $job->status->value === 'in_progress' ? 'bg-[#0E1620]/10 dark:bg-[#0E1620]/10 text-[#0E1620] dark:text-[#bfd6c9] border border-[#0E1620]/20' : 'bg-[var(--color-warning-bg)] text-[var(--color-warning-text)] border border-[var(--color-warning-border)]' }}">
+                                <span class="text-[9px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded {{ $job->status->value === 'in_progress' ? 'bg-[#0E1620]/10 dark:bg-[#0E1620]/10 text-[#0E1620] dark:text-[#E9EEF4] border border-[#0E1620]/20' : 'bg-[var(--color-warning-bg)] text-[var(--color-warning-text)] border border-[var(--color-warning-border)]' }}">
                                     {{ $job->status->value === 'in_progress' ? 'In Transit' : 'Awaiting confirmation' }}
                                 </span>
                             </div>
@@ -167,7 +167,7 @@
 
             selectedJobId = job.id;
             const statusLabel = job.status === 'in_progress' ? 'In Transit' : 'Awaiting Confirmation';
-            document.getElementById('map-status').innerHTML = `Tracking Route #${job.id}  Driver: ${job.driver}  <span class="font-bold ${job.status === 'in_progress' ? 'text-[#16283C]' : 'text-[var(--color-warning-text)]'}">${statusLabel}</span>`;
+            document.getElementById('map-status').innerHTML = `Tracking Route #${job.id}  Driver: ${job.driver}  <span class="font-bold ${job.status === 'in_progress' ? 'text-[#16283C]' : 'text-[var(--color-warning-text)]'}">${statusLabel}</span><span class="text-slate-400 font-medium">&nbsp;·&nbsp;Live updates every 10 seconds</span>`;
 
             // Clean map
             activeMarkers.forEach(m => map.removeLayer(m));
@@ -223,7 +223,7 @@
             // Draw sequence path
             if (pathCoords.length > 1) {
                 activePolyline = L.polyline(pathCoords, {
-                    color: '#64748B',
+                    color: '#5A6573',
                     weight: 3,
                     dashArray: '5, 8',
                     opacity: 0.6
@@ -238,60 +238,6 @@
             // Load latest location immediately and poll
             pollLatestGPS(job.id);
             pollingInterval = setInterval(() => pollLatestGPS(job.id), 10000);
-
-            // Connect to WebSocket real-time channel
-            connectWebSocket();
-        }
-
-        let socket = null;
-        let socketRequested = false;
-        function connectWebSocket() {
-            if (socketRequested) return;
-            socketRequested = true;
-
-            fetch('/api/ws-ticket', {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                }
-            })
-                .then(res => res.json())
-                .then(data => {
-                    if (!data || !data.token) return;
-                    const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-                    const wsHost = wsProtocol + '//' + window.location.hostname + ':8080?ticket=' + encodeURIComponent(data.token);
-
-                    try {
-                        socket = new WebSocket(wsHost);
-
-                        socket.onopen = function () {
-                            const statusEl = document.getElementById('map-status');
-                            if (statusEl) {
-                                statusEl.innerHTML = `<span class="text-[#16283C] dark:text-[#D7BC7A] font-bold">● Live Connection Active</span>  Tracking Route #${selectedJobId}`;
-                            }
-                        };
-
-                        socket.onmessage = function (event) {
-                            try {
-                                const payload = JSON.parse(event.data);
-                                if (payload && payload.pooling_job_id === selectedJobId) {
-                                    updateTruckMarker(payload.latitude, payload.longitude);
-                                }
-                            } catch (e) {}
-                        };
-
-                        socket.onerror = function () {};
-
-                        socket.onclose = function () {
-                            socketRequested = false;
-                        };
-                    } catch (e) {
-                        socketRequested = false;
-                    }
-                })
-                .catch(() => { socketRequested = false; });
         }
 
         function updateTruckMarker(lat, lng) {

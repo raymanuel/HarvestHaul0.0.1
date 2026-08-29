@@ -137,9 +137,6 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
     // Market Price API
     Route::get('api/market-price/{cropName}', [MarketPriceController::class, 'getMarketPrice'])->name('api.market-price');
 
-    // WebSocket telemetry ticket (short-lived, signed; validated by the WS server on connect)
-    Route::post('api/ws-ticket', [TrackingController::class, 'wsTicket'])->middleware('throttle:30,1')->name('ws.ticket');
-
     // Private file serving (IDs, receipts, load photos — stored on the private disk)
     Route::get('files/{type}/{id}', [FileController::class, 'show'])
         ->whereIn('type', ['farmer-document', 'logistics-document', 'driver-id', 'driver-selfie', 'payment-receipt', 'load-photo', 'delivery-receipt'])

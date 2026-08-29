@@ -7,7 +7,6 @@ use App\Models\PoolingJobStatus;
 use App\Models\TrackingRecord;
 use App\Services\ETAService;
 use App\Traits\GeometryHelper;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -63,49 +62,6 @@ class TrackingController extends Controller
         }
 
         return view('tracking.index', compact('activeJobs', 'selectedJobId'));
-    }
-
-    /**
-     * Issue a short-lived signed WebSocket ticket for the authenticated user.
-     * The ticket encodes the pool of pooling job IDs this user is authorized to
-     * watch, so the WebSocket server can filter broadcasts per client. The
-     * signing key (WS_TICKET_SECRET) is never shipped to the browser.
-     */
-    public function wsTicket(Request $request): JsonResponse
-    {
-        $user = $request->user();
-
-        $activeStatuses = [
-            PoolingJobStatus::CONFIRMED->value,
-            PoolingJobStatus::IN_PROGRESS->value,
-            PoolingJobStatus::AWAITING_CONFIRMATION->value,
-        ];
-
-        $query = PoolingJob::whereIn('status', $activeStatuses);
-
-        if ($user->role === 'farmer') {
-            $query->whereHas('harvests', fn ($q) => $q->where('user_id', $user->id));
-        } elseif ($user->role === 'logistics_partner') {
-            $query->where('logistics_profile_id', $user->logisticsProfile?->id);
-        } elseif ($user->role === 'buyer') {
-            $query->where('buyer_id', $user->id);
-        } elseif ($user->role === 'driver') {
-            $query->where('driver_id', $user->id);
-        }
-
-        $jobIds = $query->pluck('id')->sort()->values()->all();
-
-        $payload = [
-            'u'   => $user->id,
-            'j'   => $jobIds,
-            'exp' => now()->addMinutes(5)->timestamp,
-        ];
-
-        $encoded = strtr(base64_encode(json_encode($payload)), '+/', '-_');
-        $encoded = rtrim($encoded, '=');
-        $signature = hash_hmac('sha256', $encoded, (string) config('app.ws_ticket_secret'));
-
-        return response()->json(['token' => $encoded . '.' . $signature]);
     }
 
     /**
@@ -193,9 +149,6 @@ class TrackingController extends Controller
             'accuracy_meters' => $accuracy,
             'posted_at'       => now(),
         ]);
-
-        // Real-time broadcast is handled by WebSocketServer (polls tracking_records from DB every 2s).
-        // No per-request socket connect needed.
 
         // Return minimal payload for mobile bandwidth efficiency
         return response()->json(['status' => 'success'], 201);
