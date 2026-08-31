@@ -169,7 +169,7 @@
                                                             <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
                                                         </svg>
                                                         <span>{{ $entry['payment_status'] === 'submitted' ? 'Re-upload Hauling Receipt' : 'Upload Hauling Receipt' }}</span>
-                                                        <input type="file" name="payment_receipt" class="hidden" onchange="this.form.submit()" accept="image/*">
+                                                        <input type="file" name="payment_receipt" class="hidden" onchange="handleReceipt(this)" accept="image/*">
                                                     </label>
                                                 </form>
                                             @else
@@ -267,4 +267,20 @@
         @endif
 
     </div>
+
+    @push('scripts')
+    <script>
+      async function handleReceipt(input) {
+        if (!input.files.length) return;
+        if (typeof window.compressImage === 'function') {
+          const out = [];
+          for (const f of Array.from(input.files)) out.push(await window.compressImage(f));
+          const dt = new DataTransfer();
+          out.forEach((f) => dt.items.add(f));
+          input.files = dt.files;
+        }
+        input.form.submit();
+      }
+    </script>
+    @endpush
 </x-layout>
