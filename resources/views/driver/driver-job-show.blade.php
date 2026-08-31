@@ -524,4 +524,23 @@
     </script>
     @endpush
 
+    @push('scripts')
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        ['load_photo', 'delivery_receipt'].forEach(function (id) {
+          const el = document.getElementById(id);
+          if (!el || typeof window.compressImage !== 'function') return;
+          el.addEventListener('change', async function () {
+            if (!el.files.length) return;
+            const out = [];
+            for (const f of Array.from(el.files)) out.push(await window.compressImage(f));
+            const dt = new DataTransfer();
+            out.forEach((f) => dt.items.add(f));
+            el.files = dt.files;
+          });
+        });
+      });
+    </script>
+    @endpush
+
 </x-driver-layout>
