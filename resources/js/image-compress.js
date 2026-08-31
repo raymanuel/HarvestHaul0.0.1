@@ -14,14 +14,20 @@ window.compressImage = async function (file, { maxDim = 1280, quality = 0.7 } = 
   canvas.height = Math.max(1, Math.round(img.height * scale));
   canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
 
-  const type = file.type === 'image/png' ? 'image/png' : 'image/jpeg';
-  const blob = await new Promise((resolve) => canvas.toBlob(resolve, type, quality));
+  try {
+    const type = file.type === 'image/png' ? 'image/png' : 'image/jpeg';
+    const blob = await new Promise((resolve, reject) =>
+      canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('image encoding failed'))), type, quality)
+    );
 
-  const name = type === 'image/jpeg'
-    ? file.name.replace(/\.[^.]+$/i, '.jpg')
-    : file.name;
-  return new File([blob], name, {
-    type,
-    lastModified: Date.now(),
-  });
+    const name = type === 'image/jpeg'
+      ? file.name.replace(/\.[^.]+$/i, '.jpg')
+      : file.name;
+    return new File([blob], name, {
+      type,
+      lastModified: Date.now(),
+    });
+  } catch (e) {
+    return file;
+  }
 };
