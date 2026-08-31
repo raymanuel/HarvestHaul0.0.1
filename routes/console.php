@@ -32,7 +32,7 @@ Schedule::command('invoices:generate')->hourly();
 // Mark sent invoices past their due date as overdue
 Schedule::command('invoices:mark-overdue')->hourly();
 
-// Check weather conditions for active jobs every 30 minutes
+// Check weather conditions for active jobs hourly
 Schedule::command('weather:check')->hourly();
 
 // Check weather at driver's current GPS position for in-progress jobs every 30 minutes
