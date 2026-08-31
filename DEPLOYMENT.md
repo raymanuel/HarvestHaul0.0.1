@@ -111,6 +111,28 @@ account. Follow these in order after (or in place of) the notes above.
    - Inter-role notifications are delivered synchronously (in-request).
    - File uploads (identity, warehouse, invoice) work.
 
+### Shared-hosting resource optimizations
+
+These adjustments reduce load on a 1-core shared plan. No action
+needed — shipped as code — but operators should know the trade-offs.
+
+- **Weather cron tuned for shared hosting.** `routes/console.php` schedules
+  `weather:check` hourly and `weather:check-active` every 30 minutes (previously
+  30 min / 10 min). Cuts OpenWeatherMap API calls and CPU time. Trade-off:
+  slightly less frequent weather and ETD alerts.
+- **Client-side image compression.** Crop photos, driver load/delivery photos,
+  and payment receipts are recompressed in the browser to max 1280 px longest
+  edge at JPEG quality 0.7 before upload (`resources/js/image-compress.js`,
+  wired into `harvests/create.blade.php`, `driver/driver-job-show.blade.php`,
+  `logistics/cost-ledger.blade.php`). Reduces storage and server CPU. PDFs
+  untouched. Server-side GD EXIF strip in `HarvestController` remains as
+  fallback for clients without JS.
+- **`.env.production.example` is the shared-hosting template.** Uses
+  `CACHE_STORE=database`, `SESSION_DRIVER=database`, `QUEUE_CONNECTION=sync`
+  (no worker), `BROADCAST_CONNECTION=log` (no WebSockets),
+  `SESSION_SECURE_COOKIE=true`, and SMTP via `smtp.gmail.com:587`. No
+  Redis/Memcached. AWS/Postmark/Resend/Slack config intentionally unset.
+
 ## 8. Future / when we make it "real"
 
 - **Subdomain → primary domain migration:** buy a domain if desired, change
