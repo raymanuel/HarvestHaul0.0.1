@@ -33,10 +33,10 @@ Schedule::command('invoices:generate')->hourly();
 Schedule::command('invoices:mark-overdue')->hourly();
 
 // Check weather conditions for active jobs every 30 minutes
-Schedule::command('weather:check')->everyThirtyMinutes();
+Schedule::command('weather:check')->hourly();
 
-// Check weather at driver's current GPS position for in-progress jobs every 10 minutes
-Schedule::command('weather:check-active')->everyTenMinutes();
+// Check weather at driver's current GPS position for in-progress jobs every 30 minutes
+Schedule::command('weather:check-active')->everyThirtyMinutes();
 
 // Auto-reject expired pooling proposals (48h no response)
 Schedule::command('proposals:auto-reject-expired')->hourly();
