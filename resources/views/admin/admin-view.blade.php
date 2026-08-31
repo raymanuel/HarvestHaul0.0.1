@@ -15,7 +15,7 @@
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
             <x-stat-card
-                accent="amber-500"
+                accent="brand"
                 title="Pending Verifications"
                 :value="$totalPendingVerifications"
                 :subBadges="['Farmers' => $pendingFarmers, 'Logistics' => $pendingLogistics, 'Buyers' => $pendingBuyers]"
@@ -30,7 +30,7 @@
             </x-stat-card>
 
             <x-stat-card
-                accent="amber-500"
+                accent="brand"
                 title="Pending Documents"
                 :value="$totalPendingDocs"
                 href="{{ route('admin.users') }}"
@@ -44,7 +44,7 @@
             </x-stat-card>
 
             <x-stat-card
-                accent="navy"
+                accent="brand"
                 title="Total Users"
                 :value="$totalUsers"
                 :subBadges="['Farmers' => $totalFarmers, 'Logistics' => $totalLogistics, 'Drivers' => $totalDrivers, 'Buyers' => $totalBuyers]"
@@ -72,7 +72,7 @@
                                             <span class="font-bold text-slate-800 dark:text-slate-200 text-xs">{{ $farmer->name }}</span>
                                             <span class="text-[9px] font-extrabold uppercase tracking-widest text-brand dark:text-brand bg-brand/10 px-2 py-0.5 rounded border border-brand/10">Farmer</span>
                                         </div>
-                                        <p class="text-[10px] text-slate-455 dark:text-slate-450 mt-1">
+                                        <p class="text-[10px] text-slate-455 dark:text-slate-500 mt-1">
                                             Location: {{ $farmer->farmerProfile->farm_location ?? 'Not set' }}
                                         </p>
                                         <p class="text-[9px] text-slate-500 dark:text-slate-400 font-mono mt-0.5">
@@ -103,7 +103,7 @@
                                             <span class="font-bold text-slate-800 dark:text-slate-200 text-xs">{{ $buyer->name }}</span>
                                             <span class="text-[9px] font-extrabold uppercase tracking-widest text-brand-dark dark:text-brand bg-brand-50 px-2 py-0.5 rounded border border-brand-200">Buyer</span>
                                         </div>
-                                        <p class="text-[10px] text-slate-455 dark:text-slate-450 mt-1">
+                                        <p class="text-[10px] text-slate-455 dark:text-slate-500 mt-1">
                                             Email: {{ $buyer->email }}
                                         </p>
                                         <p class="text-[9px] text-slate-500 dark:text-slate-400 font-mono mt-0.5">
@@ -256,7 +256,7 @@
         <div class="bg-white dark:bg-slate-800/80 backdrop-blur border border-slate-200/60 dark:border-slate-700/60 rounded-3xl shadow-sm overflow-hidden mb-10">
             @if($recentLogs->isEmpty())
                 <div class="p-12 text-center">
-                    <svg class="w-10 h-10 text-slate-200 dark:text-slate-650 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                    <svg class="w-10 h-10 text-slate-200 dark:text-slate-700 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                     <p class="text-slate-400 text-sm font-semibold">No activity recorded yet</p>
                 </div>
             @else
@@ -275,7 +275,7 @@
                             @foreach($recentLogs as $log)
                             <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-900/40 transition">
                                 <td class="px-4 py-3 whitespace-nowrap">
-                                    <span class="bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-350 text-[9px] font-extrabold px-2.5 py-1 rounded-lg uppercase tracking-wider">
+                                    <span class="bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-400 text-[9px] font-extrabold px-2.5 py-1 rounded-lg uppercase tracking-wider">
                                         {{ ucwords(str_replace('_', ' ', $log->action)) }}
                                     </span>
                                 </td>
@@ -291,7 +291,7 @@
                                         <span class="font-bold text-slate-800 dark:text-slate-200 text-xs">{{ $log->admin->name ?? '—' }}</span>
                                     </div>
                                 </td>
-                                <td class="px-4 py-3 text-slate-500 dark:text-slate-550 text-xs font-bold whitespace-nowrap">{{ $log->created_at->format('M d, Y h:i A') }}</td>
+                                <td class="px-4 py-3 text-slate-500 dark:text-slate-600 text-xs font-bold whitespace-nowrap">{{ $log->created_at->format('M d, Y h:i A') }}</td>
                             </tr>
                             @endforeach
                         </tbody>

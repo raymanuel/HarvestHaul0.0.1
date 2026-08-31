@@ -8,7 +8,7 @@
             </svg>
         </div>
         <h2 class="text-xl font-extrabold text-slate-800 heading-font tracking-tight">Logistics Partner</h2>
-        <p class="text-xs text-slate-505 mt-1.5 font-semibold">Join the network, dispatch trucks, and secure cargo contracts</p>
+        <p class="text-xs text-slate-500 mt-1.5 font-semibold">Join the network, dispatch trucks, and secure cargo contracts</p>
     </div>
 
     @if ($errors->any())
@@ -73,7 +73,7 @@
 
         {{-- Logistics Type Selector --}}
         <div class="form-group space-y-2">
-            <label class="text-xs font-bold text-slate-650 block">
+            <label class="text-xs font-bold text-slate-700 block">
                 What type of organization are you? <span class="text-[var(--color-error-text)]">*</span>
             </label>
             @error('logistics_type')

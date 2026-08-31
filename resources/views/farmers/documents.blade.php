@@ -37,7 +37,7 @@
 
                 {{-- Document Type --}}
                 <div class="form-group space-y-1.5">
-                    <label class="text-[10px] font-bold text-slate-450 dark:text-slate-500 uppercase tracking-wider block">
+                    <label class="text-[10px] font-bold text-slate-500 dark:text-slate-500 uppercase tracking-wider block">
                         Document Type <span class="text-[var(--color-error-text)]">*</span>
                     </label>
                     <select name="document_type" required
@@ -75,7 +75,7 @@
 
                 {{-- File Upload --}}
                 <div class="form-group space-y-1.5">
-                    <label class="text-[10px] font-bold text-slate-450 dark:text-slate-500 uppercase tracking-wider block">
+                    <label class="text-[10px] font-bold text-slate-500 dark:text-slate-500 uppercase tracking-wider block">
                         File <span class="text-[var(--color-error-text)]">*</span>
                     </label>
                     <input type="file" name="document_file" required accept=".jpg,.jpeg,.png,.pdf"
@@ -130,9 +130,9 @@
                         <div class="border rounded-xl p-4 flex items-center justify-between flex-wrap gap-3 {{ $statusStyle }}">
                             <div>
                                 <p class="text-sm font-bold text-slate-800 dark:text-slate-200">{{ $typeLabel }}</p>
-                                <p class="text-xs text-slate-500 dark:text-slate-450 font-medium mt-0.5">{{ $doc->original_filename }}</p>
+                                <p class="text-xs text-slate-500 dark:text-slate-500 font-medium mt-0.5">{{ $doc->original_filename }}</p>
                                 @if($doc->notes)
-                                    <p class="text-xs text-slate-500 dark:text-slate-450 italic mt-1.5 font-medium">Admin note: {{ $doc->notes }}</p>
+                                    <p class="text-xs text-slate-500 dark:text-slate-500 italic mt-1.5 font-medium">Admin note: {{ $doc->notes }}</p>
                                 @endif
                             </div>
                             <div class="flex items-center gap-3.5">

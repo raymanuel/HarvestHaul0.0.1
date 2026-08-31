@@ -7,7 +7,7 @@
             </svg>
         </div>
         <h2 class="text-xl font-extrabold text-slate-800 heading-font tracking-tight">Commercial Buyer</h2>
-        <p class="text-xs text-slate-505 mt-1.5 font-semibold">Join the network, purchase harvests directly, and manage drops</p>
+        <p class="text-xs text-slate-500 mt-1.5 font-semibold">Join the network, purchase harvests directly, and manage drops</p>
     </div>
 
     @if ($errors->any())

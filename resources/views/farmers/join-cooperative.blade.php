@@ -70,7 +70,7 @@
                             <div class="min-w-0">
                                 <h3 class="text-sm font-bold text-slate-800 dark:text-white heading-font truncate">{{ $coop->company_name }}</h3>
                                 @if($coop->cda_registration_no)
-                                    <p class="text-[10px] font-bold text-slate-400 dark:text-slate-550 uppercase tracking-wider mt-0.5">CDA: {{ $coop->cda_registration_no }}</p>
+                                    <p class="text-[10px] font-bold text-slate-400 dark:text-slate-600 uppercase tracking-wider mt-0.5">CDA: {{ $coop->cda_registration_no }}</p>
                                 @endif
                             </div>
                         </div>

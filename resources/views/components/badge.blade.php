@@ -18,7 +18,7 @@
         'verified'       => ['label' => 'Verified',    'classes' => $successTint],
         'active'         => ['label' => 'Active',      'classes' => $successTint],
         'approved'       => ['label' => 'Approved',    'classes' => $successTint],
-        'completed'      => ['label' => 'Completed',   'classes' => $successTint],
+        'completed'      => ['label' => 'Completed',   'classes' => $brandTint],
         'paid'           => ['label' => 'Paid',        'classes' => $successTint],
         'pending'        => ['label' => 'Pending',     'classes' => $warningTint],
         'unconfirmed'    => ['label' => 'Unconfirmed', 'classes' => $warningTint],
@@ -44,7 +44,7 @@
 
     $dotColors = [
         'verified' => '#16A34A', 'active' => '#16A34A', 'approved' => '#16A34A',
-        'completed' => '#16A34A', 'paid' => '#16A34A',
+        'completed' => '#16283C', 'paid' => '#16A34A',
         'pending' => '#D97706', 'unconfirmed' => '#D97706', 'submitted' => '#D97706',
         'ready' => '#D97706', 'partial_sale' => '#D97706',
         'rejected' => '#DC2626', 'inactive' => '#DC2626', 'cancelled' => '#DC2626',

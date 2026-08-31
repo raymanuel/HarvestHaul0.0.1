@@ -94,7 +94,7 @@
                     <div class="bg-white dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700/60 rounded-3xl overflow-hidden shadow-sm flex flex-col">
                         <div id="liveMap" class="w-full h-[550px] z-0"></div>
                         <div class="bg-slate-50 dark:bg-slate-900/30 px-6 py-4 border-t border-slate-100 dark:border-slate-700/50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs">
-                            <div class="flex items-center gap-4 text-slate-500 dark:text-slate-450 font-bold uppercase tracking-wider text-[10px]">
+                            <div class="flex items-center gap-4 text-slate-500 dark:text-slate-500 font-bold uppercase tracking-wider text-[10px]">
                                 <span class="flex items-center gap-1.5">
                                     <span class="w-2.5 h-2.5 rounded-full bg-[#16283C]/100"></span> Pickup (Farmer)
                                 </span>

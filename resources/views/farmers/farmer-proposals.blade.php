@@ -64,21 +64,21 @@
                             </div>
 
                             <div class="mb-4">
-                                <h4 class="text-[10px] font-bold text-slate-400 dark:text-slate-550 uppercase tracking-wider">Logistics Operator</h4>
+                                <h4 class="text-[10px] font-bold text-slate-400 dark:text-slate-600 uppercase tracking-wider">Logistics Operator</h4>
                                 <p class="text-sm font-bold text-slate-800 dark:text-slate-200 mt-0.5 flex items-center gap-1.5">
                                     {{ $proposal->logisticsProfile->company_name ?? 'Independent Fleet Coordinator' }}
                                 </p>
                             </div>
 
                             <div class="mb-4 bg-slate-50 dark:bg-slate-900/40 rounded-xl p-4 border border-slate-100 dark:border-slate-800/60">
-                                <h4 class="text-[10px] font-bold text-slate-400 dark:text-slate-550 uppercase tracking-wider mb-2.5">Your Included Cargo</h4>
+                                <h4 class="text-[10px] font-bold text-slate-400 dark:text-slate-600 uppercase tracking-wider mb-2.5">Your Included Cargo</h4>
                                 <div class="space-y-1">
                                     <p class="text-sm font-bold text-slate-800 dark:text-slate-200">
                                         {{ $myHarvest?->crop?->name }}
                                         <span class="text-xs font-normal text-slate-405 dark:text-slate-500">({{ $myHarvest?->cropVariety?->name ?? 'Standard' }})</span>
                                     </p>
-                                    <p class="text-xs text-slate-650 dark:text-slate-400">Quantity: <b class="font-bold text-slate-800 dark:text-slate-300">{{ number_format($myKg) }} kg</b></p>
-                                    <p class="text-xs text-slate-650 dark:text-slate-400 truncate">Target Drop-off: <b class="font-bold text-slate-800 dark:text-slate-300">{{ $myHarvest?->destination?->name ?? $myHarvest?->destination_address ?? 'Wholesale Market' }}</b></p>
+                                    <p class="text-xs text-slate-700 dark:text-slate-400">Quantity: <b class="font-bold text-slate-800 dark:text-slate-300">{{ number_format($myKg) }} kg</b></p>
+                                    <p class="text-xs text-slate-700 dark:text-slate-400 truncate">Target Drop-off: <b class="font-bold text-slate-800 dark:text-slate-300">{{ $myHarvest?->destination?->name ?? $myHarvest?->destination_address ?? 'Wholesale Market' }}</b></p>
                                 </div>
                             </div>
 
@@ -99,12 +99,12 @@
 
                             <div class="border-t border-slate-100 dark:border-slate-700/60 pt-3.5 flex justify-between items-center">
                                 <div>
-                                    <h4 class="text-[10px] font-bold text-slate-400 dark:text-slate-550 uppercase tracking-wider">Your Hauling Cost</h4>
+                                    <h4 class="text-[10px] font-bold text-slate-400 dark:text-slate-600 uppercase tracking-wider">Your Hauling Cost</h4>
                                     <p class="text-lg font-extrabold text-[#16283C] dark:text-[#D7BC7A] mt-0.5">₱{{ number_format($yourCostShare, 2) }}</p>
                                 </div>
                                 <div class="text-right">
-                                    <h4 class="text-[10px] font-bold text-slate-400 dark:text-slate-550 uppercase tracking-wider">Total Route Price</h4>
-                                    <p class="text-xs text-slate-700 dark:text-slate-350 font-bold mt-1">₱{{ number_format($proposal->negotiated_price ?? $proposal->price_reference, 2) }}</p>
+                                    <h4 class="text-[10px] font-bold text-slate-400 dark:text-slate-600 uppercase tracking-wider">Total Route Price</h4>
+                                    <p class="text-xs text-slate-700 dark:text-slate-400 font-bold mt-1">₱{{ number_format($proposal->negotiated_price ?? $proposal->price_reference, 2) }}</p>
                                 </div>
                             </div>
                         </div>

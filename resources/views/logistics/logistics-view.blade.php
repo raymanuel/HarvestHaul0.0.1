@@ -64,7 +64,7 @@
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
                 <x-stat-card
-                    accent="harvest"
+                    accent="brand"
                     title="Pending Proposals"
                     :value="$latestProposals->count()"
                     unit="to review"
@@ -82,7 +82,7 @@
                 />
 
                 <x-stat-card
-                    accent="navy"
+                    accent="brand"
                     title="Active Dispatches"
                     :value="$activeDispatchRuns->count()"
                     unit="runs"

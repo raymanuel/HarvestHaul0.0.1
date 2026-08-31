@@ -107,7 +107,7 @@
                             <div class="flex {{ $isMine ? 'justify-end' : 'justify-start' }}">
                                 <div class="max-w-[70%] flex flex-col {{ $isMine ? 'items-end' : 'items-start' }}">
                                     <!-- Sender Name Tag -->
-                                    <span class="text-[10px] text-slate-400 dark:text-slate-505 mb-1 px-1 font-semibold">
+                                    <span class="text-[10px] text-slate-400 dark:text-slate-500 mb-1 px-1 font-semibold">
                                         {{ $msg->sender->name }}
                                     </span>
                                     <!-- Bubble -->
@@ -171,15 +171,15 @@
                     </div>
                     <div class="flex justify-between items-center py-2 border-b border-slate-100 dark:border-slate-700/40">
                         <span class="text-slate-500 dark:text-slate-400">Variety:</span>
-                        <span class="font-semibold text-slate-700 dark:text-slate-350">{{ $negotiation->harvest->cropVariety->name ?? $negotiation->harvest->variety ?? 'Standard' }}</span>
+                        <span class="font-semibold text-slate-700 dark:text-slate-400">{{ $negotiation->harvest->cropVariety->name ?? $negotiation->harvest->variety ?? 'Standard' }}</span>
                     </div>
                     <div class="flex justify-between items-center py-2 border-b border-slate-100 dark:border-slate-700/40">
                         <span class="text-slate-500 dark:text-slate-400">Original Volume:</span>
-                        <span class="font-bold font-mono text-slate-700 dark:text-slate-350">{{ number_format($negotiation->harvest->quantity_kg) }} kg</span>
+                        <span class="font-bold font-mono text-slate-700 dark:text-slate-400">{{ number_format($negotiation->harvest->quantity_kg) }} kg</span>
                     </div>
                     <div class="flex justify-between items-center py-2">
                         <span class="text-slate-500 dark:text-slate-400">Pickup Location:</span>
-                        <span class="font-semibold text-slate-700 dark:text-slate-350 text-right max-w-[150px] truncate" title="{{ $negotiation->harvest->farmer->farmerProfile->farm_location ?? 'Farmer' }}">
+                        <span class="font-semibold text-slate-700 dark:text-slate-400 text-right max-w-[150px] truncate" title="{{ $negotiation->harvest->farmer->farmerProfile->farm_location ?? 'Farmer' }}">
                             {{ $negotiation->harvest->farmer->farmerProfile->farm_location ?? 'Farmer farm' }}
                         </span>
                     </div>
@@ -222,12 +222,12 @@
                         @if($isCoopBuyer && $cpLogistics)
                             <div class="flex justify-between items-center py-2 border-b border-slate-100 dark:border-slate-700/40">
                                 <span class="text-slate-500 dark:text-slate-400">Cooperative:</span>
-                                <span class="font-semibold text-slate-700 dark:text-slate-350">{{ $cpLogistics->company_name ?? '—' }}</span>
+                                <span class="font-semibold text-slate-700 dark:text-slate-400">{{ $cpLogistics->company_name ?? '—' }}</span>
                             </div>
                         @endif
                         <div class="flex justify-between items-center py-2">
                             <span class="text-slate-500 dark:text-slate-400">Contact:</span>
-                            <span class="font-semibold text-slate-700 dark:text-slate-350">{{ $counterparty->phone ?? $cpProfile->phone ?? '—' }}</span>
+                            <span class="font-semibold text-slate-700 dark:text-slate-400">{{ $counterparty->phone ?? $cpProfile->phone ?? '—' }}</span>
                         </div>
                     </div>
                 @else
@@ -252,18 +252,18 @@
                         @if($fp && $fp->affiliation_type === 'cooperative' && $fp->cooperative)
                             <div class="flex justify-between items-center py-2 border-b border-slate-100 dark:border-slate-700/40">
                                 <span class="text-slate-500 dark:text-slate-400">Cooperative:</span>
-                                <span class="font-semibold text-slate-700 dark:text-slate-350">{{ $fp->cooperative->company_name ?? '—' }}</span>
+                                <span class="font-semibold text-slate-700 dark:text-slate-400">{{ $fp->cooperative->company_name ?? '—' }}</span>
                             </div>
                         @endif
                         <div class="flex justify-between items-center py-2 border-b border-slate-100 dark:border-slate-700/40">
                             <span class="text-slate-500 dark:text-slate-400">Farm Location:</span>
-                            <span class="font-semibold text-slate-700 dark:text-slate-350 text-right max-w-[150px] truncate" title="{{ $fp->farm_location ?? '—' }}">
+                            <span class="font-semibold text-slate-700 dark:text-slate-400 text-right max-w-[150px] truncate" title="{{ $fp->farm_location ?? '—' }}">
                                 {{ $fp->farm_location ?? '—' }}
                             </span>
                         </div>
                         <div class="flex justify-between items-center py-2">
                             <span class="text-slate-500 dark:text-slate-400">Contact:</span>
-                            <span class="font-semibold text-slate-700 dark:text-slate-350">{{ $farmer->phone ?? $fp->phone ?? '—' }}</span>
+                            <span class="font-semibold text-slate-700 dark:text-slate-400">{{ $farmer->phone ?? $fp->phone ?? '—' }}</span>
                         </div>
                     </div>
                 @endif
@@ -321,7 +321,7 @@
                     <!-- Propose Terms Action Form -->
                     <form id="propose-terms-form" class="space-y-4 mb-4" onsubmit="return proposeTerms(event)">
                         @csrf
-                        <h4 class="text-xs font-bold text-slate-650 dark:text-slate-350 uppercase tracking-wider">Update Proposed Terms</h4>
+                        <h4 class="text-xs font-bold text-slate-700 dark:text-slate-400 uppercase tracking-wider">Update Proposed Terms</h4>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div>
                                 <label for="negotiated_price" class="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Unit Price (₱/kg)</label>
@@ -381,8 +381,8 @@
                 @endphp
 
                 <div class="bg-white dark:bg-slate-800/80 backdrop-blur border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6 shadow-sm">
-                    <h3 class="text-sm font-extrabold text-slate-850 dark:text-white heading-font mb-2 uppercase tracking-wider text-harvest-dark dark:text-harvest-light">Finalize & Submit Drop-off</h3>
-                    <p class="text-[11px] text-slate-505 dark:text-slate-400 mb-4 leading-relaxed font-semibold">Terms are agreed. Choose the drop-off point below to lock the transaction deal.</p>
+                    <h3 class="text-sm font-extrabold text-slate-800 dark:text-white heading-font mb-2 uppercase tracking-wider text-harvest-dark dark:text-harvest-light">Finalize & Submit Drop-off</h3>
+                    <p class="text-[11px] text-slate-500 dark:text-slate-400 mb-4 leading-relaxed font-semibold">Terms are agreed. Choose the drop-off point below to lock the transaction deal.</p>
 
                     <form action="{{ route('negotiations.finalize', $negotiation->id) }}" method="POST" class="space-y-4" id="finalize-form">
                         @csrf
@@ -669,7 +669,7 @@
 
         return '<div class="flex ' + align + ' my-2">' +
             '<div class="max-w-[70%] flex flex-col ' + align + '">' +
-            '<span class="text-[10px] text-slate-400 dark:text-slate-505 mb-1 px-1 font-semibold">' + escapeHtml(name) + '</span>' +
+            '<span class="text-[10px] text-slate-400 dark:text-slate-500 mb-1 px-1 font-semibold">' + escapeHtml(name) + '</span>' +
             '<div class="px-4 py-3 rounded-2xl text-xs leading-relaxed shadow-sm font-medium ' + bubble + '">' + escapeHtml(msg.message_text) + '</div>' +
             '<span class="text-[9px] text-slate-500 dark:text-slate-400 mt-1 px-1 font-mono">' + timeAgo(msg.created_at) + '</span>' +
             '</div></div>';
@@ -961,10 +961,13 @@
     var hasLocation = {{ $hasLocation ? 'true' : 'false' }};
     var finalizeForm = document.querySelector('form[action*="finalize"]');
     if (!finalizeForm) return;
+    var harvestKg = {{ (float) ($negotiation->harvest->quantity_kg ?? 0) }};
 
-    finalizeForm.addEventListener('submit', function(e) {
-        if (hasLocation) return;
-        e.preventDefault();
+    function doSubmit() {
+        if (hasLocation) {
+            finalizeForm.submit();
+            return;
+        }
         window.__locationPicker.open('Deal', function(data) {
             document.querySelector('[name="destination_latitude"]').value = data.lat;
             document.querySelector('[name="destination_longitude"]').value = data.lng;
@@ -977,6 +980,31 @@
                 finalizeForm.appendChild(input);
             }
             finalizeForm.submit();
+        });
+    }
+
+    finalizeForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        var rate = parseFloat((document.getElementById('hauling_rate_per_kg') || {}).value);
+        if (isNaN(rate) || rate <= 0) {
+            swalConfirm(doSubmit, {
+                title: 'Close Deal and Confirm Drop-off?',
+                text: 'This locks this deal with the agreed drop-off details. Make sure the hauling rate is fair to the farmer before confirming.',
+                icon: 'question',
+                confirmText: 'Yes, close deal',
+                cancelText: 'Not yet',
+                confirmColor: {{ $isBuyer ? "'#BFA05A'" : "'#16283C'" }}
+            });
+            return;
+        }
+        var total = rate * harvestKg;
+        swalConfirm(doSubmit, {
+            title: 'Close Deal and Lock Rate?',
+            text: '₱' + rate.toFixed(2) + '/kg × ' + harvestKg.toLocaleString() + ' kg = ₱' + total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '. This locks this deal for the farmer\u2019s route cost share.',
+            icon: 'question',
+            confirmText: 'Yes, close deal',
+            cancelText: 'Not yet',
+            confirmColor: {{ $isBuyer ? "'#BFA05A'" : "'#16283C'" }}
         });
     });
 })();

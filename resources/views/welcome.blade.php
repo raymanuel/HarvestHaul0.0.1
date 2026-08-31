@@ -32,13 +32,6 @@
     <link rel="preload" as="image" href="{{ asset('images/hero-bg.webp') }}">
 
     <style>
-        :root {
-            --soil: #17202B;
-            --leaf: #16283C;
-            --leaf-dark: #0E1620;
-            --wheat: #BFA05A;
-        }
-
         body { font-family: 'DM Sans', sans-serif; }
         .font-display { font-family: 'Schibsted Grotesk', sans-serif; }
         .font-mono { font-family: 'JetBrains Mono', monospace; }
@@ -85,28 +78,14 @@
         }
     </style>
 </head>
-<body class="bg-[#F5F6F2] text-[#17202B] antialiased overflow-x-hidden">
+<body class="bg-[#F7F4EC] text-[#17202B] antialiased overflow-x-hidden">
 
     <!-- Header -->
     <header id="main-header" class="fixed top-0 left-0 right-0 z-50 transition-all duration-300">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex justify-between items-center">
             <a href="/" class="flex items-center gap-2.5">
                 <div class="w-9 h-9 rounded-lg bg-[#16283C] flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" style="filter: drop-shadow(0.6px 1px 0.8px rgba(14, 22, 32,0.45));">
-                        <defs>
-                            <linearGradient id="hh-logo-wheat" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="0%" stop-color="#FFFFFF"/>
-                                <stop offset="55%" stop-color="#D7BC7A"/>
-                                <stop offset="100%" stop-color="#BFA05A"/>
-                            </linearGradient>
-                        </defs>
-                        <path d="M2 22 16 8" stroke="#FFFFFF" stroke-width="2"/>
-                        <path d="M3.47 12.53 5 11l1.53 1.53a3.5 3.5 0 0 1 0 4.94L5 19l-1.53-1.53a3.5 3.5 0 0 1 0-4.94Z" stroke="#FFFFFF" stroke-width="2"/>
-                        <path d="M7.47 8.53 9 7l1.53 1.53a3.5 3.5 0 0 1 0 4.94L9 15l-1.53-1.53a3.5 3.5 0 0 1 0-4.94Z" stroke="#FFFFFF" stroke-width="2"/>
-                        <path d="M11.47 4.53 13 3l1.53 1.53a3.5 3.5 0 0 1 0 4.94L13 11l-1.53-1.53a3.5 3.5 0 0 1 0-4.94Z" stroke="#FFFFFF" stroke-width="2"/>
-                        <path d="M20 2h2v2a4 4 0 0 1-4 4h-2V6a4 4 0 0 1 4-4Z" stroke="url(#hh-logo-wheat)" stroke-width="2"/>
-                        <path d="M11.47 17.47 13 19l-1.53 1.53a3.5 3.5 0 0 1-4.94 0L5 19l1.53-1.53a3.5 3.5 0 0 1 4.94 0Z" stroke="url(#hh-logo-wheat)" stroke-width="2"/>
-                    </svg>
+                    <x-brand-logo class="w-5 h-5 text-[#D7BC7A]" style="filter: drop-shadow(0.6px 1px 0.8px rgba(14, 22, 32,0.45));" />
                 </div>
                 <span class="text-lg font-bold tracking-tight font-display text-white">HarvestHaul</span>
             </a>
@@ -215,7 +194,7 @@
                             <span class="w-8 h-8 rounded-lg bg-white/5 text-white/70 text-xs font-bold flex items-center justify-center border border-white/10">T</span>
                             <span class="w-8 h-8 rounded-lg bg-[#BFA05A]/25 text-[#D7BC7A] text-xs font-bold flex items-center justify-center border border-[#BFA05A]/40">M</span>
                         </div>
-                        <div class="flex-1 bg-[#F5F6F2] p-5 sm:p-7">
+                        <div class="flex-1 bg-[#F7F4EC] p-5 sm:p-7">
                             <div class="flex items-center justify-between mb-5">
                                 <p class="text-sm font-extrabold text-[#17202B]">Farmer Dashboard</p>
                                 <span class="text-[10px] font-extrabold uppercase tracking-widest text-[#7C6527] bg-[#BFA05A]/15 border border-[#BFA05A]/30 px-2 py-1 rounded">Sample</span>
@@ -226,8 +205,8 @@
                                     <p class="text-[10px] font-bold uppercase tracking-widest text-[#5A6573]">Active Harvests</p>
                                     <p class="text-2xl font-extrabold text-[#16283C] heading-font mt-1">3</p>
                                     <div class="pt-2 mt-2 border-t border-[#0E1620]/8 flex flex-wrap gap-1.5">
-                                        <span class="text-[9px] font-semibold text-[#5A6573] bg-[#F5F6F2] border border-[#0E1620]/8 px-2 py-0.5 rounded">240 kg rice</span>
-                                        <span class="text-[9px] font-semibold text-[#5A6573] bg-[#F5F6F2] border border-[#0E1620]/8 px-2 py-0.5 rounded">310 kg banana</span>
+                                        <span class="text-[9px] font-semibold text-[#5A6573] bg-[#F7F4EC] border border-[#0E1620]/8 px-2 py-0.5 rounded">240 kg rice</span>
+                                        <span class="text-[9px] font-semibold text-[#5A6573] bg-[#F7F4EC] border border-[#0E1620]/8 px-2 py-0.5 rounded">310 kg banana</span>
                                     </div>
                                 </div>
                                 <div class="border-l-4 border-l-white/25 bg-[#16283C] rounded-2xl p-4 text-white shadow-sm">
@@ -240,7 +219,7 @@
                             </div>
 
                             <div class="mt-4 bg-white rounded-2xl border border-[#0E1620]/8 overflow-hidden">
-                                <div class="flex items-center justify-between px-4 py-2.5 border-b border-[#0E1620]/8 bg-[#F5F6F2]/60">
+                                <div class="flex items-center justify-between px-4 py-2.5 border-b border-[#0E1620]/8 bg-[#F7F4EC]/60">
                                     <p class="text-[10px] font-extrabold uppercase tracking-widest text-[#16283C]">DA RFO12 — Market Prices</p>
                                     <span class="text-[9px] font-bold text-[#5A6573]">Today</span>
                                 </div>
@@ -288,8 +267,8 @@
                                     <span class="w-2.5 h-2.5 rounded-full bg-[#16283C]"></span>
                                     <span class="text-[10px] font-bold text-[#17202B]">Hub</span>
                                 </div>
-                                <span class="text-[9px] font-semibold text-[#5A6573] bg-[#F5F6F2] border border-[#0E1620]/8 px-2 py-0.5 rounded">2 stops</span>
-                                <span class="text-[9px] font-semibold text-[#5A6573] bg-[#F5F6F2] border border-[#0E1620]/8 px-2 py-0.5 rounded">38 km</span>
+                                <span class="text-[9px] font-semibold text-[#5A6573] bg-[#F7F4EC] border border-[#0E1620]/8 px-2 py-0.5 rounded">2 stops</span>
+                                <span class="text-[9px] font-semibold text-[#5A6573] bg-[#F7F4EC] border border-[#0E1620]/8 px-2 py-0.5 rounded">38 km</span>
                             </div>
                         </div>
                     </div>
@@ -306,7 +285,7 @@
     </section>
 
     <!-- About -->
-    <section id="about" class="py-24 bg-[#F5F6F2] scroll-mt-20">
+    <section id="about" class="py-24 bg-[#F7F4EC] scroll-mt-20">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="max-w-3xl scroll-reveal">
                 <h2 class="text-3xl sm:text-4xl font-display text-[#17202B] leading-tight">
@@ -320,7 +299,7 @@
     </section>
 
     <!-- Services -->
-    <section id="services" class="py-24 bg-[#F5F6F2] scroll-mt-20">
+    <section id="services" class="py-24 bg-[#F7F4EC] scroll-mt-20">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center max-w-2xl mx-auto mb-16 scroll-reveal">
                 <h2 class="text-3xl sm:text-4xl font-display text-[#17202B]">Our Services</h2>
@@ -483,7 +462,7 @@
             </div>
 
             <!-- Farmer Panel -->
-            <div id="role-farmer" role="tabpanel" aria-labelledby="role-btn-farmer" class="role-panel bg-[#F5F6F2] rounded-3xl border border-[#17202B]/5 overflow-hidden">
+            <div id="role-farmer" role="tabpanel" aria-labelledby="role-btn-farmer" class="role-panel bg-[#F7F4EC] rounded-3xl border border-[#17202B]/5 overflow-hidden">
                 <div class="grid grid-cols-1 lg:grid-cols-2">
                     <div class="p-8 sm:p-12 flex flex-col justify-center">
                         <h3 class="text-2xl font-display text-[#17202B] mb-4">Ship full loads without meeting minimums</h3>
@@ -527,7 +506,7 @@
             </div>
 
             <!-- Logistics Panel -->
-            <div id="role-logistics" role="tabpanel" aria-labelledby="role-btn-logistics" class="role-panel hidden bg-[#F5F6F2] rounded-3xl border border-[#17202B]/5 overflow-hidden">
+            <div id="role-logistics" role="tabpanel" aria-labelledby="role-btn-logistics" class="role-panel hidden bg-[#F7F4EC] rounded-3xl border border-[#17202B]/5 overflow-hidden">
                 <div class="grid grid-cols-1 lg:grid-cols-2">
                     <div class="p-8 sm:p-12 flex flex-col justify-center">
                         <h3 class="text-2xl font-display text-[#17202B] mb-4">Build optimized multi-stop routes in one screen</h3>
@@ -583,7 +562,7 @@
             </div>
 
             <!-- Driver Panel -->
-            <div id="role-driver" role="tabpanel" aria-labelledby="role-btn-driver" class="role-panel hidden bg-[#F5F6F2] rounded-3xl border border-[#17202B]/5 overflow-hidden">
+            <div id="role-driver" role="tabpanel" aria-labelledby="role-btn-driver" class="role-panel hidden bg-[#F7F4EC] rounded-3xl border border-[#17202B]/5 overflow-hidden">
                 <div class="grid grid-cols-1 lg:grid-cols-2">
                     <div class="p-8 sm:p-12 flex flex-col justify-center">
                         <h3 class="text-2xl font-display text-[#17202B] mb-4">Mobile-first dispatch with live GPS</h3>
@@ -630,7 +609,7 @@
             </div>
 
             <!-- Buyer Panel -->
-            <div id="role-buyer" role="tabpanel" aria-labelledby="role-btn-buyer" class="role-panel hidden bg-[#F5F6F2] rounded-3xl border border-[#17202B]/5 overflow-hidden">
+            <div id="role-buyer" role="tabpanel" aria-labelledby="role-btn-buyer" class="role-panel hidden bg-[#F7F4EC] rounded-3xl border border-[#17202B]/5 overflow-hidden">
                 <div class="grid grid-cols-1 lg:grid-cols-2">
                     <div class="p-8 sm:p-12 flex flex-col justify-center">
                         <h3 class="text-2xl font-display text-[#17202B] mb-4">Buy crops with price data on your side</h3>
@@ -680,7 +659,7 @@
         </div>
     </section>
 <!-- FAQ -->
-    <section id="faq" class="py-24 bg-[#F5F6F2] scroll-mt-20">
+    <section id="faq" class="py-24 bg-[#F7F4EC] scroll-mt-20">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="max-w-2xl mx-auto mb-12">
                 <h2 class="text-3xl sm:text-4xl font-display text-[#17202B]">Your Questions, Answered</h2>
@@ -731,7 +710,7 @@
     </section>
 
     <!-- Value Outcomes -->
-    <section class="py-24 bg-[#F5F6F2]">
+    <section class="py-24 bg-[#F7F4EC]">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center max-w-2xl mx-auto mb-14 scroll-reveal">
                 <h2 class="text-3xl sm:text-4xl font-display text-[#17202B]">Outcomes from HarvestHaul</h2>
@@ -821,7 +800,7 @@
                 </div>
 
                 <div class="relative">
-                    <div class="bg-[#F5F6F2] rounded-3xl p-8 border border-[#17202B]/5">
+                    <div class="bg-[#F7F4EC] rounded-3xl p-8 border border-[#17202B]/5">
                         <div class="space-y-6">
                             <div class="flex items-start gap-4">
                                 <span class="font-mono text-sm font-bold text-[#7C6527] mt-0.5">01</span>
@@ -857,14 +836,7 @@
         <div class="max-w-6xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-6">
             <div class="flex items-center gap-2.5">
                 <div class="w-7 h-7 rounded-md bg-[#16283C] flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M2 22 16 8"/>
-                        <path d="M3.47 12.53 5 11l1.53 1.53a3.5 3.5 0 0 1 0 4.94L5 19l-1.53-1.53a3.5 3.5 0 0 1 0-4.94Z"/>
-                        <path d="M7.47 8.53 9 7l1.53 1.53a3.5 3.5 0 0 1 0 4.94L9 15l-1.53-1.53a3.5 3.5 0 0 1 0-4.94Z"/>
-                        <path d="M11.47 4.53 13 3l1.53 1.53a3.5 3.5 0 0 1 0 4.94L13 11l-1.53-1.53a3.5 3.5 0 0 1 0-4.94Z"/>
-                        <path d="M20 2h2v2a4 4 0 0 1-4 4h-2V6a4 4 0 0 1 4-4Z"/>
-                        <path d="M11.47 17.47 13 19l-1.53 1.53a3.5 3.5 0 0 1-4.94 0L5 19l1.53-1.53a3.5 3.5 0 0 1 4.94 0Z"/>
-                    </svg>
+                    <x-brand-logo class="w-4 h-4 text-[#D7BC7A]" />
                 </div>
                 <span class="text-sm font-bold text-white/60 font-display">HarvestHaul</span>
             </div>

@@ -2,7 +2,7 @@
 <div class="w-full">
 
     <header class="pt-8 mb-8">
-        <a href="{{ route('dashboard') }}" class="text-sm text-slate-400 hover:text-slate-650 dark:hover:text-slate-350 mb-4 inline-block font-semibold transition">
+        <a href="{{ route('dashboard') }}" class="text-sm text-slate-400 hover:text-slate-700 dark:hover:text-slate-400 mb-4 inline-block font-semibold transition">
             ← Back to Dashboard
         </a>
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -90,10 +90,10 @@
                             <td class="px-6 py-4 font-bold text-slate-800 dark:text-slate-200">
                                 {{ $harvest->crop->name ?? $harvest->crop_type ?? '—' }}
                             </td>
-                            <td class="px-6 py-4 text-slate-600 dark:text-slate-350 font-medium">
+                            <td class="px-6 py-4 text-slate-600 dark:text-slate-400 font-medium">
                                 {{ $harvest->cropVariety->name ?? $harvest->variety ?? '—' }}
                             </td>
-                            <td class="px-6 py-4 text-slate-600 dark:text-slate-350 font-semibold">{{ number_format($harvest->quantity_kg, 2) }} kg
+                            <td class="px-6 py-4 text-slate-600 dark:text-slate-400 font-semibold">{{ number_format($harvest->quantity_kg, 2) }} kg
                                 @if($harvest->remaining_quantity_kg && (float)$harvest->remaining_quantity_kg < (float)$harvest->quantity_kg)
                                     <span class="text-[9px] text-[var(--color-warning-text)] block">({{ number_format($harvest->remaining_quantity_kg, 2) }} kg remaining)</span>
                                 @endif
@@ -102,7 +102,7 @@
                                 {{ $harvest->harvest_date ? $harvest->harvest_date->format('M d, Y') : '—' }}
                             </td>
                             <td class="px-6 py-4 text-slate-500 dark:text-slate-400 text-xs font-medium max-w-xs truncate">{{ $harvest->notes ?? '—' }}</td>
-                            <td class="px-6 py-4 text-slate-550 dark:text-slate-450 text-xs font-semibold"> {{ $harvest->destination_label }} </td>
+                            <td class="px-6 py-4 text-slate-600 dark:text-slate-500 text-xs font-semibold"> {{ $harvest->destination_label }} </td>
                             <td class="px-6 py-4">
                                 @php
                                     $statusClasses = [
@@ -182,7 +182,7 @@
                                         </button>
                                     @endif
                                     @if(!$canEdit && !$canMarkSold && !$canCreateHaulRequest)
-                                        <span class="text-slate-350 dark:text-slate-600 text-xs select-none">—</span>
+                                        <span class="text-slate-400 dark:text-slate-600 text-xs select-none">—</span>
                                     @endif
                                 </div>
                             </td>

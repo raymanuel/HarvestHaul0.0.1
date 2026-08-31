@@ -115,12 +115,7 @@
 @endphp
 
 <svg {{ $attributes->merge(['class' => $classes]) }} viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-    <g style="filter: drop-shadow(0.6px 0.9px 0.6px rgba(15, 46, 21, 0.30));">
-        <g stroke="#0f2e15" stroke-opacity="0.34" stroke-width="3.4" transform="translate(0.8 1)">
-            {!! $paths !!}
-        </g>
-        <g stroke="currentColor" stroke-width="2">
-            {!! $paths !!}
-        </g>
+    <g stroke="currentColor" stroke-width="2">
+        {!! $paths !!}
     </g>
 </svg>

@@ -23,7 +23,7 @@
 
                 <form method="POST" action="{{ route('logout') }}" id="driver-logout-form">
                     @csrf
-                    <button type="button" onclick="swalConfirm(document.getElementById('driver-logout-form'), {title:'Sign Out', text:'Are you sure you want to sign out?', icon:'question', confirmText:'Yes, sign out', cancelText:'Cancel', confirmColor:'#ef4444'})" class="cursor-pointer flex items-center gap-1.5 text-xs font-bold text-slate-600 dark:text-slate-350 hover:text-slate-800 dark:hover:text-white bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700/80 border border-slate-200 dark:border-slate-700/50 rounded-xl px-3.5 py-2 transition-all duration-200 active:scale-[0.97]">
+                    <button type="button" onclick="swalConfirm(document.getElementById('driver-logout-form'), {title:'Sign Out', text:'Are you sure you want to sign out?', icon:'question', confirmText:'Yes, sign out', cancelText:'Cancel', confirmColor:'#ef4444'})" class="cursor-pointer flex items-center gap-1.5 text-xs font-bold text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700/80 border border-slate-200 dark:border-slate-700/50 rounded-xl px-3.5 py-2 transition-all duration-200 active:scale-[0.97]">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                         </svg>
@@ -64,7 +64,7 @@
         <x-flash-error />
 
         @forelse($jobs as $job)
-            <div class="glass-card rounded-3xl mb-6 overflow-hidden shadow-md border border-slate-200/60 dark:border-slate-800/80 hover:border-slate-350 dark:hover:border-slate-700/80 transition-all duration-300">
+            <div class="glass-card rounded-3xl mb-6 overflow-hidden shadow-md border border-slate-200/60 dark:border-slate-800/80 hover:border-slate-400 dark:hover:border-slate-700/80 transition-all duration-300">
 
                 <div class="px-5 py-4 border-b border-slate-100 dark:border-slate-800/50 bg-slate-50/50 dark:bg-slate-900/40 flex items-center justify-between">
                     <div>
@@ -114,7 +114,7 @@
                             {{ $job->truck->plate_number ?? '—' }}
                         </span>
                         @if($job->truck->vehicle_type ?? false)
-                            <span class="text-slate-300 dark:text-slate-650">&middot;</span>
+                            <span class="text-slate-300 dark:text-slate-700">&middot;</span>
                             <span class="text-slate-500 dark:text-slate-400 text-[9px] font-bold uppercase tracking-wider bg-slate-100 dark:bg-slate-800/60 px-2 py-0.5 rounded border border-slate-200/50 dark:border-slate-700/30">{{ $job->truck->vehicle_type }}</span>
                         @endif
                     </div>
@@ -131,7 +131,7 @@
 
                 <div class="flex gap-3 px-5 py-4 bg-slate-50/50 dark:bg-slate-900/40 border-t border-slate-100 dark:border-slate-800/10">
                     <a href="{{ route('driver.jobs.show', $job) }}"
-                       class="flex-1 text-center text-xs font-bold text-slate-650 dark:text-slate-350 hover:text-slate-800 dark:hover:text-white bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700/80 border border-slate-200/60 dark:border-slate-700/60 rounded-2xl py-3.5 transition duration-200 shadow-sm active:scale-[0.98]">
+                       class="flex-1 text-center text-xs font-bold text-slate-700 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700/80 border border-slate-200/60 dark:border-slate-700/60 rounded-2xl py-3.5 transition duration-200 shadow-sm active:scale-[0.98]">
                         View Details
                     </a>
                     @if($job->status->value === 'confirmed')
@@ -151,7 +151,7 @@
                 <div class="relative w-24 h-24 mx-auto mb-6 flex items-center justify-center">
                     <div class="w-14 h-14 rounded-full bg-[#16283C]/10 border border-[#16283C]/20 flex items-center justify-center text-[#16283C] dark:text-[#D7BC7A] shadow-md font-bold text-xl" aria-hidden="true">—</div>
                 </div>
-                <h2 class="text-base font-extrabold text-slate-850 dark:text-white heading-font tracking-tight">No Active Routes Assigned</h2>
+                <h2 class="text-base font-extrabold text-slate-800 dark:text-white heading-font tracking-tight">No Active Routes Assigned</h2>
                 <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 max-w-xs mx-auto leading-relaxed">
                     You'll be notified when a dispatch is ready.
                 </p>

@@ -4,20 +4,13 @@
         <!-- Mini Logo -->
         <a href="/" class="flex justify-center items-center gap-2 mb-4 group">
             <div class="w-8 h-8 rounded-lg bg-brand-700 flex items-center justify-center text-white shadow group-hover:scale-105 transition duration-300">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M2 22 16 8"/>
-                    <path d="M3.47 12.53 5 11l1.53 1.53a3.5 3.5 0 0 1 0 4.94L5 19l-1.53-1.53a3.5 3.5 0 0 1 0-4.94Z"/>
-                    <path d="M7.47 8.53 9 7l1.53 1.53a3.5 3.5 0 0 1 0 4.94L9 15l-1.53-1.53a3.5 3.5 0 0 1 0-4.94Z"/>
-                    <path d="M11.47 4.53 13 3l1.53 1.53a3.5 3.5 0 0 1 0 4.94L13 11l-1.53-1.53a3.5 3.5 0 0 1 0-4.94Z"/>
-                    <path d="M20 2h2v2a4 4 0 0 1-4 4h-2V6a4 4 0 0 1 4-4Z"/>
-                    <path d="M11.47 17.47 13 19l-1.53 1.53a3.5 3.5 0 0 1-4.94 0L5 19l1.53-1.53a3.5 3.5 0 0 1 4.94 0Z"/>
-                </svg>
+                <x-brand-logo class="w-5 h-5 text-[#D7BC7A]" />
             </div>
             <span class="text-xl font-bold tracking-tight text-brand-700 dark:text-brand-light heading-font">HarvestHaul</span>
         </a>
 
         <h1 class="text-3xl font-extrabold tracking-tight text-slate-800 heading-font">Join the Dispatch Network</h1>
-        <p class="text-xs text-slate-450 mt-2 font-semibold">Select your operational workspace role to begin onboarding</p>
+        <p class="text-xs text-slate-500 mt-2 font-semibold">Select your operational workspace role to begin onboarding</p>
     </div>
 
     <!-- Triple Choice Cards -->

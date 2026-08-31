@@ -36,7 +36,7 @@
                 </span>
             </td>
             <td class="px-4 py-3 text-slate-500 dark:text-slate-400 text-xs font-medium max-w-[200px] truncate">{{ $log->notes ?? '—' }}</td>
-            <td class="px-4 py-3 text-slate-400 dark:text-slate-550 text-xs font-semibold whitespace-nowrap">{{ $log->created_at->format('M d, Y h:i A') }}</td>
+            <td class="px-4 py-3 text-slate-400 dark:text-slate-600 text-xs font-semibold whitespace-nowrap">{{ $log->created_at->format('M d, Y h:i A') }}</td>
         </tr>
         @empty
         @endforelse

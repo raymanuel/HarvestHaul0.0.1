@@ -7,7 +7,7 @@
         <header class="pt-8 mb-8">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-550 mb-1">Admin / Platform settings</p>
+                    <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-600 mb-1">Admin / Platform settings</p>
                     <h1 class="text-2xl font-extrabold text-slate-800 dark:text-white heading-font tracking-tight">Crop Registry</h1>
                 </div>
                 <button onclick="openCreateEntityModal()"
@@ -33,7 +33,7 @@
                     <span class="text-[9px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest block mb-1">Crop Categories</span>
                     <span class="text-2xl font-black text-slate-800 dark:text-white heading-font">{{ $categories->count() }}</span>
                 </div>
-                <div class="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-850 flex items-center justify-center text-lg"><x-icon name="folder" class="w-4 h-4" /></div>
+                <div class="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 flex items-center justify-center text-lg"><x-icon name="folder" class="w-4 h-4" /></div>
             </div>
             {{-- Crops Card --}}
             <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/80 rounded-2xl p-5 flex items-center justify-between shadow-sm hover:shadow-md transition">
@@ -41,7 +41,7 @@
                     <span class="text-[9px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest block mb-1">Distinct Crops</span>
                     <span class="text-2xl font-black text-slate-800 dark:text-white heading-font">{{ $categories->sum(fn($c) => $c->crops->count()) }}</span>
                 </div>
-                <div class="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-850 flex items-center justify-center text-lg"><x-icon name="seedling" class="w-4 h-4" /></div>
+                <div class="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 flex items-center justify-center text-lg"><x-icon name="seedling" class="w-4 h-4" /></div>
             </div>
             {{-- Varieties Card --}}
             <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/80 rounded-2xl p-5 flex items-center justify-between shadow-sm hover:shadow-md transition">
@@ -49,7 +49,7 @@
                     <span class="text-[9px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest block mb-1">Total Varieties</span>
                     <span class="text-2xl font-black text-slate-800 dark:text-white heading-font">{{ $categories->sum(fn($c) => $c->crops->sum(fn($cr) => $cr->varieties->count())) }}</span>
                 </div>
-                <div class="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-850 flex items-center justify-center text-lg"><x-icon name="tag" class="w-4 h-4" /></div>
+                <div class="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 flex items-center justify-center text-lg"><x-icon name="tag" class="w-4 h-4" /></div>
             </div>
         </div>
 
@@ -58,7 +58,7 @@
         ============================================================ --}}
         <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/80 rounded-2xl p-4 mb-6 flex flex-col md:flex-row gap-4 items-center justify-between shadow-sm">
             <div class="relative w-full md:w-96">
-                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-550 text-xs"><x-icon name="search" class="w-4 h-4" /></span>
+                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-600 text-xs"><x-icon name="search" class="w-4 h-4" /></span>
                 <input type="text" id="cropSearchInput" onkeyup="filterRegistry()" placeholder="Search categories, crops or varieties..."
                     class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-xs rounded-xl pl-9 pr-4 py-2.5 focus:outline-none focus:border-[#16283C] transition" />
             </div>
@@ -110,7 +110,7 @@
                         </div>
                         <div class="flex items-center gap-3">
                             <x-badge status="{{ $category->status }}" />
-                            <span class="text-[10px] text-slate-400 dark:text-slate-550 font-bold uppercase tracking-wider">{{ $category->crops->count() }} Crops</span>
+                            <span class="text-[10px] text-slate-400 dark:text-slate-600 font-bold uppercase tracking-wider">{{ $category->crops->count() }} Crops</span>
                             <button
                                 onclick="openEditCategory({{ $category->id }}, '{{ addslashes($category->name) }}', '{{ addslashes($category->description ?? '') }}', '{{ $category->status }}')"
                                 class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-[#16283C]/10 text-[#16283C] hover:bg-[#16283C]/15 dark:bg-[#16283C]/10 dark:hover:bg-[#16283C]/15 dark:text-[#D7BC7A] transition cursor-pointer"
@@ -139,7 +139,7 @@
                                 {{-- Crop Row --}}
                                 <div class="flex items-center justify-between px-6 py-3 pl-12 bg-white dark:bg-slate-800 hover:bg-slate-50/30 dark:hover:bg-slate-900/20 transition">
                                     <div class="flex items-center gap-2.5">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-slate-350 dark:bg-slate-650 flex-shrink-0"></span>
+                                        <span class="w-1.5 h-1.5 rounded-full bg-slate-400 dark:bg-slate-700 flex-shrink-0"></span>
                                         <div>
                                             <p class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ $crop->name }}</p>
                                             @if ($crop->description)
@@ -149,7 +149,7 @@
                                     </div>
                                     <div class="flex items-center gap-3">
                                         <x-badge status="{{ $crop->status }}" />
-                                        <span class="text-[10px] text-slate-400 dark:text-slate-550 font-bold uppercase tracking-wider">{{ $crop->varieties->count() }} Var.</span>
+                                        <span class="text-[10px] text-slate-400 dark:text-slate-600 font-bold uppercase tracking-wider">{{ $crop->varieties->count() }} Var.</span>
                                         <button
                                             onclick="openEditCrop({{ $crop->id }}, {{ $crop->crop_category_id }}, '{{ addslashes($crop->name) }}', '{{ addslashes($crop->description ?? '') }}', '{{ $crop->status }}')"
                                             class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-[#16283C]/10 text-[#16283C] hover:bg-[#16283C]/15 dark:bg-[#16283C]/10 dark:hover:bg-[#16283C]/15 dark:text-[#D7BC7A] transition cursor-pointer"
@@ -177,14 +177,14 @@
                                             <div class="flex items-center gap-2.5">
                                                 <span class="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-700 flex-shrink-0"></span>
                                                 <div>
-                                                    <p class="text-xs text-slate-650 dark:text-slate-350 font-bold">{{ $variety->name }}</p>
+                                                    <p class="text-xs text-slate-700 dark:text-slate-400 font-bold">{{ $variety->name }}</p>
                                                     @if ($variety->description)
                                                         <p class="text-[9px] text-slate-500 dark:text-slate-400 mt-0.5 font-medium">{{ $variety->description }}</p>
                                                     @endif
                                                 </div>
                                             </div>
                                             <div class="flex items-center gap-4">
-                                                <span class="text-xs font-mono font-black text-slate-700 dark:text-slate-350 bg-slate-100/60 dark:bg-slate-900/50 px-2 py-0.5 rounded border border-slate-200/20">₱{{ number_format($variety->price_per_kg, 2) }}/kg</span>
+                                                <span class="text-xs font-mono font-black text-slate-700 dark:text-slate-400 bg-slate-100/60 dark:bg-slate-900/50 px-2 py-0.5 rounded border border-slate-200/20">₱{{ number_format($variety->price_per_kg, 2) }}/kg</span>
                                                 <x-badge status="{{ $variety->status }}" />
                                                 <button
                                                     onclick="openEditVariety({{ $variety->id }}, {{ $variety->crop_id }}, '{{ addslashes($variety->name) }}', '{{ addslashes($variety->description ?? '') }}', '{{ $variety->price_per_kg }}', '{{ $variety->status }}')"
@@ -206,7 +206,7 @@
                                         </div>
                                     @empty
                                         <div class="px-6 py-2 pl-20 bg-slate-50/20 dark:bg-slate-900/10 border-t border-slate-50 dark:border-slate-700/30">
-                                            <p class="text-[10px] text-slate-405 dark:text-slate-550 italic font-semibold">No varieties registered for this crop.</p>
+                                            <p class="text-[10px] text-slate-405 dark:text-slate-600 italic font-semibold">No varieties registered for this crop.</p>
                                         </div>
                                     @endforelse
                                 </div>
@@ -224,7 +224,7 @@
                             </div>
                         @empty
                             <div class="px-6 py-4 pl-12 bg-white dark:bg-slate-800">
-                                <p class="text-[10px] text-slate-405 dark:text-slate-550 italic font-semibold">No crops registered under this category.</p>
+                                <p class="text-[10px] text-slate-405 dark:text-slate-600 italic font-semibold">No crops registered under this category.</p>
                             </div>
                         @endforelse
                     </div>
@@ -283,7 +283,7 @@
                 <div>
                     <label class="block text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Parent Category <span class="text-[var(--color-error-text)]">*</span></label>
                     <select name="crop_category_id" required
-                        class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-850 dark:text-slate-250 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#16283C] transition">
+                        class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-250 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#16283C] transition">
                         <option value="">— Select Category —</option>
                         @foreach ($categories as $cat)
                             <option value="{{ $cat->id }}">{{ $cat->name }}</option>
@@ -309,7 +309,7 @@
                 <div>
                     <label class="block text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Parent Crop <span class="text-[var(--color-error-text)]">*</span></label>
                     <select name="crop_id" required
-                        class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-850 dark:text-slate-250 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#16283C] transition">
+                        class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-250 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#16283C] transition">
                         <option value="">— Select Crop —</option>
                         @foreach ($categories as $cat)
                             @if ($cat->crops->count())
@@ -331,9 +331,9 @@
                     <div>
                         <label class="block text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Price / kg <span class="text-[var(--color-error-text)]">*</span></label>
                         <div class="relative">
-                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-450 dark:text-slate-500 text-sm font-bold">₱</span>
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-500 text-sm font-bold">₱</span>
                             <input type="number" name="price_per_kg" required step="0.01" min="0" placeholder="0.00"
-                                class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-850 dark:text-slate-250 text-sm rounded-xl pl-8 pr-4 py-2.5 focus:outline-none focus:border-[#16283C] transition" />
+                                class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-250 text-sm rounded-xl pl-8 pr-4 py-2.5 focus:outline-none focus:border-[#16283C] transition" />
                         </div>
                     </div>
                 </div>
@@ -386,7 +386,7 @@
                 <div>
                     <label class="block text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Category <span class="text-[var(--color-error-text)]">*</span></label>
                     <select id="edit-crop-category" name="crop_category_id" required
-                        class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-850 dark:text-slate-250 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#16283C] transition">
+                        class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-250 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#16283C] transition">
                         @foreach ($categories as $cat)
                             <option value="{{ $cat->id }}">{{ $cat->name }}</option>
                         @endforeach
@@ -431,9 +431,9 @@
                 <div>
                     <label class="block text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Price / kg <span class="text-[var(--color-error-text)]">*</span></label>
                     <div class="relative">
-                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-450 dark:text-slate-500 text-sm font-bold">₱</span>
+                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-500 text-sm font-bold">₱</span>
                         <input type="number" id="edit-variety-price" name="price_per_kg" required step="0.01" min="0"
-                            class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-850 dark:text-slate-250 text-sm rounded-xl pl-8 pr-4 py-2.5 focus:outline-none focus:border-[#16283C] transition" />
+                            class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-250 text-sm rounded-xl pl-8 pr-4 py-2.5 focus:outline-none focus:border-[#16283C] transition" />
                     </div>
                 </div>
                 <div>

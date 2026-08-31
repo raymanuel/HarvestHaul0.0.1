@@ -3,10 +3,8 @@
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schedule;
-use App\Models\User;
-use App\Notifications\PriceDataStale;
+
 
 // Scheduler liveness signal: refreshed by every successful schedule:run.
 // EnsureSchedulerAlive middleware treats a stale value as "OS cron is dead"
@@ -52,25 +50,5 @@ Schedule::command('negotiations:auto-close-stale')->daily();
 // Clean up stale tracking records, old notifications, and weather logs (daily)
 Schedule::command('data:cleanup')->daily();
 
-// Scrape DA RFO12 prices from the Bantay Presyo endpoint (hourly lightweight check;
-// the heavy re-fetch only runs when the source date advances)
-Schedule::command('crops:scrape:darfo12')->hourly()->withoutOverlapping()
-    ->onFailure(function () {
-        // Instant signal; prices:check-stale remains the twice-daily deep check.
-        if (Cache::get('scraper:onfailure:date') === now()->toDateString()) {
-            return;
-        }
-        Cache::put('scraper:onfailure:date', now()->toDateString(), now()->diffInSeconds(now()->endOfDay()));
-
-        Log::error('Scheduled scrape of DA RFO12 prices failed.');
-
-        User::where('role', 'admin')->get()
-            ->each->notify(new PriceDataStale(
-                'DA RFO12 price scraper failed',
-                'The hourly market price scrape exited with an error. Check Scraper Status on the admin dashboard for details.',
-                route('prices.full')
-            ));
-    });
-
-// Alert admins when DA RFO12 has newer prices we have not stored, or scrapes keep failing
-Schedule::command('prices:check-stale')->twiceDaily(8, 20);
+// DA RFO12 market prices: demand-driven only (scrape on dashboard visit if data >24h old).
+// No scheduled cron — avoids shared-hosting process limits.

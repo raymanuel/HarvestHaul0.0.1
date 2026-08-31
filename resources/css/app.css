@@ -57,46 +57,46 @@
     --color-soil: #435060;
     --color-soil-light: #7C8A99;
 
-    --color-surface: #F5F6F2;
+    --color-surface: #F7F4EC;
     --color-surface-dark: #0E1620;
-    --color-surface-card: #FFFFFF;
+    --color-surface-card: #FDFBF4;
     --color-surface-card-dark: #14202D;
     --color-card: #FFFFFF;
 
-    --color-success: #15803D;
-    --color-success-light: #22C55E;
-    --color-success-dark: #14532D;
-    --color-success-text: #15803D;
+    --color-success: #22c55e;
+    --color-success-light: #4ade80;
+    --color-success-dark: #16a34a;
+    --color-success-text: #16a34a;
     --color-success-text-dark: #4ade80;
     --color-success-bg: #f0fdf4;
     --color-success-bg-dark: #052e16;
     --color-success-border: #bbf7d0;
     --color-success-border-dark: #166534;
 
-    --color-warning: #D97706;
-    --color-warning-light: #F59E0B;
-    --color-warning-dark: #B45309;
-    --color-warning-text: #92400e;
-    --color-warning-text-dark: #fbbf24;
+    --color-warning: #eab308;
+    --color-warning-light: #facc15;
+    --color-warning-dark: #ca8a04;
+    --color-warning-text: #a16207;
+    --color-warning-text-dark: #facc15;
     --color-warning-bg: #fffbeb;
     --color-warning-bg-dark: #451a03;
     --color-warning-border: #fde68a;
     --color-warning-border-dark: #924009;
 
-    --color-error: #DC2626;
-    --color-error-light: #EF4444;
-    --color-error-dark: #B91C1C;
-    --color-error-text: #991b1b;
+    --color-error: #ef4444;
+    --color-error-light: #f87171;
+    --color-error-dark: #dc2626;
+    --color-error-text: #b91c1c;
     --color-error-text-dark: #fca5a5;
     --color-error-bg: #fef2f2;
     --color-error-bg-dark: #450a0a;
     --color-error-border: #fecaca;
     --color-error-border-dark: #991b1b;
 
-    --color-info: #2563EB;
-    --color-info-light: #3B82F6;
-    --color-info-dark: #1D4ED8;
-    --color-info-text: #1e40af;
+    --color-info: #3b82f6;
+    --color-info-light: #60a5fa;
+    --color-info-dark: #2563eb;
+    --color-info-text: #1d4ed8;
     --color-info-text-dark: #93c5fd;
     --color-info-bg: #eff6ff;
     --color-info-bg-dark: #172554;
@@ -163,7 +163,7 @@ button:not(:disabled) {
 body {
     font-family: 'DM Sans', sans-serif;
     font-weight: 500;
-    background-color: var(--color-surface, #F5F6F2);
+    background-color: var(--color-surface, #F7F4EC);
 }
 
 .heading-font {
@@ -173,16 +173,14 @@ body {
 }
 
 .glass-card {
-    background: rgba(255, 255, 255, 0.82);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(0, 0, 0, 0.11);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.07);
+    background: var(--color-surface-card, #FDFBF4);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
     transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 html.dark .glass-card {
-    background: rgba(15, 23, 42, 0.6);
+    background: var(--color-surface-card-dark, #14202D);
     border: 1px solid rgba(255, 255, 255, 0.10);
 }
 

@@ -30,12 +30,12 @@
                     <table class="w-full text-sm text-left">
                         <thead>
                             <tr class="border-b border-slate-150 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-900/30">
-                                <th class="p-5 text-[10px] font-bold text-slate-400 dark:text-slate-505 uppercase tracking-widest">Crop / Lot</th>
-                                <th class="p-5 text-[10px] font-bold text-slate-400 dark:text-slate-550 uppercase tracking-widest">Buyer</th>
-                                <th class="p-5 text-[10px] font-bold text-slate-400 dark:text-slate-550 uppercase tracking-widest text-right">Negotiated Price</th>
-                                <th class="p-5 text-[10px] font-bold text-slate-400 dark:text-slate-550 uppercase tracking-widest text-right">Quantity</th>
-                                <th class="p-5 text-[10px] font-bold text-slate-400 dark:text-slate-550 uppercase tracking-widest text-center">Status</th>
-                                <th class="p-5 text-[10px] font-bold text-slate-400 dark:text-slate-550 uppercase tracking-widest text-center">Workspace</th>
+                                <th class="p-5 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Crop / Lot</th>
+                                <th class="p-5 text-[10px] font-bold text-slate-400 dark:text-slate-600 uppercase tracking-widest">Buyer</th>
+                                <th class="p-5 text-[10px] font-bold text-slate-400 dark:text-slate-600 uppercase tracking-widest text-right">Negotiated Price</th>
+                                <th class="p-5 text-[10px] font-bold text-slate-400 dark:text-slate-600 uppercase tracking-widest text-right">Quantity</th>
+                                <th class="p-5 text-[10px] font-bold text-slate-400 dark:text-slate-600 uppercase tracking-widest text-center">Status</th>
+                                <th class="p-5 text-[10px] font-bold text-slate-400 dark:text-slate-600 uppercase tracking-widest text-center">Workspace</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100/50 dark:divide-slate-700/30">
@@ -45,11 +45,11 @@
                                         <div class="font-bold text-slate-800 dark:text-slate-200 text-xs">
                                             {{ $negotiation->harvest->crop->name ?? $negotiation->harvest->crop_type ?? 'Unknown Crop' }}
                                         </div>
-                                        <div class="text-[10px] text-slate-400 dark:text-slate-505 mt-0.5">
+                                        <div class="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">
                                             Lot #{{ $negotiation->harvest_id }} • {{ $negotiation->harvest->cropVariety->name ?? $negotiation->harvest->variety ?? 'Standard' }}
                                         </div>
                                     </td>
-                                    <td class="p-5 text-slate-700 dark:text-slate-350 text-xs font-bold">
+                                    <td class="p-5 text-slate-700 dark:text-slate-400 text-xs font-bold">
                                         {{ $negotiation->buyer->name ?? 'Buyer' }}
                                     </td>
                                     <td class="p-5 text-right font-mono font-extrabold text-slate-800 dark:text-white text-xs">

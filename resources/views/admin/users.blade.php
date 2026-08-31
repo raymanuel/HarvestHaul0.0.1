@@ -4,7 +4,7 @@
     <header class="pt-8 mb-8">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-                <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-550 mb-1">Admin / Security control</p>
+                <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-600 mb-1">Admin / Security control</p>
                 <h1 class="text-2xl font-extrabold text-slate-800 dark:text-white heading-font tracking-tight">User Management</h1>
             </div>
             <div class="flex items-center gap-3">
@@ -48,7 +48,7 @@
                     <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-slate-100 to-slate-50 dark:from-slate-700 dark:to-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-[10px] font-extrabold text-slate-600 dark:text-slate-300 uppercase shrink-0">{{ substr($user->name, 0, 2) }}</div>
                     <div class="truncate max-w-[180px]">
                         <span class="font-bold text-slate-800 dark:text-slate-200 text-sm block leading-tight">{{ $user->name }}</span>
-                        <span class="text-[9px] text-slate-400 dark:text-slate-550 font-bold uppercase tracking-wider">Joined {{ $user->created_at->format('M d, Y') }}</span>
+                        <span class="text-[9px] text-slate-400 dark:text-slate-600 font-bold uppercase tracking-wider">Joined {{ $user->created_at->format('M d, Y') }}</span>
                     </div>
                 </div>
             </td>

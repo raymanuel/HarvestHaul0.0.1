@@ -11,7 +11,7 @@
             </svg>
         </div>
         <h2 class="text-xl font-extrabold text-slate-800 heading-font tracking-tight">Farmer Registration</h2>
-        <p class="text-xs text-slate-505 mt-1.5 font-semibold">Join the marketplace, pool logistics, and coordinate dispatch</p>
+        <p class="text-xs text-slate-500 mt-1.5 font-semibold">Join the marketplace, pool logistics, and coordinate dispatch</p>
     </div>
 
     @if ($errors->any())
@@ -102,7 +102,7 @@
 
         {{-- FARM LOCATION — MAP PIN --}}
         <div class="form-group space-y-2">
-            <label class="text-xs font-bold text-slate-650 block">
+            <label class="text-xs font-bold text-slate-700 block">
                 Farm Location <span class="text-[var(--color-error-text)]">*</span>
             </label>
 
@@ -126,7 +126,7 @@
 
             {{-- Map container --}}
             <div id="farm-map-wrapper" class="w-full h-[200px] rounded-xl border border-[#16283C]/15 shadow-sm overflow-hidden z-0" style="position:relative;">
-                <div id="map-skeleton" style="position:absolute;inset:0;z-index:400;background:linear-gradient(135deg,#F5F6F2,#E7EAE4);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;transition:opacity 0.3s;">
+                <div id="map-skeleton" style="position:absolute;inset:0;z-index:400;background:linear-gradient(135deg,#F7F4EC,#E7EAE4);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;transition:opacity 0.3s;">
                     <div style="width:28px;height:28px;border:3px solid #e5e7eb;border-top-color:#16283C;border-radius:50%;animation:spin 0.8s linear infinite;"></div>
                     <p style="font-size:11px;color:#9ca3af;font-weight:500;margin:0;">Loading map...</p>
                 </div>
@@ -167,7 +167,7 @@
 
         {{-- Cooperative dropdown — only shown if under a coop --}}
         <div id="coop-field" style="display:none;" class="form-group space-y-1.5">
-            <label class="text-xs font-bold text-slate-650 block">
+            <label class="text-xs font-bold text-slate-700 block">
                 Select Your Cooperative <span class="text-slate-400 font-normal">(Optional)</span>
             </label>
             <div class="relative">
@@ -223,7 +223,7 @@
             </x-button>
         </div>
 
-        <div class="mt-6 pt-5 border-t border-slate-100/80 text-center text-xs font-semibold text-slate-450">
+        <div class="mt-6 pt-5 border-t border-slate-100/80 text-center text-xs font-semibold text-slate-500">
             Not a farmer?
             <a href="{{ route('register.role', 'logistics_partner') }}"
                 class="text-[#16283C] hover:text-[#16283C]/80 transition ml-1 hover:underline">

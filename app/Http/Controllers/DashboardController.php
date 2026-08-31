@@ -8,12 +8,14 @@ use App\Models\HarvestStatus;
 use App\Models\PoolingJob;
 use App\Models\ScraperStatus;
 use App\Models\User;
+use App\Models\WeatherLog;
 use App\Services\Darfo12Service;
 use App\Http\Controllers\Admin\AdminDashboardController;
-use Illuminate\Support\Carbon;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class DashboardController extends Controller
@@ -25,6 +27,15 @@ class DashboardController extends Controller
         // ─── DA Price Data (shared across all dashboards) ──────
         $daService = app(Darfo12Service::class);
         ['latestDate' => $latestDaDate, 'daPrices' => $daPrices, 'priceTrends' => $priceTrends, 'scraperStatus' => $scraperStatus] = $daService->getDashboardData();
+
+        // Demand-driven scrape: if data is stale (>24h) or missing, trigger a background scrape.
+        $this->maybeScrapePrices($latestDaDate);
+
+        // Re-fetch dashboard data in case the scrape just updated it.
+        ['latestDate' => $latestDaDate, 'daPrices' => $daPrices, 'priceTrends' => $priceTrends, 'scraperStatus' => $scraperStatus] = $daService->getDashboardData();
+
+        // ─── Weather Data (shared across all dashboards) ──────
+        $weatherData = $this->getWeatherForUser($user);
 
         // Initialize default counter fallback metrics
         $activeHarvestCount = 0;
@@ -115,6 +126,7 @@ class DashboardController extends Controller
                 'priceTrends' => $priceTrends,
                 'latestDaDate' => $latestDaDate,
                 'scraperStatus' => $scraperStatus,
+                'weatherData' => $weatherData,
             ]),
 
             'logistics_partner' => view('logistics.logistics-view', [

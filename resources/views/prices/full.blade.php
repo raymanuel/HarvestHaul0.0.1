@@ -2,7 +2,7 @@
 <div class="w-full max-w-7xl mx-auto pb-12">
 
     <header class="pt-8 mb-8">
-        <a href="{{ route('dashboard') }}" class="text-sm text-slate-400 hover:text-slate-650 dark:hover:text-slate-350 mb-4 inline-block font-semibold transition">
+        <a href="{{ route('dashboard') }}" class="text-sm text-slate-400 hover:text-slate-700 dark:hover:text-slate-400 mb-4 inline-block font-semibold transition">
             ← Back to Dashboard
         </a>
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">

@@ -24,7 +24,7 @@
         {{-- ─── Truck Selector + Generate Plan Bar ─── --}}
         <div class="bg-white dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700/80 rounded-2xl shadow-sm p-5 mb-6 flex flex-wrap items-end gap-4">
             <div class="flex-1 min-w-[220px]">
-                <label for="truck-select" class="block text-xs font-bold text-slate-400 dark:text-slate-550 uppercase tracking-widest mb-2">Select Truck</label>
+                <label for="truck-select" class="block text-xs font-bold text-slate-400 dark:text-slate-600 uppercase tracking-widest mb-2">Select Truck</label>
                 <div class="relative">
                     <select id="truck-select" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-xl px-4 py-3 text-sm focus:border-[#16283C] focus:ring-4 focus:ring-[#16283C]/10 transition outline-none appearance-none cursor-pointer">
                         <option value="">— Choose a truck —</option>
@@ -47,7 +47,7 @@
             </div>
 
             <div class="flex-1 min-w-[220px]">
-                <label for="driver-select" class="block text-xs font-bold text-slate-400 dark:text-slate-550 uppercase tracking-widest mb-2">Assign Driver</label>
+                <label for="driver-select" class="block text-xs font-bold text-slate-400 dark:text-slate-600 uppercase tracking-widest mb-2">Assign Driver</label>
                 <div class="relative">
                     <select id="driver-select" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-xl px-4 py-3 text-sm focus:border-[#16283C] focus:ring-4 focus:ring-[#16283C]/10 transition outline-none appearance-none cursor-pointer">
                         <option value="">Auto-assign (nearest)</option>
@@ -134,7 +134,7 @@
                     </div>
                 </div>
 
-                <p id="radius-description" class="text-[11px] text-slate-450 dark:text-slate-500 mb-4 leading-relaxed">Farms within 5km buffer off the planned road segments will auto-detect.</p>
+                <p id="radius-description" class="text-[11px] text-slate-500 dark:text-slate-500 mb-4 leading-relaxed">Farms within 5km buffer off the planned road segments will auto-detect.</p>
 
                 @unless($isCoop)
                 <div class="mb-4 bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200/60 dark:border-slate-700/60 shadow-sm">
@@ -252,7 +252,7 @@
                         <div class="flex flex-col items-end gap-1.5 shrink-0">
                             <span class="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md
                                 {{ $route['status'] === 'in_progress' ? 'bg-[var(--color-info-bg)] text-[var(--color-info-text)] border border-[var(--color-info-border)]' : '' }}
-                                {{ $route['status'] === 'confirmed' ? 'bg-[var(--color-success-bg)] text-[var(--color-success-text)] border border-[var(--color-success-border)]' : '' }}
+                                {{ $route['status'] === 'confirmed' ? 'bg-[#16283C] text-white dark:bg-[#D7BC7A] dark:text-[#16283C] border border-[#16283C] dark:border-[#D7BC7A]' : '' }}
                                 {{ $route['status'] === 'awaiting_confirmation' ? 'bg-[var(--color-warning-bg)] text-[var(--color-warning-text)] border border-[var(--color-warning-border)]' : '' }}
                                 {{ !in_array($route['status'], ['in_progress', 'confirmed', 'awaiting_confirmation']) ? 'bg-slate-100 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700' : '' }}">
                                 {{ ucfirst(str_replace('_', ' ', $route['status'])) }}
@@ -280,20 +280,20 @@
             {{-- Summary row --}}
             <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
                 <div class="bg-slate-50 dark:bg-slate-900/50 rounded-xl p-4 border border-slate-100 dark:border-slate-700/40 text-center hover:shadow-sm transition-shadow duration-200">
-                    <p class="text-[10px] text-slate-400 dark:text-slate-550 uppercase tracking-widest font-bold">Farms Selected</p>
+                    <p class="text-[10px] text-slate-400 dark:text-slate-600 uppercase tracking-widest font-bold">Farms Selected</p>
                     <p id="plan-farm-count" class="text-2xl font-black text-slate-800 dark:text-white mt-1">—</p>
                 </div>
                 <div class="bg-slate-50 dark:bg-slate-900/50 rounded-xl p-4 border border-slate-100 dark:border-slate-700/40 text-center hover:shadow-sm transition-shadow duration-200">
-                    <p class="text-[10px] text-slate-400 dark:text-slate-550 uppercase tracking-widest font-bold">Total Load</p>
+                    <p class="text-[10px] text-slate-400 dark:text-slate-600 uppercase tracking-widest font-bold">Total Load</p>
                     <p id="plan-total-kg" class="text-2xl font-black text-[#16283C] dark:text-[#D7BC7A] mt-1">—</p>
                 </div>
                 <div class="bg-slate-50 dark:bg-slate-900/50 rounded-xl p-4 border border-slate-100 dark:border-slate-700/40 text-center hover:shadow-sm transition-shadow duration-200">
-                    <p class="text-[10px] text-slate-400 dark:text-slate-550 uppercase tracking-widest font-bold">Capacity Used</p>
+                    <p class="text-[10px] text-slate-400 dark:text-slate-600 uppercase tracking-widest font-bold">Capacity Used</p>
                     <p id="plan-load-pct" class="text-2xl font-black text-[var(--color-info-text)] mt-1">—</p>
                 </div>
                 <div class="bg-slate-50 dark:bg-slate-900/50 rounded-xl p-4 border border-slate-100 dark:border-slate-700/40 text-center hover:shadow-sm transition-shadow duration-200">
-                    <p class="text-[10px] text-slate-400 dark:text-slate-550 uppercase tracking-widest font-bold">Est. Distance</p>
-                    <p id="plan-distance" class="text-2xl font-black text-slate-700 dark:text-slate-350 mt-1">—</p>
+                    <p class="text-[10px] text-slate-400 dark:text-slate-600 uppercase tracking-widest font-bold">Est. Distance</p>
+                    <p id="plan-distance" class="text-2xl font-black text-slate-700 dark:text-slate-400 mt-1">—</p>
                 </div>
                 <div class="bg-[#16283C]/10/50 dark:bg-[#16283C]/10 rounded-xl p-4 border border-[#16283C]/20 dark:border-[#16283C]/15 text-center ring-2 ring-[#16283C]/10 hover:shadow-sm transition-shadow duration-200">
                     <p class="text-[10px] text-[#16283C] dark:text-[#D7BC7A] font-bold uppercase tracking-widest">Total Haul Cost</p>
@@ -301,8 +301,8 @@
                     <p id="plan-rate" class="text-[10px] text-[#16283C]/80 font-bold mt-1">—</p>
                 </div>
                 <div class="bg-slate-50 dark:bg-slate-900/50 rounded-xl p-4 border border-slate-100 dark:border-slate-700/40 text-center hover:shadow-sm transition-shadow duration-200">
-                    <p class="text-[10px] text-slate-400 dark:text-slate-550 uppercase tracking-widest font-bold">Assigned Truck</p>
-                    <p id="plan-truck-label" class="text-xs font-bold text-slate-655 dark:text-slate-350 mt-2.5 truncate">—</p>
+                    <p class="text-[10px] text-slate-400 dark:text-slate-600 uppercase tracking-widest font-bold">Assigned Truck</p>
+                    <p id="plan-truck-label" class="text-xs font-bold text-slate-655 dark:text-slate-400 mt-2.5 truncate">—</p>
                 </div>
             </div>
 
@@ -329,7 +329,7 @@
             {{-- Notes + Proposal Submission Trigger --}}
             <div class="flex flex-wrap items-end gap-4 pt-4 border-t border-slate-100 dark:border-slate-700">
                 <div class="flex-1 min-w-[220px]">
-                    <label for="plan-notes" class="block text-xs font-bold text-slate-400 dark:text-slate-550 uppercase tracking-widest mb-2">Instructions / Notes (optional)</label>
+                    <label for="plan-notes" class="block text-xs font-bold text-slate-400 dark:text-slate-600 uppercase tracking-widest mb-2">Instructions / Notes (optional)</label>
                     <input id="plan-notes" type="text" maxlength="500"
                            placeholder="e.g., Deliver to port before 12:00 PM, secure tarpaulin"
                            class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-xl px-4 py-3 text-sm focus:border-[#16283C] focus:ring-4 focus:ring-[#16283C]/10 transition outline-none">
@@ -440,7 +440,7 @@
                 } else {
                     document.getElementById('truck-info-driver').innerHTML     = '<svg class="w-4 h-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg> Driver: <b>' + _escHtml(driverValue) + '</b>';
                     document.getElementById('truck-info-capacity').textContent = Number(opt.dataset.capacity).toLocaleString() + ' kg limit';
-                    truckInfo.className = 'text-xs text-slate-650 dark:text-slate-300 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3.5 font-semibold flex items-center gap-2';
+                    truckInfo.className = 'text-xs text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3.5 font-semibold flex items-center gap-2';
                     truckInfo.classList.remove('hidden');
 
                     btnGenerate.disabled = !(baseRouteGeoJSON && startMarker && endMarker);
@@ -644,7 +644,7 @@
                             style="margin-top:10px;width:100%;background:#16283C;color:white;border:none;border-radius:8px;padding:8px 0;font-size:12px;font-weight:700;cursor:pointer;box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
                             <svg class="w-4 h-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg> Plot Route
                            </button>`
-                        : `<button disabled style="margin-top:10px;width:100%;background:${isDark ? '#14202D' : '#F5F6F2'};color:${isDark ? '#5A6573' : '#94A3B4'};border:none;border-radius:8px;padding:8px 0;font-size:12px;font-weight:700;cursor:not-allowed;">
+                        : `<button disabled style="margin-top:10px;width:100%;background:${isDark ? '#14202D' : '#F7F4EC'};color:${isDark ? '#5A6573' : '#94A3B4'};border:none;border-radius:8px;padding:8px 0;font-size:12px;font-weight:700;cursor:not-allowed;">
                             No destination set
                            </button>`;
 
@@ -664,7 +664,7 @@
                         <div style="min-width:200px;font-family:'DM Sans',sans-serif;">
                             <b style="font-size:14px;color:${isDark ? '#e2e8f0' : '#0f172a'};">${farm.name}</b>
                             <br><span style="color:${isDark ? '#94A3B4' : '#5A6573'};font-size:12px;"><svg class="w-4 h-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg> ${farm.farmer_profile.farm_location}</span>
-                            <hr style="margin:8px 0;border:0;border-top:1px solid ${isDark ? '#14202D' : '#F5F6F2'};">
+                            <hr style="margin:8px 0;border:0;border-top:1px solid ${isDark ? '#14202D' : '#F7F4EC'};">
                             <b style="font-size:11px;color:${isDark ? '#94A3B4' : '#5A6573'};letter-spacing:0.05em;text-transform:uppercase;">Active Harvests</b>
                             <ul style="margin:4px 0 0;padding-left:14px;font-size:12px;color:${isDark ? '#E9EEF4' : '#17202B'};list-style-type:square;">${harvestList}</ul>
                             ${destinationHtml}
@@ -813,19 +813,19 @@
                     const exceedsCapacity = totalKg > truckCapacity;
 
                     const cardClass = exceedsCapacity
-                        ? 'bg-slate-50 dark:bg-slate-905/40 p-4 rounded-xl border border-slate-205 dark:border-slate-800 border-l-4 border-l-rose-500 opacity-60 filter grayscale relative overflow-hidden'
+                        ? 'bg-slate-50 dark:bg-slate-900/40 p-4 rounded-xl border border-slate-205 dark:border-slate-800 border-l-4 border-l-rose-500 opacity-60 filter grayscale relative overflow-hidden'
                         : 'bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-100/70 dark:border-slate-700/80 border-l-4 border-l-[#16283C] shadow-sm hover:shadow-md transition-shadow relative overflow-hidden';
 
                     const capacityBadge = exceedsCapacity
-                        ? `<span class="inline-block mt-2 text-[9px] font-bold uppercase tracking-wider bg-rose-50 dark:bg-rose-950/20 text-rose-600 dark:text-rose-400 border border-rose-250/50 dark:border-rose-900/30 px-2 py-0.5 rounded-md"><svg class="w-4 h-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg> Over Limit</span>`
+                        ? `<span class="inline-block mt-2 text-[9px] font-bold uppercase tracking-wider bg-rose-50 dark:bg-rose-950/20 text-rose-600 dark:text-rose-400 border border-rose-300/50 dark:border-rose-900/30 px-2 py-0.5 rounded-md"><svg class="w-4 h-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg> Over Limit</span>`
                         : '';
 
                     queueContainer.innerHTML += `
                         <div class="${cardClass}">
-                            <strong class="text-sm ${exceedsCapacity ? 'text-slate-450 dark:text-slate-550 line-through' : 'text-slate-800 dark:text-slate-200 heading-font'}">${item.data.name}</strong>
+                            <strong class="text-sm ${exceedsCapacity ? 'text-slate-500 dark:text-slate-600 line-through' : 'text-slate-800 dark:text-slate-200 heading-font'}">${item.data.name}</strong>
                             <p class="text-xs text-slate-500 dark:text-slate-400 mt-1.5 flex items-center gap-1"><span><svg class="w-4 h-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg></span> ${item.data.farmer_profile.farm_location}</p>
                             <p class="text-xs text-slate-404 dark:text-slate-500 mt-1"><svg class="w-4 h-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 17h.01M16 17h.01M3 11l1.5-5A2 2 0 016.4 4h11.2a2 2 0 011.9 1.4L21 11M3 11h18M3 11v6a1 1 0 001 1h1a1 1 0 001-1v-1h12v1a1 1 0 001 1h1a1 1 0 001-1v-6"/></svg> ${item.distance.toFixed(2)} km off-route</p>
-                            <p class="text-xs mt-1.5 ${exceedsCapacity ? 'text-rose-600 dark:text-rose-450 font-bold' : 'text-slate-650 dark:text-slate-350 font-semibold'}"><svg class="w-4 h-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"/></svg> ${totalKg.toLocaleString()} kg payload</p>
+                            <p class="text-xs mt-1.5 ${exceedsCapacity ? 'text-rose-600 dark:text-rose-450 font-bold' : 'text-slate-700 dark:text-slate-400 font-semibold'}"><svg class="w-4 h-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"/></svg> ${totalKg.toLocaleString()} kg payload</p>
                             ${capacityBadge}
                         </div>
                     `;
@@ -1013,7 +1013,7 @@
                 (plan.selected_harvests || []).forEach((h, i) => {
                     tbody.innerHTML += `
                         <tr class="border-b border-slate-100 dark:border-slate-700/40 hover:bg-slate-50/50 dark:hover:bg-slate-900/40 transition-colors">
-                            <td class="py-3.5 px-4 font-mono text-xs text-slate-400 dark:text-slate-550">#${i + 1}</td>
+                            <td class="py-3.5 px-4 font-mono text-xs text-slate-400 dark:text-slate-600">#${i + 1}</td>
                             <td class="py-3.5 px-4 font-bold text-slate-700 dark:text-slate-300">${h.farm_name ?? '—'}</td>
                             <td class="py-3.5 px-4 text-slate-500 dark:text-slate-400 text-xs">${h.farm_location ?? '—'}</td>
                             <td class="py-3.5 px-4 text-slate-500 dark:text-slate-400 text-xs font-semibold">${h.crop ?? '—'}</td>

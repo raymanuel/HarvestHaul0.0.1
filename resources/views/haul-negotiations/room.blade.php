@@ -331,16 +331,30 @@
 
     function agreeTerms(e) {
         e.preventDefault();
-        fetch('/haul-negotiations/' + intentId + '/agree', {
-            method: 'POST',
-            headers: { 'X-CSRF-TOKEN': csrfToken, 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
-        }).then(function (r) {
-            if (!r.ok) throw new Error('HTTP ' + r.status);
-            return r.json();
-        }).then(function (data) {
-            if (data.message) appendMessage(data.message);
-            updateUI(data);
-        }).catch(function (err) { console.error('agreeTerms:', err); });
+        var rate = {{ $haulIntent->hauling_rate_php_per_kg ? (float) $haulIntent->hauling_rate_php_per_kg : 'null' }};
+        var volume = {{ (float) ($haulIntent->haulRequest->harvest?->quantity_kg ?? 0) }};
+        var text = rate !== null && volume > 0
+            ? 'Book this haul at ₱' + rate.toFixed(2) + '/kg × ' + volume.toLocaleString() + ' kg = ₱' + (rate * volume).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '?'
+            : 'Book this haul at the agreed rate?';
+        swalConfirm(function () {
+            fetch('/haul-negotiations/' + intentId + '/agree', {
+                method: 'POST',
+                headers: { 'X-CSRF-TOKEN': csrfToken, 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
+            }).then(function (r) {
+                if (!r.ok) throw new Error('HTTP ' + r.status);
+                return r.json();
+            }).then(function (data) {
+                if (data.message) appendMessage(data.message);
+                updateUI(data);
+            }).catch(function (err) { console.error('agreeTerms:', err); });
+        }, {
+            title: 'Agree & Book This Rate?',
+            text: text,
+            icon: 'question',
+            confirmText: 'Yes, book this haul',
+            cancelText: 'Not yet',
+            confirmColor: isFarmer ? '#16283C' : '#BFA05A'
+        });
         return false;
     }
 

@@ -275,6 +275,31 @@
             background-color: rgba(217, 188, 122, 0.18);
             color: #D7BC7A;
         }
+
+        /* Sidebar is ALWAYS dark navy, even in light mode */
+        #sidebar-nav .nav-link {
+            color: #CBD5E1;
+        }
+        #sidebar-nav .nav-link:hover {
+            color: #F5E3B0;
+            background-color: rgba(255, 255, 255, 0.08);
+        }
+        #sidebar-nav .nav-letter {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.7);
+        }
+        #sidebar-nav .section-label {
+            color: rgba(255, 255, 255, 0.6);
+        }
+        #sidebar-nav .nav-link.nav-active {
+            background-color: rgba(217, 188, 122, 0.12);
+            color: #D7BC7A;
+            border-left-color: #D7BC7A;
+        }
+        #sidebar-nav .nav-link.nav-active .nav-letter {
+            background-color: rgba(217, 188, 122, 0.18);
+            color: #D7BC7A;
+        }
     </style>
 </head>
 <body class="app-shell m-0 p-0 text-slate-800 antialiased min-h-screen overflow-x-hidden">
@@ -285,17 +310,10 @@
     </a>
 
     <!-- Mobile Top Header -->
-    <header class="lg:hidden sticky top-0 z-50 bg-[#F5F6F2] dark:bg-[#14202D] text-slate-900 dark:text-white px-5 py-4 flex justify-between items-center border-b border-slate-900/10 dark:border-black/20 shadow-md">
+    <header class="lg:hidden sticky top-0 z-50 bg-[var(--color-surface)] dark:bg-[#14202D] text-slate-900 dark:text-white px-5 py-4 flex justify-between items-center border-b border-slate-900/10 dark:border-black/20 shadow-md">
         <a href="/dashboard" class="flex items-center gap-2 group">
             <div class="w-8 h-8 rounded-lg bg-brand-700 flex items-center justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M2 22 16 8"/>
-                    <path d="M3.47 12.53 5 11l1.53 1.53a3.5 3.5 0 0 1 0 4.94L5 19l-1.53-1.53a3.5 3.5 0 0 1 0-4.94Z"/>
-                    <path d="M7.47 8.53 9 7l1.53 1.53a3.5 3.5 0 0 1 0 4.94L9 15l-1.53-1.53a3.5 3.5 0 0 1 0-4.94Z"/>
-                    <path d="M11.47 4.53 13 3l1.53 1.53a3.5 3.5 0 0 1 0 4.94L13 11l-1.53-1.53a3.5 3.5 0 0 1 0-4.94Z"/>
-                    <path d="M20 2h2v2a4 4 0 0 1-4 4h-2V6a4 4 0 0 1 4-4Z"/>
-                    <path d="M11.47 17.47 13 19l-1.53 1.53a3.5 3.5 0 0 1-4.94 0L5 19l1.53-1.53a3.5 3.5 0 0 1 4.94 0Z"/>
-                </svg>
+                        <x-brand-logo class="w-5 h-5 text-[#D7BC7A]" />
             </div>
             <span class="text-lg font-bold tracking-tight heading-font text-brand dark:text-white">HarvestHaul</span>
         </a>
@@ -310,22 +328,15 @@
         <!-- Overlay Backdrop for Mobile Navigation -->
         <div id="sidebar-overlay" onclick="toggleMobileSidebar()" class="hidden fixed inset-0 bg-slate-950/40 backdrop-blur-sm z-30 transition-opacity"></div>
         <!-- Sidebar Navigation Drawer (Collapsible) -->
-        <aside id="sidebar-nav" class="fixed inset-y-0 left-0 z-40 w-64 bg-[#F5F6F2] text-slate-800 border-r border-slate-900/10 flex flex-col justify-between transform -translate-x-full lg:translate-x-0 shadow-2xl lg:shadow-none dark:bg-[#0E1620] dark:text-slate-300 dark:border-black/20">
+        <aside id="sidebar-nav" class="fixed inset-y-0 left-0 z-40 w-64 bg-[#0E1620] text-slate-300 border-r border-black/20 flex flex-col justify-between transform -translate-x-full lg:translate-x-0 shadow-2xl lg:shadow-none">
             
             <!-- Sidebar Header & Logo -->
-            <div class="px-5 py-5 border-b border-slate-900/10 shrink-0 flex items-center logo-container dark:border-black/20">
+            <div class="px-5 py-5 border-b border-black/20 shrink-0 flex items-center logo-container">
                 <a href="/dashboard" class="flex items-center gap-3 group logo-link">
                     <div class="w-9 h-9 rounded-xl bg-brand-700 flex items-center justify-center shadow-md shadow-[#16283C]/10 shrink-0">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M2 22 16 8"/>
-                            <path d="M3.47 12.53 5 11l1.53 1.53a3.5 3.5 0 0 1 0 4.94L5 19l-1.53-1.53a3.5 3.5 0 0 1 0-4.94Z"/>
-                            <path d="M7.47 8.53 9 7l1.53 1.53a3.5 3.5 0 0 1 0 4.94L9 15l-1.53-1.53a3.5 3.5 0 0 1 0-4.94Z"/>
-                            <path d="M11.47 4.53 13 3l1.53 1.53a3.5 3.5 0 0 1 0 4.94L13 11l-1.53-1.53a3.5 3.5 0 0 1 0-4.94Z"/>
-                            <path d="M20 2h2v2a4 4 0 0 1-4 4h-2V6a4 4 0 0 1 4-4Z"/>
-                            <path d="M11.47 17.47 13 19l-1.53 1.53a3.5 3.5 0 0 1-4.94 0L5 19l1.53-1.53a3.5 3.5 0 0 1 4.94 0Z"/>
-                        </svg>
+                <x-brand-logo class="w-5 h-5 text-[#D7BC7A]" />
                     </div>
-                    <span class="text-xl font-bold tracking-tight text-brand heading-font logo-text dark:text-white">HarvestHaul</span>
+                    <span class="text-xl font-bold tracking-tight text-white heading-font logo-text">HarvestHaul</span>
                 </a>
             </div>
 
@@ -336,7 +347,7 @@
         <!-- Main Display Content Shell Wrapper (Offset on desktop) -->
         <div id="main-content" tabindex="-1" class="main-wrapper flex-1 lg:pl-64 min-w-0 flex flex-col min-h-screen outline-none">
             <!-- Horizontal Desktop Navbar -->
-            <nav id="top-navbar" class="top-navbar hidden lg:flex fixed top-0 z-30 h-20 bg-[#F5F6F2] border-b border-slate-900/5 px-8 items-center justify-between shadow-sm dark:bg-[#14202D] dark:border-black/20">
+            <nav id="top-navbar" class="top-navbar hidden lg:flex fixed top-0 z-30 h-20 bg-[var(--color-surface)] border-b border-slate-900/5 px-8 items-center justify-between shadow-sm dark:bg-[#14202D] dark:border-black/20">
                 <!-- Left side: collapse toggle + portal indicator -->
                 <div class="flex items-center gap-4">
                     <!-- Topbar collapse toggle -->

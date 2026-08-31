@@ -1,15 +1,8 @@
-/**
- * Shared SweetAlert2 helpers extracted from layout.blade.php.
- *
- * Usage (ES module / Vite):
- *   import { SWAL_COLORS, swalConfirm, handleFlashMessages } from '../swal-helpers';
- */
-
 /* ------------------------------------------------------------------ */
 /*  Dark-mode-aware color constants                                    */
 /* ------------------------------------------------------------------ */
 
-export const SWAL_COLORS = {
+const SWAL_COLORS = {
     get background() {
         return document.documentElement.classList.contains('dark')
             ? '#1e293b'
@@ -41,7 +34,7 @@ export const SWAL_COLORS = {
  * @param {string}  [opts.confirmColor] – confirm-button background colour
  * @param {string}  [opts.cancelColor]  – cancel-button background colour
  */
-export function swalConfirm(formOrCallback, opts = {}) {
+function swalConfirm(formOrCallback, opts = {}) {
     const defaults = {
         title:        opts.title       || 'Are you sure?',
         text:         opts.text        || 'This action cannot be undone.',
@@ -95,7 +88,7 @@ export function swalConfirm(formOrCallback, opts = {}) {
  *
  * Then call  handleFlashMessages()  on DOMContentLoaded.
  */
-export function handleFlashMessages() {
+function handleFlashMessages() {
     const errorMeta   = document.querySelector('meta[name="flash-error"]');
     const warningMeta = document.querySelector('meta[name="flash-warning"]');
 
@@ -140,3 +133,5 @@ export function handleFlashMessages() {
         });
     }
 }
+
+window.swalConfirm = swalConfirm;

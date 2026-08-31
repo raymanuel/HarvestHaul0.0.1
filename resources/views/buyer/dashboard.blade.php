@@ -17,7 +17,7 @@
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
             <x-stat-card
-                accent="harvest"
+                accent="brand"
                 title="Pending Confirmations"
                 :value="$pendingConfirmations->count()"
                 unit="deliveries"
@@ -35,7 +35,7 @@
             />
 
             <x-stat-card
-                accent="navy"
+                accent="brand"
                 title="Available Crops"
                 :value="$recentPosts->count()"
                 unit="postings"

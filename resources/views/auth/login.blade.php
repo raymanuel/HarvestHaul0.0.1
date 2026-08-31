@@ -2,6 +2,7 @@
 <html lang="en" class="overflow-x-hidden">
 <head>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <script src="{{ asset('vendor/sweetalert2/sweetalert2.all.min.js') }}"></script>
     <link rel="preload" as="image" href="/images/login-bg.webp">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -72,14 +73,7 @@
             {{-- Top: Logo --}}
             <div style="position:relative; z-index:1; display:flex; align-items:center; gap:10px;">
                 <div style="width:36px; height:36px; border-radius:10px; background:#16283C; display:flex; align-items:center; justify-content:center;">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M2 22 16 8"/>
-                        <path d="M3.47 12.53 5 11l1.53 1.53a3.5 3.5 0 0 1 0 4.94L5 19l-1.53-1.53a3.5 3.5 0 0 1 0-4.94Z"/>
-                        <path d="M7.47 8.53 9 7l1.53 1.53a3.5 3.5 0 0 1 0 4.94L9 15l-1.53-1.53a3.5 3.5 0 0 1 0-4.94Z"/>
-                        <path d="M11.47 4.53 13 3l1.53 1.53a3.5 3.5 0 0 1 0 4.94L13 11l-1.53-1.53a3.5 3.5 0 0 1 0-4.94Z"/>
-                        <path d="M20 2h2v2a4 4 0 0 1-4 4h-2V6a4 4 0 0 1 4-4Z"/>
-                        <path d="M11.47 17.47 13 19l-1.53 1.53a3.5 3.5 0 0 1-4.94 0L5 19l1.53-1.53a3.5 3.5 0 0 1 4.94 0Z"/>
-                    </svg>
+                    <x-brand-logo class="w-5 h-5 text-[#D7BC7A]" />
                 </div>
                 <span style="font-size:1.35rem; font-weight:800; color:white; letter-spacing:-0.02em;">HarvestHaul</span>
             </div>
@@ -130,7 +124,7 @@
                     <defs>
                         <linearGradient id="pearl-leaf" x1="0" y1="0" x2="0" y2="1">
                             <stop offset="0%" stop-color="#FFFFFF"/>
-<stop offset="45%" stop-color="#F5F6F2"/>
+<stop offset="45%" stop-color="#F7F4EC"/>
 <stop offset="100%" stop-color="#D7BC7A"/>
                         </linearGradient>
                         <linearGradient id="pearl-stem" x1="0" y1="0" x2="0" y2="1">
@@ -150,7 +144,7 @@
         </div>
 
         {{-- ====== RIGHT: AUTH PANELS CONTAINER ====== --}}
-        <div class="auth-right" style="flex:1; display:flex; align-items:center; justify-content:center; padding:3rem; background:#F5F6F2; position:relative; overflow-y:auto;">
+        <div class="auth-right" style="flex:1; display:flex; align-items:center; justify-content:center; padding:3rem; background:#F7F4EC; position:relative; overflow-y:auto;">
 
             {{-- Panel wrapper for slide transitions --}}
             <div class="auth-right-inner" style="position:relative; width:100%; max-width:420px;">
@@ -456,7 +450,14 @@
             const pwd = document.getElementById('reg-password').value;
             const confirm = document.getElementById('reg-password-confirm').value;
             if (pwd !== confirm) {
-                alert('Passwords do not match.');
+                Swal.fire({
+                    title: 'Passwords do not match.',
+                    icon: 'warning',
+                    confirmButtonColor: '#16283C',
+                    confirmButtonText: 'OK',
+                    background: document.documentElement.classList.contains('dark') ? '#1e293b' : '#fff',
+                    color: document.documentElement.classList.contains('dark') ? '#e2e8f0' : '#1e293b'
+                });
                 return false;
             }
             return true;

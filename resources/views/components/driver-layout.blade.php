@@ -47,7 +47,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
         body {
-            background: #F5F6F2;
+            background: #F7F4EC;
             transition: background 0.3s ease, color 0.3s ease;
         }
         html.dark body {

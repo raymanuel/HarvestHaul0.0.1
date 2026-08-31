@@ -86,7 +86,7 @@ $isNavy = $accent === 'navy';
             <p class="text-3xl font-extrabold {$valueClass} tracking-tight heading-font">{{ $value }}</p>
             <div class="flex flex-wrap gap-1.5 mt-3">
                 @foreach($subBadges as $label => $count)
-                    <span class="text-[9px] font-semibold text-slate-600 dark:text-slate-350 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700/80 px-2 py-0.5 rounded-md">{{ $count }} {{ $label }}</span>
+                    <span class="text-[9px] font-semibold text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700/80 px-2 py-0.5 rounded-md">{{ $count }} {{ $label }}</span>
                 @endforeach
             </div>
         @else
