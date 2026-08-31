@@ -750,4 +750,19 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const input = document.getElementById('crop_photos');
+    if (!input || typeof window.compressImage !== 'function') return;
+    input.addEventListener('change', async function () {
+      if (!input.files.length) return;
+      const out = [];
+      for (const f of Array.from(input.files)) out.push(await window.compressImage(f));
+      const dt = new DataTransfer();
+      out.forEach((f) => dt.items.add(f));
+      input.files = dt.files;
+    });
+  });
+</script>
+
 </x-layout>
