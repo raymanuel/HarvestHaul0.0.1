@@ -27,6 +27,7 @@ class PoolingJob extends Model
         'end_longitude',
         'radius_km',
         'notes',
+        'delivery_deadline',
         'accepted_at',
         'price_reference',
         'negotiated_price',

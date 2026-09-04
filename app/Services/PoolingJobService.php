@@ -395,12 +395,14 @@ class PoolingJobService
         foreach ($harvests as $h) {
             $completedNegotiation = $h->negotiations->firstWhere('status', 'COMPLETED');
             $stops[] = [
-                'harvest_id'   => $h->id,
-                'pickup_order' => $order++,
-                'latitude'     => (float) ($h->latitude ?? 0),
-                'longitude'    => (float) ($h->longitude ?? 0),
-                'quantity_kg'  => $completedNegotiation ? (float) $completedNegotiation->negotiated_volume : (float) $h->quantity_kg,
-                'crop'         => $h->crop->name ?? $h->crop_type ?? 'Unknown',
+                'harvest_id'          => $h->id,
+                'pickup_order'        => $order++,
+                'latitude'            => (float) ($h->latitude ?? 0),
+                'longitude'           => (float) ($h->longitude ?? 0),
+                'quantity_kg'         => $completedNegotiation ? (float) $completedNegotiation->negotiated_volume : (float) $h->quantity_kg,
+                'crop'                => $h->crop->name ?? $h->crop_type ?? 'Unknown',
+                'pickup_window_start' => $h->pickup_window_start,
+                'pickup_window_end'   => $h->pickup_window_end,
             ];
         }
         return $stops;

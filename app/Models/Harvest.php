@@ -27,6 +27,8 @@ class Harvest extends Model
         'visibility',
         'notes',
         'harvest_date',
+        'pickup_window_start',
+        'pickup_window_end',
         'quality_grade',
         'packaging_type',
         'suggested_price_per_kg',

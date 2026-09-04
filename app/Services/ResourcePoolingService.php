@@ -271,6 +271,8 @@ class ResourcePoolingService
                         2
                     ),
                 'rate'               => $perFarmerRates[$harvestId] ?? ($hasPerFarmerRates ? null : $haulingRatePerKg),
+                'pickup_window_start' => $h['pickup_window_start'] ?? null,
+                'pickup_window_end'   => $h['pickup_window_end'] ?? null,
             ];
         });
 
@@ -294,6 +296,7 @@ class ResourcePoolingService
             'price_reference'   => round($priceReference, 2),
             'hauling_rate_per_kg' => round($haulingRatePerKg, 2),
             'stops'             => $stops,
+            'delivery_deadline' => null, // set by logistics on confirm
             // Simplified harvest list (used by confirm endpoint to re-attach to pivot)
             'selected_harvests' => $stops->map(fn($s) => [
                 'harvest_id'    => $s['harvest_id'],
@@ -304,6 +307,8 @@ class ResourcePoolingService
                 'pickup_order'  => $s['pickup_order'],
                 'split_cost'    => $s['individual_cost'],
                 'split_rate'    => $s['rate'] ?? null,
+                'pickup_window_start' => $s['pickup_window_start'] ?? null,
+                'pickup_window_end'   => $s['pickup_window_end'] ?? null,
             ])->values(),
         ];
     }
@@ -409,6 +414,7 @@ class ResourcePoolingService
             $job->negotiated_price     = $plan['price_reference'] ?? null; // auto total = rate × total kg
             $job->hauling_rate_per_kg  = $plan['hauling_rate_per_kg'] ?? null;
             $job->notes                = $plan['notes'] ?? null;
+            $job->delivery_deadline    = $plan['delivery_deadline'] ?? null;
             $job->proposal_expires_at  = $plan['proposal_expires_at'] ?? now()->addHours(48);
             $job->confirmed_at         = null;                // will be populated once confirmed
             $job->route_geometry       = $plan['route_geometry'] ?? null; // OSRM route JSON for map display
@@ -560,26 +566,43 @@ class ResourcePoolingService
         $ordered    = collect();
         $currentLat = $startLat;
         $currentLng = $startLng;
+        $now        = now();
 
         while (!empty($unvisited)) {
-            $nearestIndex    = 0;
-            $nearestDistance = PHP_FLOAT_MAX;
+            $bestIndex  = 0;
+            $bestScore  = PHP_FLOAT_MAX;
 
-            // Find the closest unvisited farm from current position
+            // Find the farm that balances distance + time window urgency
             foreach ($unvisited as $i => $harvest) {
                 $dist = $this->haversine($currentLat, $currentLng, (float)($harvest['latitude'] ?? 0), (float)($harvest['longitude'] ?? 0));
-                if ($dist < $nearestDistance) {
-                    $nearestDistance = $dist;
-                    $nearestIndex    = $i;
+
+                // Soft time-window penalty: prioritize farms whose window is closing soon
+                $timePenalty = 0;
+                if (!empty($harvest['pickup_window_end'])) {
+                    $windowEnd = \Carbon\Carbon::parse($harvest['pickup_window_end']);
+                    $minutesUntilClose = $now->diffInMinutes($windowEnd, false);
+                    if ($minutesUntilClose < 0) {
+                        // Already past window — heavy penalty but don't exclude
+                        $timePenalty = 99999;
+                    } elseif ($minutesUntilClose < 120) {
+                        // Window closing within 2 hours — scale urgency
+                        $timePenalty = (120 - $minutesUntilClose) * 0.5;
+                    }
+                }
+
+                $score = $dist + $timePenalty;
+                if ($score < $bestScore) {
+                    $bestScore = $score;
+                    $bestIndex = $i;
                 }
             }
 
             // Move to that farm and remove it from the unvisited list
-            $nearest = $unvisited[$nearestIndex];
+            $nearest = $unvisited[$bestIndex];
             $ordered->push($nearest);
             $currentLat = (float) ($nearest['latitude'] ?? 0);
             $currentLng = (float) ($nearest['longitude'] ?? 0);
-            array_splice($unvisited, $nearestIndex, 1);
+            array_splice($unvisited, $bestIndex, 1);
         }
         return $ordered;
     }
