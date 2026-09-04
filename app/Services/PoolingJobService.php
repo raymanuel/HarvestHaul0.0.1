@@ -285,6 +285,13 @@ class PoolingJobService
             return ['error' => 'Submitted total_kg (' . $totalKg . ' kg) does not match actual harvest sum (' . $actualHarvestSum . ' kg).', 'status' => 422];
         }
 
+        // If frontend provided an OSRM-ordered stop sequence, sort harvests by it
+        $stopOrder = $validated['stop_order'] ?? null;
+        if (!empty($stopOrder) && is_array($stopOrder)) {
+            $orderMap = array_flip($stopOrder);
+            $harvests = $harvests->sortBy(fn($h) => $orderMap[$h->id] ?? 999)->values();
+        }
+
         $stops = $this->buildStops($harvests);
         $distance = $this->calculateDistance($stops, $harvests, $validated['start_lat'], $validated['start_lng'], $validated['end_lat'], $validated['end_lng']);
 

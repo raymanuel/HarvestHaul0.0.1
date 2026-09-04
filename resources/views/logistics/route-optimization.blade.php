@@ -14,7 +14,7 @@
                 ->values();
         @endphp
         <header class="pt-8 mb-6 border-b border-slate-200/80 dark:border-slate-700/80 pb-5">
-            <span class="text-xs font-bold uppercase tracking-wider text-[#16283C] dark:text-[#D7BC7A] bg-[#16283C]/10 dark:bg-[#16283C]/10 px-3 py-1.5 rounded-lg border border-[#16283C]/10 dark:border-[#16283C]/20 self-start">Routing</span>
+            <span class="text-xs font-bold uppercase tracking-wider text-brand dark:text-brand-light bg-brand/10 dark:bg-brand/10 px-3 py-1.5 rounded-lg border border-brand/10 dark:border-brand/20 self-start">Routing</span>
             <h1 class="text-3xl font-bold text-slate-900 dark:text-white heading-font mt-2">Route Planning</h1>
 
         </header>
@@ -26,7 +26,7 @@
             <div class="flex-1 min-w-[220px]">
                 <label for="truck-select" class="block text-xs font-bold text-slate-400 dark:text-slate-600 uppercase tracking-widest mb-2">Select Truck</label>
                 <div class="relative">
-                    <select id="truck-select" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-xl px-4 py-3 text-sm focus:border-[#16283C] focus:ring-4 focus:ring-[#16283C]/10 transition outline-none appearance-none cursor-pointer">
+                    <select id="truck-select" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-xl px-4 py-3 text-sm focus:border-brand focus:ring-4 focus:ring-brand/10 transition outline-none appearance-none cursor-pointer">
                         <option value="">— Choose a truck —</option>
                         @forelse($trucks as $truck)
                             <option value="{{ $truck['id'] }}"
@@ -49,7 +49,7 @@
             <div class="flex-1 min-w-[220px]">
                 <label for="driver-select" class="block text-xs font-bold text-slate-400 dark:text-slate-600 uppercase tracking-widest mb-2">Assign Driver</label>
                 <div class="relative">
-                    <select id="driver-select" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-xl px-4 py-3 text-sm focus:border-[#16283C] focus:ring-4 focus:ring-[#16283C]/10 transition outline-none appearance-none cursor-pointer">
+                    <select id="driver-select" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-xl px-4 py-3 text-sm focus:border-brand focus:ring-4 focus:ring-brand/10 transition outline-none appearance-none cursor-pointer">
                         <option value="">Auto-assign (nearest)</option>
                         @forelse($availableDrivers as $driver)
                             <option value="{{ $driver['id'] }}"
@@ -72,20 +72,8 @@
                 <span id="truck-info-capacity"></span>
             </div>
 
-            @if($suggestedTruckId)
-                <div id="recommendation-badge" class="text-xs text-[#16283C] dark:text-[#D7BC7A] bg-[#16283C]/10 dark:bg-[#16283C]/10 border border-[#16283C]/20 dark:border-[#16283C]/15 rounded-xl px-4 py-2.5 font-semibold flex items-center gap-2">
-                    <span><x-icon name="sun" class="w-4 h-4" /></span> Auto-Recommended
-                </div>
-            @endif
-
-            @if($nearestDriver)
-                <div class="text-xs text-[#0E1620] dark:text-[#E9EEF4] bg-[#0E1620]/10 dark:bg-[#0E1620]/10 border border-[#0E1620]/20 dark:border-[#0E1620]/10 rounded-xl px-4 py-2.5 font-semibold flex items-center gap-2">
-                    <span><x-icon name="pin" class="w-4 h-4" /></span> Nearest Driver: {{ $nearestDriver['driver']->name }} ({{ $nearestDriver['distance_km'] }} km)
-                </div>
-            @endif
-
             <button id="btn-show-map" type="button"
-                    class="text-sm font-bold text-[#16283C] dark:text-[#D7BC7A] bg-[#16283C]/10 dark:bg-[#16283C]/10 border border-[#16283C]/20 dark:border-[#16283C]/15 hover:bg-[#16283C]/20 dark:hover:bg-[#16283C]/20 rounded-xl px-6 py-3.5 transition flex items-center gap-2">
+                    class="text-sm font-bold text-brand dark:text-brand-light bg-brand/10 dark:bg-brand/10 border border-brand/20 dark:border-brand/15 hover:bg-brand/20 dark:hover:bg-brand/20 rounded-xl px-6 py-3.5 transition flex items-center gap-2">
                 <span><x-icon name="pin" class="w-4 h-4" /></span> Show Map
             </button>
 
@@ -94,9 +82,67 @@
                 <span><x-icon name="pin" class="w-4 h-4" /></span> Hide Map
             </button>
 
+            <button id="btn-toggle-options" type="button"
+                    class="text-sm font-bold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-xl px-4 py-3.5 transition flex items-center gap-2"
+                    aria-expanded="false" aria-controls="routing-options">
+                <span class="translate-y-[-1px] leading-none">&#9881;</span> Options
+            </button>
+
             <x-button id="btn-generate-plan" disabled size="lg">
                 <span><x-icon name="calculator" class="w-4 h-4" /></span> Generate Route Plan
             </x-button>
+        </div>
+
+        {{-- ─── Collapsible Options: rate + radius + routing hints ─── --}}
+        <div id="routing-options" class="hidden bg-white dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700/80 rounded-2xl shadow-sm p-5 mb-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-4">
+                <div>
+                    <label for="radius-select" class="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-2">Search Radius</label>
+                    <div class="relative">
+                        <select id="radius-select" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-xl px-3 py-2.5 text-xs focus:border-brand focus:ring-4 focus:ring-brand/10 transition outline-none appearance-none cursor-pointer">
+                            <option value="1">Within 1 km</option>
+                            <option value="3">Within 3 km</option>
+                            <option value="5" selected>Within 5 km</option>
+                            <option value="10">Within 10 km</option>
+                            <option value="20">Within 20 km</option>
+                            <option value="50">Within 50 km</option>
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">
+                            <svg class="fill-current h-3 w-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                        </div>
+                    </div>
+                    <p id="radius-description" class="text-[11px] text-slate-500 dark:text-slate-500 mt-2 leading-relaxed">Farms within this buffer off the planned road segments auto-detect.</p>
+                </div>
+
+                @unless($isCoop)
+                <div>
+                    <label for="hauling-rate" class="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-2">Flat Hauling Rate (&#8369;/kg)</label>
+                    <input type="number" id="hauling-rate" step="0.01" min="0.1" value="{{ $logisticsProfile->default_hauling_rate ?? '1.50' }}"
+                        class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-xl px-3 py-2.5 text-xs font-mono focus:border-brand focus:ring-4 focus:ring-brand/10 transition outline-none"
+                        placeholder="e.g. 1.50" />
+                    <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">Total price = rate &#215; total kg. Split across farmers by cargo weight &#215; haul distance.</p>
+                </div>
+                @endunless
+            </div>
+
+            @if($isCoop)
+            <p class="text-[10px] text-slate-600 dark:text-slate-300 leading-relaxed font-semibold bg-brand/5 dark:bg-slate-900/40 border border-brand/15 dark:border-slate-700/60 rounded-xl px-4 py-3 mb-4">
+                Each farmer's hauling rate was agreed in their negotiation chat and is read automatically. No flat rate needed.
+            </p>
+            @endif
+
+            <div class="flex flex-wrap gap-2">
+                @if($suggestedTruckId)
+                    <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-brand dark:text-brand-light bg-brand/10 border border-brand/20 rounded-lg px-3 py-1.5">
+                        <span><x-icon name="sun" class="w-3.5 h-3.5" /></span> Auto-Recommended truck
+                    </span>
+                @endif
+                @if($nearestDriver)
+                    <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1.5">
+                        <span><x-icon name="pin" class="w-3.5 h-3.5" /></span> Nearest Driver: {{ $nearestDriver['driver']->name }} ({{ $nearestDriver['distance_km'] }} km)
+                    </span>
+                @endif
+            </div>
         </div>
 
         {{-- ─── Main Grid: Map + Sidebar (hidden until "Show Map" / route planning) ─── --}}
@@ -114,41 +160,8 @@
             {{-- Sidebar --}}
             <div class="bg-slate-50 dark:bg-slate-900/40 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 p-5 flex flex-col h-[400px] sm:h-[600px]">
                 <h3 class="text-sm font-bold text-slate-800 dark:text-slate-250 heading-font mb-4 flex items-center gap-2">
-                    <span class="text-[#16283C]"><x-icon name="pin" class="w-4 h-4" /></span> Route Pickups
+                    <span class="text-brand"><x-icon name="pin" class="w-4 h-4" /></span> Route Pickups
                 </h3>
-
-                <div class="mb-4 bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200/60 dark:border-slate-700/60 shadow-sm">
-                    <label for="radius-select" class="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-2">Search Radius</label>
-                    <div class="relative">
-                        <select id="radius-select" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-xl px-3 py-2.5 text-xs focus:border-[#16283C] focus:ring-4 focus:ring-[#16283C]/10 transition outline-none appearance-none cursor-pointer">
-                            <option value="1">Within 1 km</option>
-                            <option value="3">Within 3 km</option>
-                            <option value="5" selected>Within 5 km</option>
-                            <option value="10">Within 10 km</option>
-                            <option value="20">Within 20 km</option>
-                            <option value="50">Within 50 km</option>
-                        </select>
-                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">
-                            <svg class="fill-current h-3 w-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
-                        </div>
-                    </div>
-                </div>
-
-                <p id="radius-description" class="text-[11px] text-slate-500 dark:text-slate-500 mb-4 leading-relaxed">Farms within 5km buffer off the planned road segments will auto-detect.</p>
-
-                @unless($isCoop)
-                <div class="mb-4 bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200/60 dark:border-slate-700/60 shadow-sm">
-                    <label for="hauling-rate" class="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-2">Flat Hauling Rate (₱/kg)</label>
-                    <input type="number" id="hauling-rate" step="0.01" min="0.1" value="{{ $logisticsProfile->default_hauling_rate ?? '1.50' }}"
-                        class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-xl px-3 py-2.5 text-xs font-mono focus:border-[#16283C] focus:ring-4 focus:ring-[#16283C]/10 transition outline-none"
-                        placeholder="e.g. 1.50" />
-                    <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-1.5 leading-relaxed">Total price = rate × total kg. Split across farmers by cargo weight × haul distance.</p>
-                </div>
-                @else
-                <div class="mb-4 bg-[#16283C]/5 dark:bg-slate-900/40 border border-[#16283C]/15 dark:border-slate-700/60 rounded-xl px-4 py-3">
-                    <p class="text-[10px] text-slate-600 dark:text-slate-300 leading-relaxed font-semibold">Each farmer's hauling rate was agreed in their negotiation chat and is read automatically. No flat rate needed.</p>
-                </div>
-                @endunless
 
                 {{-- Weather Widget --}}
                 <div id="weather-widget" class="hidden mb-4 bg-white dark:bg-slate-800 p-3 rounded-xl border border-slate-200/60 dark:border-slate-700/60 shadow-sm">
@@ -183,10 +196,10 @@
             <div class="bg-white dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700/80 rounded-2xl shadow-sm p-5">
                 <div class="flex items-center justify-between mb-1">
                     <h3 class="text-sm font-bold text-slate-800 dark:text-slate-200 heading-font flex items-center gap-2">
-                        <span class="text-[#16283C]"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg></span>
+                        <span class="text-brand"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg></span>
                         Done Deals
                     </h3>
-                    <span class="text-[10px] font-bold uppercase tracking-wider text-[#16283C] dark:text-[#D7BC7A] bg-[#16283C]/10 dark:bg-[#16283C]/10 border border-[#16283C]/20 dark:border-[#16283C]/15 px-2.5 py-1 rounded-lg" id="open-haul-count">{{ $doneDealFarms->count() }}</span>
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-brand dark:text-brand-light bg-brand/10 dark:bg-brand/10 border border-brand/20 dark:border-brand/15 px-2.5 py-1 rounded-lg" id="open-haul-count">{{ $doneDealFarms->count() }}</span>
                 </div>
                 <p class="text-[11px] text-slate-500 dark:text-slate-400 mb-4 leading-relaxed">Finalized B2B deals ready for pickup routing. Click Show in Map to focus on a deal's pickup and drop-off points.</p>
                 <div id="open-haul-requests" class="space-y-3 max-h-[480px] overflow-y-auto pr-1 custom-scroll">
@@ -196,19 +209,19 @@
                             $dealTotalKg = collect($doneFarm['harvests'] ?? [])->sum(fn($h) => (float) ($h['quantity'] ?? 0));
                             $deal = $doneHarvest['completed_negotiation'] ?? null;
                         @endphp
-                        <div class="bg-slate-50 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-700/60 border-l-4 border-l-[#16283C] rounded-xl p-3.5">
+                        <div class="bg-slate-50 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-700/60  rounded-xl p-3.5">
                             <p class="text-sm font-bold text-slate-800 dark:text-slate-200 heading-font truncate">{{ $doneFarm['name'] }}</p>
                             <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 truncate">
                                 @if($doneHarvest)<span class="font-semibold">{{ $doneHarvest['crop'] }}</span> &bull; @endif
                                 {{ number_format($dealTotalKg) }} kg
-                                @if($deal) &bull; <span class="font-semibold text-[#16283C]">&#8369;{{ number_format($deal['price'], 2) }}/kg</span> @endif
+                                @if($deal) &bull; <span class="font-semibold text-brand dark:text-brand-light">&#8369;{{ number_format($deal['price'], 2) }}/kg</span> @endif
                             </p>
                             @if($deal)
                                 <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 truncate">Buyer: {{ $deal['buyer'] }}</p>
                                 <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 truncate">Drop-off: {{ $deal['dropoff'] ?? $doneFarm['destination_address'] ?? '—' }}</p>
                             @endif
                             <div class="flex items-center gap-2 mt-2.5">
-                                <button onclick="focusDealOnMap('{{ addslashes($doneFarm['name']) }}')" class="flex-1 text-[11px] font-bold text-[#16283C] dark:text-[#D7BC7A] bg-[#16283C]/10 dark:bg-[#16283C]/10 border border-[#16283C]/20 dark:border-[#16283C]/15 hover:bg-[#16283C]/20 dark:hover:bg-[#16283C]/20 rounded-lg px-3 py-1.5 transition flex items-center justify-center gap-1">
+                                <button onclick="focusDealOnMap('{{ addslashes($doneFarm['name']) }}')" class="flex-1 text-[11px] font-bold text-brand dark:text-brand-light bg-brand/10 dark:bg-brand/10 border border-brand/20 dark:border-brand/15 hover:bg-brand/20 dark:hover:bg-brand/20 rounded-lg px-3 py-1.5 transition flex items-center justify-center gap-1">
                                     <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                                     Show in Map
                                 </button>
@@ -224,7 +237,7 @@
             <div class="bg-white dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700/80 rounded-2xl shadow-sm p-5">
                 <div class="flex items-center justify-between mb-1">
                     <h3 class="text-sm font-bold text-slate-800 dark:text-slate-200 heading-font flex items-center gap-2">
-                        <span class="text-[#16283C]"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg></span>
+                        <span class="text-brand"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg></span>
                         My Routes
                     </h3>
                     <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 px-2.5 py-1 rounded-lg">{{ $myRoutes->count() }}</span>
@@ -232,7 +245,7 @@
                 <p class="text-[11px] text-slate-500 dark:text-slate-400 mb-4 leading-relaxed">Recent pooling routes for this logistics partner. Select View Map to recall the saved route on the map.</p>
 
                 @forelse($myRoutes as $route)
-                    <div class="flex items-center justify-between gap-3 bg-slate-50 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-700/60 border-l-4 border-l-[#16283C] rounded-xl p-3.5 mb-3">
+                    <div class="flex items-center justify-between gap-3 bg-slate-50 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-700/60  rounded-xl p-3.5 mb-3">
                         <div class="min-w-0">
                             <p class="text-sm font-bold text-slate-800 dark:text-slate-200 heading-font truncate">
                                 <a href="{{ route('pooling.show', $route['id']) }}" class="hover:underline">Job #{{ $route['id'] }}</a>
@@ -252,13 +265,13 @@
                         <div class="flex flex-col items-end gap-1.5 shrink-0">
                             <span class="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md
                                 {{ $route['status'] === 'in_progress' ? 'bg-[var(--color-info-bg)] text-[var(--color-info-text)] border border-[var(--color-info-border)]' : '' }}
-                                {{ $route['status'] === 'confirmed' ? 'bg-[#16283C] text-white dark:bg-[#D7BC7A] dark:text-[#16283C] border border-[#16283C] dark:border-[#D7BC7A]' : '' }}
+                                {{ $route['status'] === 'confirmed' ? 'bg-brand text-white dark:bg-brand-light dark:text-brand border border-brand dark:border-brand-light' : '' }}
                                 {{ $route['status'] === 'awaiting_confirmation' ? 'bg-[var(--color-warning-bg)] text-[var(--color-warning-text)] border border-[var(--color-warning-border)]' : '' }}
                                 {{ !in_array($route['status'], ['in_progress', 'confirmed', 'awaiting_confirmation']) ? 'bg-slate-100 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700' : '' }}">
                                 {{ ucfirst(str_replace('_', ' ', $route['status'])) }}
                             </span>
                             <button onclick="viewRouteMap({{ $route['id'] }})"
-                                class="text-[11px] font-bold text-[#16283C] dark:text-[#D7BC7A] bg-[#16283C]/10 dark:bg-[#16283C]/10 border border-[#16283C]/20 dark:border-[#16283C]/15 hover:bg-[#16283C]/20 dark:hover:bg-[#16283C]/20 rounded-lg px-3 py-1.5 transition flex items-center gap-1">
+                                class="text-[11px] font-bold text-brand dark:text-brand-light bg-brand/10 dark:bg-brand/10 border border-brand/20 dark:border-brand/15 hover:bg-brand/20 dark:hover:bg-brand/20 rounded-lg px-3 py-1.5 transition flex items-center gap-1">
                                 <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                                 View Map
                             </button>
@@ -285,7 +298,7 @@
                 </div>
                 <div class="bg-slate-50 dark:bg-slate-900/50 rounded-xl p-4 border border-slate-100 dark:border-slate-700/40 text-center hover:shadow-sm transition-shadow duration-200">
                     <p class="text-[10px] text-slate-400 dark:text-slate-600 uppercase tracking-widest font-bold">Total Load</p>
-                    <p id="plan-total-kg" class="text-2xl font-black text-[#16283C] dark:text-[#D7BC7A] mt-1">—</p>
+                    <p id="plan-total-kg" class="text-2xl font-black text-brand dark:text-brand-light mt-1">—</p>
                 </div>
                 <div class="bg-slate-50 dark:bg-slate-900/50 rounded-xl p-4 border border-slate-100 dark:border-slate-700/40 text-center hover:shadow-sm transition-shadow duration-200">
                     <p class="text-[10px] text-slate-400 dark:text-slate-600 uppercase tracking-widest font-bold">Capacity Used</p>
@@ -295,14 +308,14 @@
                     <p class="text-[10px] text-slate-400 dark:text-slate-600 uppercase tracking-widest font-bold">Est. Distance</p>
                     <p id="plan-distance" class="text-2xl font-black text-slate-700 dark:text-slate-400 mt-1">—</p>
                 </div>
-                <div class="bg-[#16283C]/10/50 dark:bg-[#16283C]/10 rounded-xl p-4 border border-[#16283C]/20 dark:border-[#16283C]/15 text-center ring-2 ring-[#16283C]/10 hover:shadow-sm transition-shadow duration-200">
-                    <p class="text-[10px] text-[#16283C] dark:text-[#D7BC7A] font-bold uppercase tracking-widest">Total Haul Cost</p>
-                    <p id="plan-price-ref" class="text-2xl font-black text-[#16283C] dark:text-[#D7BC7A] mt-1">—</p>
-                    <p id="plan-rate" class="text-[10px] text-[#16283C]/80 font-bold mt-1">—</p>
+                <div class="bg-gold/10 dark:bg-gold/10 rounded-xl p-4 border border-gold/25 dark:border-gold/25 text-center ring-2 ring-gold/10 hover:shadow-sm transition-shadow duration-200">
+                    <p class="text-[10px] text-gold-700 dark:text-gold-light font-bold uppercase tracking-widest">Total Haul Cost</p>
+                    <p id="plan-price-ref" class="text-2xl font-black text-gold-700 dark:text-gold-light mt-1">—</p>
+                    <p id="plan-rate" class="text-[10px] text-gold-700/80 dark:text-gold-light/80 font-bold mt-1">—</p>
                 </div>
                 <div class="bg-slate-50 dark:bg-slate-900/50 rounded-xl p-4 border border-slate-100 dark:border-slate-700/40 text-center hover:shadow-sm transition-shadow duration-200">
                     <p class="text-[10px] text-slate-400 dark:text-slate-600 uppercase tracking-widest font-bold">Assigned Truck</p>
-                    <p id="plan-truck-label" class="text-xs font-bold text-slate-655 dark:text-slate-400 mt-2.5 truncate">—</p>
+                    <p id="plan-truck-label" class="text-xs font-bold text-slate-600 dark:text-slate-400 mt-2.5 truncate">—</p>
                 </div>
             </div>
 
@@ -332,7 +345,7 @@
                     <label for="plan-notes" class="block text-xs font-bold text-slate-400 dark:text-slate-600 uppercase tracking-widest mb-2">Instructions / Notes (optional)</label>
                     <input id="plan-notes" type="text" maxlength="500"
                            placeholder="e.g., Deliver to port before 12:00 PM, secure tarpaulin"
-                           class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-xl px-4 py-3 text-sm focus:border-[#16283C] focus:ring-4 focus:ring-[#16283C]/10 transition outline-none">
+                           class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-xl px-4 py-3 text-sm focus:border-brand focus:ring-4 focus:ring-brand/10 transition outline-none">
                 </div>
                 <x-button id="btn-confirm-plan" size="lg">
                     <span><x-icon name="inbox" class="w-4 h-4" /></span> Create Delivery Proposal
@@ -380,6 +393,17 @@
             document.getElementById('btn-hide-map').addEventListener('click', function () {
                 hideMap();
             });
+
+            // ─── Collapsible Options toggle ─────────────────────────────
+            const btnOptions   = document.getElementById('btn-toggle-options');
+            const optionsPanel = document.getElementById('routing-options');
+            if (btnOptions && optionsPanel) {
+                btnOptions.addEventListener('click', function () {
+                    const isOpen = !optionsPanel.classList.contains('hidden');
+                    optionsPanel.classList.toggle('hidden');
+                    this.setAttribute('aria-expanded', String(!isOpen));
+                });
+            }
 
             // Farmers coordinate data passed from the controller
             const farms = @json($farmersData);
@@ -462,21 +486,26 @@
 
                 const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute("content") ?? "";
 
-                try {
-                    const res = await fetch("/route-optimization/assign-driver", {
+                swalConfirm(function () {
+                    return fetch("/route-optimization/assign-driver", {
                         method: "POST",
                         headers: { "Content-Type": "application/json", "Accept": "application/json", "X-CSRF-TOKEN": csrf },
                         body: JSON.stringify({ truck_id: Number(truckId), driver_id: Number(driverId) }),
-                    });
-                    const data = await res.json();
-                    if (data.success) {
-                        const selectedOpt = truckSelect.options[truckSelect.selectedIndex];
-                        if (selectedOpt) selectedOpt.dataset.driver = data.driver_name;
-                        truckSelect.dispatchEvent(new Event('change'));
-                    }
-                } catch (err) {
-                    console.error("Manual driver assignment failed:", err);
-                }
+                    }).then(function (res) { return res.json(); }).then(function (data) {
+                        if (data.success) {
+                            const selectedOpt = truckSelect.options[truckSelect.selectedIndex];
+                            if (selectedOpt) selectedOpt.dataset.driver = data.driver_name;
+                            truckSelect.dispatchEvent(new Event('change'));
+                        }
+                    }).catch(function (err) { console.error("Manual driver assignment failed:", err); });
+                }, {
+                    title: 'Assign This Driver?',
+                    text: 'Assign ' + (driverSelect.options[driverSelect.selectedIndex] ? driverSelect.options[driverSelect.selectedIndex].text : 'this driver') + ' to this truck?',
+                    icon: 'question',
+                    confirmText: 'Yes, assign',
+                    cancelText: 'Cancel',
+                    confirmColor: '#16283C'
+                });
             });
 
             // ─── Map Click Handlers ───────────────────────────────────────
@@ -521,7 +550,7 @@
                     btnGenerate.disabled = !validDriver;
                 } catch (err) {
                     console.error('Routing Error:', err);
-                    alert('Failed to connect to routing engine.');
+                    Swal.fire({ icon: 'error', title: 'Routing engine unreachable', text: 'Failed to connect to the routing engine. Check your connection and try again.', confirmButtonColor: '#16283C', background: document.documentElement.classList.contains('dark') ? '#1e293b' : '#fff', color: document.documentElement.classList.contains('dark') ? '#e2e8f0' : '#1e293b', customClass: { popup: 'rounded-xl' } });
                 }
             }
 
@@ -644,7 +673,7 @@
                             style="margin-top:10px;width:100%;background:#16283C;color:white;border:none;border-radius:8px;padding:8px 0;font-size:12px;font-weight:700;cursor:pointer;box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
                             <svg class="w-4 h-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg> Plot Route
                            </button>`
-                        : `<button disabled style="margin-top:10px;width:100%;background:${isDark ? '#14202D' : '#F7F4EC'};color:${isDark ? '#5A6573' : '#94A3B4'};border:none;border-radius:8px;padding:8px 0;font-size:12px;font-weight:700;cursor:not-allowed;">
+                        : `<button disabled style="margin-top:10px;width:100%;background:${isDark ? '#14202D' : '#F5F6F2'};color:${isDark ? '#5A6573' : '#94A3B4'};border:none;border-radius:8px;padding:8px 0;font-size:12px;font-weight:700;cursor:not-allowed;">
                             No destination set
                            </button>`;
 
@@ -664,7 +693,7 @@
                         <div style="min-width:200px;font-family:'DM Sans',sans-serif;">
                             <b style="font-size:14px;color:${isDark ? '#e2e8f0' : '#0f172a'};">${farm.name}</b>
                             <br><span style="color:${isDark ? '#94A3B4' : '#5A6573'};font-size:12px;"><svg class="w-4 h-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg> ${farm.farmer_profile.farm_location}</span>
-                            <hr style="margin:8px 0;border:0;border-top:1px solid ${isDark ? '#14202D' : '#F7F4EC'};">
+                            <hr style="margin:8px 0;border:0;border-top:1px solid ${isDark ? '#14202D' : '#F5F6F2'};">
                             <b style="font-size:11px;color:${isDark ? '#94A3B4' : '#5A6573'};letter-spacing:0.05em;text-transform:uppercase;">Active Harvests</b>
                             <ul style="margin:4px 0 0;padding-left:14px;font-size:12px;color:${isDark ? '#E9EEF4' : '#17202B'};list-style-type:square;">${harvestList}</ul>
                             ${destinationHtml}
@@ -813,8 +842,8 @@
                     const exceedsCapacity = totalKg > truckCapacity;
 
                     const cardClass = exceedsCapacity
-                        ? 'bg-slate-50 dark:bg-slate-900/40 p-4 rounded-xl border border-slate-205 dark:border-slate-800 border-l-4 border-l-rose-500 opacity-60 filter grayscale relative overflow-hidden'
-                        : 'bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-100/70 dark:border-slate-700/80 border-l-4 border-l-[#16283C] shadow-sm hover:shadow-md transition-shadow relative overflow-hidden';
+                        ? 'bg-slate-50 dark:bg-slate-900/40 p-4 rounded-xl border border-rose-300/60 dark:border-rose-900/40 opacity-60 filter grayscale relative overflow-hidden'
+                        : 'bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-100/70 dark:border-slate-700/80  shadow-sm hover:shadow-md transition-shadow relative overflow-hidden';
 
                     const capacityBadge = exceedsCapacity
                         ? `<span class="inline-block mt-2 text-[9px] font-bold uppercase tracking-wider bg-rose-50 dark:bg-rose-950/20 text-rose-600 dark:text-rose-400 border border-rose-300/50 dark:border-rose-900/30 px-2 py-0.5 rounded-md"><svg class="w-4 h-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg> Over Limit</span>`
@@ -855,15 +884,15 @@
                     const dropoff = deal.dropoff || farm.destination_address || '—';
 
                     container.innerHTML += `
-                        <div class="bg-slate-50 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-700/60 border-l-4 border-l-[#16283C] rounded-xl p-3.5">
+                        <div class="bg-slate-50 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-700/60  rounded-xl p-3.5">
                             <p class="text-sm font-bold text-slate-800 dark:text-slate-200 heading-font truncate">${farm.name}</p>
                             <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 truncate">
-                                ${farm.harvests[0] ? '<span class="font-semibold">' + farm.harvests[0].crop + '</span> &bull; ' : ''}${Number(totalKg || 0).toLocaleString()} kg &bull; <span class="font-semibold text-[#16283C]">&#8369;${Number(deal.price).toLocaleString(undefined, {minimumFractionDigits:2})}/kg</span>
+                                ${farm.harvests[0] ? '<span class="font-semibold">' + farm.harvests[0].crop + '</span> &bull; ' : ''}${Number(totalKg || 0).toLocaleString()} kg &bull; <span class="font-semibold text-brand dark:text-brand-light">&#8369;${Number(deal.price).toLocaleString(undefined, {minimumFractionDigits:2})}/kg</span>
                             </p>
                             <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 truncate">Buyer: ${deal.buyer}</p>
                             <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 truncate">Drop-off: ${dropoff}</p>
                             <div class="flex items-center gap-2 mt-2.5">
-                                <button onclick="focusDealOnMap('${farm.name.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}')" class="flex-1 text-[11px] font-bold text-[#16283C] dark:text-[#D7BC7A] bg-[#16283C]/10 dark:bg-[#16283C]/10 border border-[#16283C]/20 dark:border-[#16283C]/15 hover:bg-[#16283C]/20 dark:hover:bg-[#16283C]/20 rounded-lg px-3 py-1.5 transition flex items-center justify-center gap-1">
+                                <button onclick="focusDealOnMap('${farm.name.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}')" class="flex-1 text-[11px] font-bold text-brand dark:text-brand-light bg-brand/10 dark:bg-brand/10 border border-brand/20 dark:border-brand/15 hover:bg-brand/20 dark:hover:bg-brand/20 rounded-lg px-3 py-1.5 transition flex items-center justify-center gap-1">
                                     <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                                     Show in Map
                                 </button>
@@ -960,36 +989,45 @@
                 }
             }
 
-            btnGenerate.addEventListener('click', async function () {
+            btnGenerate.addEventListener('click', function () {
                 const harvestIds = lastNearbyFarms.flatMap(f => f.data.harvests.map(h => h.id));
-                btnGenerate.disabled = true;
-                btnGenerate.textContent = 'Generating...';
-                try {
-                    const res = await fetch('{{ route("pooling.plan") }}', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-                        body: JSON.stringify({
-                            truck_id:    parseInt(truckSelect.value),
-                            harvest_ids: harvestIds,
-                            start_lat:   startMarker.getLatLng().lat,
-                            start_lng:   startMarker.getLatLng().lng,
-                            end_lat:     endMarker.getLatLng().lat,
-                            end_lng:     endMarker.getLatLng().lng,
-                            radius_km:   parseFloat(document.getElementById('radius-select').value),
-                            hauling_rate_per_kg: (function(){ var el = document.getElementById('hauling-rate'); return el ? parseFloat(el.value) : null; })(),
-                        }),
-                    });
+                swalConfirm(function () {
+                    btnGenerate.disabled = true;
+                    btnGenerate.textContent = 'Generating...';
+                    try {
+                        const res = await fetch('{{ route("pooling.plan") }}', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                            body: JSON.stringify({
+                                truck_id:    parseInt(truckSelect.value),
+                                harvest_ids: harvestIds,
+                                start_lat:   startMarker.getLatLng().lat,
+                                start_lng:   startMarker.getLatLng().lng,
+                                end_lat:     endMarker.getLatLng().lat,
+                                end_lng:     endMarker.getLatLng().lng,
+                                radius_km:   parseFloat(document.getElementById('radius-select').value),
+                                hauling_rate_per_kg: (function(){ var el = document.getElementById('hauling-rate'); return el ? parseFloat(el.value) : null; })(),
+                            }),
+                        });
 
-                    const plan = await res.json();
-                    if (!res.ok || plan.success === false) { alert(plan.error || plan.message || 'Planning failed.'); btnGenerate.disabled = false; btnGenerate.textContent = 'Generate Route Plan'; return; }
-                    currentPlan = plan;
-                    renderPlanPanel(plan);
-                } catch (err) {
-                    console.error(err);
-                } finally {
-                    btnGenerate.disabled = false;
-                    btnGenerate.textContent = 'Generate Route Plan';
-                }
+                        const plan = await res.json();
+                        if (!res.ok || plan.success === false) { Swal.fire({ icon: 'error', title: 'Could not build route', text: plan.error || plan.message || 'Planning failed. Adjust your selection and try again.', confirmButtonColor: '#16283C', background: document.documentElement.classList.contains('dark') ? '#1e293b' : '#fff', color: document.documentElement.classList.contains('dark') ? '#e2e8f0' : '#1e293b', customClass: { popup: 'rounded-xl' } }); btnGenerate.disabled = false; btnGenerate.textContent = 'Generate Route Plan'; return; }
+                        currentPlan = plan;
+                        renderPlanPanel(plan);
+                    } catch (err) {
+                        console.error(err);
+                    } finally {
+                        btnGenerate.disabled = false;
+                        btnGenerate.textContent = 'Generate Route Plan';
+                    }
+                }, {
+                    title: 'Generate Route Plan?',
+                    text: 'Build a delivery route for the selected farms?',
+                    icon: 'question',
+                    confirmText: 'Yes, generate',
+                    cancelText: 'Cancel',
+                    confirmColor: '#16283C'
+                });
             });
 
             function renderPlanPanel(plan) {
@@ -1019,7 +1057,7 @@
                             <td class="py-3.5 px-4 text-slate-500 dark:text-slate-400 text-xs font-semibold">${h.crop ?? '—'}</td>
                             <td class="py-3.5 px-4 font-bold text-slate-800 dark:text-slate-200">${Number(h.quantity_kg).toLocaleString()} kg</td>
                             <td class="py-3.5 px-4 font-bold text-slate-700 dark:text-slate-300 text-right">${h.split_rate != null ? '₱' + Number(h.split_rate).toFixed(2) : '—'}/kg</td>
-                            <td class="py-3.5 px-4 font-extrabold text-[#16283C] dark:text-[#D7BC7A] text-right">
+                            <td class="py-3.5 px-4 font-extrabold text-brand dark:text-brand-light text-right">
                                 ₱${Number(h.split_cost ?? 0).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}
                             </td>
                         </tr>
@@ -1027,56 +1065,67 @@
                 });
             }
 
-            document.getElementById('btn-confirm-plan').addEventListener('click', async function () {
-                this.disabled = true; this.textContent = 'Creating Proposal...';
-                const harvestIds = currentPlan.selected_harvests.map(h => h.harvest_id);
+            document.getElementById('btn-confirm-plan').addEventListener('click', function () {
+                var btn = this;
+                swalConfirm(function () {
+                    btn.disabled = true; btn.textContent = 'Creating Proposal...';
+                    const harvestIds = currentPlan.selected_harvests.map(h => h.harvest_id);
 
-                try {
-                    const res = await fetch('{{ route("pooling.confirm") }}', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-                        body: JSON.stringify({
-                            truck_id:       parseInt(truckSelect.value),
-                            harvest_ids:    harvestIds,
-                            total_kg:       currentPlan.total_kg,
-                            start_lat:      startMarker.getLatLng().lat,
-                            start_lng:      startMarker.getLatLng().lng,
-                            end_lat:        endMarker.getLatLng().lat,
-                            end_lng:        endMarker.getLatLng().lng,
-                            radius_km:      parseFloat(document.getElementById('radius-select').value),
-                            hauling_rate_per_kg: (function(){ var el = document.getElementById('hauling-rate'); return el ? parseFloat(el.value) : null; })(),
-                            notes:          document.getElementById('plan-notes').value,
-                            route_geometry: currentRouteGeoJSON ? currentRouteGeoJSON.coordinates : [],
-                        }),
-                    });
+                    try {
+                        const res = await fetch('{{ route("pooling.confirm") }}', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                            body: JSON.stringify({
+                                truck_id:       parseInt(truckSelect.value),
+                                harvest_ids:    harvestIds,
+                                stop_order:     harvestIds,
+                                total_kg:       currentPlan.total_kg,
+                                start_lat:      startMarker.getLatLng().lat,
+                                start_lng:      startMarker.getLatLng().lng,
+                                end_lat:        endMarker.getLatLng().lat,
+                                end_lng:        endMarker.getLatLng().lng,
+                                radius_km:      parseFloat(document.getElementById('radius-select').value),
+                                hauling_rate_per_kg: (function(){ var el = document.getElementById('hauling-rate'); return el ? parseFloat(el.value) : null; })(),
+                                notes:          document.getElementById('plan-notes').value,
+                                route_geometry: currentRouteGeoJSON ? currentRouteGeoJSON.coordinates : [],
+                            }),
+                        });
 
-                    const result = await res.json();
-                    const feedback = document.getElementById('confirm-feedback');
-                    feedback.classList.remove('hidden');
+                        const result = await res.json();
+                        const feedback = document.getElementById('confirm-feedback');
+                        feedback.classList.remove('hidden');
 
-                    if (res.ok && result.success) {
-                        document.getElementById('plan-status-badge').textContent = 'Proposal Created';
-                        feedback.className = 'mt-4 p-4 rounded-xl bg-[#16283C]/10 dark:bg-[#16283C]/10 text-[#0E1620] dark:text-[#D7BC7A] border border-[#16283C]/20 dark:border-[#16283C]/15 font-bold flex items-center gap-2';
-                        feedback.innerHTML = '<span><svg class="w-4 h-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></span> Proposal pipeline open. Room linked to Job #' + result.pooling_job_id;
-                        this.innerHTML = '<span><svg class="w-4 h-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></span> Proposal Sent';
-                        window.__nextSteps = {
-                            title: 'Proposal created',
-                            message: 'Your pooling proposal has been created and sent to farmers.',
-                            steps: [
-                                'Farmers are now notified to review their cost share and accept or decline.',
-                                'Wait for all farmers to accept before the route is confirmed.',
-                                'Once confirmed, assign a driver so the trip can begin.',
-                                'Monitor progress under your Pooling Proposals page.'
-                            ],
-                            cta: { label: 'View Proposals', url: '{{ route("pooling.index") }}' }
-                        };
-                        showNextSteps();
-                    } else {
-                        feedback.className = 'mt-4 p-4 rounded-xl bg-rose-50 dark:bg-rose-950/20 text-rose-800 dark:text-rose-455 border border-rose-200/60 dark:border-rose-900/30 font-bold flex items-center gap-2';
-                        feedback.innerHTML = '<span><svg class="w-4 h-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></span> ' + result.error;
-                        this.disabled = false; this.innerHTML = '<span><svg class="w-4 h-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></span> Create Delivery Proposal';
-                    }
-                } catch (err) { console.error(err); }
+                        if (res.ok && result.success) {
+                            document.getElementById('plan-status-badge').textContent = 'Proposal Created';
+                            feedback.className = 'mt-4 p-4 rounded-xl bg-brand/10 dark:bg-brand/10 text-brand-dark dark:text-brand-light border border-brand/20 dark:border-brand/15 font-bold flex items-center gap-2';
+                            feedback.innerHTML = '<span><svg class="w-4 h-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></span> Proposal pipeline open. Room linked to Job #' + result.pooling_job_id;
+                            btn.innerHTML = '<span><svg class="w-4 h-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></span> Proposal Sent';
+                            window.__nextSteps = {
+                                title: 'Proposal created',
+                                message: 'Your pooling proposal has been created and sent to farmers.',
+                                steps: [
+                                    'Farmers are now notified to review their cost share and accept or decline.',
+                                    'Wait for all farmers to accept before the route is confirmed.',
+                                    'Once confirmed, assign a driver so the trip can begin.',
+                                    'Monitor progress under your Pooling Proposals page.'
+                                ],
+                                cta: { label: 'View Proposals', url: '{{ route("pooling.index") }}' }
+                            };
+                            showNextSteps();
+                        } else {
+                            feedback.className = 'mt-4 p-4 rounded-xl bg-rose-50 dark:bg-rose-950/20 text-rose-800 dark:text-rose-455 border border-rose-200/60 dark:border-rose-900/30 font-bold flex items-center gap-2';
+                            feedback.innerHTML = '<span><svg class="w-4 h-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></span> ' + result.error;
+                            btn.disabled = false; btn.innerHTML = '<span><svg class="w-4 h-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></span> Create Delivery Proposal';
+                        }
+                    } catch (err) { console.error(err); }
+                }, {
+                    title: 'Create Delivery Proposal?',
+                    text: 'Open a pooling proposal and notify the selected farmers?',
+                    icon: 'question',
+                    confirmText: 'Yes, create proposal',
+                    cancelText: 'Cancel',
+                    confirmColor: '#16283C'
+                });
             });
 
             document.getElementById('radius-select').addEventListener('change', async function () {

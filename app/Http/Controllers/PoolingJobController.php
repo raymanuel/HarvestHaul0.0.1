@@ -67,18 +67,20 @@ class PoolingJobController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                'truck_id'       => 'required|integer|exists:trucks,id',
-                'harvest_ids'    => 'required|array|min:1',
-                'harvest_ids.*'  => 'integer|exists:harvests,id',
-                'total_kg'       => 'required|numeric|min:0.01',
-                'start_lat'      => 'required|numeric|between:-90,90',
-                'start_lng'      => 'required|numeric|between:-180,180',
-                'end_lat'        => 'required|numeric|between:-90,90',
-                'end_lng'        => 'required|numeric|between:-180,180',
-                'radius_km'      => 'required|numeric|min:1|max:200',
-                'notes'          => 'nullable|string|max:500',
-                'route_geometry' => 'required|array',
+                'truck_id'          => 'required|integer|exists:trucks,id',
+                'harvest_ids'       => 'required|array|min:1',
+                'harvest_ids.*'     => 'integer|exists:harvests,id',
+                'total_kg'          => 'required|numeric|min:0.01',
+                'start_lat'         => 'required|numeric|between:-90,90',
+                'start_lng'         => 'required|numeric|between:-180,180',
+                'end_lat'           => 'required|numeric|between:-90,90',
+                'end_lng'           => 'required|numeric|between:-180,180',
+                'radius_km'         => 'required|numeric|min:1|max:200',
+                'notes'             => 'nullable|string|max:500',
+                'route_geometry'    => 'required|array',
                 'hauling_rate_per_kg' => 'nullable|numeric|min:0.1',
+                'stop_order'        => 'nullable|array',
+                'stop_order.*'      => 'integer|exists:harvests,id',
             ]);
 
             if ($validator->fails()) {
