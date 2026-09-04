@@ -203,7 +203,9 @@ class ResourcePoolingService
         } elseif ($haulingRatePerKg > 0) {
             $priceReference = $haulingRatePerKg * $totalKg;
         } else {
-            $priceReference = ($totalDistance * 15.00) + ($totalKg * 0.50) + 250.00;
+            $priceReference = ($totalDistance * config('harvesthaul.hauling.base_rate_per_km'))
+                + ($totalKg * config('harvesthaul.hauling.base_rate_per_kg'))
+                + config('harvesthaul.hauling.base_trip_fee');
         }
 
         // STEP 6: Cost allocation — per-farmer rate x kg when rates exist,
