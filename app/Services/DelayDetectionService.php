@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\JobDelayState;
 use App\Models\Notification;
 use App\Models\PoolingJob;
 use App\Models\TrackingRecord;
@@ -25,8 +26,6 @@ class DelayDetectionService
     private const SPEED_DEGRADATION_MIN_SPEED = 1;
     private const SPEED_DEGRADATION_CRITICAL_RATIO = 0.3;
     private const SPEED_DEGRADATION_CRITICAL_MINUTES = 10;
-
-    private array $activeAlerts = []; // tracks active alerts to detect resolution
 
     public function checkAllActiveJobs(): array
     {
@@ -88,13 +87,8 @@ class DelayDetectionService
         // 7. Resolution detection
         $this->detectResolution($job, $alerts);
 
-        // Track current alerts for resolution detection next cycle
-        $this->activeAlerts[$job->id] = [
-            'has_stall' => !is_null($stallAlert),
-            'has_dark' => !is_null($darkAlert),
-            'has_speed_degradation' => !is_null($speedDegradationAlert),
-            'checked_at' => now(),
-        ];
+        // Persist current alert state to DB for next cycle's resolution detection
+        $this->persistAlertState($job, $stallAlert, $darkAlert, $speedDegradationAlert);
 
         return $alerts;
     }
@@ -312,51 +306,70 @@ class DelayDetectionService
 
     private function detectResolution(PoolingJob $job, array $currentAlerts): void
     {
-        $prevAlert = $this->activeAlerts[$job->id] ?? null;
-        if (!$prevAlert) return;
+        // Get previously active alerts from DB
+        $prevStates = JobDelayState::where('pooling_job_id', $job->id)
+            ->active()
+            ->get()
+            ->keyBy('alert_type');
+
+        if ($prevStates->isEmpty()) return;
 
         // Check if previously stalled but now moving
-        if ($prevAlert['has_stall']) {
-            $stillStalled = false;
-            foreach ($currentAlerts as $a) {
-                if ($a['type'] === 'stall_detected') {
-                    $stillStalled = true;
-                    break;
-                }
-            }
-
+        if ($prevStates->has('stall')) {
+            $stillStalled = collect($currentAlerts)->contains('type', 'stall_detected');
             if (!$stillStalled) {
                 $this->sendDelayResolvedNotification($job, 'Driver resumed movement. Stall resolved.');
+                $prevStates['stall']->update(['resolved_at' => now()]);
             }
         }
 
         // Check if dark but now has signal
-        if ($prevAlert['has_dark']) {
-            $stillDark = false;
-            foreach ($currentAlerts as $a) {
-                if ($a['type'] === 'gps_signal_lost') {
-                    $stillDark = true;
-                    break;
-                }
-            }
-
+        if ($prevStates->has('gps_signal_lost')) {
+            $stillDark = collect($currentAlerts)->contains('type', 'gps_signal_lost');
             if (!$stillDark) {
                 $this->sendDelayResolvedNotification($job, 'GPS signal restored.');
+                $prevStates['gps_signal_lost']->update(['resolved_at' => now()]);
             }
         }
 
         // Check if speed degradation resolved
-        if ($prevAlert['has_speed_degradation'] ?? false) {
-            $stillDegraded = false;
-            foreach ($currentAlerts as $a) {
-                if ($a['type'] === 'speed_degradation') {
-                    $stillDegraded = true;
-                    break;
-                }
-            }
-
+        if ($prevStates->has('speed_degradation')) {
+            $stillDegraded = collect($currentAlerts)->contains('type', 'speed_degradation');
             if (!$stillDegraded) {
                 $this->sendDelayResolvedNotification($job, 'Driver speed has normalized. Speed degradation resolved.');
+                $prevStates['speed_degradation']->update(['resolved_at' => now()]);
+            }
+        }
+    }
+
+    private function persistAlertState(PoolingJob $job, ?array $stallAlert, ?array $darkAlert, ?array $speedDegradationAlert): void
+    {
+        $alertTypes = [
+            'stall' => $stallAlert,
+            'gps_signal_lost' => $darkAlert,
+            'speed_degradation' => $speedDegradationAlert,
+        ];
+
+        foreach ($alertTypes as $type => $alert) {
+            if ($alert) {
+                // Upsert: create if not active, update if already active
+                JobDelayState::updateOrCreate(
+                    [
+                        'pooling_job_id' => $job->id,
+                        'alert_type' => $type,
+                        'resolved_at' => null,
+                    ],
+                    [
+                        'severity' => $alert['severity'],
+                        'triggered_at' => now(),
+                    ]
+                );
+            } else {
+                // Resolve any active alert of this type that's no longer firing
+                JobDelayState::where('pooling_job_id', $job->id)
+                    ->where('alert_type', $type)
+                    ->whereNull('resolved_at')
+                    ->update(['resolved_at' => now()]);
             }
         }
     }
