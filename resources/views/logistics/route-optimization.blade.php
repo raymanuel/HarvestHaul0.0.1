@@ -31,6 +31,7 @@
                         @forelse($trucks as $truck)
                             <option value="{{ $truck['id'] }}"
                                     data-capacity="{{ $truck['capacity_kg'] }}"
+                                    data-volume="{{ $truck['capacity_volume_cubic_m'] ?? '' }}"
                                     data-driver="{{ $truck['driver'] }}"
                                     @if($suggestedTruckId === $truck['id']) selected @endif>
                                 {{ $truck['label'] }} ({{ number_format($truck['capacity_kg']) }} kg)
@@ -464,7 +465,9 @@
                     btnGenerate.disabled = true;
                 } else {
                     document.getElementById('truck-info-driver').innerHTML     = '<svg class="w-4 h-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg> Driver: <b>' + _escHtml(driverValue) + '</b>';
-                    document.getElementById('truck-info-capacity').textContent = Number(opt.dataset.capacity).toLocaleString() + ' kg limit';
+                    var capText = Number(opt.dataset.capacity).toLocaleString() + ' kg limit';
+                    if (opt.dataset.volume) capText += ' · ' + Number(opt.dataset.volume).toLocaleString() + ' m³ limit';
+                    document.getElementById('truck-info-capacity').textContent = capText;
                     truckInfo.className = 'text-xs text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3.5 font-semibold flex items-center gap-2';
                     truckInfo.classList.remove('hidden');
 

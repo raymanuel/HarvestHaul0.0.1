@@ -121,6 +121,7 @@ class RouteOptimizationController extends Controller
             'id'          => $t->id,
             'label'       => $t->truck_name . ' — ' . $t->plate_number,
             'capacity_kg' => $t->capacity_kg,
+            'capacity_volume_cubic_m' => $t->capacity_volume_cubic_m,
             'driver'      => $t->driver?->name ?? 'No driver assigned',
         ]);
 

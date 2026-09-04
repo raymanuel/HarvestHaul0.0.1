@@ -45,6 +45,7 @@ class LogisticsVehicleController extends Controller
             'plate_number' => ['required', 'string', 'max:50', 'unique:trucks,plate_number'],
             'vehicle_type' => ['required', 'string', 'max:55'],
             'capacity_kg'  => ['required', 'numeric', 'min:0'],
+            'capacity_volume_cubic_m' => ['nullable', 'numeric', 'min:0'],
             'driver_id'    => ['nullable', 'exists:users,id', function ($attribute, $value, $fail) use ($partnerId) {
                 $ownsDriver = DriverProfile::where('user_id', $value)
                     ->where('partner_id', $partnerId)
@@ -65,6 +66,7 @@ class LogisticsVehicleController extends Controller
             'plate_number'         => $request->plate_number,
             'vehicle_type'         => $request->vehicle_type,
             'capacity_kg'          => $request->capacity_kg,
+            'capacity_volume_cubic_m' => $request->capacity_volume_cubic_m ?? null,
             'status'               => $request->status,
             'notes'                => $request->notes,
         ]);

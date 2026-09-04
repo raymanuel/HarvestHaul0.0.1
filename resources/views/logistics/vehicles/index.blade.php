@@ -90,6 +90,10 @@
                                     <td class="py-4 px-3">
                                         <div class="text-xs text-slate-700 dark:text-slate-300 font-medium">
                                             <span class="font-bold text-sm">{{ number_format($vehicle->capacity_kg) }}</span> kg
+                                            @if($vehicle->capacity_volume_cubic_m)
+                                                <span class="text-slate-400">&middot;</span>
+                                                <span class="font-bold text-sm">{{ number_format($vehicle->capacity_volume_cubic_m, 1) }}</span> m³
+                                            @endif
                                             <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">Max Weight Capacity</p>
                                         </div>
                                     </td>
