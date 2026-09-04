@@ -46,7 +46,7 @@
         </div>
     @endif
 
-    <div class="bg-white dark:bg-slate-800/80 rounded-2xl border border-slate-200 dark:border-slate-700/60 shadow-sm p-8">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700/60 shadow-sm p-8">
         <form method="POST" action="{{ route('harvests.update', $harvest->id) }}" id="harvest-form">
             @csrf
             @method('PUT')
@@ -171,6 +171,48 @@
                 <p id="quantity_error" class="hidden mt-2 text-xs text-[var(--color-error-text)]">Please enter quantity.</p>
             </div>
 
+            {{-- Estimated Volume --}}
+            <div class="mb-6">
+                <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                    Estimated Volume (m³) <span class="text-slate-500 dark:text-slate-400 font-normal">(optional)</span>
+                </label>
+                <input type="number" name="estimated_volume_cubic_m" id="estimated_volume_cubic_m"
+                    value="{{ old('estimated_volume_cubic_m', $harvest->estimated_volume_cubic_m) }}" placeholder="e.g. 2.5" min="0.01" max="99999.99" step="0.01"
+                    class="w-full border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-sm bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-[#16283C] focus:border-transparent transition">
+                <p class="mt-1 text-xs text-slate-500 dark:text-slate-400 font-medium">Used for truck space planning. Leave blank if unsure.</p>
+                @error('estimated_volume_cubic_m')
+                    <p class="mt-2 text-xs text-[var(--color-error-text)]">{{ $message }}</p>
+                @enderror
+            </div>
+
+            {{-- Pickup Time Window --}}
+            <div class="mb-6">
+                <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                    Pickup Window <span class="text-slate-500 dark:text-slate-400 font-normal">(optional)</span>
+                </label>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label for="pickup_window_start" class="block text-xs text-slate-500 dark:text-slate-400 mb-1">Earliest pickup</label>
+                        <input type="time" name="pickup_window_start" id="pickup_window_start"
+                            value="{{ old('pickup_window_start', $harvest->pickup_window_start ? \Carbon\Carbon::parse($harvest->pickup_window_start)->format('H:i') : '') }}"
+                            class="w-full border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-sm bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-[#16283C] focus:border-transparent transition">
+                    </div>
+                    <div>
+                        <label for="pickup_window_end" class="block text-xs text-slate-500 dark:text-slate-400 mb-1">Latest pickup</label>
+                        <input type="time" name="pickup_window_end" id="pickup_window_end"
+                            value="{{ old('pickup_window_end', $harvest->pickup_window_end ? \Carbon\Carbon::parse($harvest->pickup_window_end)->format('H:i') : '') }}"
+                            class="w-full border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-sm bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-[#16283C] focus:border-transparent transition">
+                    </div>
+                </div>
+                <p class="mt-1 text-xs text-slate-500 dark:text-slate-400 font-medium">When can the driver pick up? Helps prioritize routes.</p>
+                @error('pickup_window_start')
+                    <p class="mt-2 text-xs text-[var(--color-error-text)]">{{ $message }}</p>
+                @enderror
+                @error('pickup_window_end')
+                    <p class="mt-2 text-xs text-[var(--color-error-text)]">{{ $message }}</p>
+                @enderror
+            </div>
+
             {{-- Suggested Price --}}
             <div class="mb-6">
                 <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
@@ -191,10 +233,7 @@
                 @error('suggested_price_per_kg')
                     <p class="mt-2 text-xs text-[var(--color-error-text)]">{{ $message }}</p>
                 @enderror
-                <div id="market-reference" class="hidden mt-3 bg-[#16283C]/5 dark:bg-[#16283C]/10 border border-[#16283C]/15 dark:border-[#16283C]/20 rounded-xl px-4 py-3">
-                    <p class="text-[11px] font-bold text-[#16283C] dark:text-[#D7BC7A] uppercase tracking-wider mb-1">Market Reference (DA RFO12)</p>
-                    <p id="market-reference-text" class="text-xs text-slate-600 dark:text-slate-400"></p>
-                </div>
+
             </div>
 
             {{-- Harvest Date --}}
@@ -251,8 +290,6 @@
             $crop->id => $crop->varieties->map(fn($v) => ['id' => $v->id, 'name' => $v->name])
         ])
     );
-
-    const cropNames = @json($crops->mapWithKeys(fn($crop) => [$crop->id => $crop->name]));
 
     const cropSearch   = document.getElementById('crop_search');
     const cropSelect   = document.getElementById('crop_id');
@@ -442,6 +479,16 @@
 
         const dateInput = document.querySelector('input[name="harvest_date"]');
         if (!dateInput.value) return fail('harvest_date_error', dateInput);
+
+        e.preventDefault();
+        swalConfirm(this, {
+            title: 'Save Changes?',
+            text: 'Update this harvest post with the edited details?',
+            icon: 'question',
+            confirmText: 'Yes, save',
+            cancelText: 'Cancel',
+            confirmColor: '#16283C'
+        });
     });
 
     function handleCropChange(value) {
@@ -458,37 +505,11 @@
             varietySelect.value = 'other';
             initVarietyCombobox();
             handleVarietyChange('other');
-            document.getElementById('market-reference').classList.add('hidden');
         } else {
             customInput.classList.add('hidden');
             customInput.value = '';
             updateVarieties(value);
-            fetchMarketPrice(cropNames[value] || '');
         }
-    }
-
-    function fetchMarketPrice(cropName) {
-        const ref = document.getElementById('market-reference');
-        const text = document.getElementById('market-reference-text');
-        if (!cropName) {
-            ref.classList.add('hidden');
-            return;
-        }
-        fetch('/api/market-price/' + encodeURIComponent(cropName))
-            .then(function (r) { return r.json(); })
-            .then(function (data) {
-                if (data && data.dpi) {
-                    var range = data.low && data.high ? '₱' + data.low + '–' + data.high + '/kg' : '₱' + data.dpi + '/kg';
-                    var avg = data.dpi ? ' (avg: ₱' + data.dpi + '/kg)' : '';
-                    text.textContent = data.commodity + ': ' + range + avg + ' as of ' + data.date;
-                    ref.classList.remove('hidden');
-                } else {
-                    ref.classList.add('hidden');
-                }
-            })
-            .catch(function () {
-                ref.classList.add('hidden');
-            });
     }
 
     function handleVarietyChange(value) {
@@ -563,7 +584,6 @@
             }
         } else if (currentCropId) {
             updateVarieties(currentCropId, currentVarietyId);
-            fetchMarketPrice(cropNames[currentCropId] || '');
         }
 
         syncCropSearchDisplay();

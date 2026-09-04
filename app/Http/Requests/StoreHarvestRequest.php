@@ -63,6 +63,9 @@ class StoreHarvestRequest extends FormRequest
             'popup_longitude'       => ['nullable', 'numeric', 'between:-180,180'],
             'popup_address'         => ['nullable', 'string', 'max:500'],
             'popup_save_permanently'=> ['nullable', 'boolean'],
+            'estimated_volume_cubic_m' => ['nullable', 'numeric', 'min:0.01', 'max:99999.99'],
+            'pickup_window_start'   => ['nullable', 'date_format:H:i'],
+            'pickup_window_end'     => ['nullable', 'date_format:H:i'],
         ];
     }
 

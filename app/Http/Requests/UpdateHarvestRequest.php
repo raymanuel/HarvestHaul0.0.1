@@ -42,6 +42,9 @@ class UpdateHarvestRequest extends FormRequest
             'suggested_price_per_kg'=> ['nullable', 'numeric', 'min:0.01', 'max:99999.99'],
             'notes'                 => ['nullable', 'string', 'max:1000'],
             'harvest_date'          => ['nullable', 'date', 'after_or_equal:today', 'before_or_equal:tomorrow'],
+            'estimated_volume_cubic_m' => ['nullable', 'numeric', 'min:0.01', 'max:99999.99'],
+            'pickup_window_start'   => ['nullable', 'date_format:H:i'],
+            'pickup_window_end'     => ['nullable', 'date_format:H:i'],
         ];
     }
 

@@ -145,6 +145,9 @@ class HarvestController extends Controller
             'unit'                  => 'kg',
             'notes'                 => $validated['notes'] ?? null,
             'harvest_date'          => $validated['harvest_date'] ?? null,
+            'estimated_volume_cubic_m' => $validated['estimated_volume_cubic_m'] ?? null,
+            'pickup_window_start'   => $validated['pickup_window_start'] ?? null,
+            'pickup_window_end'     => $validated['pickup_window_end'] ?? null,
             'latitude'              => $latitude,
             'longitude'             => $longitude,
             'destination_id'        => $validated['destination_id'] ?? null,
@@ -196,11 +199,13 @@ class HarvestController extends Controller
 
         return redirect()
             ->route('harvests.index')
-            ->with('success', 'Harvest post published. Your harvest is now visible on the crop board and logistics map.')
+            ->with('success', $isCoop
+                ? 'Your harvest was posted and is now on the crop board.'
+                : 'Your harvest was posted and is now on the crop board and logistics map.')
             ->with('next_steps', $isCoop
                 ? [
                     'title'   => 'Harvest published',
-                    'message' => 'Your harvest post is live.',
+                    'message' => 'Your harvest was posted. Go to the crop board to see your post.',
                     'steps'   => [
                         'Buyers can now discover your harvest on the crop board.',
                     ],
@@ -208,7 +213,7 @@ class HarvestController extends Controller
                 ]
                 : [
                     'title'   => 'Harvest published',
-                    'message' => 'Your harvest post is live.',
+                    'message' => 'Your harvest was posted. Go to the crop board to see your post.',
                     'steps'   => [
                         'Buyers can now discover your harvest on the crop board.',
                         'Logistics partners can see it on the map for route planning.',
@@ -283,6 +288,9 @@ class HarvestController extends Controller
             'suggested_price_per_kg'=> $validated['suggested_price_per_kg'] ?? null,
             'notes'                 => $validated['notes'] ?? null,
             'harvest_date'          => $validated['harvest_date'] ?? null,
+            'estimated_volume_cubic_m' => $validated['estimated_volume_cubic_m'] ?? null,
+            'pickup_window_start'   => $validated['pickup_window_start'] ?? null,
+            'pickup_window_end'     => $validated['pickup_window_end'] ?? null,
         ];
 
         if ($harvest->status === HarvestStatus::ACTIVE) {
@@ -296,7 +304,17 @@ class HarvestController extends Controller
 
         return redirect()
             ->route('harvests.index')
-            ->with('success', 'Harvest post updated successfully.');
+            ->with('success', 'Harvest post updated successfully.')
+            ->with('next_steps', [
+                'title'   => 'Harvest updated',
+                'message' => 'Your harvest post was updated. Buyers will see the latest details.',
+                'steps'   => [
+                    'Review the updated listing to confirm the new details look correct.',
+                    'Keep quantity and price current so buyer offers match your stock.',
+                    'Respond to negotiations to keep the deal moving.',
+                ],
+                'cta' => ['label' => 'View My Harvests', 'url' => route('harvests.index')],
+            ]);
     }
 
     public function destroy(Harvest $harvest)
