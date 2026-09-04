@@ -81,14 +81,21 @@ class DelayDetectionService
             $this->sendDelayNotification($job, $speedDegradationAlert['message']);
         }
 
-        // 6. Auto-escalation for critical delays
+        // 6. Delivery deadline passed
+        $deadlineAlert = $this->detectDeliveryDeadline($job);
+        if ($deadlineAlert) {
+            $alerts[] = $deadlineAlert;
+            $this->sendDelayNotification($job, $deadlineAlert['message']);
+        }
+
+        // 7. Auto-escalation for critical delays
         $this->autoEscalate($job, $alerts);
 
-        // 7. Resolution detection
+        // 8. Resolution detection
         $this->detectResolution($job, $alerts);
 
         // Persist current alert state to DB for next cycle's resolution detection
-        $this->persistAlertState($job, $stallAlert, $darkAlert, $speedDegradationAlert);
+        $this->persistAlertState($job, $stallAlert, $darkAlert, $speedDegradationAlert, $deadlineAlert);
 
         return $alerts;
     }
@@ -275,6 +282,33 @@ class DelayDetectionService
         ];
     }
 
+    private function detectDeliveryDeadline(PoolingJob $job): ?array
+    {
+        if (!$job->delivery_deadline) return null;
+        if ($job->status !== 'in_progress') return null;
+
+        $deadline = \Carbon\Carbon::parse($job->delivery_deadline);
+        $now = now();
+
+        if ($now->lte($deadline)) return null;
+
+        $overdueMinutes = $now->diffInMinutes($deadline);
+        $harvestsCompleted = $job->harvests->filter(fn($h) => $h->pivot->status === 'delivered')->count();
+        $totalHarvests = $job->harvests->count();
+
+        return [
+            'type' => 'delivery_deadline',
+            'pooling_job_id' => $job->id,
+            'driver_name' => $job->driver?->name ?? 'Unknown',
+            'deadline' => $deadline->format('g:i A'),
+            'overdue_minutes' => $overdueMinutes,
+            'harvests_completed' => $harvestsCompleted,
+            'harvests_total' => $totalHarvests,
+            'message' => "Route #{$job->id} has passed its delivery deadline of {$deadline->format('g:i A')} ({$overdueMinutes} min overdue). {$harvestsCompleted}/{$totalHarvests} stops completed.",
+            'severity' => $overdueMinutes > 60 ? 'critical' : 'warning',
+        ];
+    }
+
     private function autoEscalate(PoolingJob $job, array $alerts): void
     {
         foreach ($alerts as $alert) {
@@ -340,14 +374,24 @@ class DelayDetectionService
                 $prevStates['speed_degradation']->update(['resolved_at' => now()]);
             }
         }
+
+        // Check if delivery deadline alert resolved (all stops delivered or deadline extended)
+        if ($prevStates->has('delivery_deadline')) {
+            $stillOverdue = collect($currentAlerts)->contains('type', 'delivery_deadline');
+            if (!$stillOverdue) {
+                $this->sendDelayResolvedNotification($job, 'Delivery deadline alert resolved. All stops completed or job finalized.');
+                $prevStates['delivery_deadline']->update(['resolved_at' => now()]);
+            }
+        }
     }
 
-    private function persistAlertState(PoolingJob $job, ?array $stallAlert, ?array $darkAlert, ?array $speedDegradationAlert): void
+    private function persistAlertState(PoolingJob $job, ?array $stallAlert, ?array $darkAlert, ?array $speedDegradationAlert, ?array $deadlineAlert): void
     {
         $alertTypes = [
             'stall' => $stallAlert,
             'gps_signal_lost' => $darkAlert,
             'speed_degradation' => $speedDegradationAlert,
+            'delivery_deadline' => $deadlineAlert,
         ];
 
         foreach ($alertTypes as $type => $alert) {
