@@ -1,7 +1,7 @@
 <x-driver-layout title="Job #{{ $job->id }} — HarvestHaul" themeColor="#16283C">
 
     <!-- Top Header Panel -->
-    <header class="bg-brand-700 text-white px-5 pt-6 pb-5 sticky top-0 z-20 shadow-md">
+    <header class="bg-[#16283C] text-white px-5 pt-6 pb-5 sticky top-0 z-20 shadow-md">
         <div class="flex items-center gap-4 max-w-lg mx-auto">
             <a href="{{ route('driver.dashboard') }}" class="text-white bg-white/10 hover:bg-white/20 p-2 rounded-xl border border-white/10 transition-all">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
@@ -34,8 +34,8 @@
                 @php
                     $badge = match($job->status->value) {
                         'confirmed'   => ['bg-[var(--color-warning-bg)] text-[var(--color-warning-text)] border-[var(--color-warning-border)]',  'Ready'],
-                        'in_progress' => ['bg-[#0E1620]/10 text-[#0E1620] border-[#0E1620]/20',    'In Transit'],
-                        'completed'   => ['bg-[#16283C]/10 text-[#16283C] border-[#16283C]/20',  'Completed'],
+                        'in_progress' => ['bg-[#0E1620]/10 text-[#0E1620] border-[#0E1620]/20 dark:text-[#E9EEF4] dark:border-[#0E1620]/30',    'In Transit'],
+                        'completed'   => ['bg-[#16283C]/10 text-[#16283C] border-[#16283C]/20 dark:text-[#D7BC7A] dark:border-[#16283C]/30',  'Completed'],
                         default       => ['bg-slate-50 text-slate-500 border-slate-200/50',    $job->status->label()],
                     };
                 @endphp
@@ -52,7 +52,56 @@
                     <span class="text-slate-600">{{ $job->truck->vehicle_type }}</span>
                 @endif
             </div>
+            @if($job->delivery_deadline)
+                <div class="px-5 py-3 border-t border-slate-100 bg-[var(--color-warning-bg)]/50">
+                    <p class="text-[10px] font-bold text-[var(--color-warning-text)] uppercase tracking-widest flex items-center gap-1">
+                        <x-icon name="clock" class="w-3 h-3" /> Delivery Deadline: {{ \Carbon\Carbon::parse($job->delivery_deadline)->format('g:i A') }}
+                    </p>
+                </div>
+            @endif
         </div>
+
+        <!-- ETA + Weather -->
+        @if(in_array($job->status->value, ['in_progress', 'confirmed']))
+            <div class="bg-white rounded-2xl border border-slate-200/80 overflow-hidden shadow-sm">
+                <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100">
+                    <h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1">
+                        <x-icon name="clock" class="w-3 h-3" /> Arrival Estimate
+                    </h3>
+                    @if(isset($eta['weather_adjusted']) && $eta['weather_adjusted'])
+                        <span class="text-[9px] font-bold text-[var(--color-warning-text)] bg-[var(--color-warning-bg)] border border-[var(--color-warning-border)] px-2 py-0.5 rounded">
+                            Weather Adjusted
+                        </span>
+                    @endif
+                </div>
+                <div class="px-5 py-4">
+                    <div class="flex items-baseline gap-2">
+                        <span class="text-2xl font-mono font-extrabold text-slate-900 dark:text-white heading-font">
+                            {{ isset($eta['eta_formatted']) ? $eta['eta_formatted'] : '—' }}
+                        </span>
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">est. arrival</span>
+                    </div>
+                    @if(isset($eta['remaining_distance_km']))
+                        <p class="text-[11px] text-slate-500 font-semibold mt-1">
+                            {{ number_format($eta['remaining_distance_km'], 1) }} km remaining
+                            @if(isset($eta['current_speed_kmh']))
+                                &middot; {{ round($eta['current_speed_kmh']) }} km/h
+                            @endif
+                        </p>
+                    @endif
+                    @if(isset($eta['weather_condition']) && $eta['weather_condition'])
+                        <p class="text-[11px] text-slate-500 font-semibold mt-0.5">
+                            Current: {{ ucfirst($eta['weather_condition']) }}
+                            @if(isset($eta['weather_multiplier']) && $eta['weather_multiplier'] < 1)
+                                <span class="text-amber-600 dark:text-amber-400 font-bold">&middot; travel slowed by weather</span>
+                            @endif
+                        </p>
+                    @endif
+                </div>
+            </div>
+        @endif
+
+        <x-weather-card :weather="$weatherLog" />
 
         <!-- Coordinator Instructions -->
         @if($job->notes)
@@ -68,7 +117,7 @@
                 <h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-1">
                     <x-icon name="fuel" class="w-3 h-3" /> Log Fuel Purchase
                 </h3>
-                <form method="POST" action="{{ route('driver.jobs.fuel-log', $job) }}" class="space-y-3">
+                <form method="POST" action="{{ route('driver.jobs.fuel-log', $job) }}" class="space-y-3" onsubmit="event.preventDefault(); swalConfirm(this, {title:'Save Refuel Log?', text:'Log this fuel purchase for your trip?', icon:'question', confirmText:'Yes, save', cancelText:'Cancel', confirmColor:'#16283C'});">
                     @csrf
                     <div class="grid grid-cols-3 gap-2">
                         <div>
@@ -96,7 +145,7 @@
 
         <!-- Accept Job Action -->
         @if($job->status->value === 'confirmed' && !$job->accepted_at)
-            <form method="POST" action="{{ route('driver.jobs.accept', $job) }}">
+            <form method="POST" action="{{ route('driver.jobs.accept', $job) }}" onsubmit="event.preventDefault(); swalConfirm(this, {title:'Accept Job?', text:'Accept this delivery job and begin your trip?', icon:'question', confirmText:'Yes, accept', cancelText:'Cancel', confirmColor:'#16283C'});">
                 @csrf
                 <x-button type="submit" size="lg" full class="rounded-2xl active:scale-[0.98]">
                     Accept Job
@@ -116,7 +165,7 @@
                     }
                 }
             @endphp
-            <form method="POST" action="{{ route('driver.jobs.status', $job) }}">
+            <form method="POST" action="{{ route('driver.jobs.status', $job) }}" onsubmit="event.preventDefault(); var btn = this.querySelector('button[type=submit], x-button[type=submit], [data-confirm-label]'); var done = {{ $job->status->value === 'confirmed' ? 'false' : 'true' }}; swalConfirm(this, done ? {title:'Finalize Job?', text:'Mark this job as completed?', icon:'success', confirmText:'Yes, complete', cancelText:'Cancel', confirmColor:'#16283C'} : {title:'Start Job?', text:'Mark this job as in transit?', icon:'question', confirmText:'Yes, start', cancelText:'Cancel', confirmColor:'#16283C'});">
                 @csrf @method('PATCH')
                 @if($job->status->value === 'confirmed')
                     <x-button type="submit" size="lg" full class="rounded-2xl active:scale-[0.98]" :disabled="!$job->accepted_at">
@@ -184,6 +233,26 @@
                                 <span class="font-mono text-[10px] text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-100">{{ $harvest->latitude }}, {{ $harvest->longitude }}</span>
                             </div>
                         @endif
+                        @if($harvest->pickup_window_start || $harvest->pickup_window_end)
+                            <div class="flex justify-between items-center py-1 border-b border-slate-50">
+                                <span class="text-slate-400"><x-icon name="clock" class="w-3 h-3 inline" /> Pickup Window</span>
+                                <span class="text-[var(--color-warning-text)] font-bold bg-[var(--color-warning-bg)] px-2 py-0.5 rounded-md">
+                                    @if($harvest->pickup_window_start && $harvest->pickup_window_end)
+                                        {{ \Carbon\Carbon::parse($harvest->pickup_window_start)->format('g:i A') }} — {{ \Carbon\Carbon::parse($harvest->pickup_window_end)->format('g:i A') }}
+                                    @elseif($harvest->pickup_window_start)
+                                        {{ \Carbon\Carbon::parse($harvest->pickup_window_start)->format('g:i A') }} onwards
+                                    @else
+                                        Before {{ \Carbon\Carbon::parse($harvest->pickup_window_end)->format('g:i A') }}
+                                    @endif
+                                </span>
+                            </div>
+                        @endif
+                        @if($harvest->estimated_volume_cubic_m)
+                            <div class="flex justify-between items-center py-1 border-b border-slate-50">
+                                <span class="text-slate-400"><x-icon name="package" class="w-3 h-3 inline" /> Est. Volume</span>
+                                <span class="text-slate-800 font-bold bg-slate-100 px-2 py-0.5 rounded-md">{{ number_format($harvest->estimated_volume_cubic_m, 1) }} m³</span>
+                            </div>
+                        @endif
                         @if($harvest->destination_label !== '—')
                             <div class="flex justify-between items-start py-1">
                                 <span class="text-slate-400">Drop-off Terminal</span>
@@ -208,7 +277,7 @@
 
         @if($job->status->value === 'in_progress')
                             @if($harvest->pivot->status === 'assigned')
-                                <form method="POST" action="{{ route('driver.jobs.stop.status', [$job, $harvest->id]) }}">
+                                <form method="POST" action="{{ route('driver.jobs.stop.status', [$job, $harvest->id]) }}" onsubmit="event.preventDefault(); swalConfirm(this, {title:'Mark Arrived?', text:'Confirm you have arrived at the pick-up location?', icon:'question', confirmText:'Yes, arrived', cancelText:'Cancel', confirmColor:'#16283C'});">
                                     @csrf @method('PATCH')
                                     <input type="hidden" name="status" value="arrived">
                                     <button type="submit" class="w-full py-2.5 bg-[var(--color-warning-text)] hover:opacity-80 text-white text-xs font-bold rounded-xl shadow-sm transition cursor-pointer">
@@ -216,7 +285,7 @@
                                     </button>
                                 </form>
                             @elseif($harvest->pivot->status === 'arrived')
-                                <form method="POST" action="{{ route('driver.jobs.stop.status', [$job, $harvest->id]) }}" enctype="multipart/form-data" class="space-y-3">
+                                <form method="POST" action="{{ route('driver.jobs.stop.status', [$job, $harvest->id]) }}" enctype="multipart/form-data" class="space-y-3" onsubmit="event.preventDefault(); swalConfirm(this, {title:'Confirm Cargo & Mark Loaded?', text:'Confirm the loaded crop matches the listing before continuing?', icon:'question', confirmText:'Yes, loaded', cancelText:'Cancel', confirmColor:'#16283C'});">
                                     @csrf @method('PATCH')
                                     <input type="hidden" name="status" value="loaded">
                                     
@@ -236,7 +305,7 @@
                                     <div>
                                         <label for="load_photo" class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Take Photo of Loaded Cargo</label>
                                         <input type="file" name="load_photo" id="load_photo" accept="image/*" capture="environment"
-                                            class="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-[#16283C]/10 file:text-[#16283C] hover:file:bg-[#16283C]/15 transition cursor-pointer">
+                                            class="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-[#16283C]/10 file:text-[#16283C] dark:file:text-[#D7BC7A] hover:file:bg-[#16283C]/15 dark:hover:file:bg-[#16283C]/25 transition cursor-pointer">
                                     </div>
 
                                     <label class="flex items-center gap-2 cursor-pointer">
@@ -250,14 +319,14 @@
                                     </button>
                                 </form>
                             @elseif($harvest->pivot->status === 'loaded')
-                                <form method="POST" action="{{ route('driver.jobs.stop.status', [$job, $harvest->id]) }}" enctype="multipart/form-data" class="space-y-3">
+                                <form method="POST" action="{{ route('driver.jobs.stop.status', [$job, $harvest->id]) }}" enctype="multipart/form-data" class="space-y-3" onsubmit="event.preventDefault(); swalConfirm(this, {title:'Mark Delivered?', text:'Confirm this delivery is complete and the photo is uploaded?', icon:'success', confirmText:'Yes, delivered', cancelText:'Cancel', confirmColor:'#16283C'});">
                                     @csrf @method('PATCH')
                                     <input type="hidden" name="status" value="delivered">
                                     
                                     <div>
                                         <label for="delivery_receipt" class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Take/Upload Photo of Delivered Goods</label>
                                         <input type="file" name="delivery_receipt" id="delivery_receipt" required accept="image/*" capture="environment"
-                                            class="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-[#16283C]/10 file:text-[#16283C] hover:file:bg-[#16283C]/15 transition cursor-pointer">
+                                            class="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-[#16283C]/10 file:text-[#16283C] dark:file:text-[#D7BC7A] hover:file:bg-[#16283C]/15 dark:hover:file:bg-[#16283C]/25 transition cursor-pointer">
                                     </div>
 
                                     <button type="submit" class="w-full py-2.5 bg-[#16283C] hover:bg-[#0E1620] text-white text-xs font-bold rounded-xl shadow-sm transition cursor-pointer">
