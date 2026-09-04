@@ -16,12 +16,14 @@ class Truck extends Model
         'truck_name',
         'vehicle_type',
         'capacity_kg',
+        'capacity_volume_cubic_m',
         'status',
         'notes',
     ];
 
     protected $casts = [
         'capacity_kg' => 'decimal:2',
+        'capacity_volume_cubic_m' => 'decimal:2',
     ];
 
     // -------------------------------------------------------

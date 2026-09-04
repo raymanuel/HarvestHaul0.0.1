@@ -137,7 +137,7 @@ class ResourcePoolingService
             }
         }
 
-        $selected = $this->knapsack($harvests, (float) $truck->capacity_kg);
+        $selected = $this->knapsack($harvests, (float) $truck->capacity_kg, (float) ($truck->capacity_volume_cubic_m ?? 0));
 
         if ($selected->isEmpty()) {
             return $this->emptyPlan('No harvests fit within the truck capacity.');
@@ -458,19 +458,21 @@ class ResourcePoolingService
      * harvests could fill the gaps. For n ≤ 20 the brute force is fast
      * (~1M iterations × 20 items ≈ 20M ops — well within PHP's limits).
      */
-    private function knapsack(Collection $harvests, float $capacity): Collection
+    private function knapsack(Collection $harvests, float $capacity, float $capacityVolume = 0): Collection
     {
         $items = $harvests->values();
         $n = $items->count();
 
         if ($n === 0) return collect();
         if ($n === 1) {
-            return (float) $items[0]->quantity_kg <= $capacity ? collect([$items[0]]) : collect();
+            $fitsWeight = (float) $items[0]->quantity_kg <= $capacity;
+            $fitsVolume = $capacityVolume <= 0 || (float) ($items[0]->estimated_volume_cubic_m ?? 0) <= $capacityVolume;
+            return ($fitsWeight && $fitsVolume) ? collect([$items[0]]) : collect();
         }
 
         // For large n, fall back to greedy (fast approximation)
         if ($n > 20) {
-            return $this->greedyKnapsack($harvests, $capacity);
+            return $this->greedyKnapsack($harvests, $capacity, $capacityVolume);
         }
 
         // Brute force: enumerate all subsets, pick the one that maximizes
@@ -482,17 +484,23 @@ class ResourcePoolingService
 
         for ($mask = 1; $mask < (1 << $n); $mask++) {
             $weight = 0.0;
+            $volume = 0.0;
             $count = 0;
+            $exceeded = false;
 
             for ($i = 0; $i < $n; $i++) {
                 if ($mask & (1 << $i)) {
                     $weight += (float) $items[$i]->quantity_kg;
+                    $volume += (float) ($items[$i]->estimated_volume_cubic_m ?? 0);
                     $count++;
-                    if ($weight > $capacity) break;
+                    if ($weight > $capacity || ($capacityVolume > 0 && $volume > $capacityVolume)) {
+                        $exceeded = true;
+                        break;
+                    }
                 }
             }
 
-            if ($weight <= $capacity && ($weight > $bestWeight || ($weight === $bestWeight && $count > $bestCount))) {
+            if (!$exceeded && ($weight > $bestWeight || ($weight === $bestWeight && $count > $bestCount))) {
                 $bestWeight = $weight;
                 $bestMask = $mask;
                 $bestCount = $count;
@@ -513,17 +521,23 @@ class ResourcePoolingService
     /**
      * Greedy fallback — heaviest-first, used when n > 20.
      */
-    private function greedyKnapsack(Collection $harvests, float $capacity): Collection
+    private function greedyKnapsack(Collection $harvests, float $capacity, float $capacityVolume = 0): Collection
     {
         $sorted   = $harvests->sortByDesc('quantity_kg')->values();
         $selected = collect();
         $used     = 0.0;
+        $usedVol  = 0.0;
 
         foreach ($sorted as $harvest) {
             $qty = (float) $harvest->quantity_kg;
-            if ($used + $qty <= $capacity) {
+            $vol = (float) ($harvest->estimated_volume_cubic_m ?? 0);
+            $wouldExceedWeight = $used + $qty > $capacity;
+            $wouldExceedVolume = $capacityVolume > 0 && ($usedVol + $vol) > $capacityVolume;
+
+            if (!$wouldExceedWeight && !$wouldExceedVolume) {
                 $selected->push($harvest);
                 $used += $qty;
+                $usedVol += $vol;
             }
             if ($used >= $capacity * 0.95) break;
         }
