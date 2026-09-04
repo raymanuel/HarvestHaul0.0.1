@@ -85,7 +85,7 @@
             @method('PUT')
 
             {{-- ── ACCOUNT INFORMATION ── --}}
-            <div class="bg-white dark:bg-slate-800/80 backdrop-blur border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6 sm:p-8 shadow-sm">
+            <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6 sm:p-8 shadow-sm">
                 <div class="flex items-center gap-3 mb-6">
                     <div class="w-10 h-10 rounded-2xl bg-[#16283C]/10 border border-[#16283C]/15 flex items-center justify-center text-[#16283C] dark:text-[#D7BC7A] shrink-0">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -113,7 +113,7 @@
             </div>
 
             {{-- ── FARM DETAILS ── --}}
-            <div class="bg-white dark:bg-slate-800/80 backdrop-blur border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6 sm:p-8 shadow-sm">
+            <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6 sm:p-8 shadow-sm">
                 <div class="flex items-center gap-3 mb-6">
                     <div class="w-10 h-10 rounded-2xl bg-[#16283C]/10 border border-[#16283C]/15 flex items-center justify-center text-[#16283C] dark:text-[#D7BC7A] shrink-0">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -131,7 +131,7 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                         <div>
                             <label for="phone" class="text-xs font-bold text-slate-600 dark:text-slate-400 block mb-1.5">Phone Number</label>
-<input type="text" id="phone" name="phone" value="{{ old('phone', $profile->phone ?? '') }}"
+<input type="tel" inputmode="tel" id="phone" name="phone" value="{{ old('phone', $profile->phone ?? '') }}"
                                 class="px-4 py-3 w-full bg-white/80 dark:bg-slate-700/50 border border-slate-200/80 dark:border-slate-600/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#16283C]/20 focus:border-[#16283C] transition text-sm text-slate-800 dark:text-white">
                         </div>
                         <div>
@@ -163,7 +163,7 @@
             </div>
 
             {{-- ── COOPERATIVE AFFILIATION ── --}}
-            <div class="bg-white dark:bg-slate-800/80 backdrop-blur border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6 sm:p-8 shadow-sm">
+            <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6 sm:p-8 shadow-sm">
                 <div class="flex items-center gap-3 mb-6">
                     <div class="w-10 h-10 rounded-2xl bg-[var(--color-warning-bg)] border border-[var(--color-warning-border)] flex items-center justify-center text-[var(--color-warning-text)] shrink-0">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -256,7 +256,7 @@
             @csrf
             @method('PUT')
 
-            <div class="bg-white dark:bg-slate-800/80 backdrop-blur border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6 sm:p-8 shadow-sm">
+            <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6 sm:p-8 shadow-sm">
                 <div class="flex items-center gap-3 mb-6">
                     <div class="w-10 h-10 rounded-2xl bg-brand/10 border border-brand/15 flex items-center justify-center text-brand dark:text-brand-light shrink-0">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -357,7 +357,7 @@
         map.on('click', function (e) { marker.setLatLng(e.latlng); updateCoords(e.latlng); });
 
         document.getElementById('use-my-location').addEventListener('click', function () {
-            if (!navigator.geolocation) { alert('Geolocation not supported.'); return; }
+            if (!navigator.geolocation) { Swal.fire({ icon: 'error', title: 'Geolocation not supported', text: 'Your browser does not support location services. Pin your location manually.', confirmButtonColor: '#16283C', background: document.documentElement.classList.contains('dark') ? '#1e293b' : '#fff', color: document.documentElement.classList.contains('dark') ? '#e2e8f0' : '#1e293b', customClass: { popup: 'rounded-xl' } }); return; }
             const btn = this;
             btn.textContent = 'Locating...';
             navigator.geolocation.getCurrentPosition(
@@ -373,7 +373,7 @@
                         Use My GPS Location`;
                 },
                 function () {
-                    alert('Unable to retrieve location. Pin manually.');
+                    Swal.fire({ icon: 'error', title: 'Could not get location', text: 'Unable to retrieve your location. Pin it manually on the map.', confirmButtonColor: '#16283C', background: document.documentElement.classList.contains('dark') ? '#1e293b' : '#fff', color: document.documentElement.classList.contains('dark') ? '#e2e8f0' : '#1e293b', customClass: { popup: 'rounded-xl' } });
                     btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />

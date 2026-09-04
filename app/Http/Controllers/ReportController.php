@@ -222,15 +222,6 @@ class ReportController extends Controller
             });
 
         $benchmark = [];
-        foreach ($achievedByCrop->keys() as $cid) {
-            if (!$cid) continue;
-            $avgDpi = \App\Models\CropPriceHistory::where('crop_id', $cid)
-                ->whereBetween('source_date', [$dateFrom->toDateString(), $dateTo->toDateString()])
-                ->avg('price_per_kg');
-            if ($avgDpi !== null) {
-                $benchmark[$cid] = round((float) $avgDpi, 2);
-            }
-        }
 
         return view('farmer.reports.sales', compact(
             'deals', 'soldCrops', 'cropId', 'preset', 'year',

@@ -37,7 +37,7 @@ class CheckActiveWeather extends Command
 
         foreach ($jobs as $job) {
             $latestTracking = TrackingRecord::where('pooling_job_id', $job->id)
-                ->orderByDesc('recorded_at')
+                ->orderByDesc('posted_at')
                 ->first();
 
             if (!$latestTracking) {

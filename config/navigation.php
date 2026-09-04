@@ -256,7 +256,101 @@ return [
     ],
 
     'logistics_partner' => [
+        // Cooperative logistics: Dashboard, Crop Board, Operations, Proposal Inbox,
+        // Deliveries, Route Pricing, Fleet (user-specified order).
         'items' => [
+            [
+                'label' => 'Crop Board',
+                'route' => 'buyer.crop-board',
+                'route_url' => 'buyer.crop-board',
+                'letter' => 'C',
+                'tooltip' => 'Crop Board',
+                'condition' => 'cooperative_only',
+            ],
+            [
+                'label' => 'Operations',
+                'route' => 'route.optimization|pooling.cost-ledger*',
+                'letter' => 'O',
+                'tooltip' => 'Operations',
+                'children' => [
+                    [
+                        'label' => 'Route Planning',
+                        'route' => 'route.optimization',
+                        'route_url' => 'route.optimization',
+                        'letter' => 'R',
+                        'tooltip' => 'Route Planning',
+                    ],
+                    [
+                        'label' => 'Cost Ledger',
+                        'route' => 'pooling.cost-ledger*',
+                        'route_url' => 'pooling.cost-ledger.index',
+                        'letter' => 'C',
+                        'tooltip' => 'Cost Ledger',
+                    ],
+                ],
+            ],
+            [
+                'label' => 'Proposal Inbox',
+                'route' => 'pooling.index',
+                'route_url' => 'pooling.index',
+                'letter' => 'P',
+                'tooltip' => 'Proposal Inbox',
+            ],
+            [
+                'label' => 'Deliveries',
+                'route' => 'buyer.tracking',
+                'route_url' => 'buyer.tracking',
+                'letter' => 'D',
+                'tooltip' => 'Deliveries',
+                'condition' => 'cooperative_only',
+            ],
+            [
+                'label' => 'Route Pricing',
+                'route' => 'profile.route-pricing',
+                'route_url' => 'profile.route-pricing',
+                'letter' => 'R',
+                'tooltip' => 'Route Pricing',
+            ],
+            [
+                'label' => 'Fleet',
+                'route' => 'logistics.drivers*|logistics.vehicles*|logistics.reports.*|logistics.analytics|logistics.capacity',
+                'letter' => 'F',
+                'tooltip' => 'Fleet',
+                'children' => [
+                    [
+                        'label' => 'Drivers',
+                        'route' => 'logistics.drivers*|logistics.vehicles*',
+                        'route_url' => 'logistics.drivers.index',
+                        'letter' => 'D',
+                        'tooltip' => 'Drivers',
+                    ],
+                    [
+                        'label' => 'Fleet Reports',
+                        'route' => 'logistics.reports.*|logistics.analytics',
+                        'route_url' => 'logistics.reports.trips',
+                        'letter' => 'R',
+                        'tooltip' => 'Fleet Reports',
+                    ],
+                    [
+                        'label' => 'Fleet Capacity',
+                        'route' => 'logistics.capacity',
+                        'route_url' => 'logistics.capacity',
+                        'letter' => 'C',
+                        'tooltip' => 'Fleet Capacity',
+                    ],
+                ],
+            ],
+            [
+                'label' => 'My Profile',
+                'route' => 'profile.*',
+                'route_url' => 'profile.show',
+                'letter' => 'M',
+                'tooltip' => 'My Profile',
+                'mobile_only' => true,
+            ],
+        ],
+        // Independent logistics: keeps its original order minus Reference.
+        'items_independent' => [
             [
                 'label' => 'Proposal Inbox',
                 'route' => 'pooling.index',
@@ -323,34 +417,11 @@ return [
                 'tooltip' => 'Route Pricing',
             ],
             [
-                'label' => 'Reference',
-                'route' => 'prices.full|logistics.documents*',
-                'letter' => 'B',
-                'tooltip' => 'Reference',
-                'children' => [
-                    [
-                        'label' => 'Market Prices',
-                        'route' => 'prices.full',
-                        'route_url' => 'prices.full',
-                        'letter' => 'M',
-                        'tooltip' => 'Market Prices',
-                    ],
-                    [
-                        'label' => 'Business License Docs',
-                        'route' => 'logistics.documents*',
-                        'route_url' => 'logistics.documents',
-                        'letter' => 'B',
-                        'tooltip' => 'Business License Docs',
-                    ],
-                ],
-            ],
-            [
                 'label' => 'Live Tracking',
                 'route' => 'tracking.index',
                 'route_url' => 'tracking.index',
                 'letter' => 'T',
                 'tooltip' => 'Live Tracking',
-                'condition' => 'independent_logistics_only',
             ],
             [
                 'label' => 'Haul Negotiations',
@@ -358,31 +429,6 @@ return [
                 'route_url' => 'logistics.haul-negotiations',
                 'letter' => 'H',
                 'tooltip' => 'Haul Negotiations',
-                'condition' => 'independent_logistics_only',
-            ],
-            [
-                'label' => 'Crop Board',
-                'route' => 'buyer.crop-board',
-                'route_url' => 'buyer.crop-board',
-                'letter' => 'C',
-                'tooltip' => 'Crop Board',
-                'condition' => 'cooperative_only',
-            ],
-            [
-                'label' => 'Deliveries',
-                'route' => 'buyer.tracking',
-                'route_url' => 'buyer.tracking',
-                'letter' => 'D',
-                'tooltip' => 'Deliveries',
-                'condition' => 'cooperative_only',
-            ],
-            [
-                'label' => 'Members',
-                'route' => 'logistics.members.*',
-                'route_url' => 'logistics.members.index',
-                'letter' => 'M',
-                'tooltip' => 'Members',
-                'condition' => 'cooperative_only',
             ],
             [
                 'label' => 'My Profile',

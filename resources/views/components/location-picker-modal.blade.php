@@ -1,12 +1,12 @@
 <link rel="stylesheet" href="{{ asset('vendor/leaflet/leaflet.css') }}" />
 
 <div id="location-picker-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 backdrop-blur-sm">
-    <div class="bg-white dark:bg-slate-800/80 backdrop-blur border border-slate-200/60 dark:border-slate-700/60 rounded-3xl shadow-2xl w-full max-w-xl mx-4 overflow-hidden">
+    <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-3xl shadow-2xl w-full max-w-xl mx-4 overflow-hidden">
 
         {{-- Header --}}
         <div class="flex items-center justify-between px-6 pt-5 pb-3">
             <div class="flex items-center gap-3">
-                <div class="w-9 h-9 rounded-2xl bg-[#16283C]/10 border border-[#16283C]/15 flex items-center justify-center text-[#16283C] shrink-0">
+                <div class="w-9 h-9 rounded-2xl bg-[#16283C]/10 dark:bg-[#16283C]/10 border border-[#16283C]/15 dark:border-[#16283C]/30 flex items-center justify-center text-[#16283C] dark:text-[#D7BC7A] shrink-0">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -144,7 +144,7 @@
         });
 
         document.getElementById('location-picker-gps').addEventListener('click', function () {
-            if (!navigator.geolocation) { alert('Geolocation not supported.'); return; }
+            if (!navigator.geolocation) { Swal.fire({ icon: 'error', title: 'Geolocation not supported', text: 'Your browser does not support location services. Pin your location manually.', confirmButtonColor: '#16283C', background: document.documentElement.classList.contains('dark') ? '#1e293b' : '#fff', color: document.documentElement.classList.contains('dark') ? '#e2e8f0' : '#1e293b', customClass: { popup: 'rounded-xl' } }); return; }
             var btn = this;
             btn.textContent = 'Locating...';
             navigator.geolocation.getCurrentPosition(
@@ -156,7 +156,7 @@
                     btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg> Use My GPS Location';
                 },
                 function () {
-                    alert('Unable to retrieve location. Pin manually.');
+                    Swal.fire({ icon: 'error', title: 'Could not get location', text: 'Unable to retrieve your location. Pin it manually on the map.', confirmButtonColor: '#16283C', background: document.documentElement.classList.contains('dark') ? '#1e293b' : '#fff', color: document.documentElement.classList.contains('dark') ? '#e2e8f0' : '#1e293b', customClass: { popup: 'rounded-xl' } });
                     btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg> Use My GPS Location';
                 }
             );

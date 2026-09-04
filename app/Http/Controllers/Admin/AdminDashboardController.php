@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\AuditLog;
 use App\Models\Harvest;
-use App\Services\Darfo12Service;
+use App\Models\PoolingJob;
+use App\Models\Negotiation;
+
 use App\Traits\Notifiable;
 
 class AdminDashboardController extends Controller
@@ -58,9 +60,18 @@ class AdminDashboardController extends Controller
             ->groupBy('status')
             ->pluck('total', 'status');
 
-        // ─── DA Price Data ──────
-        $daService = app(Darfo12Service::class);
-        ['latestDate' => $latestDaDate, 'daPrices' => $daPrices, 'priceTrends' => $priceTrends, 'scraperStatus' => $scraperStatus] = $daService->getDashboardData();
+        $monthlyHarvests = Harvest::whereMonth('created_at', now()->month)
+            ->whereYear('created_at', now()->year)
+            ->count();
+
+        $monthlyJobs = PoolingJob::whereMonth('created_at', now()->month)
+            ->whereYear('created_at', now()->year)
+            ->count();
+
+        $monthlyDeals = Negotiation::where('status', 'COMPLETED')
+            ->whereMonth('last_activity_at', now()->month)
+            ->whereYear('last_activity_at', now()->year)
+            ->count();
 
         return view('admin.admin-view', [
             'totalUsers'               => $userCounts->sum(),
@@ -72,16 +83,15 @@ class AdminDashboardController extends Controller
             'pendingLogistics'         => $pendingLogisticsList->count(),
             'pendingBuyers'            => $pendingBuyersList->count(),
             'activeHarvests'           => $harvestCounts->get('active', 0),
+            'monthlyHarvests'          => $monthlyHarvests,
+            'monthlyJobs'              => $monthlyJobs,
+            'monthlyDeals'             => $monthlyDeals,
             'recentLogs'               => AuditLog::with('admin')->latest()->take(5)->get(),
             'pendingFarmersList'       => $pendingFarmersList,
             'pendingLogisticsList'     => $pendingLogisticsList,
             'pendingBuyersList'        => $pendingBuyersList,
             'pendingFarmerDocsList'    => $pendingFarmerDocsList,
             'pendingLogisticsDocsList' => $pendingLogisticsDocsList,
-            'daPrices'                 => $daPrices,
-            'priceTrends'              => $priceTrends,
-            'latestDaDate'             => $latestDaDate,
-            'scraperStatus'            => $scraperStatus,
         ]);
     }
 

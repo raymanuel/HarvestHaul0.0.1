@@ -82,7 +82,7 @@
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200/80 dark:border-slate-700/50 p-5 shadow-sm">
                 <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Gross Earnings</p>
-                <p class="text-2xl font-black text-[#16283C] heading-font mt-2">&#8369;{{ number_format($gross, 2) }}</p>
+                <p class="text-2xl font-black text-[#16283C] dark:text-[#D7BC7A] heading-font mt-2">&#8369;{{ number_format($gross, 2) }}</p>
                 <p class="text-[10px] text-slate-400 mt-1">{{ $rangeLabel }}</p>
             </div>
             <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200/80 dark:border-slate-700/50 p-5 shadow-sm">
@@ -129,10 +129,10 @@
                             @foreach($pricePoints as $pp)
                                 <tr class="border-b border-slate-50 dark:border-slate-700/30">
                                     <td class="py-3 px-5 font-bold text-slate-800 dark:text-white">{{ $pp['crop'] }}</td>
-                                    <td class="py-3 px-3 text-right font-extrabold text-[#16283C]">&#8369;{{ number_format($pp['price'], 2) }}/kg</td>
+                                    <td class="py-3 px-3 text-right font-extrabold text-[#16283C] dark:text-[#D7BC7A]">&#8369;{{ number_format($pp['price'], 2) }}/kg</td>
                                     <td class="py-3 px-3 text-right font-bold">{{ $pp['deals'] }}</td>
                                     <td class="py-3 px-3 text-right font-bold">{{ number_format($pp['kg'], 1) }}</td>
-                                    <td class="py-3 px-3 text-right font-extrabold text-[#16283C]">&#8369;{{ number_format($pp['earnings'], 2) }}</td>
+                                    <td class="py-3 px-3 text-right font-extrabold text-[#16283C] dark:text-[#D7BC7A]">&#8369;{{ number_format($pp['earnings'], 2) }}</td>
                                     <td class="py-3 px-5 text-right">
                                         <div class="inline-flex items-center gap-2 justify-end w-full max-w-[140px]">
                                             <div class="h-1.5 rounded-full bg-slate-100 dark:bg-slate-700 flex-1 overflow-hidden">
@@ -187,7 +187,7 @@
                                             <td class="py-3 px-5 font-bold text-slate-800 dark:text-white">{{ $row['crop'] }}</td>
                                             <td class="py-3 px-3 text-right font-bold">&#8369;{{ number_format($row['avg'], 2) }}</td>
                                             <td class="py-3 px-3 text-right font-bold text-slate-500">&#8369;{{ number_format($benchmark[$cid], 2) }}</td>
-                                            <td class="py-3 px-5 text-right font-extrabold {{ $diff >= 0 ? 'text-[#16283C]' : 'text-rose-500' }}">
+                                            <td class="py-3 px-5 text-right font-extrabold {{ $diff >= 0 ? 'text-[#16283C] dark:text-[#D7BC7A]' : 'text-rose-500 dark:text-rose-400' }}">
                                                 {{ $diff >= 0 ? '+' : '' }}&#8369;{{ number_format($diff, 2) }}
                                                 @if($diffPct !== null)
                                                     <span class="text-[10px] font-semibold text-slate-400">({{ $diff >= 0 ? '+' : '' }}{{ $diffPct }}%)</span>
@@ -210,7 +210,7 @@
                         @foreach($monthlyTrend as $monthKey => $m)
                             <div class="text-center p-3 rounded-xl bg-slate-50 dark:bg-slate-700/30 border border-slate-100 dark:border-slate-700/30">
                                 <p class="text-[10px] font-bold text-slate-400 uppercase">{{ \Carbon\Carbon::parse($monthKey . '-01')->format('M Y') }}</p>
-                                <p class="text-lg font-black text-[#16283C] heading-font mt-1">&#8369;{{ number_format($m['gross'], 0) }}</p>
+                                <p class="text-lg font-black text-[#16283C] dark:text-[#D7BC7A] heading-font mt-1">&#8369;{{ number_format($m['gross'], 0) }}</p>
                                 <p class="text-[10px] text-slate-400">{{ number_format($m['kg'], 0) }} kg &middot; {{ $m['deals'] }} deal{{ $m['deals'] !== 1 ? 's' : '' }}</p>
                             </div>
                         @endforeach
@@ -244,7 +244,7 @@
                                     <td class="py-3 px-3 text-slate-600 dark:text-slate-300">{{ $deal->buyer->name ?? '&mdash;' }}</td>
                                     <td class="py-3 px-3 text-right font-bold">&#8369;{{ number_format((float) ($deal->negotiated_price ?? 0), 2) }}/kg</td>
                                     <td class="py-3 px-3 text-right font-bold">{{ number_format((float) ($deal->negotiated_volume ?? 0), 1) }} kg</td>
-                                    <td class="py-3 px-5 text-right font-extrabold text-[#16283C]">&#8369;{{ number_format((float) ($deal->negotiated_price ?? 0) * (float) ($deal->negotiated_volume ?? 0), 2) }}</td>
+                                    <td class="py-3 px-5 text-right font-extrabold text-[#16283C] dark:text-[#D7BC7A]">&#8369;{{ number_format((float) ($deal->negotiated_price ?? 0) * (float) ($deal->negotiated_volume ?? 0), 2) }}</td>
                                 </tr>
                             @endforeach
                         </tbody>

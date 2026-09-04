@@ -27,7 +27,7 @@
                                 </h3>
                                 <span class="text-[10px] font-bold uppercase tracking-wide px-2.5 py-0.5 rounded-lg border
                                     @if($intent->status === 'pending') text-amber-700 bg-amber-50 dark:bg-amber-950/20 border-amber-500/10
-                                    @elseif($intent->status === 'agreed') text-[#16283C] bg-[#16283C]/10 border-[#16283C]/10
+                                    @elseif($intent->status === 'agreed') text-[#16283C] dark:text-[#D7BC7A] bg-[#16283C]/10 dark:bg-[#16283C]/10 border-[#16283C]/10 dark:border-[#16283C]/20
                                     @elseif($intent->status === 'accepted') text-purple-700 bg-purple-50 dark:bg-purple-950/20 border-purple-500/10
                                     @elseif($intent->status === 'declined') text-red-600 bg-red-50 dark:bg-red-950/20 border-red-500/10
                                     @else text-slate-500 bg-slate-50 dark:bg-slate-900/40 border-slate-300/50 @endif">

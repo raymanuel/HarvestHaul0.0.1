@@ -62,7 +62,7 @@
         </div>
 
         {{-- Right Panel --}}
-        <div style="flex:1; display:flex; align-items:center; justify-content:center; padding:3rem; background:#F7F4EC;">
+        <div style="flex:1; display:flex; align-items:center; justify-content:center; padding:3rem; background:#F5F6F2;">
             <div style="width:100%; max-width:420px;">
 
                 <div style="margin-bottom:28px;">

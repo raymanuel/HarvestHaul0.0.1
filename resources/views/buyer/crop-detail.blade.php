@@ -11,7 +11,7 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
         <div class="lg:col-span-3 space-y-6">
-            <div class="bg-white dark:bg-slate-800/80 backdrop-blur border border-slate-200/60 dark:border-slate-700/60 rounded-3xl overflow-hidden">
+            <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-3xl overflow-hidden">
                 <div class="h-64 sm:h-80 relative flex items-center justify-center @if(!empty($harvest->crop_photos)) bg-slate-100 dark:bg-slate-900 @else bg-gradient-to-br from-harvest/20 via-brand/10 to-brand/10 dark:from-harvest/20 dark:via-brand/10 dark:to-brand/10 @endif">
                     @if(!empty($harvest->crop_photos))
                         <img src="{{ asset('storage/' . $harvest->crop_photos[0]) }}" alt="{{ $harvest->crop->name ?? $harvest->crop_type }}" class="w-full h-full object-cover">
@@ -32,7 +32,7 @@
                 @endif
             </div>
 
-            <div class="bg-white dark:bg-slate-800/80 backdrop-blur border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6">
+            <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6">
                 <div class="flex items-start justify-between gap-4 mb-4">
                     <div>
                         <h1 class="text-2xl font-extrabold text-slate-900 dark:text-white heading-font">{{ $harvest->crop->name ?? $harvest->crop_type }}</h1>
@@ -87,7 +87,7 @@
         </div>
 
         <div class="lg:col-span-2 space-y-6">
-            <div class="bg-white dark:bg-slate-800/80 backdrop-blur border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6">
+            <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6">
                 <h2 class="text-sm font-extrabold text-slate-900 dark:text-white heading-font mb-4">Farmer</h2>
                 <div class="flex items-center gap-3 mb-4">
                     <div class="w-10 h-10 rounded-full bg-harvest/10 dark:bg-harvest/50 flex items-center justify-center">
@@ -112,7 +112,7 @@
                 @endif
             </div>
 
-            <div class="bg-white dark:bg-slate-800/80 backdrop-blur border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6">
+            <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6">
                 <h2 class="text-sm font-extrabold text-slate-900 dark:text-white heading-font mb-4">Pickup Location</h2>
                 @if($harvest->farmer && $harvest->farmer->farmerProfile && $harvest->farmer->farmerProfile->farm_location)
                     <div class="flex items-start gap-2">
@@ -127,7 +127,7 @@
                 @endif
             </div>
 
-            <div class="bg-white dark:bg-slate-800/80 backdrop-blur border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6">
+            <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6">
                 @if($negotiation)
                     <a href="{{ route('negotiations.room', $negotiation->id) }}" class="w-full flex items-center justify-center gap-2 py-3 bg-[var(--color-warning-bg)] border border-[var(--color-warning-border)] rounded-2xl text-sm font-bold text-[var(--color-warning-text)] hover:opacity-80 transition-colors">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -139,7 +139,7 @@
                     <form action="{{ route('negotiations.start') }}" method="POST">
                         @csrf
                         <input type="hidden" name="harvest_id" value="{{ $harvest->id }}">
-                        <button type="submit" class="w-full flex items-center justify-center gap-2 py-3 bg-harvest hover:bg-harvest-dark dark:bg-harvest dark:hover:bg-harvest-dark text-[#17202B] font-bold rounded-2xl text-sm transition-colors shadow-sm shadow-harvest/10 cursor-pointer">
+                        <button type="button" onclick="swalConfirm(this.closest('form'), {title:'Start Negotiation?', text:'Open a crop negotiation with this farmer?', icon:'question', confirmText:'Yes, start', cancelText:'Cancel', confirmColor:'#16283C'})" class="w-full flex items-center justify-center gap-2 py-3 bg-harvest hover:bg-harvest-dark dark:bg-harvest dark:hover:bg-harvest-dark text-[#17202B] font-bold rounded-2xl text-sm transition-colors shadow-sm shadow-harvest/10 cursor-pointer">
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12M6 12h12" />
                             </svg>

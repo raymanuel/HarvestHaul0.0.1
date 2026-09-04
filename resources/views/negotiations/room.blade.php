@@ -42,8 +42,8 @@
                 <div>
                     <span id="deal-status-badge" class="text-[10px] font-extrabold uppercase tracking-widest px-3 py-1.5 rounded-full border
 @if($negotiation->status->value === 'OPEN') text-harvest-700 bg-harvest/10 border-harvest/10
-@elseif($negotiation->status->value === 'AGREED') text-[#16283C] bg-[#16283C]/10 border-[#16283C]/10
-@elseif($negotiation->status->value === 'COMPLETED') text-[#0E1620] bg-[#0E1620]/10 border-[#0E1620]/10
+@elseif($negotiation->status->value === 'AGREED') text-[#16283C] dark:text-[#D7BC7A] bg-[#16283C]/10 dark:bg-[#16283C]/10 border-[#16283C]/10 dark:border-[#16283C]/20
+@elseif($negotiation->status->value === 'COMPLETED') text-[#0E1620] dark:text-[#E9EEF4] bg-[#0E1620]/10 dark:bg-[#0E1620]/10 border-[#0E1620]/10 dark:border-[#0E1620]/20
                         @else text-slate-500 bg-slate-500/10 border-slate-500/10 @endif shadow-sm">
                         Deal Status: {{ $negotiation->status }}
                     </span>
@@ -62,7 +62,7 @@
             <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,320px)] gap-8 items-stretch">
 
             <div class="relative">
-            <div class="flex flex-col bg-white dark:bg-slate-800/80 backdrop-blur border border-slate-200/60 dark:border-slate-700/60 rounded-3xl overflow-hidden shadow-sm h-[min(600px,70vh)]">
+            <div class="flex flex-col bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-3xl overflow-hidden shadow-sm h-[min(600px,70vh)]">
                 
                 <!-- Chat Header -->
                 <div class="px-6 py-4 bg-slate-50/50 dark:bg-slate-900/40 border-b border-slate-150 dark:border-slate-700/60 flex items-center justify-between shrink-0">
@@ -272,26 +272,8 @@
             </div>
 
             <!-- Proposed Terms Panel -->
-            <div class="bg-white dark:bg-slate-800/80 backdrop-blur border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6 shadow-sm h-[min(600px,70vh)] overflow-y-auto">
+            <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6 shadow-sm h-[min(600px,70vh)] overflow-y-auto">
                 <h3 class="text-sm font-extrabold text-slate-800 dark:text-white heading-font mb-4 uppercase tracking-wider">Proposed Terms</h3>
-
-                @if($marketPrice)
-                    <div class="flex items-center justify-between gap-3 {{ $accentBadge }} border {{ $accentBorder }} px-4 py-3 rounded-2xl mb-6">
-                        <div>
-                            <p class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Market Reference</p>
-                            <p class="text-base font-extrabold {{ $accentText }} font-mono mt-0.5">
-                                ₱{{ number_format($marketPrice->price_per_kg, 2) }}<span class="text-[10px] font-semibold text-slate-500 dark:text-slate-400">/kg</span>
-                                <span class="block text-[9px] font-sans font-medium text-slate-500 dark:text-slate-400 mt-0.5 normal-case tracking-normal">DA RFO12 Prevailing Avg &middot; {{ $marketPrice->source_date->format('M d, Y') }}</span>
-                            </p>
-                        </div>
-                        @if($negotiation->status->value !== 'COMPLETED')
-                            <button type="button" id="use-market-price" title="Fill Unit Price with market reference"
-                                class="shrink-0 px-3 py-1.5 bg-white dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 font-bold rounded-lg text-[10px] uppercase tracking-wider transition cursor-pointer">
-                                Use
-                            </button>
-                        @endif
-                    </div>
-                @endif
 
                 <div class="space-y-4 mb-6">
                     <div class="bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 p-4 rounded-2xl flex justify-between items-center">
@@ -380,7 +362,7 @@
                         : '';
                 @endphp
 
-                <div class="bg-white dark:bg-slate-800/80 backdrop-blur border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6 shadow-sm">
+                <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6 shadow-sm">
                     <h3 class="text-sm font-extrabold text-slate-800 dark:text-white heading-font mb-2 uppercase tracking-wider text-harvest-dark dark:text-harvest-light">Finalize & Submit Drop-off</h3>
                     <p class="text-[11px] text-slate-500 dark:text-slate-400 mb-4 leading-relaxed font-semibold">Terms are agreed. Choose the drop-off point below to lock the transaction deal.</p>
 
@@ -843,19 +825,27 @@
     function proposeTerms(e) {
         e.preventDefault();
         var form = document.getElementById('propose-terms-form');
-        var data = new FormData(form);
-
-        fetch('{{ route("negotiations.propose", $negotiation->id) }}', {
-            method: 'POST',
-            headers: { 'X-CSRF-TOKEN': csrfToken, 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
-            body: data
-        }).then(function (r) {
-            if (!r.ok) throw new Error('HTTP ' + r.status);
-            return r.json();
-        }).then(function (data) {
-            if (data.message) appendMessage(data.message);
-            updateDealUI(data);
-        }).catch(function (err) { console.error('proposeTerms:', err); });
+        swalConfirm(function () {
+            var data = new FormData(form);
+            fetch('{{ route("negotiations.propose", $negotiation->id) }}', {
+                method: 'POST',
+                headers: { 'X-CSRF-TOKEN': csrfToken, 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
+                body: data
+            }).then(function (r) {
+                if (!r.ok) throw new Error('HTTP ' + r.status);
+                return r.json();
+            }).then(function (data) {
+                if (data.message) appendMessage(data.message);
+                updateDealUI(data);
+            }).catch(function (err) { console.error('proposeTerms:', err); });
+        }, {
+            title: 'Propose These Terms?',
+            text: 'Send this offer to the other party?',
+            icon: 'question',
+            confirmText: 'Yes, send',
+            cancelText: 'Cancel',
+            confirmColor: '{{ Auth::user()->role === 'buyer' ? '#BFA05A' : '#16283C' }}'
+        });
         return false;
     }
 
@@ -925,21 +915,6 @@
     }
     setupPopover('toggle-product-info', 'popover-product-info');
     setupPopover('toggle-counterparty-info', 'popover-counterparty-info');
-
-    @if($marketPrice && $negotiation->status->value !== 'COMPLETED')
-    // ── Use Market Reference price ──
-    (function () {
-        var useBtn = document.getElementById('use-market-price');
-        if (!useBtn) return;
-        var mpValue = '{{ number_format($marketPrice->price_per_kg, 2, '.', '') }}';
-        useBtn.addEventListener('click', function () {
-            var input = document.getElementById('negotiated_price');
-            if (!input) return;
-            input.value = mpValue;
-            input.focus();
-        });
-    })();
-    @endif
 
     // Auto-scroll on load
     document.addEventListener('DOMContentLoaded', scrollChatBottom);

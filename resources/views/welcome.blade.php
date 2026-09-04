@@ -78,7 +78,7 @@
         }
     </style>
 </head>
-<body class="bg-[#F7F4EC] text-[#17202B] antialiased overflow-x-hidden">
+<body class="bg-[#F5F6F2] text-[#17202B] antialiased overflow-x-hidden">
 
     <!-- Header -->
     <header id="main-header" class="fixed top-0 left-0 right-0 z-50 transition-all duration-300">
@@ -194,7 +194,7 @@
                             <span class="w-8 h-8 rounded-lg bg-white/5 text-white/70 text-xs font-bold flex items-center justify-center border border-white/10">T</span>
                             <span class="w-8 h-8 rounded-lg bg-[#BFA05A]/25 text-[#D7BC7A] text-xs font-bold flex items-center justify-center border border-[#BFA05A]/40">M</span>
                         </div>
-                        <div class="flex-1 bg-[#F7F4EC] p-5 sm:p-7">
+                        <div class="flex-1 bg-[#F5F6F2] p-5 sm:p-7">
                             <div class="flex items-center justify-between mb-5">
                                 <p class="text-sm font-extrabold text-[#17202B]">Farmer Dashboard</p>
                                 <span class="text-[10px] font-extrabold uppercase tracking-widest text-[#7C6527] bg-[#BFA05A]/15 border border-[#BFA05A]/30 px-2 py-1 rounded">Sample</span>
@@ -205,8 +205,8 @@
                                     <p class="text-[10px] font-bold uppercase tracking-widest text-[#5A6573]">Active Harvests</p>
                                     <p class="text-2xl font-extrabold text-[#16283C] heading-font mt-1">3</p>
                                     <div class="pt-2 mt-2 border-t border-[#0E1620]/8 flex flex-wrap gap-1.5">
-                                        <span class="text-[9px] font-semibold text-[#5A6573] bg-[#F7F4EC] border border-[#0E1620]/8 px-2 py-0.5 rounded">240 kg rice</span>
-                                        <span class="text-[9px] font-semibold text-[#5A6573] bg-[#F7F4EC] border border-[#0E1620]/8 px-2 py-0.5 rounded">310 kg banana</span>
+                                        <span class="text-[9px] font-semibold text-[#5A6573] bg-[#F5F6F2] border border-[#0E1620]/8 px-2 py-0.5 rounded">240 kg rice</span>
+                                        <span class="text-[9px] font-semibold text-[#5A6573] bg-[#F5F6F2] border border-[#0E1620]/8 px-2 py-0.5 rounded">310 kg banana</span>
                                     </div>
                                 </div>
                                 <div class="border-l-4 border-l-white/25 bg-[#16283C] rounded-2xl p-4 text-white shadow-sm">
@@ -219,7 +219,7 @@
                             </div>
 
                             <div class="mt-4 bg-white rounded-2xl border border-[#0E1620]/8 overflow-hidden">
-                                <div class="flex items-center justify-between px-4 py-2.5 border-b border-[#0E1620]/8 bg-[#F7F4EC]/60">
+                                <div class="flex items-center justify-between px-4 py-2.5 border-b border-[#0E1620]/8 bg-[#F5F6F2]/60">
                                     <p class="text-[10px] font-extrabold uppercase tracking-widest text-[#16283C]">DA RFO12 — Market Prices</p>
                                     <span class="text-[9px] font-bold text-[#5A6573]">Today</span>
                                 </div>
@@ -267,8 +267,8 @@
                                     <span class="w-2.5 h-2.5 rounded-full bg-[#16283C]"></span>
                                     <span class="text-[10px] font-bold text-[#17202B]">Hub</span>
                                 </div>
-                                <span class="text-[9px] font-semibold text-[#5A6573] bg-[#F7F4EC] border border-[#0E1620]/8 px-2 py-0.5 rounded">2 stops</span>
-                                <span class="text-[9px] font-semibold text-[#5A6573] bg-[#F7F4EC] border border-[#0E1620]/8 px-2 py-0.5 rounded">38 km</span>
+                                <span class="text-[9px] font-semibold text-[#5A6573] bg-[#F5F6F2] border border-[#0E1620]/8 px-2 py-0.5 rounded">2 stops</span>
+                                <span class="text-[9px] font-semibold text-[#5A6573] bg-[#F5F6F2] border border-[#0E1620]/8 px-2 py-0.5 rounded">38 km</span>
                             </div>
                         </div>
                     </div>
@@ -285,7 +285,7 @@
     </section>
 
     <!-- About -->
-    <section id="about" class="py-24 bg-[#F7F4EC] scroll-mt-20">
+    <section id="about" class="py-24 bg-[#F5F6F2] scroll-mt-20">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="max-w-3xl scroll-reveal">
                 <h2 class="text-3xl sm:text-4xl font-display text-[#17202B] leading-tight">
@@ -299,7 +299,7 @@
     </section>
 
     <!-- Services -->
-    <section id="services" class="py-24 bg-[#F7F4EC] scroll-mt-20">
+    <section id="services" class="py-24 bg-[#F5F6F2] scroll-mt-20">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center max-w-2xl mx-auto mb-16 scroll-reveal">
                 <h2 class="text-3xl sm:text-4xl font-display text-[#17202B]">Our Services</h2>
@@ -308,13 +308,10 @@
             <div class="space-y-0 divide-y divide-[#17202B]/5">
                 <!-- Service 01 -->
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 py-10 items-start scroll-reveal">
-                    <div class="lg:col-span-1">
-                        <span class="font-mono text-sm font-bold text-[#7C6527]">01</span>
-                    </div>
                     <div class="lg:col-span-4">
                         <h3 class="text-xl font-display text-[#17202B]">Route-Pooling Logistics</h3>
                     </div>
-                    <div class="lg:col-span-4">
+                    <div class="lg:col-span-5">
                         <p class="text-[#5A6573] leading-relaxed">
                             We aggregate crop dimensions and pickup dates from posted harvests and partner cooperatives. The routing engine sequences farm locations along a single path, matching them to high-capacity freight trucks.
                         </p>
@@ -354,13 +351,10 @@
 
                 <!-- Service 02 -->
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 py-10 items-start scroll-reveal">
-                    <div class="lg:col-span-1">
-                        <span class="font-mono text-sm font-bold text-[#7C6527]">02</span>
-                    </div>
                     <div class="lg:col-span-4">
                         <h3 class="text-xl font-display text-[#17202B]">Real-Time GPS Tracking</h3>
                     </div>
-                    <div class="lg:col-span-4">
+                    <div class="lg:col-span-5">
                         <p class="text-[#5A6573] leading-relaxed">
                             Drivers broadcast GPS location live. You see your crop move from farm to hub to buyer in real time, with delay detection and weather-aware ETA predictions.
                         </p>
@@ -398,13 +392,10 @@
 
                 <!-- Service 03 -->
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 py-10 items-start scroll-reveal">
-                    <div class="lg:col-span-1">
-                        <span class="font-mono text-sm font-bold text-[#7C6527]">03</span>
-                    </div>
                     <div class="lg:col-span-4">
                         <h3 class="text-xl font-display text-[#17202B]">Cost-Split Management</h3>
                     </div>
-                    <div class="lg:col-span-4">
+                    <div class="lg:col-span-5">
                         <p class="text-[#5A6573] leading-relaxed">
                             Per-farmer cost allocation based on the hauling rate agreed in each negotiation chat, applied to each farmer's crop weight. Automated invoicing and payment tracking between all parties.
                         </p>
@@ -462,7 +453,7 @@
             </div>
 
             <!-- Farmer Panel -->
-            <div id="role-farmer" role="tabpanel" aria-labelledby="role-btn-farmer" class="role-panel bg-[#F7F4EC] rounded-3xl border border-[#17202B]/5 overflow-hidden">
+            <div id="role-farmer" role="tabpanel" aria-labelledby="role-btn-farmer" class="role-panel bg-[#F5F6F2] rounded-3xl border border-[#17202B]/5 overflow-hidden">
                 <div class="grid grid-cols-1 lg:grid-cols-2">
                     <div class="p-8 sm:p-12 flex flex-col justify-center">
                         <h3 class="text-2xl font-display text-[#17202B] mb-4">Ship full loads without meeting minimums</h3>
@@ -506,7 +497,7 @@
             </div>
 
             <!-- Logistics Panel -->
-            <div id="role-logistics" role="tabpanel" aria-labelledby="role-btn-logistics" class="role-panel hidden bg-[#F7F4EC] rounded-3xl border border-[#17202B]/5 overflow-hidden">
+            <div id="role-logistics" role="tabpanel" aria-labelledby="role-btn-logistics" class="role-panel hidden bg-[#F5F6F2] rounded-3xl border border-[#17202B]/5 overflow-hidden">
                 <div class="grid grid-cols-1 lg:grid-cols-2">
                     <div class="p-8 sm:p-12 flex flex-col justify-center">
                         <h3 class="text-2xl font-display text-[#17202B] mb-4">Build optimized multi-stop routes in one screen</h3>
@@ -562,7 +553,7 @@
             </div>
 
             <!-- Driver Panel -->
-            <div id="role-driver" role="tabpanel" aria-labelledby="role-btn-driver" class="role-panel hidden bg-[#F7F4EC] rounded-3xl border border-[#17202B]/5 overflow-hidden">
+            <div id="role-driver" role="tabpanel" aria-labelledby="role-btn-driver" class="role-panel hidden bg-[#F5F6F2] rounded-3xl border border-[#17202B]/5 overflow-hidden">
                 <div class="grid grid-cols-1 lg:grid-cols-2">
                     <div class="p-8 sm:p-12 flex flex-col justify-center">
                         <h3 class="text-2xl font-display text-[#17202B] mb-4">Mobile-first dispatch with live GPS</h3>
@@ -609,7 +600,7 @@
             </div>
 
             <!-- Buyer Panel -->
-            <div id="role-buyer" role="tabpanel" aria-labelledby="role-btn-buyer" class="role-panel hidden bg-[#F7F4EC] rounded-3xl border border-[#17202B]/5 overflow-hidden">
+            <div id="role-buyer" role="tabpanel" aria-labelledby="role-btn-buyer" class="role-panel hidden bg-[#F5F6F2] rounded-3xl border border-[#17202B]/5 overflow-hidden">
                 <div class="grid grid-cols-1 lg:grid-cols-2">
                     <div class="p-8 sm:p-12 flex flex-col justify-center">
                         <h3 class="text-2xl font-display text-[#17202B] mb-4">Buy crops with price data on your side</h3>
@@ -659,7 +650,7 @@
         </div>
     </section>
 <!-- FAQ -->
-    <section id="faq" class="py-24 bg-[#F7F4EC] scroll-mt-20">
+    <section id="faq" class="py-24 bg-[#F5F6F2] scroll-mt-20">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="max-w-2xl mx-auto mb-12">
                 <h2 class="text-3xl sm:text-4xl font-display text-[#17202B]">Your Questions, Answered</h2>
@@ -710,7 +701,7 @@
     </section>
 
     <!-- Value Outcomes -->
-    <section class="py-24 bg-[#F7F4EC]">
+    <section class="py-24 bg-[#F5F6F2]">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center max-w-2xl mx-auto mb-14 scroll-reveal">
                 <h2 class="text-3xl sm:text-4xl font-display text-[#17202B]">Outcomes from HarvestHaul</h2>
@@ -800,7 +791,7 @@
                 </div>
 
                 <div class="relative">
-                    <div class="bg-[#F7F4EC] rounded-3xl p-8 border border-[#17202B]/5">
+                    <div class="bg-[#F5F6F2] rounded-3xl p-8 border border-[#17202B]/5">
                         <div class="space-y-6">
                             <div class="flex items-start gap-4">
                                 <span class="font-mono text-sm font-bold text-[#7C6527] mt-0.5">01</span>

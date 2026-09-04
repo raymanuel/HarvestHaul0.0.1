@@ -215,7 +215,7 @@
             </div>
             <div id="phone-container" class="hidden">
                 <label for="user-phone" class="block text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Phone Number <span class="text-[var(--color-error-text)]">*</span></label>
-                <input type="text" id="user-phone" name="phone" placeholder="e.g. +639123456789"
+                <input type="tel" inputmode="tel" id="user-phone" name="phone" placeholder="e.g. +639123456789"
                     class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#16283C] focus:ring-2 focus:ring-[#16283C]/20 transition" />
             </div>
         </div>

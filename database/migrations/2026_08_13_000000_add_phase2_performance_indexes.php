@@ -8,13 +8,6 @@ return new class extends Migration
 {
     public function up(): void
     {
-        // ── HIGH: crop_price_history price queries ──
-        // Every price query filters by source='da_rfo12' and orders/maxes by source_date,
-        // but only the commodity-led unique exists. Restores the dropped (source, source_date) index.
-        Schema::table('crop_price_history', function (Blueprint $table) {
-            $table->index(['source', 'source_date']);
-        });
-
         // ── HIGH: haul_requests status filtering ──
         Schema::table('haul_requests', function (Blueprint $table) {
             $table->index('status');
@@ -53,10 +46,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::table('crop_price_history', function (Blueprint $table) {
-            $table->dropIndex(['source', 'source_date']);
-        });
-
         Schema::table('haul_requests', function (Blueprint $table) {
             $table->dropIndex(['harvest_id', 'status']);
             $table->dropIndex('status');

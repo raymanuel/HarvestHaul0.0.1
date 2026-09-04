@@ -26,14 +26,14 @@
         </div>
 
         @if($activeDeliveries->isEmpty())
-            <div class="bg-white dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700/60 rounded-2xl p-10 text-center shadow-sm mb-10">
+            <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-2xl p-10 text-center shadow-sm mb-10">
                 <p class="text-slate-400 text-sm font-semibold">No active deliveries at this time.</p>
                 <p class="text-slate-400/60 text-xs mt-1">When sellers dispatch your purchases, they'll appear here.</p>
             </div>
         @else
             <div class="space-y-4 mb-10">
                 @foreach($activeDeliveries as $delivery)
-                    <div class="bg-white dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700/60 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition">
+                    <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition">
                         <div class="flex items-center justify-between px-6 py-5 border-b border-slate-100 dark:border-slate-700/60">
                             <div>
                                 <p class="text-sm font-bold text-slate-800 dark:text-white heading-font">
@@ -46,11 +46,12 @@
                             </div>
                             <div class="flex items-center gap-3">
                                 <a href="{{ route('tracking.index', ['job' => $delivery->id]) }}"
-                                   class="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-md border border-[#16283C]/30 bg-[#16283C]/10 text-[#16283C] hover:bg-[#16283C]/20 transition">
+                                   class="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-md border border-[#16283C]/30 dark:border-[#16283C]/40 bg-[#16283C]/10 dark:bg-[#16283C]/15 text-[#16283C] dark:text-[#D7BC7A] hover:bg-[#16283C]/20 dark:hover:bg-[#16283C]/30 transition">
                                     <x-icon name="pin" class="w-3.5 h-3.5" /> Track
                                 </a>
                                 @php
                                     $statusBadge = match($delivery->status->value) {
+                                        'confirmed'               => ['bg-[var(--color-warning-bg)] text-[var(--color-warning-text)] border-[var(--color-warning-border)]', 'Driver Assigned — Trip Starts Soon'],
                                         'in_progress'             => ['bg-[#0E1620]/10 text-[#0E1620] border-[#0E1620]/20 dark:bg-[#0E1620]/10 dark:text-[#E9EEF4]', 'In Transit'],
                                         'awaiting_confirmation'   => ['bg-[var(--color-warning-bg)] text-[var(--color-warning-text)] border-[var(--color-warning-border)]', 'Awaiting Your Confirmation'],
                                         default                   => ['bg-slate-50 dark:bg-slate-700 text-slate-500 dark:text-slate-400 border-slate-200/50 dark:border-slate-600', ucfirst($delivery->status->value)],
@@ -97,7 +98,7 @@
                             @if($delivery->status->value === 'awaiting_confirmation')
                                 <form method="POST" action="{{ route('buyer.confirm-receipt', $delivery) }}">
                                     @csrf
-                                    <x-button type="submit" size="lg" full class="active:scale-[0.98]">
+                                    <x-button type="button" size="lg" full class="active:scale-[0.98]" onclick="swalConfirm(this.closest('form'), {title:'Confirm Receipt?', text:'Mark delivery #{{ $delivery->id }} as received?', icon:'question', confirmText:'Yes, confirm', cancelText:'Cancel', confirmColor:'#16283C'})">
                                         <x-icon name="check" class="w-4 h-4" /> Confirm Receipt — I received this delivery
                                     </x-button>
                                 </form>
@@ -119,11 +120,11 @@
         </div>
 
         @if($completedDeliveries->isEmpty())
-            <div class="bg-white dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700/60 rounded-2xl p-8 text-center shadow-sm">
+            <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-2xl p-8 text-center shadow-sm">
                 <p class="text-slate-400 text-sm font-semibold">No completed deliveries yet.</p>
             </div>
         @else
-            <div class="bg-white dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700/60 rounded-2xl shadow-sm">
+            <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-2xl shadow-sm">
                 <div class="overflow-x-auto rounded-2xl">
                 <table class="w-full text-xs">
                     <thead>

@@ -110,18 +110,18 @@
                                                 @if($intent->status === 'pending')
                                                     <form action="{{ route('haul-intents.accept', $intent->id) }}" method="POST">
                                                         @csrf
-                                                        <button type="submit" class="bg-[#16283C] hover:bg-[#0E1620] text-white text-xs font-bold px-4 py-2 rounded-xl transition cursor-pointer">
+                                                        <button type="button" onclick="swalConfirm(this.closest('form'), {title:'Accept Haul Request?', text:'Book this haul with this logistics partner?', icon:'question', confirmText:'Yes, accept', cancelText:'Cancel', confirmColor:'#16283C'})" class="bg-[#16283C] hover:bg-[#0E1620] text-white text-xs font-bold px-4 py-2 rounded-xl transition cursor-pointer">
                                                             Accept
                                                         </button>
                                                     </form>
                                                     <form action="{{ route('haul-intents.decline', $intent->id) }}" method="POST">
                                                         @csrf
-                                                        <button type="submit" class="bg-[var(--color-error-text)] hover:opacity-90 text-white text-xs font-bold px-4 py-2 rounded-xl transition cursor-pointer">
+                                                        <button type="button" onclick="swalConfirm(this.closest('form'), {title:'Decline Haul Request?', text:'This haul request will be turned down.', icon:'warning', confirmText:'Yes, decline', cancelText:'Cancel', confirmColor:'#ef4444'})" class="bg-[var(--color-error-text)] hover:opacity-90 text-white text-xs font-bold px-4 py-2 rounded-xl transition cursor-pointer">
                                                             Decline
                                                         </button>
                                                     </form>
                                                 @elseif($intent->status === 'accepted')
-                                                    <span class="text-xs font-bold text-[#16283C] bg-[#16283C]/10 px-3 py-1.5 rounded-lg border border-[#16283C]/10">Accepted</span>
+                                                    <span class="text-xs font-bold text-[#16283C] dark:text-[#D7BC7A] bg-[#16283C]/10 dark:bg-[#16283C]/10 px-3 py-1.5 rounded-lg border border-[#16283C]/10 dark:border-[#16283C]/20">Accepted</span>
                                                 @elseif($intent->status === 'agreed')
                                                     <span class="text-xs font-bold text-[var(--color-warning-text)] bg-[var(--color-warning-bg)] px-3 py-1.5 rounded-lg border border-[var(--color-warning-border)]">Agreed — Confirm to book</span>
                                                 @elseif($intent->status === 'declined')

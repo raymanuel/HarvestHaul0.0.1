@@ -52,7 +52,7 @@
         {{-- PHONE --}}
         <div class="form-group">
             <div class="relative">
-                <input type="text" name="phone" placeholder="Phone Number" required value="{{ old('phone') }}" autocomplete="tel"
+                <input type="tel" inputmode="tel" name="phone" placeholder="Phone Number" required value="{{ old('phone') }}" autocomplete="tel"
                     class="px-4 py-3 w-full bg-white/80 border border-[#16283C]/15 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#16283C]/10 focus:border-[#16283C] transition">
             </div>
         </div>
@@ -126,7 +126,7 @@
 
             {{-- Map container --}}
             <div id="farm-map-wrapper" class="w-full h-[200px] rounded-xl border border-[#16283C]/15 shadow-sm overflow-hidden z-0" style="position:relative;">
-                <div id="map-skeleton" style="position:absolute;inset:0;z-index:400;background:linear-gradient(135deg,#F7F4EC,#E7EAE4);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;transition:opacity 0.3s;">
+                <div id="map-skeleton" style="position:absolute;inset:0;z-index:400;background:linear-gradient(135deg,#F5F6F2,#E7EAE4);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;transition:opacity 0.3s;">
                     <div style="width:28px;height:28px;border:3px solid #e5e7eb;border-top-color:#16283C;border-radius:50%;animation:spin 0.8s linear infinite;"></div>
                     <p style="font-size:11px;color:#9ca3af;font-weight:500;margin:0;">Loading map...</p>
                 </div>
@@ -136,68 +136,6 @@
             <p class="text-[10px] text-slate-400 font-medium text-center mt-1">
                 Drag the pin to your exact farm location.
             </p>
-        </div>
-
-        {{-- AFFILIATION --}}
-        <div class="form-group space-y-2">
-            <label class="text-xs font-bold text-slate-655 block">
-                Are you a member of a cooperative? <span class="text-[var(--color-error-text)]">*</span>
-            </label>
-
-            <div class="grid grid-cols-2 gap-3.5">
-                <!-- Independent Card -->
-                <label id="label-independent" class="flex flex-col items-center justify-center p-4 border-2 border-slate-200/80 rounded-2xl cursor-pointer transition-all duration-200 text-center gap-1 hover:border-[var(--color-warning-border)] hover:bg-[var(--color-warning-bg)]">
-                    <input type="radio" name="affiliation_type" value="independent"
-                        {{ old('affiliation_type') === 'independent' ? 'checked' : '' }}
-                        class="hidden" onchange="handleAffiliation()">
-                    <span class="text-xs font-bold text-slate-800">Independent</span>
-                    <span class="text-[9px] text-slate-400 font-medium leading-tight">No cooperative</span>
-                </label>
-
-                <!-- Cooperative Card -->
-                <label id="label-cooperative" class="flex flex-col items-center justify-center p-4 border-2 border-slate-200/80 rounded-2xl cursor-pointer transition-all duration-200 text-center gap-1 hover:border-[#16283C]/30 hover:bg-[#EEF0EB]/10">
-                    <input type="radio" name="affiliation_type" value="cooperative"
-                        {{ old('affiliation_type') === 'cooperative' ? 'checked' : '' }}
-                        class="hidden" onchange="handleAffiliation()">
-                    <span class="text-xs font-bold text-slate-800">Cooperative</span>
-                    <span class="text-[9px] text-slate-400 font-medium leading-tight">Under a cooperative</span>
-                </label>
-            </div>
-        </div>
-
-        {{-- Cooperative dropdown — only shown if under a coop --}}
-        <div id="coop-field" style="display:none;" class="form-group space-y-1.5">
-            <label class="text-xs font-bold text-slate-700 block">
-                Select Your Cooperative <span class="text-slate-400 font-normal">(Optional)</span>
-            </label>
-            <div class="relative">
-                <select name="cooperative_id" id="cooperative_id"
-                    class="pl-4 pr-10 py-3 w-full bg-white/80 border border-[#16283C]/15 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#16283C]/10 focus:border-[#16283C] transition appearance-none cursor-pointer text-sm text-slate-700">
-                    <option value="">— Select your cooperative —</option>
-                    @foreach($cooperatives as $coop)
-                        <option value="{{ $coop->id }}"
-                            {{ old('cooperative_id') == $coop->id ? 'selected' : '' }}>
-                            {{ $coop->company_name }}
-                        </option>
-                    @endforeach
-                </select>
-                <span class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
-                    </svg>
-                </span>
-            </div>
-            <p class="text-[10px] text-slate-400 leading-normal mt-1">
-                You can skip this and join a cooperative later from your dashboard profile settings.
-            </p>
-            @error('cooperative_id')
-                <p class="text-xs text-[var(--color-error-text)] mt-1 font-semibold">{{ $message }}</p>
-            @enderror
-            @if($cooperatives->isEmpty())
-                <p class="text-xs text-slate-500 mt-1 font-medium bg-slate-50 p-2.5 rounded-lg border border-slate-200/50">
-                    No verified cooperatives are registered yet. You can sign up as independent and link to a cooperative later.
-                </p>
-            @endif
         </div>
 
         {{-- TERMS & CONDITIONS --}}
@@ -408,7 +346,7 @@
         // GPS BUTTON
         document.getElementById('use-my-location').addEventListener('click', function () {
             if (!navigator.geolocation) {
-                alert('Geolocation is not supported by your browser.');
+                Swal.fire({ icon: 'error', title: 'Geolocation not supported', text: 'Your browser does not support location services. Pin your location manually.', confirmButtonColor: '#16283C', background: document.documentElement.classList.contains('dark') ? '#1e293b' : '#fff', color: document.documentElement.classList.contains('dark') ? '#e2e8f0' : '#1e293b', customClass: { popup: 'rounded-xl' } });
                 return;
             }
 
@@ -428,7 +366,7 @@
                         Use My GPS Location`;
                 },
                 function () {
-                    alert('Unable to retrieve your location. Please pin manually.');
+                    Swal.fire({ icon: 'error', title: 'Could not get location', text: 'Unable to retrieve your location. Pin it manually on the map.', confirmButtonColor: '#16283C', background: document.documentElement.classList.contains('dark') ? '#1e293b' : '#fff', color: document.documentElement.classList.contains('dark') ? '#e2e8f0' : '#1e293b', customClass: { popup: 'rounded-xl' } });
                     btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -438,40 +376,6 @@
             );
         });
 
-        // AFFILIATION TOGGLE
-        function handleAffiliation() {
-            const independent = document.querySelector('input[name="affiliation_type"][value="independent"]');
-            const cooperative = document.querySelector('input[name="affiliation_type"][value="cooperative"]');
-            const coopField   = document.getElementById('coop-field');
-            const labelInd    = document.getElementById('label-independent');
-            const labelCoop   = document.getElementById('label-cooperative');
-
-            if (independent.checked) {
-                labelInd.className = "flex flex-col items-center justify-center p-4 border-2 border-[var(--color-warning-border)] bg-[var(--color-warning-bg)] rounded-2xl cursor-pointer transition-all duration-200 text-center gap-1 scale-[1.02] shadow-sm";
-            } else {
-                labelInd.className = "flex flex-col items-center justify-center p-4 border-2 border-slate-200/80 rounded-2xl cursor-pointer transition-all duration-200 text-center gap-1 hover:border-[var(--color-warning-border)] hover:bg-[var(--color-warning-bg)]";
-            }
-
-            if (cooperative.checked) {
-                labelCoop.className = "flex flex-col items-center justify-center p-4 border-2 border-[#16283C] bg-[#EEF0EB]/30 rounded-2xl cursor-pointer transition-all duration-200 text-center gap-1 scale-[1.02] shadow-sm";
-            } else {
-                labelCoop.className = "flex flex-col items-center justify-center p-4 border-2 border-slate-200/80 rounded-2xl cursor-pointer transition-all duration-200 text-center gap-1 hover:border-[#16283C]/30 hover:bg-[#EEF0EB]/10";
-            }
-
-            coopField.style.display = cooperative.checked ? 'block' : 'none';
-        }
-
-        document.addEventListener('DOMContentLoaded', function () {
-            const oldAffiliation = "{{ old('affiliation_type') }}";
-            if (oldAffiliation) {
-                const radio = document.querySelector(`input[name="affiliation_type"][value="${oldAffiliation}"]`);
-                if (radio) { radio.checked = true; handleAffiliation(); }
-            }
-
-            @if($errors->has('cooperative_id'))
-                document.getElementById('coop-field').style.display = 'block';
-            @endif
-        });
     </script>
     @endpush
 

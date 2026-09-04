@@ -14,8 +14,6 @@ class ClearTransactionsSeeder extends Seeder
         $tables = [
             'notification_preferences',
             'notifications',
-            'scraper_status',
-            'crop_price_history',
             'farmer_expenses',
             'fuel_logs',
             'invoices',

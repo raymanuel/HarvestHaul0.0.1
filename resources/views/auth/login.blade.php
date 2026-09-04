@@ -124,7 +124,7 @@
                     <defs>
                         <linearGradient id="pearl-leaf" x1="0" y1="0" x2="0" y2="1">
                             <stop offset="0%" stop-color="#FFFFFF"/>
-<stop offset="45%" stop-color="#F7F4EC"/>
+<stop offset="45%" stop-color="#F5F6F2"/>
 <stop offset="100%" stop-color="#D7BC7A"/>
                         </linearGradient>
                         <linearGradient id="pearl-stem" x1="0" y1="0" x2="0" y2="1">
@@ -144,7 +144,7 @@
         </div>
 
         {{-- ====== RIGHT: AUTH PANELS CONTAINER ====== --}}
-        <div class="auth-right" style="flex:1; display:flex; align-items:center; justify-content:center; padding:3rem; background:#F7F4EC; position:relative; overflow-y:auto;">
+        <div class="auth-right" style="flex:1; display:flex; align-items:center; justify-content:center; padding:3rem; background:#F5F6F2; position:relative; overflow-y:auto;">
 
             {{-- Panel wrapper for slide transitions --}}
             <div class="auth-right-inner" style="position:relative; width:100%; max-width:420px;">
@@ -297,7 +297,7 @@
 
                         <div style="margin-bottom:14px;">
                             <label for="reg-phone" style="display:block; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:#5A6573; margin-bottom:5px;">Phone Number</label>
-                            <input type="text" id="reg-phone" name="phone" placeholder="09XX XXX XXXX" required value="{{ old('phone') }}" autocomplete="tel"
+                            <input type="tel" inputmode="tel" id="reg-phone" name="phone" placeholder="09XX XXX XXXX" required value="{{ old('phone') }}" autocomplete="tel"
                                 style="width:100%; padding:11px 14px; border-radius:10px; border:1.5px solid #e5e7eb; background:white; font-size:13px; color:#17202B; transition:all 0.2s; font-family:inherit;"
                                 onfocus="this.style.borderColor='#16283C'; this.style.boxShadow='0 0 0 4px rgba(22, 40, 60,0.08)'"
                                 onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none'">

@@ -8,8 +8,10 @@ use App\Http\Requests\StoreFuelLogRequest;
 use App\Http\Requests\UploadIdentityRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use App\Models\PoolingJob;
 use App\Models\PoolingJobStatus;
+use App\Services\WeatherService;
 use App\Traits\GeometryHelper;
 use App\Traits\Notifiable;
 
@@ -30,6 +32,18 @@ class DriverController extends Controller
             ->latest()
             ->take(20)
             ->get();
+
+        // Attach each job's latest recorded weather so the dashboard can show
+        // a compact condition/severity line on the job cards.
+        $weatherByJob = \App\Models\WeatherLog::query()
+            ->whereIn('pooling_job_id', $jobs->pluck('id'))
+            ->orderByDesc('checked_at')
+            ->get()
+            ->groupBy('pooling_job_id');
+
+        foreach ($jobs as $job) {
+            $job->setAttribute('weather', $weatherByJob->get($job->id)?->first());
+        }
 
         $completedJobs = PoolingJob::where('driver_id', $user->id)
             ->where('status', 'completed')
@@ -63,8 +77,18 @@ class DriverController extends Controller
             'logisticsProfile',
         ]);
 
+        // Latest weather recorded for this route (weather card).
+        $weatherLog = \App\Models\WeatherLog::where('pooling_job_id', $poolingJob->id)
+            ->orderByDesc('checked_at')
+            ->first();
+
+        // Weather-adjusted ETA for the driver.
+        $eta = app(\App\Services\ETAService::class)->getETAForJob($poolingJob);
+
         return view('driver.driver-job-show', [
-            'job' => $poolingJob,
+            'job'        => $poolingJob,
+            'weatherLog' => $weatherLog,
+            'eta'        => $eta,
         ]);
     }
 
@@ -170,6 +194,8 @@ class DriverController extends Controller
 
         // Trigger Notifications
         if ($newStatus === PoolingJobStatus::IN_PROGRESS) {
+            $this->fetchAndPersistStartWeather($poolingJob);
+
             if ($poolingJob->logisticsProfile && $poolingJob->logisticsProfile->user_id) {
                 self::notifyJobInTransit(
                     $poolingJob->logisticsProfile->user_id,
@@ -221,6 +247,66 @@ class DriverController extends Controller
             $response->with('next_steps', $nextSteps);
         }
         return $response;
+    }
+
+    /**
+     * Fetch and persist weather at trip start so the driver immediately sees
+     * conditions and the ETA can be weather-adjusted. Uses the job's start
+     * coordinates (GPS telemetry may not exist yet at this instant). Never
+     * throws — a weather failure must not block or fail the trip start.
+     */
+    private function fetchAndPersistStartWeather(PoolingJob $poolingJob): void
+    {
+        try {
+            if (!$poolingJob->start_latitude || !$poolingJob->start_longitude) {
+                return;
+            }
+
+            $weather = app(WeatherService::class)->getWeather(
+                (float) $poolingJob->start_latitude,
+                (float) $poolingJob->start_longitude,
+                $poolingJob->id
+            );
+
+            if (!$weather) {
+                return;
+            }
+
+            $poolingJob->forceFill([
+                'weather_condition'    => $weather['condition'] ?? null,
+                'weather_temperature'  => $weather['temperature'] ?? null,
+                'weather_wind_speed'   => $weather['wind_speed'] ?? null,
+                'weather_icon'         => $weather['icon'] ?? null,
+                'weather_checked_at'   => now(),
+                'weather_advisory'     => $weather['advisory'] ?? null,
+            ])->save();
+
+            $this->notifyDriverSevereWeather($poolingJob, $weather);
+        } catch (\Throwable $e) {
+            Log::warning('Could not fetch weather at trip start.', [
+                'pooling_job_id' => $poolingJob->id,
+                'error'          => $e->getMessage(),
+            ]);
+        }
+    }
+
+    /**
+     * Alert the driver when the weather at trip start is severe, following the
+     * format: what happened + what to expect / what to do.
+     */
+    private function notifyDriverSevereWeather(PoolingJob $poolingJob, array $weather): void
+    {
+        if (empty($weather['is_severe'])) {
+            return;
+        }
+
+        \App\Models\Notification::create([
+            'user_id' => $poolingJob->driver_id,
+            'title'   => 'Severe weather on Route #'.$poolingJob->id,
+            'message' => 'Severe weather was detected at your start point: '.($weather['advisory'] ?? $weather['condition'] ?? 'check conditions').' Drive with extra caution and stay updated via the weather card on this route.',
+            'link'    => route('driver.jobs.show', $poolingJob),
+            'type'    => 'weather_alert',
+        ]);
     }
 
     /**
@@ -359,12 +445,48 @@ class DriverController extends Controller
             "Driver {$user->name} accepted Route #{$poolingJob->id}."
         );
 
-        self::sendNotification(
-            $poolingJob->logisticsProfile?->user_id,
-            'Driver Accepted Job',
-            "Driver {$user->name} has accepted Route #{$poolingJob->id}.",
-            route('pooling.show', $poolingJob)
-        );
+        $notifications = [];
+
+        // Logistics partner
+        $logisticsUserId = $poolingJob->logisticsProfile?->user_id;
+        if ($logisticsUserId) {
+            $notifications[] = [
+                'user_id' => $logisticsUserId,
+                'title'   => 'Driver Accepted Job',
+                'message' => "Driver {$user->name} has accepted Route #{$poolingJob->id}. Trip starts soon — monitor progress from your Proposal Inbox.",
+                'link'    => route('pooling.show', $poolingJob),
+                'category' => 'logistics',
+            ];
+        }
+
+        // Buyer
+        if ($poolingJob->buyer_id) {
+            $notifications[] = [
+                'user_id' => $poolingJob->buyer_id,
+                'title'   => 'Driver Assigned to Your Order',
+                'message' => "Driver {$user->name} has accepted Route #{$poolingJob->id}. Trip starts soon — check Deliveries for status updates.",
+                'link'    => route('buyer.tracking'),
+                'category' => 'logistics',
+            ];
+        }
+
+        // Each farmer on the route
+        $notifiedFarmers = [];
+        foreach ($poolingJob->harvests as $harvest) {
+            $farmerId = $harvest->user_id;
+            if (isset($notifiedFarmers[$farmerId])) continue;
+            $notifiedFarmers[$farmerId] = true;
+
+            $notifications[] = [
+                'user_id' => $farmerId,
+                'title'   => 'Driver Assigned to Your Route',
+                'message' => "Driver {$user->name} has accepted Route #{$poolingJob->id} for your crop. Pickup starts soon — check My Logistics for status updates.",
+                'link'    => route('farmer.logistics'),
+                'category' => 'logistics',
+            ];
+        }
+
+        self::sendBulkNotifications($notifications);
 
         return back()->with('success', 'Job accepted successfully.');
     }

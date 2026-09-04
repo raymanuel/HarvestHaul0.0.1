@@ -34,7 +34,7 @@
         body {
             margin: 0;
             padding: 2rem 1rem;
-            background: linear-gradient(135deg, #F7F4EC 0%, #EFEADB 50%, #E7E1CF 100%);
+            background: linear-gradient(135deg, #F5F6F2 0%, #EFEADB 50%, #E7E1CF 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -124,6 +124,9 @@
             {{ $slot }}
         </div>
     </main>
+
+    <script src="{{ asset('vendor/sweetalert2/sweetalert2.all.min.js') }}"></script>
+    <script src="{{ asset('assets/js/swal-helpers.js') }}"></script>
 
     @stack('scripts')
     <script>

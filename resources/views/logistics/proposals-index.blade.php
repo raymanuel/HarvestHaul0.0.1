@@ -1,7 +1,7 @@
 <x-layout>
     <div class="w-full max-w-7xl mx-auto pb-12">
         <header class="pt-8 mb-6 border-b border-slate-200/80 dark:border-slate-700/80 pb-5">
-            <span class="text-xs font-bold uppercase tracking-wider text-[#16283C] dark:text-[#D7BC7A] bg-[#16283C]/10 dark:bg-[#16283C]/10 px-3 py-1.5 rounded-lg border border-[#16283C]/10 dark:border-[#16283C]/20 self-start">Proposals</span>
+            <span class="text-xs font-bold uppercase tracking-wider text-brand dark:text-brand-light bg-brand/10 dark:bg-brand/10 px-3 py-1.5 rounded-lg border border-brand/10 dark:border-brand/20 self-start">Proposals</span>
             <h1 class="text-3xl font-bold text-slate-900 dark:text-white tracking-tight heading-font mt-2">Proposal Inbox</h1>
         </header>
 
@@ -19,7 +19,7 @@
                         <div>
                             <div class="flex items-center justify-between mb-4">
                                 <span class="text-xs font-bold text-[var(--color-info-text)] bg-[var(--color-info-bg)] border border-[var(--color-info-border)] px-2.5 py-1 rounded-lg font-mono">Job #{{ $proposal->id }}</span>
-                                <span class="text-[10px] font-bold uppercase tracking-wider text-[var(--color-warning-text)] bg-[var(--color-warning-bg)] px-2.5 py-1 rounded-lg border border-[var(--color-warning-border)]">Awaiting Farmer Approval</span>
+                                <x-badge color="amber" label="Awaiting Farmer Approval" />
                             </div>
 
                             <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 mb-1 heading-font">{{ $proposal->truck->truck_name ?? 'Fleet Hauler' }}</h3>
@@ -46,7 +46,7 @@
                                 @endif
                                 <div class="flex justify-between">
                                     <span class="text-slate-400">Total Haul Price (auto):</span>
-                                    <span class="text-[#16283C] dark:text-[#D7BC7A] font-bold">₱{{ number_format($proposal->negotiated_price ?? $proposal->price_reference, 2) }}</span>
+                                    <span class="text-brand dark:text-brand-light font-bold">₱{{ number_format($proposal->negotiated_price ?? $proposal->price_reference, 2) }}</span>
                                 </div>
                                 @if($isCoop && $hasAgreedRates)
                                     <p class="text-[10px] text-slate-500 dark:text-slate-400 italic">Each farmer's share = rate agreed in chat × their kg.</p>
@@ -66,14 +66,14 @@
                                             <div class="flex items-center gap-2 truncate max-w-[150px]">
                                                 <span class="font-medium text-slate-700 dark:text-slate-330">{{ $harvest->farmer->name ?? 'Farmer' }}</span>
                                                 <span class="text-[8px] font-bold uppercase px-1.5 py-0.5 rounded border
-                                                @if($harvest->pivot->status === 'accepted') text-[#16283C] bg-[#16283C]/10 border-[#16283C]/10
+                                                @if($harvest->pivot->status === 'accepted') text-brand bg-brand/10 border-brand/10 dark:text-brand-light dark:bg-brand/10 dark:border-brand/10
                                                 @elseif($harvest->pivot->status === 'rejected') text-[var(--color-error-text)] bg-[var(--color-error-bg)] border-[var(--color-error-border)]
                                                 @else text-[var(--color-warning-text)] bg-[var(--color-warning-bg)] border-[var(--color-warning-border)] @endif">
                                                     {{ $harvest->pivot->status }}
                                                 </span>
                                             </div>
                                             <div class="text-right">
-                                                <span class="font-bold text-[#16283C] dark:text-[#D7BC7A] font-mono">{{ number_format($harvest->pivot->quantity_kg) }} kg</span>
+                                                <span class="font-bold text-brand dark:text-brand-light font-mono">{{ number_format($harvest->pivot->quantity_kg) }} kg</span>
                                                 <span class="block text-[10px] text-slate-400 font-mono">₱{{ number_format($share, 2) }}</span>
                                             </div>
                                         </li>
@@ -84,7 +84,7 @@
 
                         <div class="mt-6 space-y-3">
                             <a href="{{ route('pooling.cost-ledger', $proposal) }}"
-                               class="w-full flex items-center justify-center gap-2 bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-600 text-xs font-bold py-2.5 rounded-xl hover:border-[#16283C] dark:hover:border-[#16283C] hover:text-[#16283C] dark:hover:text-[#D7BC7A] transition-all duration-200">
+                               class="w-full flex items-center justify-center gap-2 bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-600 text-xs font-bold py-2.5 rounded-xl hover:border-brand dark:hover:border-brand hover:text-brand dark:hover:text-brand-light transition-all duration-200">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 11h.01M12 11h.01M15 11h.01M4 19h16a2 2 0 002-2V7a2 2 0 00-2-2H4a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                                 </svg>
@@ -99,16 +99,16 @@
         @if($readyForDispatch->isNotEmpty())
             <div class="mb-10">
                 <div class="flex items-center gap-2 mb-5">
-                    <span class="text-xs font-bold uppercase tracking-wider text-[var(--color-warning-text)]">Ready for Dispatch</span>
+                    <span class="text-xs font-bold uppercase tracking-wider text-[var(--color-success-text)] dark:text-[var(--color-success-text-dark)]">Ready for Dispatch</span>
                     <span class="text-[10px] text-slate-500 dark:text-slate-400">(all farmers accepted)</span>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     @foreach($readyForDispatch as $job)
-                        <div class="bg-white dark:bg-slate-800 border border-[var(--color-warning-border)] rounded-2xl shadow-sm p-6 flex flex-col justify-between hover:shadow-md transition">
+                        <div class="bg-white dark:bg-slate-800 border border-[var(--color-success-border)] dark:border-[var(--color-success-border-dark)] rounded-2xl shadow-sm p-6 flex flex-col justify-between hover:shadow-md transition">
                             <div>
                                 <div class="flex items-center justify-between mb-4">
                                     <span class="text-xs font-bold text-[var(--color-info-text)] bg-[var(--color-info-bg)] border border-[var(--color-info-border)] px-2.5 py-1 rounded-lg font-mono">Job #{{ $job->id }}</span>
-                                    <span class="text-[10px] font-bold uppercase tracking-wider text-[var(--color-warning-text)] bg-[var(--color-warning-bg)] px-2.5 py-1 rounded-lg border border-[var(--color-warning-border)]">Ready for Dispatch</span>
+                                    <x-badge color="green" label="Ready for Dispatch" />
                                 </div>
 
                                 <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 mb-1 heading-font">{{ $job->truck->truck_name ?? 'Fleet Hauler' }}</h3>
@@ -124,7 +124,7 @@
                                     </div>
                                     <div class="flex justify-between">
                                         <span class="text-slate-400">Haul Price:</span>
-                                        <span class="text-[#16283C] dark:text-[#D7BC7A] font-bold">₱{{ number_format($job->negotiated_price ?? $job->price_reference, 2) }}</span>
+                                        <span class="text-brand dark:text-brand-light font-bold">₱{{ number_format($job->negotiated_price ?? $job->price_reference, 2) }}</span>
                                     </div>
                                 </div>
 
@@ -133,7 +133,7 @@
 
                             <div class="mt-5">
                                 <a href="{{ route('pooling.cost-ledger', $job) }}"
-                                   class="w-full flex items-center justify-center gap-2 bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-600 text-xs font-bold py-2.5 rounded-xl hover:border-[#16283C] dark:hover:border-[#16283C] hover:text-[#16283C] dark:hover:text-[#D7BC7A] transition-all duration-200">
+                                   class="w-full flex items-center justify-center gap-2 bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-600 text-xs font-bold py-2.5 rounded-xl hover:border-brand dark:hover:border-brand hover:text-brand dark:hover:text-brand-light transition-all duration-200">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 11h.01M12 11h.01M15 11h.01M4 19h16a2 2 0 002-2V7a2 2 0 00-2-2H4a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                                     </svg>
@@ -157,7 +157,7 @@
                         <div class="bg-white dark:bg-slate-800/50 border border-slate-200/50 dark:border-slate-700/40 rounded-2xl shadow-sm p-6 opacity-70 hover:opacity-100 transition">
                             <div class="flex items-center justify-between mb-4">
                                 <span class="text-xs font-bold text-slate-500 font-mono">Job #{{ $proposal->id }}</span>
-                                <span class="text-[10px] font-bold uppercase tracking-wider text-[var(--color-error-text)] bg-[var(--color-error-bg)] px-2.5 py-1 rounded-lg border border-[var(--color-error-border)]">Cancelled</span>
+                                <x-badge color="red" label="Cancelled" />
                             </div>
                             <p class="text-xs text-slate-500 dark:text-slate-400 font-medium mb-2">
                                  {{ $proposal->truck->truck_name ?? 'Fleet Hauler' }}

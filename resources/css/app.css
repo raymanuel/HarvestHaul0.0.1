@@ -25,10 +25,10 @@
     --font-display: 'Schibsted Grotesk', 'DM Sans', ui-sans-serif, system-ui, sans-serif;
     --font-mono: 'JetBrains Mono', ui-monospace, monospace;
 
-    /* HarvestHaul Brand — Ink Navy + Gold (navy primary, gold accent, coral action) */
+    /* HarvestHaul Brand — Ink Navy + Gold */
     --color-brand: #16283C;
-    --color-brand-light: #D7BC7A;
     --color-brand-dark: #0E1620;
+    --color-brand-light: #D7BC7A;
     --color-brand-50: #eef2f6;
     --color-brand-100: #dfe6ee;
     --color-brand-200: #b9c7da;
@@ -38,6 +38,15 @@
     --color-brand-900: #16283c;
 
     /* Gold accent (active nav, welcome pops, premium emphasis) */
+    --color-gold: #BFA05A;
+    --color-gold-light: #D7BC7A;
+    --color-gold-50: #f9f6eb;
+    --color-gold-100: #f2ebd4;
+    --color-gold-500: #BFA05A;
+    --color-gold-600: #7C6527;
+    --color-gold-700: #8A7030;
+
+    /* Deprecated aliases (templates still reference accent-*; gold is canonical) */
     --color-accent: #BFA05A;
     --color-accent-light: #D7BC7A;
     --color-accent-600: #7C6527;
@@ -45,6 +54,7 @@
     --color-accent-50: #f9f6eb;
     --color-accent-100: #f2ebd4;
 
+    /* Harvest alias — gold on light surfaces, gold-light on dark surfaces */
     --color-harvest: #BFA05A;
     --color-harvest-light: #D7BC7A;
     --color-harvest-dark: #8A7030;
@@ -57,11 +67,48 @@
     --color-soil: #435060;
     --color-soil-light: #7C8A99;
 
-    --color-surface: #F7F4EC;
+    /* Sidebar (always dark navy) */
+    --color-sidebar-text: #CBD5E1;
+    --color-sidebar-text-hover: #F5E3B0;
+    --color-sidebar-letter-bg: rgba(255, 255, 255, 0.1);
+    --color-sidebar-letter-text: rgba(255, 255, 255, 0.7);
+    --color-sidebar-section-text: rgba(255, 255, 255, 0.6);
+
+    /* Nav active states */
+    --color-nav-active-bg: rgba(217, 188, 122, 0.12);
+    --color-nav-active-letter-bg: rgba(217, 188, 122, 0.18);
+
+    /* Dark overlay surfaces */
+    --color-dark-border: rgba(255, 255, 255, 0.08);
+    --color-dark-border-light: rgba(255, 255, 255, 0.15);
+    --color-dark-hover-bg: rgba(255, 255, 255, 0.08);
+
+    /* Ghost buttons (topbar functional icons) */
+    --color-ghost-btn-bg: rgba(15, 23, 42, 0.10);
+    --color-ghost-btn-bg-hover: rgba(15, 23, 42, 0.15);
+    --color-ghost-btn-border: rgba(15, 23, 42, 0.18);
+    --color-ghost-btn-text: rgba(15, 23, 42, 0.80);
+    --color-ghost-btn-bg-dark: rgba(255, 255, 255, 0.15);
+    --color-ghost-btn-bg-dark-hover: rgba(255, 255, 255, 0.22);
+    --color-ghost-btn-border-dark: rgba(255, 255, 255, 0.22);
+    --color-ghost-btn-text-dark: rgba(255, 255, 255, 0.85);
+
+    /* Scrollbar */
+    --color-scrollbar-thumb: rgba(255, 255, 255, 0.1);
+    --color-scrollbar-thumb-hover: rgba(255, 255, 255, 0.2);
+
+    /* Surfaces */
+    --color-surface: #F5F6F2;
     --color-surface-dark: #0E1620;
-    --color-surface-card: #FDFBF4;
+    --color-surface-card: #FFFFFF;
     --color-surface-card-dark: #14202D;
     --color-card: #FFFFFF;
+
+    /* Typography */
+    --color-text: #17202B;
+    --color-text-muted: #5A6573;
+    --color-text-dark: #E9EEF4;
+    --color-text-dark-muted: #94A3B4;
 
     --color-success: #22c55e;
     --color-success-light: #4ade80;
@@ -163,7 +210,7 @@ button:not(:disabled) {
 body {
     font-family: 'DM Sans', sans-serif;
     font-weight: 500;
-    background-color: var(--color-surface, #F7F4EC);
+    background-color: var(--color-surface, #F5F6F2);
 }
 
 .heading-font {
@@ -173,7 +220,7 @@ body {
 }
 
 .glass-card {
-    background: var(--color-surface-card, #FDFBF4);
+    background: var(--color-surface-card, #FFFFFF);
     border: 1px solid rgba(0, 0, 0, 0.08);
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
     transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;

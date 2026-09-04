@@ -33,7 +33,7 @@
                 <div>
                     <span id="deal-status-badge" class="text-[10px] font-extrabold uppercase tracking-widest px-3 py-1.5 rounded-full border shadow-sm
                         @if($status === 'pending') text-[var(--color-warning-text)] bg-[var(--color-warning-bg)] border-[var(--color-warning-border)]
-                        @elseif($status === 'agreed') text-[#16283C] bg-[#16283C]/10 border-[#16283C]/10
+                        @elseif($status === 'agreed') text-[#16283C] dark:text-[#D7BC7A] bg-[#16283C]/10 dark:bg-[#16283C]/10 border-[#16283C]/10 dark:border-[#16283C]/20
                         @elseif($status === 'accepted') text-purple-700 bg-purple-50 dark:bg-purple-950/20 border-purple-500/10
                         @else text-slate-500 bg-slate-500/10 border-slate-500/10 @endif">
                         Status: {{ $status }}
@@ -44,7 +44,7 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-            <div class="lg:col-span-2 flex flex-col bg-white dark:bg-slate-800/80 backdrop-blur border border-slate-200/60 dark:border-slate-700/60 rounded-3xl overflow-hidden shadow-sm h-[600px]">
+            <div class="lg:col-span-2 flex flex-col bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-3xl overflow-hidden shadow-sm h-[600px]">
                 <div class="px-6 py-4 bg-slate-50/50 dark:bg-slate-900/40 border-b border-slate-150 dark:border-slate-700/60 flex items-center justify-between shrink-0">
                     <h3 class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Live Chat Console</h3>
                     <span class="text-[10px] font-bold font-mono text-slate-500 dark:text-slate-400">Secure Direct Message Tunnel</span>
@@ -99,7 +99,7 @@
 
             <div class="space-y-6">
 
-                <div class="bg-white dark:bg-slate-800/80 backdrop-blur border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6 shadow-sm">
+                <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6 shadow-sm">
                     <h3 class="text-sm font-extrabold text-slate-800 dark:text-white heading-font mb-4 uppercase tracking-wider">Load Overview</h3>
                     <div class="space-y-3 text-xs">
                         <div class="flex justify-between items-center py-2 border-b border-slate-100 dark:border-slate-700/40">
@@ -121,7 +121,7 @@
                     </div>
                 </div>
 
-                <div class="bg-white dark:bg-slate-800/80 backdrop-blur border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6 shadow-sm">
+                <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6 shadow-sm">
                     <h3 class="text-sm font-extrabold text-slate-800 dark:text-white heading-font mb-4 uppercase tracking-wider">Proposed Hauling Rate</h3>
                     <div class="bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 p-4 rounded-2xl mb-4 text-center">
                         <p class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Current Rate</p>
@@ -296,36 +296,54 @@
     function proposeRate(e) {
         e.preventDefault();
         var form = document.getElementById('propose-rate-form');
-        var data = new FormData(form);
-        fetch('/haul-negotiations/' + intentId + '/propose-rate', {
-            method: 'POST',
-            headers: { 'X-CSRF-TOKEN': csrfToken, 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
-            body: data
-        }).then(function (r) {
-            if (!r.ok) throw new Error('HTTP ' + r.status);
-            return r.json();
-        }).then(function (data) {
-            if (data.message) appendMessage(data.message);
-            updateUI(data);
-        }).catch(function (err) { console.error('proposeRate:', err); });
+        swalConfirm(function () {
+            var data = new FormData(form);
+            fetch('/haul-negotiations/' + intentId + '/propose-rate', {
+                method: 'POST',
+                headers: { 'X-CSRF-TOKEN': csrfToken, 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
+                body: data
+            }).then(function (r) {
+                if (!r.ok) throw new Error('HTTP ' + r.status);
+                return r.json();
+            }).then(function (data) {
+                if (data.message) appendMessage(data.message);
+                updateUI(data);
+            }).catch(function (err) { console.error('proposeRate:', err); });
+        }, {
+            title: 'Propose This Rate?',
+            text: 'Send this hauling rate to the other party?',
+            icon: 'question',
+            confirmText: 'Yes, send',
+            cancelText: 'Cancel',
+            confirmColor: '{{ (Auth::user()->role ?? '') === 'logistics_partner' ? '#16283C' : '#BFA05A' }}'
+        });
         return false;
     }
 
     function counterRate(e) {
         e.preventDefault();
         var form = document.getElementById('counter-rate-form');
-        var data = new FormData(form);
-        fetch('/haul-negotiations/' + intentId + '/counter-rate', {
-            method: 'POST',
-            headers: { 'X-CSRF-TOKEN': csrfToken, 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
-            body: data
-        }).then(function (r) {
-            if (!r.ok) throw new Error('HTTP ' + r.status);
-            return r.json();
-        }).then(function (data) {
-            if (data.message) appendMessage(data.message);
-            updateUI(data);
-        }).catch(function (err) { console.error('counterRate:', err); });
+        swalConfirm(function () {
+            var data = new FormData(form);
+            fetch('/haul-negotiations/' + intentId + '/counter-rate', {
+                method: 'POST',
+                headers: { 'X-CSRF-TOKEN': csrfToken, 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
+                body: data
+            }).then(function (r) {
+                if (!r.ok) throw new Error('HTTP ' + r.status);
+                return r.json();
+            }).then(function (data) {
+                if (data.message) appendMessage(data.message);
+                updateUI(data);
+            }).catch(function (err) { console.error('counterRate:', err); });
+        }, {
+            title: 'Send Counter Rate?',
+            text: 'Reply with this counter offer?',
+            icon: 'question',
+            confirmText: 'Yes, send',
+            cancelText: 'Cancel',
+            confirmColor: '{{ (Auth::user()->role ?? '') === 'logistics_partner' ? '#16283C' : '#BFA05A' }}'
+        });
         return false;
     }
 

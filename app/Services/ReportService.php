@@ -6,7 +6,6 @@ use App\Models\PoolingJob;
 use App\Models\Negotiation;
 use App\Models\FuelLog;
 use App\Models\Harvest;
-use App\Models\CropPriceHistory;
 use App\Models\FarmerExpense;
 use App\Models\HaulIntent;
 use Carbon\Carbon;

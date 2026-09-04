@@ -20,7 +20,7 @@
 
         <!-- Negotiations List -->
         @if($negotiations->isEmpty())
-            <div class="bg-white dark:bg-slate-800/80 backdrop-blur border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-12 text-center">
+            <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-12 text-center">
                 
                 <h3 class="text-lg font-bold text-slate-800 dark:text-white heading-font">No Negotiations Found</h3>
                 <p class="text-sm text-slate-500 dark:text-slate-400 mt-2 max-w-md mx-auto">You have not started any crop purchase deals yet. Head to the Crop Board to find fresh harvests.</p>
@@ -31,7 +31,7 @@
                 </div>
             </div>
         @else
-            <div class="bg-white dark:bg-slate-800/80 backdrop-blur border border-slate-200/60 dark:border-slate-700/60 rounded-3xl overflow-hidden shadow-sm">
+            <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-3xl overflow-hidden shadow-sm">
                 <div class="overflow-x-auto">
                     <table class="w-full text-sm text-left">
                         <thead>
@@ -68,7 +68,7 @@
                                         <span class="text-[9px] font-extrabold uppercase tracking-widest px-2.5 py-1 rounded border
                                             @if($negotiation->status->value === 'OPEN') text-harvest-700 dark:text-harvest-light bg-harvest/10 border-harvest/10 dark:text-harvest-light dark:bg-harvest/10 dark:border-harvest/20
                                             @elseif($negotiation->status->value === 'AGREED') text-[#16283C] bg-[#16283C]/10 border-[#16283C]/10 dark:text-[#D7BC7A] dark:bg-[#D7BC7A]/10 dark:border-[#D7BC7A]/20
-                                            @elseif($negotiation->status->value === 'COMPLETED') text-[#0E1620] bg-[#0E1620]/10 border-[#0E1620]/10 dark:text-[#4CAF50] dark:bg-[#4CAF50]/10 dark:border-[#4CAF50]/20
+                                            @elseif($negotiation->status->value === 'COMPLETED') text-[#0E1620] bg-[#0E1620]/10 border-[#0E1620]/10 dark:text-success dark:bg-success/10 dark:border-success/20
                                             @else text-slate-500 bg-slate-500/10 border-slate-500/10 dark:text-slate-400 dark:bg-slate-400/10 dark:border-slate-400/20 @endif">
                                             {{ $negotiation->status->value }}
                                         </span>

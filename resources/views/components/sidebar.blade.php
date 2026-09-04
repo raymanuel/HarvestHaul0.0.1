@@ -9,15 +9,18 @@
         $sectionLabel = $nav['buyer']['section_label'] ?? null;
     } elseif (isset($nav[$role])) {
         $items = $nav[$role]['items'] ?? [];
+        if ($role === 'logistics_partner' && Auth::user()->logisticsProfile && !Auth::user()->logisticsProfile->isCooperative()) {
+            $items = $nav[$role]['items_independent'] ?? $items;
+        }
         $sectionLabel = $nav[$role]['section_label'] ?? null;
     }
 @endphp
 
-<nav class="flex-1 px-3 py-6 overflow-y-auto custom-scroll space-y-7">
+<nav class="flex-1 px-3 py-6 overflow-y-auto custom-scroll space-y-7" aria-label="Sidebar navigation">
 
     {{-- Dashboard --}}
     <div class="space-y-1.5">
-        <a href="/dashboard" data-tooltip="Dashboard" class="nav-link flex items-center px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->is('dashboard') ? 'nav-active' : 'text-slate-600 hover:text-accent-600 hover:bg-slate-900/5 dark:text-slate-300 dark:hover:text-accent-light dark:hover:bg-white/10' }}">
+        <a href="/dashboard" data-tooltip="Dashboard" aria-label="Dashboard" @if(request()->is('dashboard'))aria-current="page"@endif class="nav-link flex items-center px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ request()->is('dashboard') ? 'nav-active' : '' }}">
             <span class="nav-letter shrink-0 w-8 h-8 rounded-lg bg-slate-900/5 text-slate-500 dark:bg-white/10 dark:text-white/70 text-xs font-bold flex items-center justify-center uppercase">D</span>
             <span class="nav-label">Dashboard</span>
         </a>
@@ -35,7 +38,7 @@
             $parentUrl = $item['route_url'] ?? null;
             $isActive = request()->routeIs($parentRoute);
 
-            $activeClass = $isActive ? 'nav-active' : 'text-slate-600 hover:text-accent-600 hover:bg-slate-900/5 dark:text-slate-300 dark:hover:text-accent-light dark:hover:bg-white/10';
+            $activeClass = $isActive ? 'nav-active' : '';
 
             $childRoutes = $hasChildren ? collect($item['children'])->pluck('route')->implode('|') : null;
             $isSubmenuActive = $hasChildren ? request()->routeIs($childRoutes) : false;
@@ -58,7 +61,7 @@
             @if($showItem)
             {{-- Parent with children (submenu toggle) --}}
             <div class="space-y-1.5">
-                <button type="button" data-submenu-toggle data-tooltip="{{ $item['tooltip'] }}" class="nav-link w-full flex items-center justify-between px-4 py-2.5 rounded-xl text-sm font-semibold transition text-slate-600 hover:text-accent-600 hover:bg-slate-900/5 dark:text-slate-300 dark:hover:text-accent-light dark:hover:bg-white/10 select-none {{ $isSubmenuActive ? ' nav-active' : '' }}">
+                <button type="button" data-submenu-toggle data-tooltip="{{ $item['tooltip'] }}" aria-label="{{ $item['label'] }}" aria-expanded="{{ $isSubmenuActive ? 'true' : 'false' }}" class="nav-link w-full flex items-center justify-between px-4 py-2.5 rounded-xl text-sm font-semibold transition select-none {{ $isSubmenuActive ? ' nav-active' : '' }}">
                     <div class="flex items-center gap-3">
                         <span class="nav-letter shrink-0 w-8 h-8 rounded-lg bg-slate-900/5 text-slate-500 dark:bg-white/10 dark:text-white/70 text-xs font-bold flex items-center justify-center uppercase">{{ $item['letter'] }}</span>
                         <span class="nav-label">{{ $item['label'] }}</span>
@@ -70,28 +73,30 @@
                     </span>
                 </button>
 
-                <div data-submenu-panel class="{{ $isSubmenuActive ? '' : 'hidden' }} mt-1 pl-4 space-y-1.5 transition-all">
+                <div data-submenu-panel role="group" class="submenu-panel {{ $isSubmenuActive ? 'submenu-open' : '' }} mt-1 pl-4">
+                    <div class="space-y-1.5 overflow-hidden">
                     @foreach($item['children'] as $child)
                         @php
                             $childCondition = $child['condition'] ?? null;
                             $childIsActive = request()->routeIs($child['route']);
-                            $childActiveClass = $childIsActive ? 'nav-active' : 'text-slate-600 hover:text-accent-600 hover:bg-slate-900/5 dark:text-slate-300 dark:hover:text-accent-light dark:hover:bg-white/10';
+                            $childActiveClass = $childIsActive ? 'nav-active' : '';
                         @endphp
 
                         @if($childCondition === 'farmer_non_cooperative')
                             @if(Auth::user()->farmerProfile?->affiliation_type !== 'cooperative')
-                                <a href="{{ route($child['route_url']) }}" data-tooltip="{{ $child['tooltip'] }}" class="nav-link flex items-center px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ $childActiveClass }}">
+                                <a href="{{ route($child['route_url']) }}" data-tooltip="{{ $child['tooltip'] }}" aria-label="{{ $child['label'] }}" @if($childIsActive)aria-current="page"@endif class="nav-link flex items-center px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ $childActiveClass }}">
                                     <span class="nav-letter shrink-0 w-8 h-8 rounded-lg bg-slate-900/5 text-slate-500 dark:bg-white/10 dark:text-white/70 text-xs font-bold flex items-center justify-center uppercase">{{ $child['letter'] }}</span>
                                     <span class="nav-label">{{ $child['label'] }}</span>
                                 </a>
                             @endif
                         @else
-                            <a href="{{ route($child['route_url']) }}" data-tooltip="{{ $child['tooltip'] }}" class="nav-link flex items-center px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ $childActiveClass }}">
+                            <a href="{{ route($child['route_url']) }}" data-tooltip="{{ $child['tooltip'] }}" aria-label="{{ $child['label'] }}" @if($childIsActive)aria-current="page"@endif class="nav-link flex items-center px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ $childActiveClass }}">
                                 <span class="nav-letter shrink-0 w-8 h-8 rounded-lg bg-slate-900/5 text-slate-500 dark:bg-white/10 dark:text-white/70 text-xs font-bold flex items-center justify-center uppercase">{{ $child['letter'] }}</span>
                                 <span class="nav-label">{{ $child['label'] }}</span>
                             </a>
                         @endif
                     @endforeach
+                    </div>
                 </div>
             </div>
             @endif
@@ -99,7 +104,7 @@
             {{-- Simple link --}}
             @if($showItem)
                 <div class="space-y-1.5">
-                    <a href="{{ route($parentUrl) }}" data-tooltip="{{ $item['tooltip'] }}" class="nav-link {{ $mobileOnly ? 'lg:hidden ' : '' }}flex items-center px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ $activeClass }}">
+                    <a href="{{ route($parentUrl) }}" data-tooltip="{{ $item['tooltip'] }}" aria-label="{{ $item['label'] }}" @if($isActive)aria-current="page"@endif class="nav-link {{ $mobileOnly ? 'lg:hidden ' : '' }}flex items-center px-4 py-2.5 rounded-xl text-sm font-semibold transition {{ $activeClass }}">
                         <span class="nav-letter shrink-0 w-8 h-8 rounded-lg bg-slate-900/5 text-slate-500 dark:bg-white/10 dark:text-white/70 text-xs font-bold flex items-center justify-center uppercase">{{ $item['letter'] }}</span>
                         <span class="nav-label">{{ $item['label'] }}</span>
                     </a>

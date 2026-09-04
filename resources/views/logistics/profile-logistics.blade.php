@@ -82,7 +82,7 @@
             @method('PUT')
 
             {{-- ── ACCOUNT INFORMATION ── --}}
-            <div class="bg-white dark:bg-slate-800/80 backdrop-blur border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6 sm:p-8 shadow-sm">
+            <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6 sm:p-8 shadow-sm">
                 <div class="flex items-center gap-3 mb-6">
                     <div class="w-10 h-10 rounded-2xl bg-[#16283C]/10 border border-[#16283C]/15 flex items-center justify-center text-[#16283C] dark:text-[#D7BC7A] shrink-0">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -110,7 +110,7 @@
             </div>
 
             {{-- ── BUSINESS DETAILS ── --}}
-            <div class="bg-white dark:bg-slate-800/80 backdrop-blur border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6 sm:p-8 shadow-sm">
+            <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6 sm:p-8 shadow-sm">
                 <div class="flex items-center gap-3 mb-6">
                     <div class="w-10 h-10 rounded-2xl bg-[#0E1620]/10 border border-[#0E1620]/15 flex items-center justify-center text-[#0E1620] dark:text-[#E9EEF4] shrink-0">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -132,7 +132,7 @@
                         </div>
                         <div>
                             <label for="phone" class="text-xs font-bold text-slate-600 dark:text-slate-400 block mb-1.5">Phone Number</label>
-                            <input type="text" id="phone" name="phone" value="{{ old('phone', $profile->phone ?? '') }}" required
+                            <input type="tel" inputmode="tel" id="phone" name="phone" value="{{ old('phone', $profile->phone ?? '') }}" required
                                 class="px-4 py-3 w-full bg-white/80 dark:bg-slate-700/50 border border-slate-200/80 dark:border-slate-600/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0E1620]/20 focus:border-[#0E1620] transition text-sm text-slate-800 dark:text-white">
                         </div>
                     </div>
@@ -155,7 +155,7 @@
 
             {{-- ── LOCATION (COOPERATIVE ONLY) ── --}}
             @if($profile?->logistics_type === 'cooperative')
-                <div class="bg-white dark:bg-slate-800/80 backdrop-blur border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6 sm:p-8 shadow-sm">
+                <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6 sm:p-8 shadow-sm">
                     <div class="flex items-center gap-3 mb-6">
                         <div class="w-10 h-10 rounded-2xl bg-harvest/10 border border-harvest/15 flex items-center justify-center text-harvest-dark dark:text-harvest-light shrink-0">
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -203,7 +203,7 @@
             @endif
 
             {{-- ── REGULATORY CREDENTIALS ── --}}
-            <div class="bg-white dark:bg-slate-800/80 backdrop-blur border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6 sm:p-8 shadow-sm">
+            <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6 sm:p-8 shadow-sm">
                 <div class="flex items-center gap-3 mb-6">
                     <div class="w-10 h-10 rounded-2xl bg-amber-500/10 border border-amber-500/15 flex items-center justify-center text-amber-700 dark:text-amber-400 shrink-0">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -262,7 +262,7 @@
             @csrf
             @method('PUT')
 
-            <div class="bg-white dark:bg-slate-800/80 backdrop-blur border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6 sm:p-8 shadow-sm">
+            <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6 sm:p-8 shadow-sm">
                 <div class="flex items-center gap-3 mb-6">
                     <div class="w-10 h-10 rounded-2xl bg-brand/10 border border-brand/15 flex items-center justify-center text-brand dark:text-brand-light shrink-0">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -342,7 +342,7 @@
             map.on('click', function (e) { marker.setLatLng(e.latlng); updateCoords(e.latlng); });
 
             document.getElementById('use-my-location').addEventListener('click', function () {
-                if (!navigator.geolocation) { alert('Geolocation not supported.'); return; }
+                if (!navigator.geolocation) { Swal.fire({ icon: 'error', title: 'Geolocation not supported', text: 'Your browser does not support location services. Pin your location manually.', confirmButtonColor: '#16283C', background: document.documentElement.classList.contains('dark') ? '#1e293b' : '#fff', color: document.documentElement.classList.contains('dark') ? '#e2e8f0' : '#1e293b', customClass: { popup: 'rounded-xl' } }); return; }
                 navigator.geolocation.getCurrentPosition(
                     function (pos) {
                         const latlng = L.latLng(pos.coords.latitude, pos.coords.longitude);
@@ -350,7 +350,7 @@
                         updateCoords(latlng);
                         map.setView(latlng, 16);
                     },
-                    function () { alert('Unable to retrieve location. Pin manually.'); }
+                    function () { Swal.fire({ icon: 'error', title: 'Could not get location', text: 'Unable to retrieve your location. Pin it manually on the map.', confirmButtonColor: '#16283C', background: document.documentElement.classList.contains('dark') ? '#1e293b' : '#fff', color: document.documentElement.classList.contains('dark') ? '#e2e8f0' : '#1e293b', customClass: { popup: 'rounded-xl' } }); }
                 );
             });
 

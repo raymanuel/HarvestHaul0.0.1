@@ -17,18 +17,21 @@
         </header>
 
         @if($posts->isEmpty())
-            <div class="bg-white dark:bg-slate-800/80 backdrop-blur border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-12 text-center">
+            <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-12 text-center">
                 <h3 class="text-lg font-bold text-slate-800 dark:text-white heading-font">No Posts Available</h3>
                 <p class="text-sm text-slate-500 dark:text-slate-400 mt-2 max-w-md mx-auto">There are currently no active crop products posted by verified independent farmers on the marketplace.</p>
             </div>
         @else
+            <div id="crop-board-freshness" class="mb-4 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+                Updated just now
+            </div>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                 @foreach($posts as $post)
                     @php
                         $isNegotiating = in_array($post->id, $allNegotiatingIds);
                         $isMyNegotiation = in_array($post->id, $negotiatingHarvestIds);
                     @endphp
-                    <div class="bg-white dark:bg-slate-800/80 backdrop-blur border border-slate-200/60 dark:border-slate-700/60 rounded-3xl {{ $isNegotiating && !$isMyNegotiation ? 'opacity-60 grayscale hover:none pointer-events-none' : 'hover:-translate-y-1.5 hover:shadow-xl hover:shadow-harvest/5 hover:border-harvest/30 dark:hover:border-harvest/30' }} transition-all duration-300 group flex flex-col relative overflow-hidden">
+                    <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-3xl {{ $isNegotiating && !$isMyNegotiation ? 'opacity-60 grayscale hover:none pointer-events-none' : 'hover:-translate-y-1.5 hover:shadow-xl hover:shadow-harvest/5 hover:border-harvest/30 dark:hover:border-harvest/30' }} transition-all duration-300 group flex flex-col relative overflow-hidden">
                         <div class="h-28 relative overflow-hidden flex items-center justify-center @if(!empty($post->crop_photos)) bg-slate-100 dark:bg-slate-900 @else bg-gradient-to-br from-harvest/20 to-brand/10 dark:from-harvest/20 dark:to-brand/10 @endif">
                             @if(!empty($post->crop_photos))
                                 <img src="{{ asset('storage/' . $post->crop_photos[0]) }}" alt="{{ $post->crop->name ?? $post->crop_type }}" class="w-full h-full object-cover">
@@ -106,7 +109,7 @@
                                     <form action="{{ route('negotiations.start') }}" method="POST">
                                         @csrf
                                         <input type="hidden" name="harvest_id" value="{{ $post->id }}">
-                                        <button type="submit" class="w-full flex items-center justify-center gap-2 py-2.5 bg-harvest hover:bg-harvest-dark dark:bg-harvest dark:hover:bg-harvest-dark text-[#17202B] font-bold rounded-xl text-xs transition-colors shadow-sm shadow-harvest/10 cursor-pointer">
+                                        <button type="button" onclick="swalConfirm(this.closest('form'), {title:'Start Negotiation?', text:'Open a crop negotiation with this farmer?', icon:'question', confirmText:'Yes, start', cancelText:'Cancel', confirmColor:'#16283C'})" class="w-full flex items-center justify-center gap-2 py-2.5 bg-harvest hover:bg-harvest-dark dark:bg-harvest dark:hover:bg-harvest-dark text-[#17202B] font-bold rounded-xl text-xs transition-colors shadow-sm shadow-harvest/10 cursor-pointer">
                                             <x-icon name="plus" class="w-3.5 h-3.5" />
                                             Initiate Negotiation
                                         </button>
@@ -127,22 +130,36 @@
 </div>
 
 <script>
-    // Poll for new posts without losing scroll position or form state.
     (function () {
-        var lastSnapshot = document.querySelector('.grid.grid-cols-1') ? document.querySelector('.grid.grid-cols-1').innerHTML : '';
+        var jsonUrl = '{{ route("buyer.crop-board.json") }}';
+        var lastCount = {{ $posts->total() }};
+        var freshnessEl = document.getElementById('crop-board-freshness');
+        var lastChecked = Date.now();
+
+        function updateFreshness() {
+            if (!freshnessEl) return;
+            var secs = Math.floor((Date.now() - lastChecked) / 1000);
+            if (secs < 60) {
+                freshnessEl.textContent = 'Updated ' + secs + 's ago';
+            } else {
+                freshnessEl.textContent = 'Updated ' + Math.floor(secs / 60) + 'm ago';
+            }
+        }
+
+        setInterval(updateFreshness, 10000);
+
         setInterval(function () {
-            fetch(window.location.href, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
-                .then(function (r) { return r.ok ? r.text() : null; })
-                .then(function (html) {
-                    if (!html) return;
-                    var doc = new DOMParser().parseFromString(html, 'text/html');
-                    var freshGrid = doc.querySelector('.grid.grid-cols-1');
-                    if (freshGrid && freshGrid.innerHTML !== lastSnapshot) {
-                        lastSnapshot = freshGrid.innerHTML;
-                        document.querySelector('.grid.grid-cols-1').innerHTML = lastSnapshot;
+            fetch(jsonUrl, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(function (r) { return r.ok ? r.json() : null; })
+                .then(function (data) {
+                    if (!data) return;
+                    lastChecked = Date.now();
+                    updateFreshness();
+                    if (data.count !== lastCount) {
+                        window.location.reload();
                     }
                 })
-                .catch(function () { /* offline or server busy; retry next tick */ });
+                .catch(function () {});
         }, 30000);
     })();
 </script>

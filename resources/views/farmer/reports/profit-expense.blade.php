@@ -4,7 +4,7 @@
         <!-- Page Header -->
         <div class="mb-8">
             <div class="flex items-center gap-3 mb-2">
-                <div class="w-10 h-10 rounded-xl bg-[#16283C]/10 border border-[#16283C]/20 flex items-center justify-center text-[#16283C]">
+                <div class="w-10 h-10 rounded-xl bg-[#16283C]/10 dark:bg-[#16283C]/10 border border-[#16283C]/20 dark:border-[#16283C]/30 flex items-center justify-center text-[#16283C] dark:text-[#D7BC7A]">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                     </svg>
@@ -74,7 +74,7 @@
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
             <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200/80 dark:border-slate-700/50 p-5 shadow-sm">
                 <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Total Revenue</p>
-                <p class="text-2xl font-black text-[#16283C] heading-font mt-2">₱{{ number_format($totalRevenue, 2) }}</p>
+                <p class="text-2xl font-black text-[#16283C] dark:text-[#D7BC7A] heading-font mt-2">₱{{ number_format($totalRevenue, 2) }}</p>
                 <p class="text-[10px] text-slate-400 mt-1">{{ $negotiations->count() }} completed deal{{ $negotiations->count() !== 1 ? 's' : '' }}</p>
             </div>
             <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200/80 dark:border-slate-700/50 p-5 shadow-sm">
@@ -84,7 +84,7 @@
             </div>
             <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200/80 dark:border-slate-700/50 p-5 shadow-sm">
                 <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Net After Expenses</p>
-                <p class="text-2xl font-black {{ $netProfit >= 0 ? 'text-[#16283C]' : 'text-rose-500' }} heading-font mt-2">₱{{ number_format($netProfit, 2) }}</p>
+                <p class="text-2xl font-black {{ $netProfit >= 0 ? 'text-[#16283C] dark:text-[#D7BC7A]' : 'text-rose-500 dark:text-rose-400' }} heading-font mt-2">₱{{ number_format($netProfit, 2) }}</p>
                 <p class="text-[10px] text-slate-400 mt-1">Sales minus transport &amp; logged expenses — not full farm profit</p>
             </div>
         </div>
@@ -102,7 +102,7 @@
                                 <p class="text-xs font-bold text-slate-800 dark:text-white">{{ $crop }}</p>
                                 <p class="text-[10px] text-slate-400">{{ $data['count'] }} sale{{ $data['count'] !== 1 ? 's' : '' }} &middot; {{ number_format($data['kg'], 1) }} kg @ {{ '₱' . number_format($data['avg_price'], 2) }}/kg</p>
                             </div>
-                            <p class="text-sm font-black text-[#16283C] heading-font">₱{{ number_format($data['total'], 2) }}</p>
+                            <p class="text-sm font-black text-[#16283C] dark:text-[#D7BC7A] heading-font">₱{{ number_format($data['total'], 2) }}</p>
                         </div>
                     @empty
                         <p class="text-xs text-slate-400 text-center py-8">No completed sales in this period.</p>
@@ -165,9 +165,9 @@
                             <tr class="hover:bg-slate-50/40 dark:hover:bg-slate-900/10 transition">
                                 <td class="px-5 py-3 font-bold text-slate-800 dark:text-white">{{ $row['crop'] }}</td>
                                 <td class="px-5 py-3 text-right text-slate-600 dark:text-slate-300">{{ number_format($row['kg'], 2) }}</td>
-                                <td class="px-5 py-3 text-right font-bold text-[#16283C]">₱{{ number_format($row['revenue'], 2) }}</td>
+                                <td class="px-5 py-3 text-right font-bold text-[#16283C] dark:text-[#D7BC7A]">₱{{ number_format($row['revenue'], 2) }}</td>
                                 <td class="px-5 py-3 text-right font-bold text-rose-500">₱{{ number_format($row['expense'], 2) }}</td>
-                                <td class="px-5 py-3 text-right font-black {{ $row['net'] >= 0 ? 'text-[#16283C]' : 'text-rose-500' }}">₱{{ number_format($row['net'], 2) }}</td>
+                                <td class="px-5 py-3 text-right font-black {{ $row['net'] >= 0 ? 'text-[#16283C] dark:text-[#D7BC7A]' : 'text-rose-500 dark:text-rose-400' }}">₱{{ number_format($row['net'], 2) }}</td>
                             </tr>
                         @empty
                             <tr><td colspan="5" class="px-5 py-8 text-center text-xs text-slate-400">No per-crop data in this period.</td></tr>
@@ -186,9 +186,9 @@
                         <tr class="bg-slate-50 dark:bg-slate-900/30 border-t border-slate-100 dark:border-slate-700/50">
                             <td class="px-5 py-3 font-black text-slate-800 dark:text-white uppercase tracking-wider">Total</td>
                             <td class="px-5 py-3 text-right font-bold text-slate-700 dark:text-slate-200">{{ number_format($negotiations->sum(fn($n) => (float) $n->negotiated_volume ?? 0), 2) }}</td>
-                            <td class="px-5 py-3 text-right font-black text-[#16283C]">₱{{ number_format($totalRevenue, 2) }}</td>
+                            <td class="px-5 py-3 text-right font-black text-[#16283C] dark:text-[#D7BC7A]">₱{{ number_format($totalRevenue, 2) }}</td>
                             <td class="px-5 py-3 text-right font-black text-rose-500">₱{{ number_format($totalCosts, 2) }}</td>
-                            <td class="px-5 py-3 text-right font-black {{ ($totalRevenue - $totalCosts) >= 0 ? 'text-[#16283C]' : 'text-rose-500' }}">₱{{ number_format($totalRevenue - $totalCosts, 2) }}</td>
+                            <td class="px-5 py-3 text-right font-black {{ ($totalRevenue - $totalCosts) >= 0 ? 'text-[#16283C] dark:text-[#D7BC7A]' : 'text-rose-500 dark:text-rose-400' }}">₱{{ number_format($totalRevenue - $totalCosts, 2) }}</td>
                         </tr>
                     </tfoot>
                 </table>
@@ -308,7 +308,7 @@
                         @foreach($monthlyTrend as $month => $data)
                             <div class="text-center p-3 rounded-xl bg-slate-50 dark:bg-slate-700/30 border border-slate-100 dark:border-slate-700/30">
                                 <p class="text-[10px] font-bold text-slate-400 uppercase">{{ Carbon\Carbon::parse($month . '-01')->format('M Y') }}</p>
-                                <p class="text-lg font-black text-[#16283C] heading-font mt-1">₱{{ number_format($data['revenue'], 0) }}</p>
+                                <p class="text-lg font-black text-[#16283C] dark:text-[#D7BC7A] heading-font mt-1">₱{{ number_format($data['revenue'], 0) }}</p>
                                 <p class="text-[10px] text-slate-400">{{ $data['count'] }} deal{{ $data['count'] !== 1 ? 's' : '' }}</p>
                             </div>
                         @endforeach
@@ -339,10 +339,10 @@
                                     <tr class="border-b border-slate-50 dark:border-slate-700/30">
                                         <td class="py-2.5 px-3 font-bold text-slate-800 dark:text-white">{{ $harvest->crop->name ?? 'Unknown' }}</td>
                                         <td class="py-2.5 px-3 text-right font-bold">{{ number_format($harvest->quantity_kg, 1) }} kg</td>
-                                        <td class="py-2.5 px-3 text-right font-bold text-[#16283C]">₱{{ number_format($harvest->suggested_price_per_kg ?? 0, 2) }}/kg</td>
+                                        <td class="py-2.5 px-3 text-right font-bold text-[#16283C] dark:text-[#D7BC7A]">₱{{ number_format($harvest->suggested_price_per_kg ?? 0, 2) }}/kg</td>
                                         <td class="py-2.5 px-3 text-center">
                                             <span class="text-[9px] font-bold uppercase px-2 py-0.5 rounded-full
-                                                @if($harvest->status->value === 'active') bg-[#16283C]/10 text-[#16283C]
+                                                @if($harvest->status->value === 'active') bg-[#16283C]/10 text-[#16283C] dark:text-[#D7BC7A]
                                                 @elseif($harvest->status->value === 'negotiating') bg-[var(--color-warning-bg)] text-[var(--color-warning-text)]
                                                 @elseif($harvest->status->value === 'partially_sold') bg-[var(--color-info-bg)] text-[var(--color-info-text)]
                                                 @endif">

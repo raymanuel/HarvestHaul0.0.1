@@ -18,7 +18,7 @@
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                     <div class="flex items-center gap-2 mb-1">
-                        <a href="{{ url()->previous() }}" class="text-slate-400 hover:text-[#16283C] dark:hover:text-[#D7BC7A] transition">
+                        <a href="{{ url()->previous() }}" class="text-slate-400 hover:text-brand dark:hover:text-brand-light transition">
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
                             </svg>
@@ -30,12 +30,12 @@
                     </h1>
                 </div>
                 <div class="flex flex-col items-start sm:items-end gap-2 self-start">
-                    <span class="text-xs font-semibold uppercase tracking-wider text-[#16283C] dark:text-[#D7BC7A] bg-[#16283C]/10 dark:bg-[#16283C]/10 px-3 py-1.5 rounded-lg border border-[#16283C]/10 dark:border-[#16283C]/20">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-brand dark:text-brand-light bg-brand/10 dark:bg-brand/10 px-3 py-1.5 rounded-lg border border-brand/10 dark:border-brand/20">
                         Cost Ledger
                     </span>
                     @if($invoice)
                         <a href="{{ route('invoices.download', $invoice) }}" target="_blank"
-                           class="inline-flex items-center gap-1.5 text-xs font-bold text-slate-600 dark:text-slate-300 hover:text-[#16283C] dark:hover:text-[#D7BC7A] bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1.5 shadow-sm transition">
+                           class="inline-flex items-center gap-1.5 text-xs font-bold text-slate-600 dark:text-slate-300 hover:text-brand dark:hover:text-brand-light bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1.5 shadow-sm transition">
                             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
                             </svg>
@@ -55,7 +55,9 @@
             </div>
             <div class="bg-white dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700/80 rounded-2xl p-5 shadow-sm">
                 <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Total Hauling Cost</p>
-                <p class="text-xl font-bold text-[#16283C] dark:text-[#D7BC7A]">₱{{ number_format($totalPrice, 2) }}</p>
+                <p class="text-xl font-bold {{ $totalPrice > 0 ? ($poolingJob->status->value === 'completed' ? 'text-[var(--color-success-text)] dark:text-[var(--color-success-text-dark)]' : 'text-brand dark:text-brand-light') : 'text-slate-400 dark:text-slate-500' }}">
+                    {{ $totalPrice > 0 ? '₱' . number_format($totalPrice, 2) : '—' }}
+                </p>
             </div>
             <div class="bg-white dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700/80 rounded-2xl p-5 shadow-sm">
                 <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Farms Included</p>
@@ -65,9 +67,9 @@
                 <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Status</p>
                 @php
                     $statusColor = match($poolingJob->status->value) {
-                        'confirmed'   => 'text-amber-700 dark:text-amber-400',
-                        'in_progress' => 'text-[#0E1620] dark:text-[#E9EEF4]',
-                        'completed'   => 'text-[#16283C] dark:text-[#D7BC7A]',
+                        'confirmed'   => 'text-brand dark:text-brand-light',
+                        'in_progress' => 'text-[var(--color-info-text)] dark:text-[var(--color-info-text-dark)]',
+                        'completed'   => 'text-[var(--color-success-text)] dark:text-[var(--color-success-text-dark)]',
                         default       => 'text-slate-500',
                     };
                 @endphp
@@ -130,7 +132,7 @@
                                     </td>
                                     <td class="px-5 py-4 text-right">
                                         @if($totalPrice > 0)
-                                            <span class="text-sm font-extrabold text-[#16283C] dark:text-[#D7BC7A]">₱{{ number_format($entry['cost_share'], 2) }}</span>
+                                            <span class="text-sm font-extrabold text-brand dark:text-brand-light">₱{{ number_format($entry['cost_share'], 2) }}</span>
                                         @else
                                             <span class="text-xs text-slate-400 italic">TBD</span>
                                         @endif
@@ -139,7 +141,7 @@
                                         @php
                                             $status = $entry['payment_status'] ?? 'unpaid';
                                             $badgeClasses = match($status) {
-                                                'paid' => 'bg-[#16283C]/10 text-[#16283C] dark:bg-[#16283C]/10 dark:text-[#D7BC7A] border border-[#16283C]/20 dark:border-[#16283C]/15',
+                                                'paid' => 'bg-[var(--color-success-bg)] text-[var(--color-success-text)] dark:bg-[var(--color-success-bg-dark)] dark:text-[var(--color-success-text-dark)] border border-[var(--color-success-border)] dark:border-[var(--color-success-border-dark)]',
                                                 'submitted' => 'bg-[var(--color-warning-bg)] text-[var(--color-warning-text)] dark:bg-[var(--color-warning-bg)] dark:text-[var(--color-warning-text)] border border-[var(--color-warning-border)] dark:border-[var(--color-warning-border)]',
                                                 default => 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-400 border border-slate-200 dark:border-slate-700',
                                             };
@@ -173,7 +175,7 @@
                                                     </label>
                                                 </form>
                                             @else
-                                                <span class="text-xs text-[#16283C] dark:text-[#D7BC7A] font-bold inline-flex items-center gap-1">
+                                                <span class="text-xs text-brand dark:text-brand-light font-bold inline-flex items-center gap-1">
                                                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                                                         <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
                                                     </svg>
@@ -182,12 +184,12 @@
                                             @endif
                                         @elseif($isOwner)
                                             @if($entry['payment_status'] === 'submitted')
-                                                <form action="{{ route('pooling.cost-ledger.mark-paid', [$poolingJob->id, $entry['harvest_id']]) }}" method="POST" class="flex items-center justify-end gap-2">
+                                                <form action="{{ route('pooling.cost-ledger.mark-paid', [$poolingJob->id, $entry['harvest_id']]) }}" method="POST" class="flex items-center justify-end gap-2" onsubmit="event.preventDefault(); swalConfirm(this, {title:'Mark as Paid?', text:'Confirm this farmer has been paid this amount?', icon:'question', confirmText:'Yes, mark paid', cancelText:'Cancel', confirmColor:'#16283C'});">
                                                     @csrf
                                                     <label class="text-xs text-slate-500 dark:text-slate-400 sr-only" for="amount-paid-{{ $entry['harvest_id'] }}">Amount paid (₱)</label>
                                                     <input id="amount-paid-{{ $entry['harvest_id'] }}" type="number" name="amount_paid" min="0.01" step="0.01" placeholder="₱ amount"
-                                                           class="w-28 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 px-2 py-1.5 text-xs text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-[#16283C]">
-                                                    <button type="submit" class="bg-[#16283C] hover:bg-[#0E1620] text-white rounded-lg px-3 py-1.5 text-xs font-bold shadow-sm transition hover:shadow-md inline-flex items-center gap-1">
+                                                           class="w-28 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 px-2 py-1.5 text-xs text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-brand">
+                                                    <button type="submit" class="bg-brand hover:bg-brand-dark text-white rounded-lg px-3 py-1.5 text-xs font-bold shadow-sm transition hover:shadow-md inline-flex items-center gap-1">
                                                         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                                         </svg>
@@ -195,7 +197,7 @@
                                                     </button>
                                                 </form>
                                             @elseif($entry['payment_status'] === 'paid')
-                                                <span class="text-xs text-[#16283C] dark:text-[#D7BC7A] font-bold inline-flex items-center gap-1">
+                                                <span class="text-xs text-brand dark:text-brand-light font-bold inline-flex items-center gap-1">
                                                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                                                         <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
                                                     </svg>
@@ -213,13 +215,13 @@
                         </tbody>
                         @if($totalPrice > 0)
                         <tfoot>
-                            <tr class="bg-[#16283C]/10/50 dark:bg-[#16283C]/5 border-t-2 border-[#16283C]/20 dark:border-[#16283C]/15">
+                            <tr class="bg-gold/10 dark:bg-gold/5 border-t-2 border-gold/20 dark:border-gold/15">
                                 <td colspan="3" class="px-5 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total</td>
                                 <td class="px-5 py-4 text-right font-bold text-slate-800 dark:text-slate-200">
                                     {{ number_format($poolingJob->total_kg, 1) }} kg
                                     <p class="text-[10px] text-slate-400 font-semibold mt-0.5">100% share</p>
                                 </td>
-                                <td class="px-5 py-4 text-right font-extrabold text-[#16283C] dark:text-[#D7BC7A]">
+                                <td class="px-5 py-4 text-right font-extrabold text-brand dark:text-brand-light">
                                     ₱{{ number_format($sumOfShares, 2) }}
                                 </td>
                                 <td></td>
@@ -258,7 +260,7 @@
                 </div>
                 <div>
                     <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Negotiated Price</p>
-                    <p class="font-extrabold text-[#16283C] dark:text-[#D7BC7A] mt-0.5">
+                    <p class="font-extrabold text-brand dark:text-brand-light mt-0.5">
                         {{ $poolingJob->negotiated_price ? '₱' . number_format($poolingJob->negotiated_price, 2) : 'Pending' }}
                     </p>
                 </div>
@@ -279,7 +281,14 @@
           out.forEach((f) => dt.items.add(f));
           input.files = dt.files;
         }
-        input.form.submit();
+        swalConfirm(input.form, {
+          title: 'Upload Hauling Receipt?',
+          text: 'Submit this receipt to confirm your hauling payment?',
+          icon: 'question',
+          confirmText: 'Yes, upload',
+          cancelText: 'Cancel',
+          confirmColor: '#16283C'
+        });
       }
     </script>
     @endpush

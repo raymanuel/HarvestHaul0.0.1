@@ -60,7 +60,7 @@
                         $isPendingForThis = $currentRequest && $currentRequest->membership_status === 'pending' && $currentRequest->cooperative_id === $coop->id;
                         $isApprovedMember = $currentRequest && $currentRequest->membership_status === 'approved' && $currentRequest->cooperative_id === $coop->id;
                     @endphp
-                    <div class="bg-white dark:bg-slate-800/80 backdrop-blur border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6 shadow-sm flex flex-col">
+                    <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6 shadow-sm flex flex-col">
                         <div class="flex items-start gap-3 mb-4">
                             <div class="w-10 h-10 rounded-2xl bg-[#16283C]/10 border border-[#16283C]/15 flex items-center justify-center text-[#16283C] dark:text-[#D7BC7A] shrink-0">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -111,7 +111,7 @@
         @if($currentRequest && $currentRequest->membership_status === 'pending' && $currentRequest->cooperative_id)
             @php $pendingCoop = $cooperatives->firstWhere('id', $currentRequest->cooperative_id); @endphp
             @if(!$isPendingForThis ?? true)
-                <div class="mt-8 p-5 bg-white dark:bg-slate-800/80 backdrop-blur border border-slate-200/60 dark:border-slate-700/60 rounded-2xl shadow-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div class="mt-8 p-5 bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-2xl shadow-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div class="flex items-center gap-3">
                         <div class="w-9 h-9 rounded-[10px] bg-[var(--color-warning-bg)] flex items-center justify-center shrink-0 text-[var(--color-warning-text)]">
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>

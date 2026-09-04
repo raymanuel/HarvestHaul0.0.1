@@ -59,7 +59,7 @@
             @csrf
             @method('PUT')
 
-            <div class="bg-white dark:bg-slate-800/80 backdrop-blur border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6 sm:p-8 shadow-sm">
+            <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6 sm:p-8 shadow-sm">
                 <div class="flex items-center gap-3 mb-6">
                     <div class="w-10 h-10 rounded-2xl bg-[#16283C]/10 border border-[#16283C]/15 flex items-center justify-center text-[#16283C] dark:text-[#D7BC7A] shrink-0">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -86,7 +86,7 @@
                 </div>
             </div>
 
-            <div class="bg-white dark:bg-slate-800/80 backdrop-blur border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6 sm:p-8 shadow-sm">
+            <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6 sm:p-8 shadow-sm">
                 <div class="flex items-center gap-3 mb-6">
                     <div class="w-10 h-10 rounded-2xl bg-[#0E1620]/10 border border-[#0E1620]/15 flex items-center justify-center text-[#0E1620] dark:text-[#E9EEF4] shrink-0">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -101,7 +101,7 @@
 
                 <div class="max-w-sm">
                     <label for="phone" class="text-xs font-bold text-slate-600 dark:text-slate-400 block mb-1.5">Phone Number</label>
-                    <input type="text" id="phone" name="phone" value="{{ old('phone', $user->phone ?? '') }}"
+                    <input type="tel" inputmode="tel" id="phone" name="phone" value="{{ old('phone', $user->phone ?? '') }}"
                         class="px-4 py-3 w-full bg-white/80 dark:bg-slate-700/50 border border-slate-200/80 dark:border-slate-600/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0E1620]/20 focus:border-[#0E1620] transition text-sm text-slate-800 dark:text-white">
                 </div>
             </div>
@@ -122,7 +122,7 @@
             @csrf
             @method('PUT')
 
-            <div class="bg-white dark:bg-slate-800/80 backdrop-blur border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6 sm:p-8 shadow-sm">
+            <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6 sm:p-8 shadow-sm">
                 <div class="flex items-center gap-3 mb-6">
                     <div class="w-10 h-10 rounded-2xl bg-brand/10 border border-brand/15 flex items-center justify-center text-brand dark:text-brand-light shrink-0">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">

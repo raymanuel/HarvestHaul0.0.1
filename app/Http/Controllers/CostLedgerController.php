@@ -109,15 +109,18 @@ class CostLedgerController extends Controller
             ];
         })->sortBy('pickup_order')->values();
 
-        $totalPrice  = (float) ($poolingJob->negotiated_price ?? $poolingJob->price_reference ?? 0);
         $sumOfShares = $ledgerEntries->sum('cost_share');
-        $costMismatch = $totalPrice > 0 && $sumOfShares > 0 && abs($totalPrice - $sumOfShares) > 0.01;
+        // Per-farmer cost shares are the authoritative total (mirrors InvoiceService);
+        // job-level price fields are only the reference when no shares exist yet.
+        $totalPrice = $sumOfShares > 0
+            ? (float) $sumOfShares
+            : (float) ($poolingJob->negotiated_price ?? $poolingJob->price_reference ?? 0);
 
         // Freight invoice issued at route confirmation (payment reference)
         $invoice = $poolingJob->invoices()->latest()->first();
 
         return view('logistics.cost-ledger', compact(
-            'poolingJob', 'ledgerEntries', 'totalPrice', 'sumOfShares', 'isOwner', 'isFarmer', 'costMismatch', 'invoice'
+            'poolingJob', 'ledgerEntries', 'totalPrice', 'sumOfShares', 'isOwner', 'isFarmer', 'invoice'
         ));
     }
 
@@ -304,7 +307,17 @@ class CostLedgerController extends Controller
             );
         }
 
-        return back()->with('success', 'Actual quantity confirmed successfully.');
+        return back()->with('success', 'Actual quantity confirmed successfully.')
+            ->with('next_steps', [
+                'title'   => 'Quantity confirmed',
+                'message' => 'Your actual delivered quantity was confirmed on the cost ledger.',
+                'steps'   => [
+                    'The logistics partner will review the confirmed quantity to verify the route cost share.',
+                    'Once your hauling receipt is uploaded and approved, your payment will be marked as paid.',
+                    'Check back on the cost ledger for your payment status.',
+                ],
+                'cta' => ['label' => 'View Cost Ledger', 'url' => route('pooling.cost-ledger', $poolingJob)],
+            ]);
     }
 
     /**

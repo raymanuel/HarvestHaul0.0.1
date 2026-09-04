@@ -4,7 +4,7 @@
         <div class="flex items-center justify-between max-w-lg mx-auto">
             <div class="flex items-center gap-3">
                 <div>
-                    <p class="text-[9px] text-[#16283C] dark:text-[#D7BC7A] font-bold uppercase tracking-widest leading-none">Driver Portal</p>
+                    <p class="text-[9px] text-brand dark:text-brand-light font-bold uppercase tracking-widest leading-none">Driver Portal</p>
                     <h1 class="text-base font-extrabold heading-font text-slate-800 dark:text-white mt-1.5 leading-none">{{ Auth::user()->name }}</h1>
                 </div>
             </div>
@@ -12,7 +12,7 @@
             <div class="flex items-center gap-2">
                 <x-notification-dropdown />
 
-                <button onclick="toggleDarkMode()" class="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/50 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white flex items-center justify-center transition-all duration-200 active:scale-[0.97]" aria-label="Toggle dark mode">
+                <button onclick="toggleDarkMode()" class="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700/50 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white flex items-center justify-center transition-all duration-200 active:scale-[0.97]" aria-label="Toggle dark mode">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 hidden dark:block" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m12.728 12.728l.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
                     </svg>
@@ -23,7 +23,7 @@
 
                 <form method="POST" action="{{ route('logout') }}" id="driver-logout-form">
                     @csrf
-                    <button type="button" onclick="swalConfirm(document.getElementById('driver-logout-form'), {title:'Sign Out', text:'Are you sure you want to sign out?', icon:'question', confirmText:'Yes, sign out', cancelText:'Cancel', confirmColor:'#ef4444'})" class="cursor-pointer flex items-center gap-1.5 text-xs font-bold text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700/80 border border-slate-200 dark:border-slate-700/50 rounded-xl px-3.5 py-2 transition-all duration-200 active:scale-[0.97]">
+                    <button type="button" onclick="swalConfirm(document.getElementById('driver-logout-form'), {title:'Sign Out', text:'Are you sure you want to sign out?', icon:'question', confirmText:'Yes, sign out', cancelText:'Cancel', confirmColor:'#ef4444'})" class="cursor-pointer flex items-center gap-1.5 text-xs font-bold text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700/80 border border-slate-200 dark:border-slate-700/50 rounded-xl px-3.5 py-2 transition-all duration-200 active:scale-[0.97]">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                         </svg>
@@ -37,27 +37,35 @@
     <main class="max-w-lg mx-auto px-4 py-6 relative">
 
         <div class="grid grid-cols-2 gap-4 mb-6">
-            <div class="glass-card rounded-3xl p-5 flex items-center gap-3.5 relative overflow-hidden group hover:border-[#16283C]/30 transition-all duration-300 shadow-sm">
-                <div class="absolute -right-3 -bottom-3 w-16 h-16 bg-[#16283C]/5 rounded-full group-hover:scale-150 transition-all duration-500" aria-hidden="true"></div>
-                <div class="w-10 h-10 rounded-xl bg-[#16283C]/10 border border-[#16283C]/20 flex items-center justify-center text-[#16283C] dark:text-[#D7BC7A] shrink-0">
-                    <x-icon name="map" class="w-5 h-5" />
-                </div>
-                <div>
-                    <p class="text-[9px] text-slate-500 font-bold uppercase tracking-wider leading-none">Active Runs</p>
-                    <p class="text-2xl font-black text-[#16283C] dark:text-[#D7BC7A] heading-font mt-1.5 leading-none">{{ $jobs->count() }}</p>
-                </div>
-            </div>
+            <x-stat-card
+                title="Active Runs"
+                :value="$jobs->count()"
+                :href="route('driver.dashboard')"
+                linkText="View Runs"
+            />
 
-            <div class="glass-card rounded-3xl p-5 flex items-center gap-3.5 relative overflow-hidden group hover:border-[#0E1620]/20 transition-all duration-300 shadow-sm">
-                <div class="absolute -right-3 -bottom-3 w-16 h-16 bg-[#0E1620]/5 rounded-full group-hover:scale-150 transition-all duration-500" aria-hidden="true"></div>
-                <div class="w-10 h-10 rounded-xl bg-[#0E1620]/10 border border-[#0E1620]/20 flex items-center justify-center text-[#0E1620] dark:text-[#E9EEF4] shrink-0">
-                    <x-icon name="check" class="w-5 h-5" />
-                </div>
-                <div>
-                    <p class="text-[9px] text-slate-500 font-bold uppercase tracking-wider leading-none">Completed</p>
-                    <p class="text-2xl font-black text-[#0E1620] dark:text-[#E9EEF4] heading-font mt-1.5 leading-none">{{ $completedJobs }}</p>
-                </div>
-            </div>
+            <x-stat-card
+                title="Completed Today"
+                :value="$completedToday"
+                :href="route('driver.dashboard')"
+                linkText="View History"
+            />
+        </div>
+
+        <div class="grid grid-cols-2 gap-4 mb-6">
+            <x-stat-card
+                title="Shift Status"
+                value="{{ $shiftReady ? 'Ready' : 'Rest' }}"
+                :unit="$shiftReady ? 'for dispatch' : $shiftRestRemaining . ' left'"
+            />
+
+            <x-stat-card
+                title="Fuel This Week"
+                value="{{ number_format($fuelThisWeekLiters, 1) }}"
+                unit="liters"
+            >
+                <span class="text-[9px] font-semibold text-slate-500 dark:text-slate-400">{{ $fuelThisWeekCost > 0 ? '&#8369;' . number_format($fuelThisWeekCost, 2) : 'No logs yet' }}</span>
+            </x-stat-card>
         </div>
 
         <x-flash-success />
@@ -72,8 +80,8 @@
                     </div>
                     @php
                         $badge = match($job->status->value) {
-                            'confirmed'   => ['bg-[var(--color-warning-bg)] text-[var(--color-warning-text)] border-[var(--color-warning-border)]', 'Ready'],
-                            'in_progress' => ['bg-[#0E1620]/10 text-[#0E1620] dark:text-[#E9EEF4] border-[#0E1620]/20', 'In Transit'],
+                            'confirmed'   => ['bg-warning-bg text-warning-text border-warning-border', 'Ready'],
+                            'in_progress' => ['bg-brand-dark/10 text-brand-dark dark:text-text-dark border-brand-dark/20', 'In Transit'],
                             default       => ['bg-slate-500/10 text-slate-500 dark:text-slate-400 border-slate-500/20', $job->status->label()],
                         };
                     @endphp
@@ -104,13 +112,40 @@
                     </div>
                 </div>
 
+                @if($job->weather)
+                    @php
+                        $wx = $job->weather;
+                        $wxSevere = (bool) ($wx->is_severe ?? false);
+                    @endphp
+                    <div class="px-5 py-3 border-b border-slate-100 dark:border-slate-800/50 bg-slate-50/10 dark:bg-slate-900/5 flex items-center justify-between">
+                        <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wide">
+                            <x-icon name="cloud-sun" class="w-3.5 h-3.5 text-brand dark:text-brand-light" />
+                            <span class="text-slate-500">
+                                {{ ucfirst($wx->condition ?? 'Weather') }}
+                                @if($wx->temperature !== null)
+                                    <span class="text-slate-400">&middot;</span> {{ round($wx->temperature) }}&deg;C
+                                @endif
+                            </span>
+                        </div>
+                        @if($wxSevere)
+                            <span class="text-[9px] font-bold text-warning-text bg-warning-bg border border-warning-border px-2 py-0.5 rounded">
+                                Severe Weather
+                            </span>
+                        @else
+                            <span class="text-[9px] font-bold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-200/50 dark:border-slate-700/30">
+                                {{ $wx->checked_at ? \Carbon\Carbon::parse($wx->checked_at)->diffForHumans() : 'Recent' }}
+                            </span>
+                        @endif
+                    </div>
+                @endif
+
                 <div class="px-5 py-3 text-xs border-b border-slate-100 dark:border-slate-800/50 bg-slate-50/10 dark:bg-slate-900/5 flex items-center justify-between">
                     <div class="flex items-center gap-2 text-slate-500 font-semibold text-[10px] uppercase tracking-wide">
-                        <x-icon name="pin" class="w-3.5 h-3.5 text-[#16283C] dark:text-[#D7BC7A]" />
+                        <x-icon name="pin" class="w-3.5 h-3.5 text-brand dark:text-brand-light" />
                         <span>Assigned Truck</span>
                     </div>
                     <div class="flex items-center gap-2">
-                        <span class="font-mono text-[9px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-[#D7BC7A] border border-slate-200 dark:border-slate-700/60 rounded px-2.5 py-0.5">
+                        <span class="font-mono text-[9px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-brand-light border border-slate-200 dark:border-slate-700/60 rounded px-2.5 py-0.5">
                             {{ $job->truck->plate_number ?? '—' }}
                         </span>
                         @if($job->truck->vehicle_type ?? false)
@@ -121,9 +156,9 @@
                 </div>
 
                 @if($job->notes)
-                    <div class="px-5 py-4 bg-[var(--color-warning-bg)] border-b border-slate-100 dark:border-slate-800/50">
-                        <p class="text-[9px] text-[var(--color-warning-text)] font-bold uppercase tracking-widest">Dispatcher Instructions</p>
-                        <p class="text-xs text-[var(--color-warning-text)] italic leading-relaxed mt-1 bg-[var(--color-warning-bg)] p-3 rounded-xl border border-[var(--color-warning-border)]">
+                    <div class="px-5 py-4 bg-warning-bg border-b border-slate-100 dark:border-dark-border">
+                        <p class="text-[9px] text-warning-text font-bold uppercase tracking-widest">Dispatcher Instructions</p>
+                        <p class="text-xs text-warning-text italic leading-relaxed mt-1 bg-warning-bg p-3 rounded-xl border border-warning-border">
                             "{{ Str::limit($job->notes, 90) }}"
                         </p>
                     </div>
@@ -149,15 +184,15 @@
             <div class="text-center py-16 px-6 glass-card rounded-3xl shadow-xl relative overflow-hidden">
                 <div class="absolute inset-0 bg-gradient-to-b from-slate-200/10 dark:from-slate-950/10 to-transparent pointer-events-none"></div>
                 <div class="relative w-24 h-24 mx-auto mb-6 flex items-center justify-center">
-                    <div class="w-14 h-14 rounded-full bg-[#16283C]/10 border border-[#16283C]/20 flex items-center justify-center text-[#16283C] dark:text-[#D7BC7A] shadow-md font-bold text-xl" aria-hidden="true">—</div>
+                    <div class="w-14 h-14 rounded-full bg-brand/10 border border-brand/20 flex items-center justify-center text-brand dark:text-brand-light shadow-md font-bold text-xl" aria-hidden="true">—</div>
                 </div>
                 <h2 class="text-base font-extrabold text-slate-800 dark:text-white heading-font tracking-tight">No Active Routes Assigned</h2>
                 <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 max-w-xs mx-auto leading-relaxed">
                     You'll be notified when a dispatch is ready.
                 </p>
-                <div class="mt-6 inline-flex items-center gap-2 bg-[#16283C]/10 border border-[#16283C]/20 px-3 py-1.5 rounded-full">
-                    <span class="w-2 h-2 rounded-full bg-[#16283C]/100 animate-pulse"></span>
-                    <span class="text-[9px] text-[#16283C] dark:text-[#D7BC7A] font-bold uppercase tracking-wider">Waiting for dispatch...</span>
+                <div class="mt-6 inline-flex items-center gap-2 bg-brand/10 border border-brand/20 px-3 py-1.5 rounded-full">
+                    <span class="w-2 h-2 rounded-full bg-brand animate-pulse"></span>
+                    <span class="text-[9px] text-brand dark:text-brand-light font-bold uppercase tracking-wider">Waiting for dispatch...</span>
                 </div>
             </div>
         @endforelse

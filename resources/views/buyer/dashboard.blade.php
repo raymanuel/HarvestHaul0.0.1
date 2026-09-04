@@ -13,11 +13,14 @@
         <x-flash-success />
         <x-flash-error />
 
-        <x-welcome-bar message="Welcome back, {{ Auth::user()->name }}." />
+        <x-welcome-bar :name="Auth::user()->name">
+            @if($unreadMessagesCount > 0)
+                <p class="text-xs font-bold text-amber-600 dark:text-amber-400 mt-1">{{ $unreadMessagesCount }} unread message{{ $unreadMessagesCount > 1 ? 's' : '' }} from farmers</p>
+            @endif
+        </x-welcome-bar>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
             <x-stat-card
-                accent="brand"
                 title="Pending Confirmations"
                 :value="$pendingConfirmations->count()"
                 unit="deliveries"
@@ -26,7 +29,6 @@
             />
 
             <x-stat-card
-                accent="brand"
                 title="Open Negotiations"
                 :value="$activeNegotiations->count()"
                 unit="active deals"
@@ -35,24 +37,26 @@
             />
 
             <x-stat-card
-                accent="brand"
-                title="Available Crops"
-                :value="$recentPosts->count()"
-                unit="postings"
-                href="{{ route('buyer.crop-board') }}"
-                linkText="Browse Crops"
-            />
+                title="Purchases This Month"
+                value="{{ number_format($monthlySpent, 2) }}"
+                unit="PHP"
+                href="{{ route('buyer.negotiations') }}"
+                linkText="View Deals"
+            >
+                <span class="text-[9px] font-semibold text-slate-500 dark:text-slate-400">{{ number_format($monthlyKg, 0) }} kg purchased</span>
+            </x-stat-card>
         </div>
 
-        <div class="mb-10">
-            <x-market-prices-card :daPrices="$daPrices" :priceTrends="$priceTrends" :latestDate="$latestDaDate" :scraperStatus="$scraperStatus" />
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
+            <x-weather-card class="lg:col-span-1" :weather="$weatherData" />
+            <x-market-prices-card class="lg:col-span-2" />
         </div>
 
         @if($pendingConfirmations->isNotEmpty())
         <div class="mb-10">
-            <div class="bg-white dark:bg-slate-800/80 backdrop-blur border border-slate-200/60 dark:border-slate-700/60 rounded-3xl shadow-sm">
-                <div class="px-6 pt-5 pb-3">
-                    <h2 class="text-[10px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Pending Confirmations</h2>
+            <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-3xl shadow-sm">
+                <div class="px-6 pt-6 pb-4">
+                    <h2 class="text-[10px] font-bold uppercase tracking-widest text-gold-600 dark:text-gold-light">Pending Confirmations</h2>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-sm text-left" aria-label="Pending confirmations">
@@ -84,7 +88,7 @@
                                         @csrf
                                         <button type="button"
                                             onclick="swalConfirm(this.closest('form'), {title:'Confirm Receipt?', text:'Mark delivery #{{ $job->id }} as received?', confirmText:'Yes, confirm', icon:'question', confirmColor:'#16283C'})"
-                                            class="inline-flex items-center gap-1.5 px-4 py-2 bg-harvest hover:bg-harvest-dark text-[#17202B] text-[10px] font-bold rounded-xl transition shadow-sm shadow-harvest/10 cursor-pointer">
+                                            class="inline-flex items-center gap-1.5 px-4 py-2 bg-harvest hover:bg-harvest-dark text-text text-[10px] font-bold rounded-xl transition shadow-sm shadow-harvest/10 cursor-pointer">
                                             Confirm Receipt
                                         </button>
                                     </form>

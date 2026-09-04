@@ -2,14 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\CropPriceHistory;
 use App\Models\Harvest;
 use App\Models\HarvestStatus;
 use App\Models\PoolingJob;
-use App\Models\ScraperStatus;
+use App\Models\Negotiation;
+use App\Models\NegotiationStatus;
+use App\Models\Truck;
+use App\Models\DriverProfile;
+use App\Models\Invoice;
+use App\Models\InvoiceStatus;
+use App\Models\FuelLog;
 use App\Models\User;
 use App\Models\WeatherLog;
-use App\Services\Darfo12Service;
+
 use App\Http\Controllers\Admin\AdminDashboardController;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Artisan;
@@ -24,16 +29,6 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
 
-        // ─── DA Price Data (shared across all dashboards) ──────
-        $daService = app(Darfo12Service::class);
-        ['latestDate' => $latestDaDate, 'daPrices' => $daPrices, 'priceTrends' => $priceTrends, 'scraperStatus' => $scraperStatus] = $daService->getDashboardData();
-
-        // Demand-driven scrape: if data is stale (>24h) or missing, trigger a background scrape.
-        $this->maybeScrapePrices($latestDaDate);
-
-        // Re-fetch dashboard data in case the scrape just updated it.
-        ['latestDate' => $latestDaDate, 'daPrices' => $daPrices, 'priceTrends' => $priceTrends, 'scraperStatus' => $scraperStatus] = $daService->getDashboardData();
-
         // ─── Weather Data (shared across all dashboards) ──────
         $weatherData = $this->getWeatherForUser($user);
 
@@ -43,10 +38,22 @@ class DashboardController extends Controller
         $availableHarvests = collect();
         $activeDispatchRuns = collect();
         $latestProposals = collect();
+        $availableTrucks = 0;
+        $totalTrucks = 0;
+        $availableDrivers = 0;
+        $totalDrivers = 0;
+        $pendingInvoiceCount = 0;
+        $overdueInvoiceCount = 0;
 
         if ($user->role === 'logistics_partner' && $logisticsProfile = $user->logisticsProfile) {
 
-            $availableHarvests = Harvest::whereIn('status', HarvestStatus::logisticsVisible())
+            // Harvests awaiting engagement (active / negotiating / partially_sold).
+            // Sold and booked harvests are already committed and are not "available to pick up".
+            $availableHarvests = Harvest::whereIn('status', [
+                HarvestStatus::ACTIVE,
+                HarvestStatus::NEGOTIATING,
+                HarvestStatus::PARTIALLY_SOLD,
+            ])
                 ->whereHas('farmer.farmerProfile', function ($query) use ($logisticsProfile) {
                     $query->where('is_verified', true);
 
@@ -77,6 +84,26 @@ class DashboardController extends Controller
                 ->latest()
                 ->take(3)
                 ->get();
+
+            $totalTrucks = Truck::where('logistics_profile_id', $logisticsProfile->id)->count();
+            $availableTrucks = Truck::where('logistics_profile_id', $logisticsProfile->id)->where('status', 'available')->count();
+
+            $totalDrivers = DriverProfile::where('partner_id', $logisticsProfile->id)->count();
+
+            $activeDriverUserIds = PoolingJob::whereIn('status', ['pending', 'confirmed', 'in_progress'])
+                ->whereNotNull('driver_id')
+                ->pluck('driver_id');
+            $availableDrivers = DriverProfile::where('partner_id', $logisticsProfile->id)
+                ->where('employment_status', 'active')
+                ->whereNotIn('user_id', $activeDriverUserIds)
+                ->count();
+
+            $pendingInvoiceCount = Invoice::where('logistics_profile_id', $logisticsProfile->id)
+                ->whereIn('status', [InvoiceStatus::SENT, InvoiceStatus::OVERDUE])
+                ->count();
+            $overdueInvoiceCount = Invoice::where('logistics_profile_id', $logisticsProfile->id)
+                ->where('status', InvoiceStatus::OVERDUE)
+                ->count();
         }
 
         /**
@@ -84,7 +111,11 @@ class DashboardController extends Controller
          * Scoped strictly to jobs assigned to the authenticated driver's user ID.
          */
         $driverJobs = collect();
-        $completedJobs = 0;
+        $completedToday = 0;
+        $shiftReady = true;
+        $shiftRestRemaining = '';
+        $fuelThisWeekLiters = 0;
+        $fuelThisWeekCost = 0;
 
         if ($user->role === 'driver') {
             $driverJobs = PoolingJob::where('driver_id', $user->id)
@@ -94,24 +125,52 @@ class DashboardController extends Controller
                 ->take(10)
                 ->get();
 
-            $completedJobs = PoolingJob::where('driver_id', $user->id)
+            $completedToday = PoolingJob::where('driver_id', $user->id)
                 ->where('status', 'completed')
+                ->whereDate('updated_at', today())
                 ->count();
+
+            $driverProfile = $user->driverProfile;
+            if ($driverProfile?->last_shift_ended_at) {
+                $restEnd = $driverProfile->last_shift_ended_at->copy()->addHours(8);
+                if (now()->lt($restEnd)) {
+                    $shiftReady = false;
+                    $remaining = now()->diff($restEnd);
+                    $shiftRestRemaining = $remaining->h . 'h ' . $remaining->i . 'm';
+                }
+            }
+
+            $weekStart = now()->startOfWeek();
+            $fuelThisWeekLiters = (float) FuelLog::where('driver_id', $user->id)
+                ->where('created_at', '>=', $weekStart)
+                ->sum('fuel_liters');
+            $fuelThisWeekCost = (float) FuelLog::where('driver_id', $user->id)
+                ->where('created_at', '>=', $weekStart)
+                ->sum('cost');
         }
 
         // Farmer dashboard metrics — load once, derive counts from collections
         $activeHarvests = collect();
         $pendingProposals = collect();
-        $activeShipments = collect();
+        $monthlyRevenue = 0;
+        $unreadMessagesCount = 0;
 
         if ($user->role === 'farmer') {
             $activeHarvests = $user->harvests()->whereIn('status', [...HarvestStatus::buyerAvailable(), HarvestStatus::NEGOTIATING])->with(['crop', 'cropVariety', 'destination'])->latest()->take(3)->get();
             $pendingProposals = PoolingJob::whereHas('harvests', function ($query) use ($user) {
                 $query->where('user_id', $user->id);
             })->where('status', 'pending')->with(['logisticsProfile', 'truck', 'harvests.crop'])->latest()->take(5)->get();
-            $activeShipments = PoolingJob::whereHas('harvests', function ($query) use ($user) {
-                $query->where('user_id', $user->id);
-            })->where('status', 'in_progress')->with(['driver', 'truck', 'harvests.crop'])->latest()->take(5)->get();
+
+            $monthlyRevenue = (float) Negotiation::where('farmer_id', $user->id)
+                ->where('status', NegotiationStatus::COMPLETED)
+                ->whereMonth('last_activity_at', now()->month)
+                ->whereYear('last_activity_at', now()->year)
+                ->sum(DB::raw('negotiated_price * negotiated_volume'));
+
+            $unreadMessagesCount = Negotiation::where('farmer_id', $user->id)
+                ->whereIn('status', [NegotiationStatus::OPEN, NegotiationStatus::AGREED])
+                ->whereColumn('last_activity_at', '>', 'farmer_last_read_at')
+                ->count();
         }
 
         return match ($user->role) {
@@ -120,12 +179,8 @@ class DashboardController extends Controller
                 'activeHarvestsCount' => $activeHarvests->count(),
                 'pendingProposals' => $pendingProposals,
                 'pendingProposalsCount' => $pendingProposals->count(),
-                'activeShipments' => $activeShipments,
-                'activeShipmentsCount' => $activeShipments->count(),
-                'daPrices' => $daPrices,
-                'priceTrends' => $priceTrends,
-                'latestDaDate' => $latestDaDate,
-                'scraperStatus' => $scraperStatus,
+                'monthlyRevenue' => $monthlyRevenue,
+                'unreadMessagesCount' => $unreadMessagesCount,
                 'weatherData' => $weatherData,
             ]),
 
@@ -134,17 +189,25 @@ class DashboardController extends Controller
                 'availableHarvests' => $availableHarvests,
                 'activeDispatchRuns' => $activeDispatchRuns,
                 'latestProposals' => $latestProposals,
-                'daPrices' => $daPrices,
-                'priceTrends' => $priceTrends,
-                'latestDaDate' => $latestDaDate,
-                'scraperStatus' => $scraperStatus,
+                'logisticsIsCooperative' => $logisticsProfile->isCooperative(),
+                'weatherData' => $weatherData,
+                'availableTrucks' => $availableTrucks,
+                'totalTrucks' => $totalTrucks,
+                'availableDrivers' => $availableDrivers,
+                'totalDrivers' => $totalDrivers,
+                'pendingInvoiceCount' => $pendingInvoiceCount,
+                'overdueInvoiceCount' => $overdueInvoiceCount,
             ]),
 
             'admin' => app(AdminDashboardController::class)->index(),
 
             'driver' => view('driver.driver-view', [
                 'jobs' => $driverJobs,
-                'completedJobs' => $completedJobs,
+                'completedToday' => $completedToday,
+                'shiftReady' => $shiftReady,
+                'shiftRestRemaining' => $shiftRestRemaining,
+                'fuelThisWeekLiters' => $fuelThisWeekLiters,
+                'fuelThisWeekCost' => $fuelThisWeekCost,
             ]),
 
             'buyer' => app(BuyerController::class)->dashboard(),
@@ -155,53 +218,39 @@ class DashboardController extends Controller
 
     public function fullPrices()
     {
-        $daService = app(Darfo12Service::class);
-        ['latestDate' => $latestDaDate, 'daPrices' => $daPrices, 'priceTrends' => $priceTrends, 'scraperStatus' => $scraperStatus] = $daService->getDashboardData();
-
-        return view('prices.full', [
-            'daPrices' => $daPrices,
-            'priceTrends' => $priceTrends,
-            'latestDate' => $latestDaDate,
-            'scraperStatus' => $scraperStatus,
-        ]);
+        return view('prices.full');
     }
 
-    public function refreshPrices()
+    /**
+     * Latest useful weather for a given user. Preferences by proximity when the
+     * user has coordinates (farmer farm / logistics office); otherwise falls back
+     * to the most recent log anywhere. Returns a WeatherLog instance or null.
+     */
+    private function getWeatherForUser($user): ?WeatherLog
     {
-        // Guard against concurrent refreshes double-running the scrape pipeline.
-        $lock = Cache::lock('darfo12.scrape', 600);
-
-        if (! $lock->get()) {
-            return redirect()->route('prices.full')->with('error', 'A price refresh is already in progress. Please wait a moment and try again.');
-        }
-
         try {
-            $previousDate = CropPriceHistory::where('source', 'da_rfo12')->max('source_date');
+            $lat = null;
+            $lng = null;
 
-            Artisan::call('crops:scrape:darfo12');
-
-            // Outcome derives from the status row the command just wrote, not from re-reading stored prices.
-            $run = ScraperStatus::where('scraper_name', 'darfo12')->latest()->first();
-
-            if (! $run || $run->status === 'failed') {
-                return redirect()->route('prices.full')->with('error', 'Could not reach the DA RFO12 source. Existing prices are unchanged.');
+            if ($user->role === 'farmer' && $user->farmerProfile?->latitude && $user->farmerProfile?->longitude) {
+                $lat = (float) $user->farmerProfile->latitude;
+                $lng = (float) $user->farmerProfile->longitude;
+            } elseif ($user->role === 'logistics_partner' && $user->logisticsProfile?->latitude && $user->logisticsProfile?->longitude) {
+                $lat = (float) $user->logisticsProfile->latitude;
+                $lng = (float) $user->logisticsProfile->longitude;
             }
 
-            $sourceDate = $run->source_date;
+            $query = WeatherLog::orderByDesc('checked_at');
 
-            if ($run->status === 'success' && $run->records_matched > 0 && ($previousDate === null || $sourceDate > $previousDate)) {
-                return redirect()->route('prices.full')->with('success', 'Prices updated from the DA RFO12 source. Data as of '.Carbon::parse($sourceDate)->format('M j, Y').'.');
+            if ($lat !== null && $lng !== null) {
+                $query->whereBetween('latitude', [$lat - 0.5, $lat + 0.5])
+                    ->whereBetween('longitude', [$lng - 0.5, $lng + 0.5]);
             }
 
-            $asOf = $previousDate ? Carbon::parse($previousDate)->format('M j, Y') : 'now';
-
-            return redirect()->route('prices.full')->with('warning', 'No new data from the DA RFO12 source yet. Prices remain as of '.$asOf.'.');
+            return $query->first();
         } catch (\Throwable $e) {
-            Log::error('Price refresh failed.', ['error' => $e->getMessage()]);
-
-            return redirect()->route('prices.full')->with('error', 'Price refresh could not run (database unavailable or busy). Please try again shortly.');
-        } finally {
-            $lock->release();
+            Log::warning('Could not load weather data.', ['error' => $e->getMessage()]);
+            return null;
         }
     }
 }

@@ -247,7 +247,7 @@ trait Notifiable
         static::sendNotification(
             $logisticsUserId,
             'Job Awaiting Buyer Confirmation',
-            "Driver {$driverName} finalized Route #{$jobId}. Awaiting buyer receipt confirmation.",
+            "Driver {$driverName} finalized Route #{$jobId}. Awaiting buyer receipt confirmation — monitor the outcome from your Proposal Inbox.",
             route('pooling.show', $jobId)
         );
 
@@ -255,8 +255,8 @@ trait Notifiable
             $harvests->map(fn($h) => [
                 'user_id' => $h->user_id,
                 'title'   => 'Harvest Shipment Delivered',
-                'message' => "Your harvest '{$h->crop->name}' in Route #{$jobId} has been delivered. Awaiting buyer confirmation.",
-                'link'    => route('harvests.index'),
+                'message' => "Your harvest '{$h->crop->name}' in Route #{$jobId} has been delivered. Confirm your delivered quantity and upload your payment receipt under Cost Ledger.",
+                'link'    => route('pooling.cost-ledger', $jobId),
             ])->toArray()
         );
 
@@ -264,7 +264,7 @@ trait Notifiable
             static::sendNotification(
                 $buyerId,
                 'Delivery Ready — Confirm Receipt',
-                "Your order in Route #{$jobId} has been delivered. Please confirm receipt.",
+                "Your order in Route #{$jobId} has been delivered. Go to Deliveries to confirm receipt and complete your order.",
                 route('buyer.tracking')
             );
         }
@@ -434,7 +434,7 @@ trait Notifiable
         static::sendNotification(
             $userId,
             'Harvest Posted',
-            "Your crop #{$harvestId} ({$cropType}) is now live on the crop board.",
+            "Your harvest ({$cropType}) was posted and is now live on the crop board. Go to Your Harvests to view your post.",
             route('harvests.index'),
             'harvest_posted',
             'system'

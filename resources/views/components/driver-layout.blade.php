@@ -47,7 +47,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
         body {
-            background: #F7F4EC;
+            background: #F5F6F2;
             transition: background 0.3s ease, color 0.3s ease;
         }
         html.dark body {
@@ -72,67 +72,9 @@
     <script src="{{ asset('vendor/sweetalert2/sweetalert2.all.min.js') }}"></script>
     <script src="{{ asset('assets/js/swal-helpers.js') }}"></script>
 
-    {{-- SweetAlert Global Flash Handler --}}
+    {{-- Flash messages render once as inline banners (see x-flash-success / x-flash-error) --}}
     <script>
         window.__nextSteps = @json(session('next_steps'));
-        document.addEventListener('DOMContentLoaded', function() {
-            showNextSteps();
-            @if(session('error'))
-                @php
-                    $errorText = session('error');
-                    $isGateNotice = str_contains($errorText, 'pending verification') || str_contains($errorText, 'No new data');
-                @endphp
-                Swal.fire({
-                    icon: '{{ $isGateNotice ? 'info' : 'error' }}',
-                    title: '{{ $isGateNotice ? 'Notice' : 'Error' }}',
-                    text: @json($errorText),
-                    timer: 4500,
-                    timerProgressBar: true,
-                    showConfirmButton: true,
-                    confirmButtonText: 'OK',
-                    confirmButtonColor: '{{ $isGateNotice ? '#16283C' : '#ef4444' }}',
-                    toast: false,
-                    background: document.documentElement.classList.contains('dark') ? '#1e293b' : '#fff',
-                    color: document.documentElement.classList.contains('dark') ? '#e2e8f0' : '#1e293b',
-                    customClass: { popup: 'rounded-xl shadow-lg' }
-                });
-            @endif
-        });
-
-        function swalConfirm(formOrCallback, opts = {}) {
-            const defaults = {
-                title: opts.title || 'Are you sure?',
-                text: opts.text || 'This action cannot be undone.',
-                icon: opts.icon || 'warning',
-                confirmText: opts.confirmText || 'Yes, proceed',
-                cancelText: opts.cancelText || 'Cancel',
-                confirmColor: opts.confirmColor || '#16283C',
-                cancelColor: opts.cancelColor || '#5A6573'
-            };
-
-            Swal.fire({
-                title: defaults.title,
-                text: defaults.text,
-                icon: defaults.icon,
-                showCancelButton: true,
-                confirmButtonText: defaults.confirmText,
-                cancelButtonText: defaults.cancelText,
-                confirmButtonColor: defaults.confirmColor,
-                cancelButtonColor: defaults.cancelColor,
-                background: document.documentElement.classList.contains('dark') ? '#1e293b' : '#fff',
-                color: document.documentElement.classList.contains('dark') ? '#e2e8f0' : '#1e293b',
-                customClass: { popup: 'rounded-xl shadow-2xl' },
-                reverseButtons: true
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    if (typeof formOrCallback === 'function') {
-                        formOrCallback();
-                    } else if (formOrCallback && formOrCallback.submit) {
-                        formOrCallback.submit();
-                    }
-                }
-            });
-        }
     </script>
     @stack('scripts')
 </body>

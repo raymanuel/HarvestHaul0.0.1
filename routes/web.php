@@ -50,7 +50,7 @@ use App\Http\Controllers\LoginController;
 use App\Http\Controllers\LogisticsDocumentController;
 use App\Http\Controllers\LogisticsDriverController;
 use App\Http\Controllers\LogisticsVehicleController;
-use App\Http\Controllers\MarketPriceController;
+
 use App\Http\Controllers\NegotiationController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\NotificationPreferenceController;
@@ -133,9 +133,6 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
     // Notification Preferences
     Route::get('settings/notifications', [NotificationPreferenceController::class, 'index'])->name('notifications.preferences');
     Route::put('settings/notifications', [NotificationPreferenceController::class, 'update'])->name('notifications.preferences.update');
-
-    // Market Price API
-    Route::get('api/market-price/{cropName}', [MarketPriceController::class, 'getMarketPrice'])->name('api.market-price');
 
     // Private file serving (IDs, receipts, load photos — stored on the private disk)
     Route::get('files/{type}/{id}', [FileController::class, 'show'])
@@ -235,8 +232,6 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
 
         // Full Market Prices Page (accessible to all verified users)
         Route::get('/market-prices', [DashboardController::class, 'fullPrices'])->name('prices.full');
-        Route::post('/prices/refresh', [DashboardController::class, 'refreshPrices'])
-            ->middleware(['role:admin,logistics_partner,farmer', 'throttle:5,10'])->name('prices.refresh');
 
         /*
         |------------------------------------------------------------------
@@ -266,7 +261,7 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
                 Route::get('/cost-ledger/jobs', [CostLedgerController::class, 'index'])->name('cost-ledger.index');
 
                 // Detailed Item Views & Logic Workers
-                Route::get('/{poolingJob}', [PoolingJobController::class, 'show'])->name('show');       // Maps to: /pooling/{poolingJob}
+                Route::get('/{poolingJob}', [PoolingJobController::class, 'show'])->name('show')->whereNumber('poolingJob');       // Maps to: /pooling/{poolingJob}
                 Route::post('/plan', [PoolingJobController::class, 'plan'])->name('plan')->middleware('throttle:30,10');    // Maps to: /pooling/plan
                 Route::post('/confirm', [PoolingJobController::class, 'confirm'])->name('confirm')->middleware('throttle:10,10');    // Maps to: /pooling/confirm
             });
@@ -339,6 +334,7 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
         */
         Route::middleware(EnsureUserIsBuyer::class)->prefix('buyer')->name('buyer.')->group(function () {
             Route::get('/crop-board', [BuyerController::class, 'cropBoard'])->name('crop-board');
+            Route::get('/crop-board/json', [BuyerController::class, 'cropBoardJson'])->name('crop-board.json');
             Route::get('/crop-board/{harvest}', [BuyerController::class, 'showCropDetail'])->name('crop-board.show');
             Route::get('/negotiations', [BuyerController::class, 'negotiations'])->name('negotiations');
             Route::get('/tracking', [BuyerController::class, 'tracking'])->name('tracking');

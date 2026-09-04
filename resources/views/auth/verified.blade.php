@@ -23,7 +23,7 @@
 
         body {
             font-family: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
-            background: #F7F4EC;
+            background: #F5F6F2;
             min-height: 100vh;
             display: flex;
             align-items: center;

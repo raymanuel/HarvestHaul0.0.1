@@ -7,7 +7,9 @@ use App\Models\HarvestStatus;
 use App\Models\Negotiation;
 use App\Models\PoolingJob;
 use App\Models\PoolingJobStatus;
-use App\Services\Darfo12Service;
+use App\Models\WeatherLog;
+use Illuminate\Support\Facades\DB;
+
 use App\Traits\Notifiable;
 use Illuminate\Support\Facades\Auth;
 
@@ -42,13 +44,6 @@ class BuyerController extends Controller
             ->where('status', 'COMPLETED')
             ->count();
 
-        // Scoped crop board preview (6 items)
-        $recentPosts = $this->scopedHarvestQuery()
-            ->with(['farmer.farmerProfile', 'crop', 'cropVariety'])
-            ->latest()
-            ->take(6)
-            ->get();
-
         $pendingConfirmations = PoolingJob::where('buyer_id', $user->id)
             ->where('status', 'awaiting_confirmation')
             ->with(['truck', 'harvests.crop', 'driver'])
@@ -56,19 +51,34 @@ class BuyerController extends Controller
             ->take(20)
             ->get();
 
-        // DA price data for market prices card
-        $daService = app(Darfo12Service::class);
-        ['latestDate' => $latestDaDate, 'daPrices' => $daPrices, 'priceTrends' => $priceTrends, 'scraperStatus' => $scraperStatus] = $daService->getDashboardData();
+        $monthlySpent = (float) Negotiation::where('buyer_id', $user->id)
+            ->where('status', 'COMPLETED')
+            ->whereMonth('last_activity_at', now()->month)
+            ->whereYear('last_activity_at', now()->year)
+            ->sum(DB::raw('negotiated_price * negotiated_volume'));
+
+        $monthlyKg = (float) Negotiation::where('buyer_id', $user->id)
+            ->where('status', 'COMPLETED')
+            ->whereMonth('last_activity_at', now()->month)
+            ->whereYear('last_activity_at', now()->year)
+            ->sum('negotiated_volume');
+
+        $unreadMessagesCount = Negotiation::where('buyer_id', $user->id)
+            ->whereIn('status', ['OPEN', 'AGREED'])
+            ->whereColumn('last_activity_at', '>', 'buyer_last_read_at')
+            ->count();
+
+        // Latest weather log (buyer has no location preference → most recent anywhere)
+        $weatherData = WeatherLog::orderByDesc('checked_at')->first();
 
         return view('buyer.dashboard', [
             'activeNegotiations'    => $activeNegotiations,
             'completedDeals'        => $completedDeals,
-            'recentPosts'           => $recentPosts,
             'pendingConfirmations'  => $pendingConfirmations,
-            'daPrices'              => $daPrices,
-            'priceTrends'           => $priceTrends,
-            'latestDaDate'          => $latestDaDate,
-            'scraperStatus'         => $scraperStatus,
+            'monthlySpent'          => $monthlySpent,
+            'monthlyKg'             => $monthlyKg,
+            'unreadMessagesCount'   => $unreadMessagesCount,
+            'weatherData'           => $weatherData,
         ]);
     }
 
@@ -116,6 +126,37 @@ class BuyerController extends Controller
     }
 
     /**
+     * Lightweight JSON snapshot for crop board polling.
+     * Returns only IDs and statuses — not full post data.
+     */
+    public function cropBoardJson()
+    {
+        $buyer = Auth::user();
+
+        $postIds = $this->scopedHarvestQuery(true)
+            ->pluck('id')
+            ->toArray();
+
+        $allNegotiatingIds = $this->scopedHarvestQuery(true)
+            ->where('status', 'negotiating')
+            ->pluck('id')
+            ->toArray();
+
+        $buyerNegotiations = Negotiation::where('buyer_id', $buyer->id)
+            ->whereIn('status', ['OPEN', 'AGREED'])
+            ->pluck('harvest_id')
+            ->toArray();
+
+        return response()->json([
+            'post_ids' => $postIds,
+            'negotiating_ids' => $allNegotiatingIds,
+            'my_negotiating_ids' => $buyerNegotiations,
+            'count' => count($postIds),
+            'timestamp' => now()->toIso8601String(),
+        ]);
+    }
+
+    /**
      * Buyer's active negotiations list.
      */
     public function negotiations()
@@ -136,7 +177,12 @@ class BuyerController extends Controller
         $user = Auth::user();
 
         $activeDeliveries = PoolingJob::where('buyer_id', $user->id)
-            ->whereIn('status', ['in_progress', 'awaiting_confirmation'])
+            ->where(function ($q) {
+                $q->whereIn('status', ['in_progress', 'awaiting_confirmation'])
+                  ->orWhere(function ($q2) {
+                      $q2->where('status', 'confirmed')->whereNotNull('accepted_at');
+                  });
+            })
             ->with(['truck', 'harvests.crop', 'harvests.farmer', 'driver', 'logisticsProfile', 'latestTracking'])
             ->latest()
             ->take(20)

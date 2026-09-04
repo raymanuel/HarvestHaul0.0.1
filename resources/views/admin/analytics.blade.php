@@ -27,11 +27,11 @@
         </div>
 
         @if($cropPricingTrends->isEmpty())
-            <div class="bg-white dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700/60 rounded-2xl p-8 text-center shadow-sm mb-8">
+            <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-2xl p-8 text-center shadow-sm mb-8">
                 <p class="text-slate-400 text-sm font-semibold">No completed negotiations yet. Price trends will appear here once deals are closed.</p>
             </div>
         @else
-            <div class="bg-white dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700/60 rounded-2xl overflow-hidden shadow-sm mb-8">
+            <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-2xl overflow-hidden shadow-sm mb-8">
                 <table class="w-full text-xs">
                     <thead>
                         <tr class="bg-slate-50 dark:bg-slate-900/30 border-b border-slate-100 dark:border-slate-700/60">
@@ -62,7 +62,7 @@
 
             {{-- Weekly Price Chart (Simple Bar Chart via CSS) --}}
             @if($weeklyPrices->isNotEmpty())
-                <div class="bg-white dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700/60 rounded-2xl p-6 shadow-sm mb-8">
+                <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-2xl p-6 shadow-sm mb-8">
                     <h3 class="text-xs font-bold text-slate-600 dark:text-slate-300 mb-4">Weekly Average Pricing (Last 12 Weeks)</h3>
                     @foreach($weeklyPrices as $cropName => $weeks)
                         <div class="mb-4">
@@ -125,7 +125,7 @@
             <span class="w-32 h-px bg-slate-200 dark:bg-slate-700/80"></span>
         </div>
 
-        <div class="bg-white dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700/60 rounded-2xl overflow-hidden shadow-sm mb-8">
+        <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-2xl overflow-hidden shadow-sm mb-8">
             <div class="px-5 py-3 border-b border-slate-100 dark:border-slate-700/60 bg-slate-50 dark:bg-slate-900/30">
                 <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                     Edit baseline prices used for farmer pricing guidance. These can be manually overridden here when the scraper is unavailable.

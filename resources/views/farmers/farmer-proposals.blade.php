@@ -49,14 +49,14 @@
                             : ($rate > 0 ? round($rate * $myKg, 2) : 0);
                         $usesAgreedRate = $agreedRate !== null && $agreedRate > 0;
                     @endphp
-                    <div class="bg-white dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700/80 rounded-2xl shadow-sm p-5 flex flex-col justify-between hover:shadow-md hover:border-[#16283C] dark:hover:border-[#16283C]/50 transition duration-200 group">
+                    <div class="bg-white dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700/80 rounded-2xl shadow-sm p-5 flex flex-col justify-between hover:shadow-md hover:border-brand dark:hover:border-brand/50 transition duration-200 group">
                         <div>
                             <div class="flex items-center justify-between mb-4">
-                                <span class="text-[10px] font-bold text-[#16283C] dark:text-[#D7BC7A] bg-[#16283C]/10 dark:bg-[#16283C]/10 border border-[#16283C]/20 dark:border-[#16283C]/10 px-2.5 py-1 rounded-lg uppercase tracking-wider font-mono">
+                                <span class="text-[10px] font-bold text-brand dark:text-brand-light bg-brand/10 dark:bg-brand/10 border border-brand/20 dark:border-brand/10 px-2.5 py-1 rounded-lg uppercase tracking-wider font-mono">
                                     Proposal #{{ $proposal->id }}
                                 </span>
                                 <span class="text-[10px] font-bold uppercase tracking-wide px-2.5 py-0.5 rounded-lg border
-                                    @if($pivotStatus === 'accepted') text-[#16283C] bg-[#16283C]/10 dark:bg-[#16283C]/10 border-[#16283C]/10
+                                    @if($pivotStatus === 'accepted') text-brand bg-brand/10 dark:bg-brand/10 dark:text-brand-light border-brand/10
                                     @elseif($pivotStatus === 'rejected') text-[var(--color-error-text)] bg-[var(--color-error-bg)] border-[var(--color-error-border)]
                                     @else text-[var(--color-warning-text)] bg-[var(--color-warning-bg)] border-[var(--color-warning-border)] @endif">
                                     {{ $pivotStatus }}
@@ -93,14 +93,14 @@
                                 </div>
                                 <div class="flex justify-between">
                                     <span class="text-slate-400">{{ $usesAgreedRate ? 'Your Share (rate × kg):' : 'Your Share (weight × distance):' }}</span>
-                                    <span class="font-bold text-[#16283C] dark:text-[#D7BC7A]">₱{{ number_format($yourCostShare, 2) }}</span>
+                                    <span class="font-bold text-brand dark:text-brand-light">₱{{ number_format($yourCostShare, 2) }}</span>
                                 </div>
                             </div>
 
                             <div class="border-t border-slate-100 dark:border-slate-700/60 pt-3.5 flex justify-between items-center">
                                 <div>
                                     <h4 class="text-[10px] font-bold text-slate-400 dark:text-slate-600 uppercase tracking-wider">Your Hauling Cost</h4>
-                                    <p class="text-lg font-extrabold text-[#16283C] dark:text-[#D7BC7A] mt-0.5">₱{{ number_format($yourCostShare, 2) }}</p>
+                                    <p class="text-lg font-extrabold text-brand dark:text-brand-light mt-0.5">₱{{ number_format($yourCostShare, 2) }}</p>
                                 </div>
                                 <div class="text-right">
                                     <h4 class="text-[10px] font-bold text-slate-400 dark:text-slate-600 uppercase tracking-wider">Total Route Price</h4>
@@ -114,13 +114,13 @@
                                 <div class="flex gap-2">
                                     <form action="{{ route('pooling.accept', $proposal->id) }}" method="POST" class="flex-1">
                                         @csrf
-                                        <button type="submit" class="w-full bg-[#16283C] hover:bg-[#0E1620] text-white text-xs font-bold py-2.5 rounded-xl transition cursor-pointer text-center">
+                                        <button type="button" onclick="swalConfirm(this.closest('form'), {title:'Accept Proposal?', text:'Book this delivery proposal for your farm?', icon:'question', confirmText:'Yes, accept', cancelText:'Cancel', confirmColor:'#16283C'})" class="w-full bg-brand hover:bg-brand-dark text-white text-xs font-bold py-2.5 rounded-xl transition cursor-pointer text-center">
                                             Accept
                                         </button>
                                     </form>
                                     <form action="{{ route('pooling.reject', $proposal->id) }}" method="POST" class="flex-1">
                                         @csrf
-                                        <button type="submit" class="w-full bg-[var(--color-error-text)] hover:opacity-90 text-white text-xs font-bold py-2.5 rounded-xl transition cursor-pointer text-center">
+                                        <button type="button" onclick="swalConfirm(this.closest('form'), {title:'Reject Proposal?', text:'This delivery proposal will be turned down.', icon:'warning', confirmText:'Yes, reject', cancelText:'Cancel', confirmColor:'#ef4444'})" class="w-full bg-[var(--color-error-text)] hover:opacity-90 text-white text-xs font-bold py-2.5 rounded-xl transition cursor-pointer text-center">
                                             Reject
                                         </button>
                                     </form>
@@ -128,7 +128,7 @@
 
                                 <p class="text-[9px] text-slate-500 dark:text-slate-400 mt-2 italic">{{ $usesAgreedRate ? 'Your share is set by the hauling rate agreed in your negotiation chat.' : 'Your share is weighted by cargo volume × haul distance.' }}</p>
                             @elseif($pivotStatus === 'accepted')
-                                <div class="p-3 bg-[#16283C]/10 dark:bg-[#16283C]/10 text-[#0E1620] dark:text-[#D7BC7A] border border-[#16283C]/20 text-center rounded-xl text-xs font-bold">
+                                <div class="p-3 bg-brand/10 dark:bg-brand/10 text-brand-dark dark:text-brand-light border border-brand/20 text-center rounded-xl text-xs font-bold">
                                     Accepted. Awaiting other farmers' consensus.
                                 </div>
                             @elseif($pivotStatus === 'rejected')

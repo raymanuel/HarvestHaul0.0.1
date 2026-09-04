@@ -25,7 +25,7 @@ class CropResolverService
                 try {
                     $crop = Crop::create([
                         'crop_category_id' => $categoryId,
-                        'name' => trim($name),
+                        'name' => $this->titleCase($name),
                         'status' => 'active',
                         'baseline_price_per_kg' => null,
                     ]);
@@ -58,7 +58,7 @@ class CropResolverService
                 try {
                     $variety = CropVariety::create([
                         'crop_id' => $crop->id,
-                        'name' => trim($name),
+                        'name' => $this->titleCase($name),
                         'status' => 'active',
                         'price_per_kg' => 0,
                     ]);
@@ -79,5 +79,22 @@ class CropResolverService
     private function normalize(string $value): string
     {
         return strtolower(trim($value));
+    }
+
+    /**
+     * Title-case a name for display, protecting already all-caps words (acronyms).
+     * "apple" -> "Apple", "dragon fruit" -> "Dragon Fruit", "GM Rice" -> "GM Rice".
+     */
+    private function titleCase(string $value): string
+    {
+        $value = trim($value);
+
+        return implode(' ', array_map(function ($word) {
+            if (mb_strlen($word) >= 2 && mb_strtoupper($word) === $word) {
+                return $word;
+            }
+
+            return mb_convert_case($word, MB_CASE_TITLE, 'UTF-8');
+        }, preg_split('/\s+/', $value)));
     }
 }

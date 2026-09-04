@@ -18,7 +18,7 @@
         </header>
 
         @if($activeJobs->isEmpty())
-            <div class="bg-white dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-16 text-center shadow-sm">
+            <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-16 text-center shadow-sm">
                 <h3 class="text-base font-bold text-slate-800 dark:text-white heading-font">No Active Shipments</h3>
                 <p class="text-xs text-slate-500 dark:text-slate-400 mt-1.5 max-w-md mx-auto leading-relaxed">
                     There are no shipments currently in transit. Once a logistics partner dispatches an assigned pooling job, real-time GPS telemetry will display here.
@@ -91,7 +91,7 @@
                 
                 {{-- Right Panel: Leaflet Map --}}
                 <div class="lg:col-span-8 space-y-4">
-                    <div class="bg-white dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700/60 rounded-3xl overflow-hidden shadow-sm flex flex-col">
+                    <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-3xl overflow-hidden shadow-sm flex flex-col">
                         <div id="liveMap" class="w-full h-[550px] z-0"></div>
                         <div class="bg-slate-50 dark:bg-slate-900/30 px-6 py-4 border-t border-slate-100 dark:border-slate-700/50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs">
                             <div class="flex items-center gap-4 text-slate-500 dark:text-slate-500 font-bold uppercase tracking-wider text-[10px]">

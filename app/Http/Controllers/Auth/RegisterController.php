@@ -9,7 +9,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
-use App\Models\LogisticsProfile;
 
 class RegisterController extends Controller
 {
@@ -26,15 +25,7 @@ class RegisterController extends Controller
             abort(404);
         }
 
-        $cooperatives = collect();
-        if ($role === 'farmer') {
-            $cooperatives = LogisticsProfile::where('logistics_type', 'cooperative')
-                ->where('is_verified', true)
-                ->with('user')
-                ->get();
-        }
-
-        return view("auth.register-{$role}", compact('cooperatives'));
+        return view("auth.register-{$role}");
     }
 
     public function store(Request $request)
@@ -51,8 +42,6 @@ class RegisterController extends Controller
             'farm_location'       => 'nullable|string|max:255',
             'latitude'            => 'nullable|numeric|between:-90,90',
             'longitude'           => 'nullable|numeric|between:-180,180',
-            'affiliation_type'    => 'nullable|in:independent,cooperative',
-            'cooperative_id'      => 'nullable|exists:logistics_profiles,id',
 
             // Logistics fields (nullable — can be completed later in profile)
             'company_name'        => 'nullable|string|max:255',
@@ -60,18 +49,6 @@ class RegisterController extends Controller
             'logistics_type'      => 'nullable|in:cooperative,company',
             'cda_registration_no' => 'nullable|string|max:255',
         ]);
-
-        // Validate cooperative_id belongs to a verified cooperative
-        if ($request->affiliation_type === 'cooperative' && $request->cooperative_id) {
-            $isValidCooperative = \App\Models\LogisticsProfile::where('id', $request->cooperative_id)
-                ->where('logistics_type', 'cooperative')
-                ->where('is_verified', true)
-                ->exists();
-
-            if (!$isValidCooperative) {
-                return back()->withErrors(['cooperative_id' => 'The selected cooperative is not valid.'])->withInput();
-            }
-        }
 
         try {
             return DB::transaction(function () use ($request) {
@@ -81,14 +58,12 @@ class RegisterController extends Controller
                     'password'         => $request->password,
                     'role'             => $request->role,
                     'affiliation_type' => match ($request->role) {
-                        'farmer'             => $request->affiliation_type ?? 'independent',
+                        'farmer'             => 'independent',
                         'logistics_partner'  => $request->logistics_type === 'cooperative' ? 'cooperative' : 'independent',
                         'buyer'              => 'independent',
                         default              => 'independent',
                     },
-                    'cooperative_id'   => ($request->role === 'farmer' && ($request->affiliation_type ?? 'independent') === 'cooperative')
-                                            ? $request->cooperative_id
-                                            : null,
+                    'cooperative_id'   => null,
                 ]);
 
                 if ($request->role === 'farmer') {
@@ -98,10 +73,8 @@ class RegisterController extends Controller
                         'latitude'         => $request->latitude,
                         'longitude'        => $request->longitude,
                         'is_verified'      => false,
-                        'affiliation_type' => $request->affiliation_type ?? 'independent',
-                        'cooperative_id'   => $request->affiliation_type === 'cooperative'
-                                                ? $request->cooperative_id
-                                                : null,
+                        'affiliation_type' => 'independent',
+                        'cooperative_id'   => null,
                     ]);
                 } elseif ($request->role === 'logistics_partner') {
                     $user->logisticsProfile()->create([

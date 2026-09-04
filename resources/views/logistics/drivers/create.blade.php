@@ -49,7 +49,7 @@
                         <label for="phone" class="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">
                             Phone Number <span class="text-red-500">*</span>
                         </label>
-                        <input type="text" name="phone" id="phone" value="{{ old('phone') }}" required placeholder="e.g. +639123456789"
+                        <input type="tel" inputmode="tel" name="phone" id="phone" value="{{ old('phone') }}" required placeholder="e.g. +639123456789"
                             class="w-full px-4 py-3 border border-slate-200 dark:border-slate-600 rounded-xl text-sm text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-900/60 focus:outline-none focus:ring-2 focus:ring-[#16283C]/30 dark:focus:ring-[#16283C]/30 focus:border-[#16283C] dark:focus:border-[#16283C] transition">
                         @error('phone')
                             <p class="text-red-500 dark:text-red-400 text-xs mt-1.5 font-medium">{{ $message }}</p>

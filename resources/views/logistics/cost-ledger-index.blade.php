@@ -45,7 +45,8 @@
                                 default       => 'text-slate-500 bg-slate-50 dark:bg-slate-900/30 border-slate-200/50',
                             };
                             $totalKg    = (float) $job->total_kg;
-                            $basePrice  = (float) ($job->negotiated_price ?? $job->price_reference ?? 0);
+                            $sharesSum  = (float) $job->harvests->sum(fn($h) => (float) ($h->pivot->cost_share ?? 0));
+                            $basePrice  = $sharesSum > 0 ? $sharesSum : (float) ($job->negotiated_price ?? $job->price_reference ?? 0);
                         @endphp
                         <a href="{{ route('pooling.cost-ledger', $job) }}"
                            class="flex items-center justify-between px-6 py-4 hover:bg-slate-50/60 dark:hover:bg-slate-700/20 transition group">
@@ -59,7 +60,7 @@
                                 <div class="min-w-0">
                                     <div class="flex items-center gap-2 flex-wrap">
                                         <p class="text-sm font-bold text-slate-800 dark:text-slate-200 group-hover:text-[#16283C] dark:group-hover:text-[#16283C] transition heading-font truncate">
-                                             {{ $job->truck->truck_name ?? 'Fleet Hauler' }}
+                                             #{{ $job->id }} — {{ $job->created_at->format('M d, Y') }}
                                         </p>
                                         <span class="text-[10px] font-bold px-2 py-0.5 rounded-md border {{ $statusColor }} capitalize shrink-0">
                                             {{ str_replace('_', ' ', $job->status->value) }}
@@ -69,9 +70,13 @@
                                         <span>{{ $job->harvests->count() }} {{ Str::plural('farm', $job->harvests->count()) }}</span>
                                         <span class="text-slate-300 dark:text-slate-600"></span>
                                         <span>{{ number_format($totalKg, 1) }} kg</span>
-                                        @if($job->truck->plate_number ?? false)
+                                        @if($job->truck ?? false)
                                             <span class="text-slate-300 dark:text-slate-600"></span>
-                                            <span class="font-mono">{{ $job->truck->plate_number }}</span>
+                                            <span>{{ $job->truck->truck_name ?? 'Unassigned' }}</span>
+                                            @if($job->truck->plate_number ?? false)
+                                                <span class="text-slate-300 dark:text-slate-600">·</span>
+                                                <span class="font-mono">{{ $job->truck->plate_number }}</span>
+                                            @endif
                                         @endif
                                     </div>
                                 </div>

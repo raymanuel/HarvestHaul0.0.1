@@ -15,7 +15,7 @@
                 <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">When you mark a harvest as sold or a logistics partner picks it up, it will appear here.</p>
             </div>
         @else
-            <div class="bg-white dark:bg-slate-800/80 backdrop-blur border border-slate-200/60 dark:border-slate-700/60 rounded-3xl overflow-hidden shadow-sm">
+            <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-3xl overflow-hidden shadow-sm">
                 <div class="overflow-x-auto">
                     <table class="w-full text-sm">
                         <thead>
@@ -33,9 +33,12 @@
                                     $poolingJob = $harvest->poolingJobs->first();
                                     $completedNegotiation = $harvest->completedNegotiation;
 
+                                    $driverAccepted = $poolingJob && $poolingJob->accepted_at && $poolingJob->status->value === 'confirmed';
+
                                     $logisticsStatus = match (true) {
                                         $harvest->status->value === 'completed' => 'Delivered',
                                         $harvest->status->value === 'in_progress' => 'In Transit',
+                                        $driverAccepted => 'Driver Assigned — Awaiting Pickup',
                                         $harvest->status->value === 'assigned' && $poolingJob && $poolingJob->status->value === 'confirmed' => 'Pickup Scheduled',
                                         $harvest->status->value === 'assigned' && $poolingJob && $poolingJob->status->value === 'pending' => 'Proposal Pending',
                                         $harvest->status->value === 'assigned' => 'Assigned to Route',
@@ -47,6 +50,7 @@
                                     $logisticsBadgeColor = match (true) {
                                         $harvest->status->value === 'completed' => 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700',
                                         $harvest->status->value === 'in_progress' => 'bg-orange-50 dark:bg-orange-950/20 text-orange-700 dark:text-orange-400 border-orange-500/20',
+                                        $driverAccepted => 'bg-[var(--color-warning-bg)] text-[var(--color-warning-text)] border-[var(--color-warning-border)]',
                                         $harvest->status->value === 'assigned' => 'bg-purple-50 dark:bg-purple-950/20 text-purple-700 dark:text-purple-400 border-purple-500/20',
                                         $harvest->status->value === 'sold' && $poolingJob => 'bg-[var(--color-info-bg)] text-[var(--color-info-text)] border-[var(--color-info-border)]',
                                         $harvest->status->value === 'sold' => 'bg-[var(--color-warning-bg)] text-[var(--color-warning-text)] border-[var(--color-warning-border)]',

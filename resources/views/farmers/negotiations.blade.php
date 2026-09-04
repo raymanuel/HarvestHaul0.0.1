@@ -19,13 +19,13 @@
 
         <!-- Negotiations List -->
         @if($negotiations->isEmpty())
-            <div class="bg-white dark:bg-slate-800/80 backdrop-blur border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-12 text-center">
+            <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-12 text-center">
                 
                 <h3 class="text-lg font-bold text-slate-800 dark:text-white heading-font">No Negotiations Found</h3>
                 <p class="text-sm text-slate-500 dark:text-slate-400 mt-2 max-w-md mx-auto">There are no active buyer negotiations on your crop lots at the moment.</p>
             </div>
         @else
-            <div class="bg-white dark:bg-slate-800/80 backdrop-blur border border-slate-200/60 dark:border-slate-700/60 rounded-3xl overflow-hidden shadow-sm">
+            <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-3xl overflow-hidden shadow-sm">
                 <div class="overflow-x-auto">
                     <table class="w-full text-sm text-left">
                         <thead>

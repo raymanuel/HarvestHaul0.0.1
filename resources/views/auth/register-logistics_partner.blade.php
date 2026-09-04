@@ -47,7 +47,7 @@
         {{-- PHONE --}}
         <div class="form-group">
             <div class="relative">
-                <input type="text" name="phone" placeholder="Contact Number" required value="{{ old('phone') }}" autocomplete="tel"
+                <input type="tel" inputmode="tel" name="phone" placeholder="Contact Number" required value="{{ old('phone') }}" autocomplete="tel"
                     class="px-4 py-3 w-full bg-white/80 border border-[#16283C]/15 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#16283C]/10 focus:border-[#16283C] transition">
             </div>
         </div>

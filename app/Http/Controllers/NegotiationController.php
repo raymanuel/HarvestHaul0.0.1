@@ -13,7 +13,7 @@ use App\Models\HarvestStatus;
 use App\Models\Negotiation;
 use App\Models\NegotiationStatus;
 use App\Models\NegotiationMessage;
-use App\Services\Darfo12Service;
+
 use App\Services\NegotiationService;
 use App\Traits\Notifiable;
 use App\Traits\GeometryHelper;
@@ -61,9 +61,6 @@ class NegotiationController extends Controller
 
         $negotiation->load(['buyer.logisticsProfile', 'farmer', 'harvest.crop', 'harvest.cropVariety', 'messages.sender']);
 
-        $cropName = $negotiation->harvest->crop->name ?? $negotiation->harvest->crop_type;
-        $marketPrice = $cropName ? app(Darfo12Service::class)->getLatestCropPrice($cropName) : null;
-
         $haulDistanceKm = null;
         $h = $negotiation->harvest;
         $pickupLat = (float) ($h->latitude ?? $h->farmer?->farmerProfile?->latitude);
@@ -74,7 +71,7 @@ class NegotiationController extends Controller
             $haulDistanceKm = round($this->haversine($pickupLat, $pickupLng, $destLat, $destLng), 2);
         }
 
-        return view('negotiations.room', compact('negotiation', 'marketPrice', 'haulDistanceKm'));
+        return view('negotiations.room', compact('negotiation', 'haulDistanceKm'));
     }
 
     public function sendMessage(SendMessageRequest $request, Negotiation $negotiation)

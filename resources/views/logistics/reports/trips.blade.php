@@ -4,7 +4,7 @@
         <!-- Page Header -->
         <div class="mb-8">
             <div class="flex items-center gap-3 mb-2">
-                <div class="w-10 h-10 rounded-xl bg-[#16283C]/10 border border-[#16283C]/20 flex items-center justify-center text-[#16283C]">
+                <div class="w-10 h-10 rounded-xl bg-brand/10 border border-brand/20 flex items-center justify-center text-brand dark:text-brand-light">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
                     </svg>
@@ -29,14 +29,14 @@
             <div>
                 <label for="from" class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">From</label>
                 <input type="date" name="from" id="from" value="{{ $dateFrom }}"
-                    class="border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-700 dark:text-slate-200 font-bold focus:outline-none focus:ring-2 focus:ring-[#16283C]/20 focus:border-[#16283C] bg-white dark:bg-slate-800">
+                    class="border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-700 dark:text-slate-200 font-bold focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand bg-white dark:bg-slate-800">
             </div>
             <div>
                 <label for="to" class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">To</label>
                 <input type="date" name="to" id="to" value="{{ $dateTo }}"
-                    class="border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-700 dark:text-slate-200 font-bold focus:outline-none focus:ring-2 focus:ring-[#16283C]/20 focus:border-[#16283C] bg-white dark:bg-slate-800">
+                    class="border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-700 dark:text-slate-200 font-bold focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand bg-white dark:bg-slate-800">
             </div>
-            <button type="submit" class="px-5 py-2 bg-[#16283C] hover:bg-[#0E1620] text-white text-xs font-bold rounded-xl transition-all shadow-sm">
+            <button type="submit" class="px-5 py-2 bg-brand hover:bg-brand-dark text-white text-xs font-bold rounded-xl transition-all shadow-sm">
                 Filter
             </button>
         </form>
@@ -49,7 +49,7 @@
             </div>
             <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200/80 dark:border-slate-700/50 p-5 shadow-sm">
                 <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Total Revenue</p>
-                <p class="text-2xl font-black text-[#16283C] heading-font mt-2">₱{{ number_format($totalRevenue, 2) }}</p>
+                <p class="text-2xl font-black text-brand dark:text-brand-light heading-font mt-2">₱{{ number_format($totalRevenue, 2) }}</p>
             </div>
             <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200/80 dark:border-slate-700/50 p-5 shadow-sm">
                 <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Fuel Cost</p>
@@ -58,7 +58,7 @@
             </div>
             <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200/80 dark:border-slate-700/50 p-5 shadow-sm">
                 <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Net After Fuel</p>
-                <p class="text-2xl font-black {{ $netIncome >= 0 ? 'text-[#16283C]' : 'text-rose-500' }} heading-font mt-2">₱{{ number_format($netIncome, 2) }}</p>
+                <p class="text-2xl font-black {{ $netIncome >= 0 ? 'text-brand dark:text-brand-light' : 'text-rose-500' }} heading-font mt-2">₱{{ number_format($netIncome, 2) }}</p>
                 <p class="text-[10px] text-slate-400 mt-1">{{ number_format($totalKg, 1) }} kg delivered</p>
             </div>
         </div>
@@ -91,9 +91,9 @@
                                             <p class="text-[10px] text-slate-400">{{ $m['truck']->vehicle_type ?? '' }}</p>
                                         </td>
                                         <td class="py-2.5 px-3 text-right font-bold">{{ $m['trips'] }}</td>
-                                        <td class="py-2.5 px-3 text-right font-bold text-[#16283C]">₱{{ number_format($m['revenue'], 0) }}</td>
+                                        <td class="py-2.5 px-3 text-right font-bold text-brand dark:text-brand-light">₱{{ number_format($m['revenue'], 0) }}</td>
                                         <td class="py-2.5 px-3 text-right font-bold text-amber-500">₱{{ number_format($m['fuel_cost'], 0) }}</td>
-                                        <td class="py-2.5 px-3 text-right font-bold {{ $m['net_income'] >= 0 ? 'text-[#16283C]' : 'text-rose-500' }}">
+                                        <td class="py-2.5 px-3 text-right font-bold {{ $m['net_income'] >= 0 ? 'text-brand dark:text-brand-light' : 'text-rose-500' }}">
                                             ₱{{ number_format($m['net_income'], 0) }}
                                         </td>
                                         <td class="py-2.5 px-3 text-right font-bold">{{ $m['kpl'] }} km/L</td>
@@ -118,7 +118,7 @@
                         @foreach($monthlyTrend as $month => $data)
                             <div class="text-center p-3 rounded-xl bg-slate-50 dark:bg-slate-700/30 border border-slate-100 dark:border-slate-700/30">
                                 <p class="text-[10px] font-bold text-slate-400 uppercase">{{ Carbon\Carbon::parse($month . '-01')->format('M Y') }}</p>
-                                <p class="text-lg font-black text-[#16283C] heading-font mt-1">₱{{ number_format($data['revenue'], 0) }}</p>
+                                <p class="text-lg font-black text-brand dark:text-brand-light heading-font mt-1">₱{{ number_format($data['revenue'], 0) }}</p>
                                 <p class="text-[10px] text-slate-400">{{ $data['trips'] }} trip{{ $data['trips'] !== 1 ? 's' : '' }}</p>
                             </div>
                         @endforeach
@@ -155,7 +155,7 @@
                                         <td class="py-2.5 px-3">{{ $trip->driver->name ?? '—' }}</td>
                                         <td class="py-2.5 px-3 text-right font-bold">{{ number_format($trip->total_kg, 1) }}</td>
                                         <td class="py-2.5 px-3 text-right font-bold">{{ $trip->farm_count }}</td>
-                                        <td class="py-2.5 px-3 text-right font-bold text-[#16283C]">₱{{ number_format($trip->negotiated_price ?? 0, 2) }}</td>
+                                        <td class="py-2.5 px-3 text-right font-bold text-brand dark:text-brand-light">₱{{ number_format($trip->negotiated_price ?? 0, 2) }}</td>
                                         <td class="py-2.5 px-3 text-center text-slate-400">{{ $trip->completed_at ? Carbon\Carbon::parse($trip->completed_at)->format('M d, Y') : '—' }}</td>
                                     </tr>
                                 @endforeach

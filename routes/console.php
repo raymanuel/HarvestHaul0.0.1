@@ -5,7 +5,6 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schedule;
 
-
 // Scheduler liveness signal: refreshed by every successful schedule:run.
 // EnsureSchedulerAlive middleware treats a stale value as "OS cron is dead"
 // and runs the due schedule itself after the response is sent.
@@ -49,6 +48,3 @@ Schedule::command('negotiations:auto-close-stale')->daily();
 
 // Clean up stale tracking records, old notifications, and weather logs (daily)
 Schedule::command('data:cleanup')->daily();
-
-// DA RFO12 market prices: demand-driven only (scrape on dashboard visit if data >24h old).
-// No scheduled cron — avoids shared-hosting process limits.

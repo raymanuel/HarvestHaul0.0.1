@@ -46,53 +46,47 @@
 
     <style>
         body {
-            background-color: var(--color-surface, #F8F9FA);
+            background-color: var(--color-surface);
         }
+
         /* Custom Scrollbar for sidebar */
-        .custom-scroll::-webkit-scrollbar {
-            width: 4px;
-        }
-        .custom-scroll::-webkit-scrollbar-track {
-            background: transparent;
-        }
+        .custom-scroll::-webkit-scrollbar { width: 4px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
         .custom-scroll::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.1);
+            background: var(--color-scrollbar-thumb);
             border-radius: 2px;
         }
         .custom-scroll::-webkit-scrollbar-thumb:hover {
-            background: rgba(255, 255, 255, 0.2);
+            background: var(--color-scrollbar-thumb-hover);
         }
 
-        /* Sidebar collapse: instant snap (animated width/padding caused reflow jank).
-           Geometry lives in app.css (#sidebar-nav.sidebar-collapsed ~ #main-content). */
-        .top-navbar {
-            left: 16rem;
-            right: 0;
-        }
+        /* Topbar left offset matches sidebar width */
+        .top-navbar { left: 16rem; right: 0; }
+        #main-content > main { padding-top: 2rem; }
         @media (min-width: 1024px) {
-            #main-content > main {
-                padding-top: 5rem;
-            }
+            #main-content > main { padding-top: 5rem; }
         }
 
-        /* Collapsed state: hide text labels */
+        /* Sidebar collapse: hide text labels.
+           Animates opacity + transform only (compositor-friendly). max-width
+           collapses the space instantly so the centered badges sit right. */
         .sidebar-collapsed .nav-label,
         .sidebar-collapsed .section-label,
         .sidebar-collapsed .logo-text {
             opacity: 0;
-            width: 0;
+            transform: translateX(-6px);
+            max-width: 0;
             overflow: hidden;
             white-space: nowrap;
-            transition: opacity 0.15s, width 0.2s;
+            transition: opacity 0.15s, transform 0.15s;
         }
-
-        /* Expanded state: show text labels */
         #sidebar-nav:not(.sidebar-collapsed) .nav-label,
         #sidebar-nav:not(.sidebar-collapsed) .section-label,
         #sidebar-nav:not(.sidebar-collapsed) .logo-text {
             opacity: 1;
-            width: auto;
-            transition: opacity 0.2s 0.1s, width 0.2s;
+            transform: none;
+            max-width: 16rem;
+            transition: opacity 0.2s 0.1s, transform 0.2s 0.1s;
         }
 
         /* Collapsed link centering */
@@ -101,40 +95,23 @@
             padding-left: 0;
             padding-right: 0;
         }
-        /* Collapsed state: show first-letter badges */
-        .sidebar-collapsed .nav-letter {
-            display: flex !important;
-        }
-        /* Expanded state: hide first-letter badges */
-        #sidebar-nav:not(.sidebar-collapsed) .nav-letter {
-            display: none !important;
-        }
-        .sidebar-collapsed .section-label {
-            height: 0;
-            margin: 0;
-            padding: 0;
-        }
+        /* Collapsed: show first-letter badges; expanded: hide */
+        .sidebar-collapsed .nav-letter { display: flex !important; }
+        #sidebar-nav:not(.sidebar-collapsed) .nav-letter { display: none !important; }
+        .sidebar-collapsed .section-label { height: 0; margin: 0; padding: 0; }
+        .sidebar-collapsed .logo-link { justify-content: center; }
 
-        /* Collapsed logo centering */
-        .sidebar-collapsed .logo-link {
-            justify-content: center;
-        }
-
-        
-
-        /* Tooltip on hover when collapsed */
-        .sidebar-collapsed .nav-link {
-            position: relative;
-        }
-        .sidebar-collapsed .nav-link:hover::after {
+        /* Tooltip on hover/focus when collapsed */
+        .sidebar-collapsed .nav-link { position: relative; }
+        .sidebar-collapsed .nav-link::after {
             content: attr(data-tooltip);
             position: absolute;
             left: 100%;
             top: 50%;
             transform: translateY(-50%);
             margin-left: 12px;
-            background: #14202D;
-            color: #E9EEF4;
+            background: var(--color-surface-card-dark);
+            color: var(--color-text-dark);
             padding: 6px 12px;
             border-radius: 8px;
             font-size: 12px;
@@ -143,81 +120,85 @@
             z-index: 100;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
             pointer-events: none;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.15s ease, visibility 0.15s;
+        }
+        .sidebar-collapsed .nav-link:hover::after,
+        .sidebar-collapsed .nav-link:focus-visible::after,
+        .sidebar-collapsed .nav-link:focus-within::after {
+            opacity: 1;
+            visibility: visible;
         }
 
-        /* Collapse toggle button */
-        .collapse-toggle {
-            transition: transform 0.25s;
-        }
-        .sidebar-collapsed .collapse-toggle {
-            transform: rotate(180deg);
-        }
-        .sidebar-collapsed [data-submenu-panel] {
-            padding-left: 0;
-        }
+        /* Submenu accordion: expand/collapse via grid rows (compositor-friendly, no height JS) */
+        .submenu-panel { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.25s ease; }
+        .submenu-panel.submenu-open { grid-template-rows: 1fr; }
+        .submenu-panel > * { min-height: 0; }
 
-        /* Focus-visible rings for accessibility */
+        /* Mobile drawer exits faster than it enters */
+        #sidebar-nav.sidebar-nav-exit { transition-duration: 0.2s; }
+
+        /* Collapse toggle */
+        .collapse-toggle { transition: transform 0.25s; }
+        .sidebar-collapsed .collapse-toggle { transform: rotate(180deg); }
+        .sidebar-collapsed [data-submenu-panel] { padding-left: 0; }
+
+        /* Focus-visible: gold on dark sidebar, navy on light surfaces */
         .nav-link:focus-visible,
         button:focus-visible,
         a:focus-visible {
-            outline: 2px solid #16283C;
+            outline: 2px solid var(--color-gold-light);
             outline-offset: 2px;
             border-radius: 8px;
         }
-
-        /* Increase touch targets on sidebar nav links */
-        .nav-link {
-            min-height: 44px;
+        html:not(.dark) .nav-link:focus-visible,
+        html:not(.dark) button:focus-visible,
+        html:not(.dark) a:focus-visible {
+            outline-color: var(--color-brand);
         }
 
-        /* Body text line height for readability */
-        p, .text-sm, .text-xs {
-            line-height: 1.6;
-        }
+        /* Touch targets */
+        .nav-link { min-height: 44px; }
 
+        /* Body text readability */
+        p, .text-sm, .text-xs { line-height: 1.6; }
+
+        /* Dark topbar */
         html.dark #top-navbar {
-            background-color: #14202D;
-            border-color: rgba(255, 255, 255, 0.08);
+            background-color: var(--color-surface-card-dark);
+            border-color: var(--color-dark-border);
         }
-        html.dark #top-navbar h2 {
-            color: #ffffff;
-        }
-        html.dark #top-navbar span {
-            color: rgba(255, 255, 255, 0.7);
-        }
-        html.dark #top-navbar .border-l {
-            border-color: rgba(255, 255, 255, 0.15);
-        }
-        html.dark #top-navbar p {
-            color: #ffffff;
-        }
+        html.dark #top-navbar h2 { color: #ffffff; }
+        html.dark #top-navbar span { color: var(--color-text-dark-muted); }
+        html.dark #top-navbar .border-l { border-color: var(--color-dark-border-light); }
+        html.dark #top-navbar p { color: #ffffff; }
 
-        /* Light mode: neutral cream topbar with slate ghost bell button */
+        /* Ghost buttons — light mode (bumped opacity for 4.5:1+ contrast) */
         #top-navbar #notifications-menu > button {
-            background: rgba(15, 23, 42, 0.06);
-            border-color: rgba(15, 23, 42, 0.12);
-            color: rgba(15, 23, 42, 0.65);
+            background: var(--color-ghost-btn-bg);
+            border-color: var(--color-ghost-btn-border);
+            color: var(--color-ghost-btn-text);
         }
         #top-navbar #notifications-menu > button:hover {
-            background: rgba(15, 23, 42, 0.1);
-            color: #0f172a;
+            background: var(--color-ghost-btn-bg-hover);
+            color: var(--color-text);
         }
         #top-navbar #notifications-menu #notification-badge {
-            border-color: #E9EEF4;
+            border-color: var(--color-soil-light);
         }
-
-        /* Dark mode: neutral slate topbar with white ghost bell button */
+        /* Ghost buttons — dark mode */
         html.dark #top-navbar #notifications-menu > button {
-            background: rgba(255, 255, 255, 0.1);
-            border-color: rgba(255, 255, 255, 0.15);
-            color: rgba(255, 255, 255, 0.85);
+            background: var(--color-ghost-btn-bg-dark);
+            border-color: var(--color-ghost-btn-border-dark);
+            color: var(--color-ghost-btn-text-dark);
         }
         html.dark #top-navbar #notifications-menu > button:hover {
-            background: rgba(255, 255, 255, 0.2);
+            background: var(--color-ghost-btn-bg-dark-hover);
             color: #ffffff;
         }
         html.dark #top-navbar #notifications-menu #notification-badge {
-            border-color: #1e293b;
+            border-color: var(--color-surface-card-dark);
         }
 
         /* Stat card info tooltip */
@@ -234,8 +215,8 @@
             bottom: calc(100% + 8px);
             left: 50%;
             transform: translateX(-50%);
-            background: #1e293b;
-            color: #E9EEF4;
+            background: var(--color-brand);
+            color: var(--color-text-dark);
             padding: 6px 10px;
             border-radius: 8px;
             font-size: 11px;
@@ -257,48 +238,29 @@
             opacity: 1;
             visibility: visible;
         }
-        #sidebar-nav .nav-link.nav-active {
-            background-color: rgba(191, 160, 90, 0.14);
-            color: #7C6527;
-            border-left: 3px solid #BFA05A;
-        }
-        #sidebar-nav .nav-link.nav-active .nav-letter {
-            background-color: rgba(191, 160, 90, 0.2);
-            color: #7C6527;
-        }
-        html.dark #sidebar-nav .nav-link.nav-active {
-            background-color: rgba(217, 188, 122, 0.12);
-            color: #D7BC7A;
-            border-left-color: #D7BC7A;
-        }
-        html.dark #sidebar-nav .nav-link.nav-active .nav-letter {
-            background-color: rgba(217, 188, 122, 0.18);
-            color: #D7BC7A;
-        }
 
-        /* Sidebar is ALWAYS dark navy, even in light mode */
+        /* Sidebar is ALWAYS dark navy — base, hover, active states */
         #sidebar-nav .nav-link {
-            color: #CBD5E1;
+            color: var(--color-sidebar-text);
         }
         #sidebar-nav .nav-link:hover {
-            color: #F5E3B0;
-            background-color: rgba(255, 255, 255, 0.08);
+            color: var(--color-sidebar-text-hover);
+            background-color: var(--color-dark-hover-bg);
         }
         #sidebar-nav .nav-letter {
-            background-color: rgba(255, 255, 255, 0.1);
-            color: rgba(255, 255, 255, 0.7);
+            background-color: var(--color-sidebar-letter-bg);
+            color: var(--color-sidebar-letter-text);
         }
         #sidebar-nav .section-label {
-            color: rgba(255, 255, 255, 0.6);
+            color: var(--color-sidebar-section-text);
         }
         #sidebar-nav .nav-link.nav-active {
-            background-color: rgba(217, 188, 122, 0.12);
-            color: #D7BC7A;
-            border-left-color: #D7BC7A;
+            background-color: var(--color-nav-active-bg);
+            color: var(--color-gold-light);
         }
         #sidebar-nav .nav-link.nav-active .nav-letter {
-            background-color: rgba(217, 188, 122, 0.18);
-            color: #D7BC7A;
+            background-color: var(--color-nav-active-letter-bg);
+            color: var(--color-gold-light);
         }
     </style>
 </head>
@@ -310,14 +272,14 @@
     </a>
 
     <!-- Mobile Top Header -->
-    <header class="lg:hidden sticky top-0 z-50 bg-[var(--color-surface)] dark:bg-[#14202D] text-slate-900 dark:text-white px-5 py-4 flex justify-between items-center border-b border-slate-900/10 dark:border-black/20 shadow-md">
+    <header class="lg:hidden sticky top-0 z-50 bg-[var(--color-surface)] dark:bg-[var(--color-surface-card-dark)] text-slate-900 dark:text-white px-5 py-4 flex justify-between items-center border-b border-slate-900/10 dark:border-black/20 shadow-md">
         <a href="/dashboard" class="flex items-center gap-2 group">
             <div class="w-8 h-8 rounded-lg bg-brand-700 flex items-center justify-center">
-                        <x-brand-logo class="w-5 h-5 text-[#D7BC7A]" />
+                        <x-brand-logo class="w-5 h-5 text-[var(--color-brand-light)]" />
             </div>
             <span class="text-lg font-bold tracking-tight heading-font text-brand dark:text-white">HarvestHaul</span>
         </a>
-        <button onclick="toggleMobileSidebar()" class="p-2 bg-slate-900/5 hover:bg-slate-900/10 rounded-lg text-slate-700 dark:bg-white/10 dark:hover:bg-white/20 dark:text-white transition" aria-label="Open Navigation Menu">
+        <button id="mobile-menu-btn" onclick="toggleMobileSidebar()" aria-controls="sidebar-nav" aria-expanded="false" class="p-2 bg-slate-900/5 hover:bg-slate-900/10 rounded-lg text-slate-700 dark:bg-white/10 dark:hover:bg-white/20 dark:text-white transition" aria-label="Open Navigation Menu">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
             </svg>
@@ -326,15 +288,15 @@
 
     <div class="flex">
         <!-- Overlay Backdrop for Mobile Navigation -->
-        <div id="sidebar-overlay" onclick="toggleMobileSidebar()" class="hidden fixed inset-0 bg-slate-950/40 backdrop-blur-sm z-30 transition-opacity"></div>
+        <div id="sidebar-overlay" onclick="toggleMobileSidebar()" class="hidden fixed inset-0 bg-slate-950/40 backdrop-blur-sm z-30 opacity-0 transition-opacity duration-300"></div>
         <!-- Sidebar Navigation Drawer (Collapsible) -->
-        <aside id="sidebar-nav" class="fixed inset-y-0 left-0 z-40 w-64 bg-[#0E1620] text-slate-300 border-r border-black/20 flex flex-col justify-between transform -translate-x-full lg:translate-x-0 shadow-2xl lg:shadow-none">
+        <aside id="sidebar-nav" aria-label="Sidebar" class="fixed inset-y-0 left-0 z-40 w-64 bg-[var(--color-brand-dark)] text-slate-300 border-r border-[var(--color-dark-border)] flex flex-col justify-between transform -translate-x-full lg:translate-x-0 shadow-2xl lg:shadow-none transition-transform duration-300 ease-out">
             
             <!-- Sidebar Header & Logo -->
-            <div class="px-5 py-5 border-b border-black/20 shrink-0 flex items-center logo-container">
+            <div class="px-5 py-5 border-b border-[var(--color-dark-border)] shrink-0 flex items-center logo-container">
                 <a href="/dashboard" class="flex items-center gap-3 group logo-link">
-                    <div class="w-9 h-9 rounded-xl bg-brand-700 flex items-center justify-center shadow-md shadow-[#16283C]/10 shrink-0">
-                <x-brand-logo class="w-5 h-5 text-[#D7BC7A]" />
+                    <div class="w-9 h-9 rounded-xl bg-brand-700 flex items-center justify-center shadow-md shrink-0">
+                <x-brand-logo class="w-5 h-5 text-[var(--color-brand-light)]" />
                     </div>
                     <span class="text-xl font-bold tracking-tight text-white heading-font logo-text">HarvestHaul</span>
                 </a>
@@ -347,7 +309,7 @@
         <!-- Main Display Content Shell Wrapper (Offset on desktop) -->
         <div id="main-content" tabindex="-1" class="main-wrapper flex-1 lg:pl-64 min-w-0 flex flex-col min-h-screen outline-none">
             <!-- Horizontal Desktop Navbar -->
-            <nav id="top-navbar" class="top-navbar hidden lg:flex fixed top-0 z-30 h-20 bg-[var(--color-surface)] border-b border-slate-900/5 px-8 items-center justify-between shadow-sm dark:bg-[#14202D] dark:border-black/20">
+            <nav id="top-navbar" class="top-navbar hidden lg:flex fixed top-0 z-30 h-20 bg-[var(--color-surface)] border-b border-slate-900/5 px-8 items-center justify-between shadow-sm dark:bg-[var(--color-surface-card-dark)] dark:border-black/20">
                 <!-- Left side: collapse toggle + portal indicator -->
                 <div class="flex items-center gap-4">
                     <!-- Topbar collapse toggle -->
@@ -413,6 +375,22 @@
                                     </svg>
                                     Notification Settings
                                 </a>
+                                @if(Auth::user()->role === 'logistics_partner')
+                                    <a href="{{ route('logistics.documents') }}" class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/40 hover:text-brand-700 dark:hover:text-brand-light transition-all">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-500 dark:text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                        </svg>
+                                        Business Docs
+                                    </a>
+                                    @if(Auth::user()->logisticsProfile?->isCooperative())
+                                        <a href="{{ route('logistics.members.index') }}" class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/40 hover:text-brand-700 dark:hover:text-brand-light transition-all">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-500 dark:text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                                            </svg>
+                                            Members
+                                        </a>
+                                    @endif
+                                @endif
                             @endif
                             <form method="POST" action="{{ route('logout') }}" class="w-full" id="logout-form">
                                 @csrf
@@ -438,19 +416,77 @@
     <!-- Toggle scripts -->
     <script>
         // Mobile sidebar toggle
-        function toggleMobileSidebar() {
+        function openMobileSidebar() {
             var sidebar = document.getElementById('sidebar-nav');
             var overlay = document.getElementById('sidebar-overlay');
-            
-            if (sidebar.classList.contains('-translate-x-full')) {
-                sidebar.classList.remove('-translate-x-full');
+            var btn = document.getElementById('mobile-menu-btn');
+            clearTimeout(window.__sidebarCloseTimer);
+            sidebar.classList.remove('-translate-x-full', 'sidebar-nav-exit');
+            if (overlay) {
                 overlay.classList.remove('hidden');
-                document.body.style.overflow = 'hidden';
-            } else {
-                sidebar.classList.add('-translate-x-full');
-                overlay.classList.add('hidden');
-                document.body.style.overflow = '';
+                void overlay.offsetWidth;
+                overlay.classList.add('opacity-100');
             }
+            document.body.style.overflow = 'hidden';
+            if (btn) btn.setAttribute('aria-expanded', 'true');
+            var firstLink = sidebar.querySelector('a, button');
+            if (firstLink) firstLink.focus();
+        }
+
+        function closeMobileSidebar(releaseFocus) {
+            var sidebar = document.getElementById('sidebar-nav');
+            var overlay = document.getElementById('sidebar-overlay');
+            var btn = document.getElementById('mobile-menu-btn');
+            clearTimeout(window.__sidebarCloseTimer);
+            sidebar.classList.add('-translate-x-full');
+            sidebar.classList.add('sidebar-nav-exit');
+            if (overlay) {
+                overlay.classList.remove('opacity-100');
+                overlay.addEventListener('transitionend', function onClose(e) {
+                    if (e.propertyName !== 'opacity') return;
+                    overlay.removeEventListener('transitionend', onClose);
+                    if (!overlay.classList.contains('opacity-100')) overlay.classList.add('hidden');
+                });
+                window.__sidebarCloseTimer = setTimeout(function() {
+                    if (!overlay.classList.contains('opacity-100')) overlay.classList.add('hidden');
+                }, 350);
+            }
+            document.body.style.overflow = '';
+            if (btn) btn.setAttribute('aria-expanded', 'false');
+            if (releaseFocus) {
+                if (document.activeElement && sidebar.contains(document.activeElement)) btn && btn.focus();
+            }
+        }
+
+        function toggleMobileSidebar(forceOpen) {
+            var sidebar = document.getElementById('sidebar-nav');
+            var isOpen = !sidebar.classList.contains('-translate-x-full');
+            if (typeof forceOpen === 'boolean') isOpen = !forceOpen;
+            if (!isOpen) {
+                openMobileSidebar();
+            } else {
+                closeMobileSidebar(true);
+            }
+        }
+
+        // Close mobile drawer on Escape and restore focus to the toggle
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                var sidebar = document.getElementById('sidebar-nav');
+                if (sidebar && !sidebar.classList.contains('-translate-x-full') && window.innerWidth < 1024) {
+                    closeMobileSidebar(true);
+                }
+            }
+        });
+
+        // Modal open/close utilities (used by x-modal, users, crops, etc.)
+        function openModal(id) {
+            var el = document.getElementById(id);
+            if (el) el.classList.remove('hidden');
+        }
+        function closeModal(id) {
+            var el = document.getElementById(id);
+            if (el) el.classList.add('hidden');
         }
 
         // Apply sidebar collapse/expand state to sidebar, content, and top navbar.
@@ -522,13 +558,15 @@
             var chevron = btn.querySelector('[data-submenu-chevron]');
             if (!panel) return;
 
-            var isHidden = panel.classList.contains('hidden');
-            if (isHidden) {
-                panel.classList.remove('hidden');
-                if (chevron) chevron.classList.add('rotate-90');
-            } else {
-                panel.classList.add('hidden');
+            var isOpen = panel.classList.contains('submenu-open');
+            if (isOpen) {
+                panel.classList.remove('submenu-open');
                 if (chevron) chevron.classList.remove('rotate-90');
+                btn.setAttribute('aria-expanded', 'false');
+            } else {
+                panel.classList.add('submenu-open');
+                if (chevron) chevron.classList.add('rotate-90');
+                btn.setAttribute('aria-expanded', 'true');
             }
         });
 
@@ -565,50 +603,9 @@
 
     </script>
 
-    {{-- SweetAlert Global Flash Handler --}}
+    {{-- Flash messages render once as inline banners (see x-flash-success / x-flash-error) --}}
     <script>
         window.__nextSteps = @json(session('next_steps'));
-        document.addEventListener('DOMContentLoaded', function() {
-            showNextSteps();
-            @if(session('error'))
-                @php
-                    $errorText = session('error');
-                    $isGateNotice = str_contains($errorText, 'pending verification') || str_contains($errorText, 'No new data');
-                @endphp
-                Swal.fire({
-                    icon: '{{ $isGateNotice ? 'info' : 'error' }}',
-                    title: '{{ $isGateNotice ? 'Notice' : 'Error' }}',
-                    text: @json($errorText),
-                    timer: 4500,
-                    timerProgressBar: true,
-                    showConfirmButton: true,
-                    confirmButtonText: 'OK',
-                    confirmButtonColor: '{{ $isGateNotice ? '#16283C' : '#ef4444' }}',
-                    toast: false,
-                    background: document.documentElement.classList.contains('dark') ? '#1e293b' : '#fff',
-                    color: document.documentElement.classList.contains('dark') ? '#e2e8f0' : '#1e293b',
-                    customClass: { popup: 'rounded-xl shadow-lg' },
-                    ariaLive: 'assertive'
-                });
-            @endif
-            @if(session('warning'))
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Notice',
-                    text: @json(session('warning')),
-                    timer: 5000,
-                    timerProgressBar: true,
-                    showConfirmButton: true,
-                    confirmButtonText: 'OK',
-                    confirmButtonColor: '#f59e0b',
-                    toast: false,
-                    background: document.documentElement.classList.contains('dark') ? '#1e293b' : '#fff',
-                    color: document.documentElement.classList.contains('dark') ? '#e2e8f0' : '#1e293b',
-                    customClass: { popup: 'rounded-xl shadow-lg' },
-                    ariaLive: 'assertive'
-                });
-            @endif
-        });
     </script>
 
     <script src="{{ asset('assets/js/swal-helpers.js') }}"></script>
@@ -665,7 +662,7 @@
 
                 if (valid) {
                     field.classList.remove('border-red-500', 'dark:border-red-400');
-                    field.classList.add('border-green-500', 'dark:border-green-400');
+                    field.classList.remove('border-green-500', 'dark:border-green-400');
                     field.removeAttribute('aria-describedby');
                     if (existing) existing.remove();
                 } else {

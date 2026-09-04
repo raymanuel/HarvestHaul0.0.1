@@ -21,7 +21,7 @@
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         body {
             font-family: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
-            background: #F7F4EC;
+            background: #F5F6F2;
             color: #1b1b18;
             padding: 2rem 1rem;
             line-height: 1.7;
