@@ -90,18 +90,23 @@ class ConfirmPoolingPlanAction
         }
 
         $scores = [];
+        $farmDistances = $job->farm_distances ?? [];
         foreach ($job->harvests as $h) {
             $qty  = (float) ($h->pivot->quantity_kg ?? $h->quantity_kg ?? 0);
-            $dist = max(
-                $this->haversine(
-                    (float) ($h->latitude ?? 0),
-                    (float) ($h->longitude ?? 0),
-                    (float) ($h->destination_latitude ?? 0),
-                    (float) ($h->destination_longitude ?? 0)
-                ),
-                1.0
-            );
-            $scores[$h->id] = $qty * $dist;
+            // Prefer OSRM road distance when available, fall back to Haversine
+            $dist = $farmDistances[$h->id] ?? null;
+            if ($dist === null || $dist <= 0) {
+                $dist = max(
+                    $this->haversine(
+                        (float) ($h->latitude ?? 0),
+                        (float) ($h->longitude ?? 0),
+                        (float) ($h->destination_latitude ?? 0),
+                        (float) ($h->destination_longitude ?? 0)
+                    ),
+                    1.0
+                );
+            }
+            $scores[$h->id] = $qty * max($dist, 1.0);
         }
 
         $totalScore = array_sum($scores);

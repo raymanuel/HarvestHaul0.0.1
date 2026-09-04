@@ -36,8 +36,13 @@ class PoolingJob extends Model
         'end_odometer_reading',
         'proposal_expires_at',
         'negotiation_rounds',
+        'weather_condition',
+        'weather_temperature',
+        'weather_wind_speed',
+        'weather_icon',
         'weather_checked_at',
         'weather_advisory',
+        'farm_distances',
     ];
 
     /**
@@ -65,6 +70,7 @@ class PoolingJob extends Model
         'proposal_expires_at'   => 'datetime',
         'negotiation_rounds'    => 'integer',
         'route_geometry'        => 'array',
+        'farm_distances'        => 'array',
         'status'                => PoolingJobStatus::class,
     ];
 

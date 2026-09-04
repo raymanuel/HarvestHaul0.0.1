@@ -81,6 +81,8 @@ class PoolingJobController extends Controller
                 'hauling_rate_per_kg' => 'nullable|numeric|min:0.1',
                 'stop_order'        => 'nullable|array',
                 'stop_order.*'      => 'integer|exists:harvests,id',
+                'farm_distances'    => 'nullable|array',
+                'farm_distances.*'  => 'numeric|min:0',
             ]);
 
             if ($validator->fails()) {

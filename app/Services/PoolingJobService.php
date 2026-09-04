@@ -332,6 +332,7 @@ class PoolingJobService
             'proposal_expires_at' => now()->addHours(48),
             'notes'               => $validated['notes'] ?? null,
             'route_geometry'      => $validated['route_geometry'],
+            'farm_distances'      => $validated['farm_distances'] ?? null,
         ];
 
         $job = app(\App\Actions\ConfirmPoolingPlanAction::class)->execute($plan, $logisticsProfileId);

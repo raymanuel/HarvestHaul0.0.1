@@ -420,6 +420,7 @@
             let currentRouteGeoJSON  = null;  // Current active route geometry (e.g. including detours)
             let lastNearbyFarms      = [];    // Farms matched inside the selected radius
             let currentPlan          = null;  // Final calculated cost and weight allocations
+            let currentFarmDistances = {};    // Per-farm road distances from OSRM (km)
 
             // Saved pooling routes (for the "My Routes" panel) + dedicated layer for route recall
             const myRoutes    = @json($myRoutes);
@@ -586,6 +587,17 @@
                         .filter(f => f != null);
 
                     lastNearbyFarms = optimizedFarms.length > 0 ? optimizedFarms : nearbyFarms;
+
+                    // Collect per-farm road distances from OSRM legs
+                    currentFarmDistances = {};
+                    const tripLegs = data.trips[0].legs || [];
+                    let cumulativeKm = 0;
+                    // legs[0] = depot→first farm, legs[1] = first→second, etc.
+                    for (let i = 0; i < optimizedFarms.length && i < tripLegs.length; i++) {
+                        cumulativeKm += (tripLegs[i].distance || 0) / 1000; // meters→km
+                        const farmId = optimizedFarms[i].data?.id;
+                        if (farmId) currentFarmDistances[farmId] = Math.round(cumulativeKm * 100) / 100;
+                    }
 
                     renderPickupQueue(lastNearbyFarms);
                 } catch (err) {
@@ -1088,6 +1100,7 @@
                                 hauling_rate_per_kg: (function(){ var el = document.getElementById('hauling-rate'); return el ? parseFloat(el.value) : null; })(),
                                 notes:          document.getElementById('plan-notes').value,
                                 route_geometry: currentRouteGeoJSON ? currentRouteGeoJSON.coordinates : [],
+                                farm_distances: currentFarmDistances,
                             }),
                         });
 

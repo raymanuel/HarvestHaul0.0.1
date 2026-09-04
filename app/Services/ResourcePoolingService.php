@@ -412,6 +412,7 @@ class ResourcePoolingService
             $job->proposal_expires_at  = $plan['proposal_expires_at'] ?? now()->addHours(48);
             $job->confirmed_at         = null;                // will be populated once confirmed
             $job->route_geometry       = $plan['route_geometry'] ?? null; // OSRM route JSON for map display
+            $job->farm_distances       = $plan['farm_distances'] ?? null; // per-farm road distances from OSRM
 
             // Set buyer_id from the single shared buyer across all stops
             $job->buyer_id = $jobBuyerId;
