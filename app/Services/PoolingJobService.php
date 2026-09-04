@@ -222,6 +222,24 @@ class PoolingJobService
             $job->farm_count = $job->harvests->count();
             $job->save();
 
+            // Re-order remaining stops via nearest-neighbor after rejection
+            $remainingHarvests = $job->harvests();
+            if ($job->harvests->count() > 1) {
+                $reordered = app(ResourcePoolingService::class)
+                    ->greedyNearestNeighbor(
+                        $remainingHarvests->get(),
+                        (float) $job->start_latitude,
+                        (float) $job->start_longitude
+                    );
+                $order = 1;
+                foreach ($reordered as $harvest) {
+                    $job->harvests()->updateExistingPivot($harvest->id, [
+                        'pickup_order' => $order++,
+                    ]);
+                }
+                $job->load('harvests');
+            }
+
             app(\App\Actions\ConfirmPoolingPlanAction::class)->recalculateCostShares($job);
 
             // With per-farmer agreed hauling rates, each farmer's share is fixed

@@ -539,7 +539,7 @@ class ResourcePoolingService
      * WHY NOT EXACT TSP: NP-hard for large n. For 5–15 farms, nearest-neighbor
      * typically achieves within 15–20% of optimal — acceptable for rural logistics.
      */
-    private function greedyNearestNeighbor(Collection $harvests, float $startLat, float $startLng): Collection
+    public function greedyNearestNeighbor(Collection $harvests, float $startLat, float $startLng): Collection
     {
         $unvisited  = $harvests->toArray();
         $ordered    = collect();
