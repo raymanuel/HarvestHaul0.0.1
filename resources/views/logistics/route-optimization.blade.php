@@ -330,12 +330,13 @@
                             <th class="py-3 px-4">Location</th>
                             <th class="py-3 px-4">Crop(s)</th>
                             <th class="py-3 px-4">Load</th>
+                            <th class="py-3 px-4">Pickup Window</th>
                             <th class="py-3 px-4 text-right">Rate (₱/kg)</th>
                             <th class="py-3 px-4 text-right">Cost Share</th>
                         </tr>
                     </thead>
                     <tbody id="plan-table-body" class="divide-y divide-slate-100 dark:divide-slate-700/50">
-                        <tr><td colspan="7" class="py-6 text-center text-slate-500 dark:text-slate-400 italic text-xs">No plan generated yet.</td></tr>
+                        <tr><td colspan="8" class="py-6 text-center text-slate-500 dark:text-slate-400 italic text-xs">No plan generated yet.</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -1064,6 +1065,13 @@
                 tbody.innerHTML = '';
 
                 (plan.selected_harvests || []).forEach((h, i) => {
+                    var windowText = '—';
+                    if (h.pickup_window_start || h.pickup_window_end) {
+                        var parts = [];
+                        if (h.pickup_window_start) parts.push(h.pickup_window_start);
+                        if (h.pickup_window_end) parts.push(h.pickup_window_end);
+                        windowText = '<span class="text-[var(--color-warning-text)] font-bold">' + parts.join(' — ') + '</span>';
+                    }
                     tbody.innerHTML += `
                         <tr class="border-b border-slate-100 dark:border-slate-700/40 hover:bg-slate-50/50 dark:hover:bg-slate-900/40 transition-colors">
                             <td class="py-3.5 px-4 font-mono text-xs text-slate-400 dark:text-slate-600">#${i + 1}</td>
@@ -1071,6 +1079,7 @@
                             <td class="py-3.5 px-4 text-slate-500 dark:text-slate-400 text-xs">${h.farm_location ?? '—'}</td>
                             <td class="py-3.5 px-4 text-slate-500 dark:text-slate-400 text-xs font-semibold">${h.crop ?? '—'}</td>
                             <td class="py-3.5 px-4 font-bold text-slate-800 dark:text-slate-200">${Number(h.quantity_kg).toLocaleString()} kg</td>
+                            <td class="py-3.5 px-4 text-xs">${windowText}</td>
                             <td class="py-3.5 px-4 font-bold text-slate-700 dark:text-slate-300 text-right">${h.split_rate != null ? '₱' + Number(h.split_rate).toFixed(2) : '—'}/kg</td>
                             <td class="py-3.5 px-4 font-extrabold text-brand dark:text-brand-light text-right">
                                 ₱${Number(h.split_cost ?? 0).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}
