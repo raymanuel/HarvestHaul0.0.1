@@ -48,7 +48,13 @@ class TrackingController extends Controller
         } elseif ($user->role === 'logistics_partner') {
             $query->where('logistics_profile_id', $user->logisticsProfile?->id);
         } elseif ($user->role === 'buyer') {
-            $query->where('buyer_id', $user->id);
+            // Multi-buyer: derive access via completed negotiations, not buyer_id (which is always null).
+            $query->whereHas('harvests', function ($hq) use ($user) {
+                $hq->whereHas('negotiations', function ($nq) use ($user) {
+                    $nq->where('buyer_id', $user->id)
+                        ->where('status', \App\Models\NegotiationStatus::COMPLETED);
+                });
+            });
         } else {
             abort(403);
         }
