@@ -40,15 +40,15 @@ class FarmerSeeder extends Seeder
                 'name'             => 'Silway Veggie Patch',
                 'lat'              => 6.1420,
                 'lng'              => 125.1550,
-                'affiliation_type' => 'independent',
-                'cooperative_id'   => null,
+                'affiliation_type' => 'cooperative',
+                'cooperative_id'   => $coop?->id,
             ],
             [
                 'name'             => 'Katangawan Corn Fields',
                 'lat'              => 6.1511,
                 'lng'              => 125.2215,
-                'affiliation_type' => 'independent',
-                'cooperative_id'   => null,
+                'affiliation_type' => 'cooperative',
+                'cooperative_id'   => $coop?->id,
             ],
         ];
 

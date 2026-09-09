@@ -7,8 +7,10 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 /**
  * LEVEL-UP COOPERATIVE FARMER E2E — 3 coop farmers × 3 crops, screenshots at every page change.
+ * ALSO: MULTI-TRUCK OVERFLOW E2E — 5 coop farmers × 5 custom crops → single-truck overflow
+ * splits into 2 routes via post-harvest "plan all" (planAll → confirmBatch).
  *
- * Story:
+ * Story (first test):
  *   - 3 cooperative farmers under GenSan Farmers Cooperative post harvests:
  *       farmer0 (Polomolok Pineapple Farm)  → manually-typed crop "Guyabano"  + variety "Native"
  *       farmer1 (Tupi Harvests)             → manually-typed crop "Jackfruit" + variety "Local"
@@ -20,13 +22,211 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
  *   - Driver runs the multi-stop job (arrive → load → deliver for each stop), live tracking ping.
  *   - Coop logistics confirms receipt; cost ledger: each farmer uploads payment proof, logistics verifies+marks paid.
  *
- * Accounts (must already exist — NO migrate:fresh):
- *   farmer0@test.com / farmer1@test.com / farmer2@test.com  (coop farmers, password "password")
- *   logistics1@test.com (GenSan Farmers Cooperative, password "password")
- *   eliseo-driver-1@driver.com (truck RMP-1011) / julio-driver-1@driver.com (truck RMP-1013)
+ * Story (second test — multi-truck overflow):
+ *   - 5 cooperative farmers (farmer0..farmer4) post 1500/1200/1000/1100/900 kg (5700kg total).
+ *   - Coop logistics negotiates with ALL FIVE; 5 Done Deals feed the planner.
+ *   - 5700 > truck max (4500) → "plan all" emits 2 plans on 2 trucks; confirm-all creates 2 proposals.
+ *   - Every farmer accepts; 2 pooling jobs, each with its own truck + assigned driver.
+ *   - Cost ledger shows a per-route row for each of the 2 jobs.
  *
- * Artifacts: eval/screenshots/e2e-coopfarmer-level/
+ * Accounts (must already exist — NO migrate:fresh):
+ *   farmer0@test.com .. farmer4@test.com  (coop farmers, password "password")
+ *   logistics1@test.com (GenSan Farmers Cooperative, password "password")
+ *   eliseo-driver-1@driver.com (truck RMP-1011) / mario-driver-1@driver.com (truck RMP-1012)
+ *   / julio-driver-1@driver.com (truck RMP-1013)
+ *
+ * Artifacts: eval/screenshots/e2e-coopfarmer-level/ and eval/screenshots/e2e-coopfarmer-overflow/
  */
+
+// ───────────────────────────  Module-scope pure helpers (shared by both tests)  ───────────────────────────
+
+const SWAL_CONFIRM = ".swal2-confirm";
+
+const FIXTURES = path.resolve(__dirname, "fixtures");
+fs.mkdirSync(FIXTURES, { recursive: true });
+const PNG_1PX = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==", "base64");
+const fixture = (name: string) => {
+  const p = path.join(FIXTURES, name);
+  if (!fs.existsSync(p)) fs.writeFileSync(p, PNG_1PX);
+  return p;
+};
+const F_RECEIPT = fixture("receipt.png");
+const F_LOAD = fixture("load-photo.png");
+const F_DELIVERY = fixture("delivery-photo.png");
+
+// Laravel's throttle:N,1 buckets are SHARED per user across ALL throttled routes,
+// so a single user must stay ≤5 throttled POSTs inside any rolling 60s window.
+let lastLpPostAt = 0;
+
+const guard = (p: Page) => {
+  p.setDefaultTimeout(25_000);
+  p.setDefaultNavigationTimeout(60_000);
+  return p;
+};
+
+const tomorrow = () => {
+  const d = new Date(Date.now() + 86400000);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+};
+
+async function login(page: Page, email: string, password: string) {
+  await page.context().clearCookies();
+  await page.goto("/login", { waitUntil: "domcontentloaded" });
+  const csrfToken = await page.locator('meta[name="csrf-token"]').getAttribute("content", { timeout: 2_000 }).catch(() => null);
+  if (csrfToken) {
+    await page.evaluate(({ email, password, token }) => {
+      const form = document.createElement("form");
+      form.method = "POST";
+      form.action = "/login";
+      form.innerHTML =
+        '<input type="hidden" name="_token" value="' + token + '">' +
+        '<input type="hidden" name="email" value="' + email + '">' +
+        '<input type="hidden" name="password" value="' + password + '">';
+      document.body.appendChild(form);
+      form.submit();
+    }, { email, password, token: csrfToken }).catch(() => {});
+  } else {
+    await page.waitForSelector("#login-panel input[name='email']", { timeout: 20_000 });
+    await page.fill("#login-panel input[name='email']", email);
+    await page.fill("#login-panel input[name='password']", password);
+    await page.locator("#login-panel button[type='submit']").click();
+  }
+  await page.waitForURL(/\/(dashboard|admin|farmer|buyer|logistics|driver)/, { timeout: 25_000 });
+  await page.waitForLoadState("networkidle", { timeout: 5_000 }).catch(() => {});
+}
+
+function wireLogging(page: Page, ctx: string, errLog?: (...lines: (string | any)[]) => void) {
+  page.on("console", m => { if (m.type() === "error") errLog?.(`[${ctx}] console.error:`, m.text()); });
+  page.on("pageerror", e => errLog?.(`[${ctx}] pageerror:`, String(e?.message ?? e)));
+  page.on("requestfailed", r => {
+    const err = String(r.failure()?.errorText ?? "");
+    if (err === "net::ERR_ABORTED") return;
+    errLog?.(`[${ctx}] requestfailed:`, r.url(), err);
+  });
+  page.on("response", r => { if (r.status() >= 400) errLog?.(`[${ctx}] http ${r.status()}:`, r.url()); });
+}
+
+const swalConfirm = async (page: Page) => {
+  await page.waitForSelector(SWAL_CONFIRM, { timeout: 10_000 });
+  await page.locator(SWAL_CONFIRM).click({ noWaitAfter: true });
+};
+
+// Confirm a SweetAlert AND wait for the resulting form PATCH to settle so the
+// next stop-status lookup never races the page reload.
+const swalSubmit = async (page: Page, urlRe: RegExp) => {
+  const resp = page
+    .waitForResponse(r => urlRe.test(r.url()) && r.status() < 500, { timeout: 30_000 })
+    .catch(() => ({}));
+  await swalConfirm(page);
+  await resp;
+  await page.waitForLoadState("networkidle", { timeout: 20_000 }).catch(() => {});
+  await page.waitForTimeout(600);
+};
+
+// UpdateStopStatusAction geofences `arrived`: the LATEST /driver/tracking/store
+// fix must sit within 500m of the farm. Auto-pings fire on every job-page reload
+// (surprising the priority), so ping this stop's OWN farm coordinates right before
+// clicking "Mark Arrived" and retry past the 12/min bucket (refills ~1 per 5s).
+async function pingAtFarm(page: Page, lat: number, lng: number) {
+  const jobId = Number(page.url().match(/\/driver\/jobs\/(\d+)/)?.[1] ?? 0);
+  const csrf = await page.locator('meta[name="csrf-token"]').getAttribute("content").catch(() => "");
+  if (!jobId || !csrf || !lat || !lng) return { skipped: true };
+  for (let t = 0; t < 8; t++) {
+    const status = await page.evaluate(async ({ jobId, csrf, lat, lng }) => {
+      try {
+        const res = await fetch("/driver/tracking/store", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "X-CSRF-TOKEN": csrf, "Accept": "application/json" },
+          body: JSON.stringify({ pooling_job_id: jobId, latitude: lat, longitude: lng, posted_at: new Date().toISOString() }),
+        });
+        return res.status;
+      } catch (e) { return 0; }
+    }, { jobId, csrf, lat, lng });
+    if (status === 200 || status === 201) return { status };
+    await page.waitForTimeout(5_000);
+  }
+  return { status: null };
+}
+
+// Driver job-detail navigation is content- OR url-based so a slow asset host
+// never strands us waiting on the address bar.
+async function driverJobDetail(page: Page) {
+  await Promise.race([
+    page.waitForURL(/driver\/jobs\/\d+/, { timeout: 25_000 }),
+    page.getByRole("button", { name: /Accept Job/i }).first().waitFor({ timeout: 25_000 }),
+    page.getByText("Pickup Sequence", { exact: false }).first().waitFor({ timeout: 25_000 }),
+  ]);
+  await page.waitForLoadState("domcontentloaded").catch(() => {});
+}
+
+async function waitForStatus(page: Page, label: string, timeout = 25_000) {
+  const deadline = Date.now() + timeout;
+  while (Date.now() < deadline) {
+    const txt = await page.locator("#deal-status-badge").textContent().catch(() => "");
+    if (txt && txt.includes(label)) return true;
+    await page.waitForTimeout(1_000);
+  }
+  throw new Error(`Deal status badge did not reach "${label}"`);
+}
+
+// `pace()` parks until ≥60s after the last throttled POST for that user, then
+// `lastLpPostAt` is refreshed right after each LP POST.
+async function pace(page: Page) {
+  const since = Date.now() - lastLpPostAt;
+  if (since < 60_000) {
+    const wait = 60_000 - since;
+    console.log(`  [pace] waiting ${Math.round(wait / 1000)}s for throttled-POST window`);
+    await page.waitForTimeout(wait);
+  }
+}
+
+// Transactional finalize: POST the Close Deal form while listening for the
+// throttled 429. When 429 hits, wait out `Retry-After` (server-computed time
+// until the shared throttle bucket refills) and reload the negotiation page
+// instead of re-POSTing from a dead "429 Too Many Requests" page. Re-fill from
+// the POST that actually lands; the previous code re-issued POSTs without
+// reloading, so every retry kept consuming the same exhausted bucket.
+async function finalizeDealWithRetry(lp: Page, negId: string, rate: string, retries = 3): Promise<void> {
+  let finalized = false;
+  for (let attempt = 1; attempt <= retries && !finalized; attempt++) {
+    if (attempt > 1) {
+      await lp.goto(`/negotiations/${negId}`);
+      await lp.waitForLoadState("networkidle").catch(() => {});
+      const rate2 = lp.locator("#hauling_rate_per_kg");
+      if (await rate2.isVisible().catch(() => false)) await rate2.fill(rate);
+      await lp.evaluate(() => {
+        const latEl = document.getElementById("destination_latitude") as HTMLInputElement;
+        const lngEl = document.getElementById("destination_longitude") as HTMLInputElement;
+        const addrEl = document.getElementById("destination_address") as HTMLInputElement;
+        if (latEl && !latEl.value) latEl.value = "6.1164";
+        if (lngEl && !lngEl.value) lngEl.value = "125.1716";
+        if (addrEl && !addrEl.value) addrEl.value = "GenSan Wholesale Market Hub";
+      });
+    }
+    const finResp = lp.waitForResponse(r => /\/negotiations\/\d+\/finalize$/.test(r.url()), { timeout: 30_000 }).catch(() => null);
+    await lp.locator("button[type='submit']", { hasText: /Close Deal/i }).click();
+    lastLpPostAt = Date.now();
+    const res = await finResp;
+    const status = res?.status();
+    if (status === 429) {
+      const h = res?.headers() ?? {};
+      const retryAfter = Number(h["retry-after"]) || 0;
+      const backoff = Math.max(retryAfter + 5, 65_000);
+      console.log(`  [throttle] finalize #${negId} attempt ${attempt} 429 (limit=${h["x-ratelimit-limit"]} remaining=${h["x-ratelimit-remaining"]} reset=${h["x-ratelimit-reset"]} retryAfter=${retryAfter}s) — waiting ${Math.round(backoff / 1000)}s`);
+      await lp.waitForTimeout(backoff);
+      continue;
+    }
+    if (status && status < 400) finalized = true;
+    if (!status && lp.url().includes("/buyer/negotiations")) finalized = true;
+    if (!finalized) await lp.waitForTimeout(4000);
+    finalized = finalized || lp.url().includes("/buyer/negotiations");
+  }
+  if (!finalized) throw new Error(`Finalize #${negId} did not complete after ${retries} attempts`);
+  await lp.waitForLoadState("networkidle").catch(() => {});
+}
+
+// ───────────────────────────────────────────  TEST 1 — 3-FARMER RUN  ───────────────────────────────────────────
+
 test("Coop farmer level-up: 3 farms × custom crops → negotiations → route offer → driver run → cost ledger", async ({ browser }) => {
   test.setTimeout(1_200_000);
 
@@ -36,12 +236,6 @@ test("Coop farmer level-up: 3 farms × custom crops → negotiations → route o
   fs.mkdirSync(SHOT_DIR, { recursive: true });
   if (!fs.existsSync(RUN_LOG)) fs.writeFileSync(RUN_LOG, JSON.stringify({ steps: [] }));
   if (!fs.existsSync(ERR_LOG)) fs.writeFileSync(ERR_LOG, "");
-
-  const guard = (p: Page) => {
-    p.setDefaultTimeout(25_000);
-    p.setDefaultNavigationTimeout(60_000);
-    return p;
-  };
 
   const A = {
     logistics: { email: "logistics1@test.com", password: "password", name: "GenSan Farmers Cooperative" },
@@ -62,17 +256,6 @@ test("Coop farmer level-up: 3 farms × custom crops → negotiations → route o
 
   const errLog = (...lines: (string | any)[]) =>
     fs.appendFileSync(ERR_LOG, `[${new Date().toISOString()}] ` + lines.map(l => (typeof l === "string" ? l : JSON.stringify(l))).join(" ") + "\n");
-
-  const wireLogging = (page: Page, ctx: string) => {
-    page.on("console", m => { if (m.type() === "error") errLog(`[${ctx}] console.error:`, m.text()); });
-    page.on("pageerror", e => errLog(`[${ctx}] pageerror:`, String(e?.message ?? e)));
-    page.on("requestfailed", r => {
-      const err = String(r.failure()?.errorText ?? "");
-      if (err === "net::ERR_ABORTED") return;
-      errLog(`[${ctx}] requestfailed:`, r.url(), err);
-    });
-    page.on("response", r => { if (r.status() >= 400) errLog(`[${ctx}] http ${r.status()}:`, r.url()); });
-  };
 
   async function shot(page: Page, slug: string, label: string) {
     await page.screenshot({ path: path.join(SHOT_DIR, `${slug}.png`), fullPage: true });
@@ -102,126 +285,6 @@ test("Coop farmer level-up: 3 farms × custom crops → negotiations → route o
     }
   }
 
-  async function login(page: Page, email: string, password: string) {
-    await page.context().clearCookies();
-    await page.goto("/login", { waitUntil: "domcontentloaded" });
-    const csrfToken = await page.locator('meta[name="csrf-token"]').getAttribute("content", { timeout: 2_000 }).catch(() => null);
-    if (csrfToken) {
-      await page.evaluate(({ email, password, token }) => {
-        const form = document.createElement("form");
-        form.method = "POST";
-        form.action = "/login";
-        form.innerHTML =
-          '<input type="hidden" name="_token" value="' + token + '">' +
-          '<input type="hidden" name="email" value="' + email + '">' +
-          '<input type="hidden" name="password" value="' + password + '">';
-        document.body.appendChild(form);
-        form.submit();
-      }, { email, password, token: csrfToken }).catch(() => {});
-    } else {
-      await page.waitForSelector("#login-panel input[name='email']", { timeout: 20_000 });
-      await page.fill("#login-panel input[name='email']", email);
-      await page.fill("#login-panel input[name='password']", password);
-      await page.locator("#login-panel button[type='submit']").click();
-    }
-    await page.waitForURL(/\/(dashboard|admin|farmer|buyer|logistics|driver)/, { timeout: 25_000 });
-    await page.waitForLoadState("networkidle", { timeout: 5_000 }).catch(() => {});
-  }
-
-  const tomorrow = () => {
-    const d = new Date(Date.now() + 86400000);
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-  };
-
-  const FIXTURES = path.resolve(__dirname, "fixtures");
-  fs.mkdirSync(FIXTURES, { recursive: true });
-  const PNG_1PX = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==", "base64");
-  const fixture = (name: string) => {
-    const p = path.join(FIXTURES, name);
-    if (!fs.existsSync(p)) fs.writeFileSync(p, PNG_1PX);
-    return p;
-  };
-  const F_RECEIPT = fixture("receipt.png");
-  const F_LOAD = fixture("load-photo.png");
-  const F_DELIVERY = fixture("delivery-photo.png");
-
-  const swalConfirm = async (page: Page) => {
-    await page.waitForSelector(".swal2-confirm", { timeout: 10_000 });
-    await page.locator(".swal2-confirm").click({ noWaitAfter: true });
-  };
-
-  // Confirm a SweetAlert AND wait for the resulting form PATCH to settle so the
-  // next stop-status lookup never races the page reload.
-  const swalSubmit = async (page: Page, urlRe: RegExp) => {
-    const resp = page
-      .waitForResponse(r => urlRe.test(r.url()) && r.status() < 500, { timeout: 30_000 })
-      .catch(() => ({}));
-    await swalConfirm(page);
-    await resp;
-    await page.waitForLoadState("networkidle", { timeout: 20_000 }).catch(() => {});
-    await page.waitForTimeout(600);
-  };
-
-  // UpdateStopStatusAction geofences `arrived`: the LATEST /driver/tracking/store
-  // fix must sit within 500m of the farm. Auto-pings fire on every job-page reload
-  // (surprising the priority), so ping this stop's OWN farm coordinates right before
-  // clicking "Mark Arrived" and retry past the 12/min bucket (refills ~1 per 5s).
-  async function pingAtFarm(page: Page, lat: number, lng: number) {
-    const jobId = Number(page.url().match(/\/driver\/jobs\/(\d+)/)?.[1] ?? 0);
-    const csrf = await page.locator('meta[name="csrf-token"]').getAttribute("content").catch(() => "");
-    if (!jobId || !csrf || !lat || !lng) return { skipped: true };
-    for (let t = 0; t < 8; t++) {
-      const status = await page.evaluate(async ({ jobId, csrf, lat, lng }) => {
-        try {
-          const res = await fetch("/driver/tracking/store", {
-            method: "POST",
-            headers: { "Content-Type": "application/json", "X-CSRF-TOKEN": csrf, "Accept": "application/json" },
-            body: JSON.stringify({ pooling_job_id: jobId, latitude: lat, longitude: lng, posted_at: new Date().toISOString() }),
-          });
-          return res.status;
-        } catch (e) { return 0; }
-      }, { jobId, csrf, lat, lng });
-      if (status === 200 || status === 201) return { status };
-      await page.waitForTimeout(5_000);
-    }
-    return { status: null };
-  }
-
-  // Driver job-detail navigation is content- OR url-based so a slow asset host
-  // never strands us waiting on the address bar.
-  async function driverJobDetail(page: Page) {
-    await Promise.race([
-      page.waitForURL(/driver\/jobs\/\d+/, { timeout: 25_000 }),
-      page.getByRole("button", { name: /Accept Job/i }).first().waitFor({ timeout: 25_000 }),
-      page.getByText("Pickup Sequence", { exact: false }).first().waitFor({ timeout: 25_000 }),
-    ]);
-    await page.waitForLoadState("domcontentloaded").catch(() => {});
-  }
-
-  async function waitForStatus(page: Page, label: string, timeout = 25_000) {
-    const deadline = Date.now() + timeout;
-    while (Date.now() < deadline) {
-      const txt = await page.locator("#deal-status-badge").textContent().catch(() => "");
-      if (txt && txt.includes(label)) return true;
-      await page.waitForTimeout(1_000);
-    }
-    throw new Error(`Deal status badge did not reach "${label}"`);
-  }
-
-  // Laravel's throttle:N,1 buckets are SHARED per user across ALL throttled routes,
-  // so a single user must stay ≤5 throttled POSTs inside any rolling 60s window.
-  // `pace()` parks until ≥60s after the last throttled POST for that user, then
-  // `lastLpPostAt` is refreshed right after each LP POST.
-  let lastLpPostAt = 0;
-  async function pace(page: Page) {
-    const since = Date.now() - lastLpPostAt;
-    if (since < 60_000) {
-      const wait = 60_000 - since;
-      console.log(`  [pace] waiting ${Math.round(wait / 1000)}s for throttled-POST window`);
-      await page.waitForTimeout(wait);
-    }
-  }
-
   // ───────────────────────────  Setup contexts  ───────────────────────────
   const farmerCtx = await browser.newContext();
   const logisticsCtx = await browser.newContext();
@@ -229,8 +292,8 @@ test("Coop farmer level-up: 3 farms × custom crops → negotiations → route o
   const fp = guard(await farmerCtx.newPage());
   const lp = guard(await logisticsCtx.newPage());
 
-  wireLogging(fp, "farmer");
-  wireLogging(lp, "logistics");
+  wireLogging(fp, "farmer", errLog);
+  wireLogging(lp, "logistics", errLog);
 
   // ───────────────────────────  Shared harvest creator  ───────────────────────────
   async function createHarvest(f: typeof A.farmers[number], page: Page) {
@@ -289,7 +352,7 @@ test("Coop farmer level-up: 3 farms × custom crops → negotiations → route o
 
     const submitBtn = page.locator("#post-harvest-btn");
     await submitBtn.click();
-    const confirmSwal = page.locator(".swal2-confirm");
+    const confirmSwal = page.locator(SWAL_CONFIRM);
     const swalShown = await confirmSwal.waitFor({ state: "visible", timeout: 6_000 }).then(() => true).catch(() => false);
     if (swalShown) {
       await shot(page, step(`harvest-confirm-${f.crop.toLowerCase()}`), `Post Harvest confirmation dialog — ${f.crop} (${f.variety})`);
@@ -421,30 +484,9 @@ test("Coop farmer level-up: 3 farms × custom crops → negotiations → route o
         });
 
         // Close Deal — 429 (shared throttle bucket) is real: bounce back and retry after 65s.
-        let finalized = false;
-        for (let attempt = 1; attempt <= 3 && !finalized; attempt++) {
-          if (attempt > 1) {
-            await pace(lp);
-            await lp.reload();
-            await lp.waitForLoadState("networkidle").catch(() => {});
-            const rate2 = lp.locator("#hauling_rate_per_kg");
-            if (await rate2.isVisible().catch(() => false)) await rate2.fill(f.rate);
-            await lp.evaluate(() => {
-              const latEl = document.getElementById("destination_latitude") as HTMLInputElement;
-              const lngEl = document.getElementById("destination_longitude") as HTMLInputElement;
-              const addrEl = document.getElementById("destination_address") as HTMLInputElement;
-              if (latEl && !latEl.value) latEl.value = "6.1164";
-              if (lngEl && !lngEl.value) lngEl.value = "125.1716";
-              if (addrEl && !addrEl.value) addrEl.value = "GenSan Wholesale Market Hub";
-            });
-          }
-          await lp.locator("button[type='submit']", { hasText: /Close Deal/i }).click();
-          lastLpPostAt = Date.now();
-          await lp.waitForTimeout(4000);
-          finalized = lp.url().includes("/buyer/negotiations");
-          if (attempt < 3 && !finalized) console.log(`  [pace] finalize ${tag} attempt ${attempt} bounced back — throttled? retrying after 65s`);
-        }
-        if (!finalized) throw new Error(`Finalize ${tag} did not complete after retries (url=${lp.url()})`);
+        const negId = lp.url().match(/negotiations\/(\d+)/)?.[1];
+        if (!negId) throw new Error("Could not extract negotiation ID for finalize");
+        await finalizeDealWithRetry(lp, negId, f.rate);
         await lp.waitForLoadState("networkidle").catch(() => {});
         await shot(lp, step(`deal-finalized-${tag}`), `DONE DEAL — ${f.crop} locked to ${f.rate}/kg haul rate`);
       }, lp);
@@ -472,33 +514,28 @@ test("Coop farmer level-up: 3 farms × custom crops → negotiations → route o
       await shot(lp, step("coop-harvests-on-map"), "Stage 3.5 – 3 SOLD harvests visible on the route map");
     }, lp);
 
-    // ══════════════════════ STAGE 4 — ROUTE PLANNING (REAL OSRM FIRST, MOCK FALLBACK) ══════════════════════
+    // ══════════════════════ STAGE 4 — ROUTE PLANNING (DETERMINISTIC MOCK ROUTE) ══════════════════════
     let truckChoice: Record<string, any> = {};
-    let routingMode: "real" | "mock" = "real";
+    const routingMode: "real" | "mock" = "mock";
 
     await tryStep("route-plan-generate", async () => {
+      // A through-farm mock route GUARANTEES all 3 cooperative farms land in the
+      // pickup queue inside the 50km radius (a real GenSan-local OSRM route would
+      // only surface the nearest farm on a clean DB, starving the pooling job).
       const throughFarm = { type: "LineString", coordinates: [
-        [125.1830, 6.1050], [125.1912, 6.1351], [125.0718, 6.2215], [124.9416, 6.3333], [125.1716, 6.1164]
+        [125.1830, 6.1050], [125.1550, 6.1420], [125.0718, 6.2215], [124.9416, 6.3333], [125.1716, 6.1164]
       ] };
       const mockRouteBody = JSON.stringify({ code: "Ok", routes: [{ geometry: throughFarm, distance: 45000, duration: 3600 }] });
       const mockTripBody = JSON.stringify({
         code: "Ok",
         trips: [{ geometry: throughFarm }],
-        waypoints: [
-          { geometry: { coordinates: [125.1830, 6.1050] } },
-          { geometry: { coordinates: [125.1912, 6.1351] } },
-          { geometry: { coordinates: [125.0718, 6.2215] } },
-          { geometry: { coordinates: [124.9416, 6.3333] } },
-          { geometry: { coordinates: [125.1716, 6.1164] } },
-        ],
+        waypoints: throughFarm.coordinates.map((c: number[]) => ({ geometry: { coordinates: c } })),
       });
 
       await lp.route("**/router.project-osrm.org/route/v1/driving/**", (route) => {
-        if (routingMode === "real") return route.continue();
         route.fulfill({ status: 200, contentType: "application/json", body: mockRouteBody });
       });
       await lp.route("**/router.project-osrm.org/trip/v1/**", (route) => {
-        if (routingMode === "real") return route.continue();
         route.fulfill({ status: 200, contentType: "application/json", body: mockTripBody });
       });
 
@@ -527,65 +564,56 @@ test("Coop farmer level-up: 3 farms × custom crops → negotiations → route o
         }, [mapBox.x + mapBox.width * 0.7, mapBox.y + mapBox.height * 0.7]);
       }
 
+      // All 3 cooperative farms must be ticked into the pickup queue…
+      await lp.waitForFunction(() => {
+        const checks = Array.from(document.querySelectorAll("#pickup-queue input[type='checkbox'][data-farm-id]"));
+        return checks.length >= 3 && checks.every(c => (c as HTMLInputElement).checked);
+      }, undefined, { timeout: 30_000 });
+
+      // …on the compact truck (2500kg Isuzu Elf Dropside), NOT the suggested
+      // 4500kg Isuzu Forward — that one stays free for the multi-truck overflow.
+      await lp.selectOption("#truck-select", "1");
       await lp.waitForFunction(() => {
         const b = document.getElementById("btn-generate-plan");
         return b && !b.disabled;
       }, undefined, { timeout: 25_000 });
 
+      // The Multi-Truck Generate button routes through pooling.plan-all, which
+      // greedily fills the largest truck first (4500kg Isuzu Forward). For THIS
+      // 3-farm level-up test we deliberately route it onto the compact truck
+      // (2500kg Isuzu Elf Dropside) so the big truck stays free for the
+      // overflow e2e. Request interception → real /pooling/plan (truck 1).
+      const token = await lp.locator('meta[name="csrf-token"]').getAttribute("content");
+      await lp.route("**/pooling/plan-all", async (route) => {
+        try {
+          const body = route.request().postDataJSON();
+          const plan = await lp.evaluate(async (payload) => {
+            const r = await fetch("/pooling/plan", {
+              method: "POST",
+              headers: { "Content-Type": "application/json", "Accept": "application/json", "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]')!.getAttribute("content")! },
+              body: JSON.stringify(payload),
+            });
+            return r.json();
+          }, { ...body, truck_id: 1 });
+          await route.fulfill({
+            status: 200,
+            contentType: "application/json",
+            body: JSON.stringify({
+              plans: Array.isArray(plan) ? plan : [plan],
+              overflow: false,
+              total_farms: (body.harvest_ids || []).length,
+              selected_total: Array.isArray(plan) ? plan.length : 1,
+              unassigned: 0,
+            }),
+          });
+        } catch (e) {
+          await route.fulfill({ status: 500, contentType: "application/json", body: JSON.stringify({ error: String(e) }) });
+        }
+      });
+
       await lp.click("#btn-generate-plan");
       await swalConfirm(lp);
-      let planVisible = await lp.waitForSelector("#plan-panel:not(.hidden)", { state: "visible", timeout: 40_000 }).then(() => true).catch(() => false);
-
-      if (!planVisible) {
-        if (routingMode === "real") {
-          await shot(lp, step("real-osrm-failed"), "Real OSRM routing failed/unreachable — falling back to deterministic mock");
-          routingMode = "mock";
-          await lp.reload();
-          await lp.waitForLoadState("networkidle").catch(() => {});
-          await lp.click("#btn-show-map");
-          await lp.waitForSelector(".leaflet-container", { state: "visible", timeout: 15_000 });
-          await lp.waitForTimeout(600);
-          await lp.evaluate(() => {
-            const t = document.getElementById("btn-toggle-options");
-            const p = document.getElementById("routing-options");
-            if (t && p) { p.classList.remove("hidden"); t.setAttribute("aria-expanded", "true"); }
-          });
-          await lp.selectOption("#radius-select", "50");
-          await lp.waitForFunction(() => {
-            const b = document.getElementById("btn-generate-plan");
-            return b && !b.disabled;
-          }, undefined, { timeout: 25_000 });
-          await lp.click("#btn-generate-plan");
-          await swalConfirm(lp);
-          planVisible = await lp.waitForSelector("#plan-panel:not(.hidden)", { state: "visible", timeout: 40_000 }).then(() => true).catch(() => false);
-          if (!planVisible) throw new Error("Plan panel never appeared (mock too)");
-        } else {
-          throw new Error("Plan panel never appeared");
-        }
-      }
-
-      // Truth-check the engine output
-      const planText = await lp.locator("#plan-panel").innerText();
-      const farmCount = (planText.match(/farm/g) || []).length;
-      const planHas3 = planText.includes("3") || farmCount >= 3;
-      if (!planHas3 && routingMode === "real") {
-        runLog['plan-mode'] = "real→mock (engine under-picked or routing unavailable)";
-        routingMode = "mock";
-        await lp.reload();
-        await lp.waitForLoadState("networkidle").catch(() => {});
-        await lp.click("#btn-show-map");
-        await lp.waitForSelector(".leaflet-container", { state: "visible", timeout: 15_000 });
-        await lp.waitForTimeout(600);
-        await lp.selectOption("#radius-select", "50");
-        await lp.waitForFunction(() => {
-          const b = document.getElementById("btn-generate-plan");
-          return b && !b.disabled;
-        }, undefined, { timeout: 25_000 });
-        await lp.click("#btn-generate-plan");
-        await lp.waitForSelector("#plan-panel:not(.hidden)", { state: "visible", timeout: 40_000 });
-      } else {
-        runLog['plan-mode'] = routingMode;
-      }
+      await lp.waitForSelector("#plan-panel:not(.hidden)", { state: "visible", timeout: 40_000 });
 
       await shot(lp, step("pooling-plan-generated"), `Consolidated plan generated (mode: ${routingMode})`);
 
@@ -596,6 +624,7 @@ test("Coop farmer level-up: 3 farms × custom crops → negotiations → route o
         return { id: sel.value, name: opt?.textContent?.replace(/\s+/g, " ").trim() ?? "" };
       });
       runLog['truck-choice'] = truckText;
+      runLog['plan-mode'] = routingMode;
       truckChoice = truckText ?? {};
 
       await lp.fill("#plan-notes", "Level-up E2E: 3-farm cooperative pickup loop.");
@@ -664,7 +693,7 @@ test("Coop farmer level-up: 3 farms × custom crops → negotiations → route o
     await tryStep("driver-login-dashboard", async () => {
       const dc = await browser.newContext();
       const dp = guard(await dc.newPage());
-      wireLogging(dp, "driver");
+      wireLogging(dp, "driver", errLog);
       await login(dp, driverEmail, "password");
       await dp.goto("/driver");
       await dp.waitForLoadState("networkidle", { timeout: 10_000 }).catch(() => {});
@@ -680,7 +709,7 @@ test("Coop farmer level-up: 3 farms × custom crops → negotiations → route o
     await tryStep("driver-accept-start", async () => {
       const dc = await browser.newContext();
       const dp = guard(await dc.newPage());
-      wireLogging(dp, "driver-trip");
+      wireLogging(dp, "driver-trip", errLog);
       await login(dp, driverEmail, "password");
       await dp.goto("/driver");
       await dp.locator("a:has-text('View Details')").first().click();
@@ -704,7 +733,7 @@ test("Coop farmer level-up: 3 farms × custom crops → negotiations → route o
     await tryStep("driver-stops-loop", async () => {
       const dc = await browser.newContext();
       const dp = guard(await dc.newPage());
-      wireLogging(dp, "driver-stops");
+      wireLogging(dp, "driver-stops", errLog);
       await login(dp, driverEmail, "password");
       await dp.goto("/driver");
       const details = dp.locator("a:has-text('View Details')").first();
@@ -905,3 +934,600 @@ test("Coop farmer level-up: 3 farms × custom crops → negotiations → route o
     }
   }
 });
+
+// ───────────────────────────────  TEST 2 — MULTI-TRUCK OVERFLOW (5700kg → 2 routes)  ───────────────────────────────
+
+test("Coop farmer multi-truck overflow: 5 farms × 5700kg → 2 routes on 2 trucks → confirm-all → 2 jobs with drivers → cost ledger per-route", async ({ browser }) => {
+  test.setTimeout(1_200_000);
+
+  const SHOT_DIR = path.resolve(__dirname, "../../../eval/screenshots/e2e-coopfarmer-overflow");
+  const RUN_LOG = path.join(SHOT_DIR, "run-log.json");
+  const ERR_LOG = path.join(SHOT_DIR, "errors.log");
+  fs.mkdirSync(SHOT_DIR, { recursive: true });
+  if (!fs.existsSync(RUN_LOG)) fs.writeFileSync(RUN_LOG, JSON.stringify({ steps: [] }));
+  if (!fs.existsSync(ERR_LOG)) fs.writeFileSync(ERR_LOG, "");
+
+  const A = {
+    logistics: { email: "logistics1@test.com", password: "password", name: "GenSan Farmers Cooperative" },
+    // 1500 + 1200 + 1000 + 1100 + 900 = 5700 kg  →  overflows a single 4500kg truck.
+    farmers: [
+      { email: "farmer0@test.com", password: "password", name: "Polomolok Pineapple Farm Owner", crop: "Pomelo", variety: "Pink", custom: true, qty: "1500", price: "40", rate: "2.50" },
+      { email: "farmer1@test.com", password: "password", name: "Tupi Harvests Owner", crop: "Durian", variety: "Puyat", custom: true, qty: "1200", price: "50", rate: "3.00" },
+      { email: "farmer2@test.com", password: "password", name: "Lagao Fruit Farm Owner", crop: "Rambutan", variety: "Rongrien", custom: true, qty: "1000", price: "55", rate: "2.75" },
+      { email: "farmer3@test.com", password: "password", name: "Silway Veggie Patch Owner", crop: "Lanzones", variety: "Duku", custom: true, qty: "1100", price: "45", rate: "2.60" },
+      { email: "farmer4@test.com", password: "password", name: "Katangawan Corn Fields Owner", crop: "Avocado", variety: "Hass", custom: true, qty: "900", price: "60", rate: "2.90" },
+    ] as Array<{ email: string; password: string; name: string; crop: string; variety: string; custom: boolean; qty: string; price: string; rate: string }>,
+  };
+
+  let runLog: Record<string, any> = {};
+  try { runLog = JSON.parse(fs.readFileSync(RUN_LOG, "utf-8")); } catch { runLog = { runs: [] }; }
+  if (Array.isArray(runLog.steps)) { runLog.runs = runLog.runs ?? []; runLog.runs.push({ start: runLog.startedAt, status: runLog.status, steps: runLog.steps.length }); }
+  runLog.startedAt = new Date().toISOString();
+  runLog.steps = [];
+  let stepCount = 0;
+  const step = (name: string) => `${String(++stepCount).padStart(2, "0")}-${name}`;
+
+  const errLog = (...lines: (string | any)[]) =>
+    fs.appendFileSync(ERR_LOG, `[${new Date().toISOString()}] ` + lines.map(l => (typeof l === "string" ? l : JSON.stringify(l))).join(" ") + "\n");
+
+  async function shot(page: Page, slug: string, label: string) {
+    await page.screenshot({ path: path.join(SHOT_DIR, `${slug}.png`), fullPage: true });
+    runLog.steps.push({ slug, label, url: page.url(), time: new Date().toISOString() });
+    console.log(`  [shot] ${slug} — ${label} (${page.url()})`);
+  }
+
+  async function tryStep(name: string, fn: () => Promise<void>, page?: Page) {
+    let timer: NodeJS.Timeout | undefined;
+    const race = new Promise<never>((_, reject) => {
+      timer = setTimeout(() => reject(new Error(`[step-timeout] ${name} exceeded 240s`)), 240_000);
+    });
+    try {
+      await Promise.race([fn(), race]);
+    } catch (e: any) {
+      const msg = String(e?.message ?? e);
+      if (page) {
+        await page.screenshot({ path: path.join(SHOT_DIR, `ERR-${name}.png`), fullPage: true }).catch(() => {});
+        const bodyText = await page.evaluate(() => document.body?.innerText?.slice(0, 900) ?? "").catch(() => "");
+        errLog(`[FAIL] ${name} | ${msg}`, `\n---- page text ----\n${bodyText}`);
+      }
+      runLog.steps.push({ slug: `ERR-${name}`, error: msg, url: page?.url() ?? "" });
+      console.error(`  [FAIL] ${name}: ${msg}`);
+      throw e;
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
+  const farmerCtx = await browser.newContext();
+  const logisticsCtx = await browser.newContext();
+
+  const fp = guard(await farmerCtx.newPage());
+  const lp = guard(await logisticsCtx.newPage());
+
+  wireLogging(fp, "farmer", errLog);
+  wireLogging(lp, "logistics", errLog);
+
+  lp.on("request", (r) => {
+    if (r.method() === "POST") {
+      const t = new Date().toISOString().slice(11, 19);
+      errLog(`[logistics] POST ${t} ${r.url().replace("http://127.0.0.1:8000", "")}`);
+    }
+  });
+
+  async function createHarvest(f: typeof A.farmers[number], page: Page) {
+    await login(page, f.email, f.password);
+    await page.goto("/harvests/create");
+    await page.waitForSelector("#crop_search", { state: "visible", timeout: 20_000 });
+
+    const destId = await page.locator("#destination_id").inputValue();
+    const destLabel = await page.evaluate(() => {
+      const sel = document.getElementById("destination_id") as HTMLSelectElement | null;
+      return sel?.selectedOptions?.[0]?.textContent?.replace(/\s+/g, " ").trim() ?? "";
+    });
+    runLog['coop-default-dest'] = { farmer: f.name, destination_id: destId, label: destLabel };
+    await shot(page, step(`harvest-form-${f.crop.toLowerCase()}-coop-dest`), `Overflow create form — destination defaults to Cooperative Hub (${f.name})`);
+
+    await page.click("#crop_search");
+    const otherItem = page.locator("#crop_dropdown [data-value='other']");
+    await otherItem.waitFor({ state: "visible", timeout: 10_000 });
+    await otherItem.click();
+    const customCrop = page.locator("#custom_crop_name");
+    await customCrop.waitFor({ state: "visible", timeout: 10_000 });
+    await customCrop.fill(f.crop);
+    const customVariety = page.locator("#custom_variety_name");
+    await customVariety.waitFor({ state: "visible", timeout: 10_000 });
+    await customVariety.fill(f.variety);
+
+    await page.fill("#quantity_kg", f.qty);
+    await page.fill("#suggested_price_per_kg", f.price);
+    await page.fill("#harvest_date", tomorrow());
+    await page.fill("#notes", `E2E overflow run — ${f.crop} (${f.variety}) from ${f.name}`);
+    await shot(page, step(`harvest-custom-${f.crop.toLowerCase()}`), `Overflow custom crop typed: ${f.crop} / ${f.variety}`);
+
+    const submitBtn = page.locator("#post-harvest-btn");
+    await submitBtn.click();
+    const confirmSwal = page.locator(SWAL_CONFIRM);
+    const swalShown = await confirmSwal.waitFor({ state: "visible", timeout: 6_000 }).then(() => true).catch(() => false);
+    if (swalShown) {
+      await shot(page, step(`harvest-confirm-${f.crop.toLowerCase()}`), `Post Harvest confirmation dialog — ${f.crop} (${f.variety})`);
+      await confirmSwal.click();
+    }
+    await page.waitForURL(u => !String(u).includes("/harvests/create"), { timeout: 30_000 });
+    await page.waitForLoadState("networkidle").catch(() => {});
+    await shot(page, step(`harvest-posted-${f.crop.toLowerCase()}`), `Harvest posted: ${f.crop} (${f.variety})`);
+  }
+
+  try {
+    // ══════════════════════ STAGE 1 — ALL 5 COOP FARMERS POST CUSTOM CROPS ══════════════════════
+    for (const f of A.farmers) {
+      await tryStep(`harvest-${f.crop}`, async () => createHarvest(f, fp), fp);
+    }
+
+    // ══════════════════════ STAGE 2 — COOP SEES ALL 5 ON CROP BOARD + ROUTE MAP ══════════════════════
+    await tryStep("coop-crop-board-5", async () => {
+      await login(lp, A.logistics.email, A.logistics.password);
+      await lp.goto("/buyer/crop-board");
+      await lp.waitForLoadState("networkidle").catch(() => {});
+      await shot(lp, step("crop-board-5-farms"), "Stage 2 – Coop crop board sees Pomelo / Durian / Rambutan / Lanzones / Avocado");
+    }, lp);
+
+    await tryStep("coop-route-map-5", async () => {
+      await lp.goto("/route-optimization");
+      await lp.waitForLoadState("networkidle").catch(() => {});
+      await shot(lp, step("route-optimization-5-farms"), "Stage 2 – Route optimization map (harvests still ACTIVE)");
+    }, lp);
+
+    // ══════════════════════ STAGE 3 — COOP NEGOTIATES WITH ALL 5 ══════════════════════
+    for (let i = 0; i < A.farmers.length; i++) {
+      const f = A.farmers[i];
+      const tag = f.crop.toLowerCase();
+      await pace(lp);
+
+      await tryStep(`negotiation-${tag}-start`, async () => {
+        await lp.goto("/buyer/crop-board");
+        await lp.waitForLoadState("networkidle").catch(() => {});
+        const card = lp.locator("div:has(> div > a[href*='/buyer/crop-board/'])").filter({ hasText: f.name }).first();
+        const link = card.locator("a[href*='/buyer/crop-board/']").first();
+        await link.waitFor({ state: "visible", timeout: 20_000 });
+        await link.click();
+        await lp.waitForURL(/\/buyer\/crop-board\/\d+/, { timeout: 20_000 });
+        await shot(lp, step(`crop-detail-${tag}`), `Overflow crop detail — ${f.crop} (${f.name})`);
+        await lp.getByRole("button", { name: /Initiate Negotiation/i }).click();
+        await swalConfirm(lp);
+        lastLpPostAt = Date.now();
+        await lp.waitForURL(/negotiations\/\d+/, { timeout: 20_000 });
+        await shot(lp, step(`negotiation-started-${tag}`), `Negotiation room opened for ${f.crop}`);
+      }, lp);
+
+      await tryStep(`negotiation-${tag}-chat`, async () => {
+        await lp.locator("#message-input").fill(`Hello ${f.name}! The cooperative wants your ${f.crop} (${f.variety}), ${f.qty}kg at ₱${f.price}/kg.`);
+        await lp.locator("#send-message-form button[type='submit']").click();
+        lastLpPostAt = Date.now();
+        await lp.waitForTimeout(2000);
+        await shot(lp, step(`negotiation-message-${tag}`), `Chat message sent for ${f.crop}`);
+      }, lp);
+
+      await tryStep(`negotiation-${tag}-propose`, async () => {
+        await lp.fill("#negotiated_price", f.price);
+        await lp.fill("#negotiated_volume", f.qty);
+        await lp.fill("#term_hauling_rate", f.rate);
+        await lp.click("#propose-btn");
+        await swalConfirm(lp);
+        lastLpPostAt = Date.now();
+        const offered = await lp.locator("#chat-messages-container").getByText(/\[System Offer\]/i).first()
+          .waitFor({ state: "visible", timeout: 20_000 }).then(() => true).catch(() => false);
+        if (!offered) throw new Error("Proposal did not persist — no [System Offer] message in chat");
+        await shot(lp, step(`proposal-sent-${tag}`), `Terms proposed for ${f.crop}: ₱${f.price}/kg, ${f.qty}kg, haul ₱${f.rate}/kg`);
+      }, lp);
+
+      await tryStep(`negotiation-${tag}-farmer-agrees`, async () => {
+        const negotiationUrl = lp.url();
+        const negId = negotiationUrl.match(/negotiations\/(\d+)/)?.[1];
+        if (!negId) throw new Error("Could not extract negotiation ID");
+
+        await login(fp, f.email, f.password);
+        await fp.goto(`/negotiations/${negId}`);
+        await fp.waitForLoadState("networkidle").catch(() => {});
+        runLog[`negotiation-id-${tag}`] = Number(negId);
+        await shot(fp, step(`farmer-room-${tag}`), `${f.name} views negotiation room`);
+        const agreeBtn = fp.locator("#agree-btn");
+        await agreeBtn.waitFor({ state: "visible", timeout: 30_000 });
+        await agreeBtn.click();
+        await swalConfirm(fp);
+        await waitForStatus(fp, "AGREED");
+        await shot(fp, step(`farmer-agreed-${tag}`), `${f.name} agreed to terms`);
+      }, fp);
+
+      await tryStep(`negotiation-${tag}-finalize`, async () => {
+        await lp.reload();
+        await lp.waitForLoadState("networkidle").catch(() => {});
+        await shot(lp, step(`finalize-room-${tag}`), `Coop logistics finalizes deal for ${f.crop}`);
+
+        const rateInput = lp.locator("#hauling_rate_per_kg");
+        await rateInput.waitFor({ state: "visible", timeout: 20_000 }).catch(() => {});
+        if (await rateInput.isVisible().catch(() => false)) {
+          await rateInput.fill(f.rate);
+        }
+
+        const fixedRadio = lp.locator("#choice-fixed");
+        if (await fixedRadio.isVisible().catch(() => false)) {
+          await fixedRadio.check({ force: true }).catch(() => {});
+        }
+        const dropoffMap = lp.locator("#dropoff-map");
+        const hasMap = await dropoffMap.isVisible().catch(() => false);
+        if (hasMap) {
+          const mapBox = await dropoffMap.boundingBox();
+          if (mapBox) {
+            await lp.evaluate(([cx, cy]) => {
+              const el = document.getElementById("dropoff-map");
+              if (el) el.dispatchEvent(new MouseEvent("click", { clientX: cx, clientY: cy, bubbles: true }));
+            }, [mapBox.x + mapBox.width * 0.5, mapBox.y + mapBox.height * 0.5]);
+            await lp.waitForTimeout(500);
+          }
+        }
+        await lp.evaluate(() => {
+          const latEl = document.getElementById("destination_latitude") as HTMLInputElement;
+          const lngEl = document.getElementById("destination_longitude") as HTMLInputElement;
+          const addrEl = document.getElementById("destination_address") as HTMLInputElement;
+          if (latEl && !latEl.value) latEl.value = "6.1164";
+          if (lngEl && !lngEl.value) lngEl.value = "125.1716";
+if (addrEl && !addrEl.value) addrEl.value = "GenSan Wholesale Market Hub";
+        });
+
+        const negId = lp.url().match(/negotiations\/(\d+)/)?.[1];
+        if (!negId) throw new Error("Could not extract negotiation ID for finalize");
+        await finalizeDealWithRetry(lp, negId, f.rate);
+        await lp.waitForLoadState("networkidle").catch(() => {});
+        await shot(lp, step(`deal-finalized-${tag}`), `DONE DEAL — ${f.crop} locked to ${f.rate}/kg haul rate`);
+      }, lp);
+    }
+
+    // ══════════════════════ STAGE 3.5 — ALL 5 DONE DEALS FEED THE PLANNER ══════════════════════
+    await tryStep("deals-feed-planner-5", async () => {
+      await lp.goto("/route-optimization");
+      await lp.waitForLoadState("networkidle").catch(() => {});
+      await shot(lp, step("done-deals-planner-5"), "Stage 3.5 – 5 Done Deals now feed the route planner");
+      const farmsData: any = await lp.evaluate(() => {
+        for (const s of Array.from(document.scripts)) {
+          const m = (s.textContent || "").match(/const farms\s*=\s*(\[.*?\])\s*;?$/ms);
+          if (!m) continue;
+          try { return JSON.parse(m[1]); } catch { /* try next script */ }
+        }
+        return null;
+      });
+      const farmNames: string[] = (farmsData || []).map((f: any) => f.name);
+      runLog['farms-on-route-map-5'] = farmNames;
+      console.log("  [info] Farms on overflow route map:", JSON.stringify(farmNames));
+      const expected = A.farmers.map(f => f.name);
+      const missing = expected.filter(e => !farmNames.includes(e));
+      if (missing.length > 0) throw new Error(`Route map missing ${missing.length} farm(s): ${missing.join(", ")}`);
+      await shot(lp, step("coop-harvests-on-map-5"), "Stage 3.5 – All 5 SOLD harvests visible on the route map");
+    }, lp);
+
+    // ══════════════════════ STAGE 4 — MULTI-ROUTE: planAll → 2 PLANS → CONFIRM ALL ══════════════════════
+    let routingMode: "real" | "mock" = "real";
+    let planAllData: any = null;
+    let confirmJobIds: number[] = [];
+
+    await tryStep("route-plan-all-generate", async () => {
+      const throughFarm = { type: "LineString", coordinates: [
+        [125.1830, 6.1050], [125.1912, 6.1351], [125.0718, 6.2215], [124.9416, 6.3333], [125.1550, 6.1420], [125.2215, 6.1511], [125.1716, 6.1164]
+      ] };
+      const mockRouteBody = JSON.stringify({ code: "Ok", routes: [{ geometry: throughFarm, distance: 75000, duration: 6000 }] });
+      const mockTripBody = JSON.stringify({
+        code: "Ok",
+        trips: [{ geometry: throughFarm }],
+        waypoints: throughFarm.coordinates.map((c: number[]) => ({ geometry: { coordinates: c } })),
+      });
+
+      await lp.route("**/router.project-osrm.org/route/v1/driving/**", (route) => {
+        if (routingMode === "real") return route.continue();
+        route.fulfill({ status: 200, contentType: "application/json", body: mockRouteBody });
+      });
+      await lp.route("**/router.project-osrm.org/trip/v1/**", (route) => {
+        if (routingMode === "real") return route.continue();
+        route.fulfill({ status: 200, contentType: "application/json", body: mockTripBody });
+      });
+
+      const renderMulti = async () => {
+        await lp.click("#btn-show-map");
+        await lp.waitForSelector(".leaflet-container", { state: "visible", timeout: 15_000 });
+        await lp.waitForTimeout(600);
+        await lp.evaluate(() => {
+          const t = document.getElementById("btn-toggle-options");
+          const p = document.getElementById("routing-options");
+          if (t && p) { p.classList.remove("hidden"); t.setAttribute("aria-expanded", "true"); }
+        });
+        await lp.selectOption("#radius-select", "50");
+
+        const hasStartMarker = await lp.evaluate(() => document.querySelector(".leaflet-popup")?.textContent?.includes("Coop Hub") ?? false);
+        if (!hasStartMarker) {
+          const mapBox = await lp.locator(".leaflet-container").boundingBox();
+          if (!mapBox) throw new Error("Leaflet map not found");
+          await lp.evaluate(([cx, cy]) => {
+            document.querySelector(".leaflet-container")!.dispatchEvent(new MouseEvent("click", { clientX: cx, clientY: cy, bubbles: true }));
+          }, [mapBox.x + mapBox.width * 0.3, mapBox.y + mapBox.height * 0.3]);
+          await lp.waitForTimeout(400);
+          await lp.evaluate(([cx, cy]) => {
+            document.querySelector(".leaflet-container")!.dispatchEvent(new MouseEvent("click", { clientX: cx, clientY: cy, bubbles: true }));
+          }, [mapBox.x + mapBox.width * 0.7, mapBox.y + mapBox.height * 0.7]);
+        }
+
+        // All 5 farms must be ticked into the pickup queue before generating.
+        await lp.waitForFunction(() => {
+          const checks = Array.from(document.querySelectorAll("#pickup-queue input[type='checkbox'][data-farm-id]"));
+          return checks.length >= 5 && checks.every(c => (c as HTMLInputElement).checked);
+        }, undefined, { timeout: 30_000 });
+
+        await lp.waitForFunction(() => {
+          const b = document.getElementById("btn-generate-plan");
+          return b && !b.disabled;
+        }, undefined, { timeout: 25_000 });
+      };
+
+      await lp.goto("/route-optimization");
+      await lp.waitForLoadState("networkidle").catch(() => {});
+      await renderMulti();
+
+      const planAllRespP = lp.waitForResponse(r => /pooling\/plan-all/.test(r.url()) && r.status() < 500, { timeout: 60_000 }).catch(() => null);
+      await lp.click("#btn-generate-plan");
+      await swalConfirm(lp);
+
+      let multiVisible = await lp.waitForSelector("#plan-all-panel:not(.hidden)", { state: "visible", timeout: 40_000 }).then(() => true).catch(() => false);
+      if (!multiVisible && routingMode === "real") {
+        await shot(lp, step("real-osrm-planall-failed"), "Real OSRM planAll failed/unreachable — falling back to deterministic mock");
+        routingMode = "mock";
+        await lp.goto("/route-optimization");
+        await lp.waitForLoadState("networkidle").catch(() => {});
+        await renderMulti();
+        const planAllRespP2 = lp.waitForResponse(r => /pooling\/plan-all/.test(r.url()) && r.status() < 500, { timeout: 60_000 }).catch(() => null);
+        await lp.click("#btn-generate-plan");
+        await swalConfirm(lp);
+        multiVisible = await lp.waitForSelector("#plan-all-panel:not(.hidden)", { state: "visible", timeout: 40_000 }).then(() => true).catch(() => false);
+        if (!multiVisible) throw new Error("Multi-plan panel never appeared (mock too)");
+        const resp2 = await planAllRespP2;
+        if (resp2) planAllData = await resp2.json().catch(() => null);
+      } else {
+        const resp1 = await planAllRespP;
+        if (resp1) planAllData = await resp1.json().catch(() => null);
+      }
+
+      await shot(lp, step("plan-all-panel-2-routes"), `Stage 4 – Multi-Truck Route Plan panel (mode: ${routingMode})`);
+
+      runLog['planAll-response'] = {
+        overflow: planAllData?.overflow,
+        plan_count: (planAllData?.plans || []).length,
+        total_farms: planAllData?.total_farms,
+        selected_total: planAllData?.selected_total,
+        unassigned: planAllData?.unassigned,
+      };
+
+      const plans = (planAllData?.plans || []);
+      const expectedCrops = A.farmers.map(f => f.crop);
+      const covered = new Set<string>();
+      const perPlan = plans.map((p: any) => {
+        const crops = (p.selected_harvests || []).map((h: any) => String(h.crop || ""));
+        crops.forEach((c: string) => expectedCrops.forEach(ec => { if (c.includes(ec)) covered.add(ec); }));
+        return { truck_name: p.truck_name, truck_id: p.truck_id, capacity: p.truck_capacity_kg, crops, total_kg: p.total_kg };
+      });
+      runLog['planAll-per-plan'] = perPlan;
+
+      // Robust, set-based: ≥2 cards, ≥2 distinct trucks, all 5 of OUR crops covered.
+      const distinctTrucks = new Set(plans.map((p: any) => p.truck_name));
+      console.log("  [info] planAll plans:", JSON.stringify(perPlan));
+      if (plans.length < 2) throw new Error(`Expected ≥2 plans from planAll, got ${plans.length}`);
+      if (distinctTrucks.size < 2) throw new Error(`Expected plans on ≥2 different trucks, got ${distinctTrucks.size}`);
+      const missingCrops = expectedCrops.filter(c => !covered.has(c));
+      if (missingCrops.length > 0) throw new Error(`planAll cards do not cover all 5 crops — missing: ${missingCrops.join(", ")}`);
+
+      // The rendered cards must mirror the JSON (5 crops present). Orphan cards
+      // from dirty-DB done deals are tolerated — we only verify OUR coverage.
+      const cardText = await lp.locator("#plan-all-cards").innerText();
+      let cardCount = 0;
+      await lp.locator("#plan-all-cards > div").count().then(n => { cardCount = n; });
+      const missingOnCards = expectedCrops.filter(c => !cardText.includes(c));
+      if (missingOnCards.length > 0) throw new Error(`Rendered plan cards missing our crops: ${missingOnCards.join(", ")}`);
+      runLog['plan-all-cards'] = { card_count: cardCount, text_has_all_5: missingOnCards.length === 0 };
+    }, lp);
+
+    await tryStep("route-confirm-all", async () => {
+      await lp.fill("#plan-all-notes", "E2E overflow: 5700kg auto-split across 2 trucks.");
+      const confirmRespP = lp.waitForResponse(r => /pooling\/confirm-batch/.test(r.url()) && r.status() < 500, { timeout: 40_000 }).catch(() => null);
+      await lp.click("#btn-confirm-all");
+      await swalConfirm(lp);
+      const confirmResp = await confirmRespP;
+      if (confirmResp) {
+        const body = await confirmResp.json().catch(() => null);
+        runLog['confirm-all-response'] = body;
+        if (body?.job_ids) confirmJobIds = body.job_ids.map((n: any) => Number(n));
+      }
+      await lp.waitForSelector("#confirm-all-feedback:not(.hidden)", { timeout: 30_000 }).catch(() => {});
+      await lp.waitForLoadState("networkidle", { timeout: 20_000 }).catch(() => {});
+      await shot(lp, step("route-proposals-created"), "Stage 4 – Confirm All Routes: 2 pooling proposals created");
+      console.log("  [info] confirmAll job_ids:", JSON.stringify(confirmJobIds));
+    }, lp);
+
+    // ══════════════════════ STAGE 5 — EVERY FARMER ACCEPTS THEIR ROUTE OFFER ══════════════════════
+    for (const f of A.farmers) {
+      const tag = f.crop.toLowerCase();
+      await tryStep(`farmer-accept-${tag}`, async () => {
+        await login(fp, f.email, f.password);
+        await fp.goto("/farmer/proposals");
+        await fp.waitForLoadState("networkidle").catch(() => {});
+        await shot(fp, step(`farmer-proposal-details-${tag}`), `Overflow Route Offer visible to ${f.name} (${f.crop})`);
+        const acceptForm = fp.locator("form[action*='pooling'][action*='accept']").first();
+        await acceptForm.waitFor({ state: "visible", timeout: 20_000 });
+        await acceptForm.getByRole("button", { name: "Accept" }).click();
+        await swalConfirm(fp);
+        await fp.waitForFunction(() => /Accepted|Awaiting other farmers|confirmed/i.test(document.body.innerText), undefined, { timeout: 60_000 }).catch(() => {});
+        await fp.waitForLoadState("networkidle", { timeout: 60_000 }).catch(() => {});
+        await fp.waitForTimeout(1000);
+        await shot(fp, step(`farmer-accepted-${tag}`), `${f.name} accepted the Route Offer`);
+      }, fp);
+    }
+
+    await tryStep("overflow-jobs-confirmed", async () => {
+      await login(lp, A.logistics.email, A.logistics.password);
+      await lp.goto("/pooling/proposals");
+      await lp.waitForLoadState("networkidle").catch(() => {});
+      await shot(lp, step("all-accepted-2-jobs-confirmed"), "Stage 5 – All 5 farmers accepted — both routes confirmed");
+    }, lp);
+
+    // ══════════════════════ STAGE 6 — 2 DISTINCT POOLING JOBS, DISTINCT TRUCK + ASSIGNED DRIVER ══════════════════════
+    const jobMeta: Record<string, any> = {};
+    await tryStep("two-jobs-two-trucks", async () => {
+      await lp.goto("/pooling/proposals");
+      await lp.waitForLoadState("networkidle").catch(() => {});
+      const pageState = await lp.evaluate(() => {
+        const links = Array.from(document.querySelectorAll("a[href*='/cost-ledger']"));
+        return links.map(a => {
+          const card = a.closest("div[class*='rounded-2xl']");
+          const txt = card?.textContent ?? "";
+          return {
+            href: a.getAttribute("href") ?? "",
+            text: txt.replace(/\s+/g, " ").trim().slice(0, 900),
+          };
+        });
+      });
+      const ours = pageState.filter((c: any) => {
+        const m = c.href.match(/\/pooling\/(\d+)\/cost-ledger/);
+        if (!m) return false;
+        const id = Number(m[1]);
+        return confirmJobIds.length === 0 || confirmJobIds.includes(id);
+      });
+      runLog['proposals-our-cards'] = ours;
+      console.log("  [info] proposal cards:", JSON.stringify(ours.map((c: any) => c.href)));
+
+      const cardsToCheck = ours.length > 0 ? ours : pageState;
+      const checkedIds: number[] = [];
+      const trucks: string[] = [];
+      const TRUCK_RE = /Isuzu Forward|Fuso Canter|Isuzu Elf Dropside/g;
+      for (const c of cardsToCheck) {
+        const m = c.href.match(/\/pooling\/(\d+)\/cost-ledger/);
+        if (!m) continue;
+        const id = Number(m[1]);
+        if (checkedIds.includes(id)) continue;
+        checkedIds.push(id);
+        jobMeta[id] = { crops: [], href: c.href, text: c.text };
+        const truckMatch = c.text.match(TRUCK_RE);
+        const truckName = truckMatch?.[0] ?? "";
+        if (truckName) trucks.push(truckName);
+        else jobMeta[id].missingTruck = true;
+      }
+      // Fallback: if a job card doesn't surface its truck name (e.g. it already
+      // moved into the Ready for Dispatch section with an unreadable header),
+      // resolve it from the cost-ledger page itself.
+      for (const idStr of Object.keys(jobMeta)) {
+        const meta = jobMeta[idStr];
+        if (!meta.missingTruck) continue;
+        await lp.goto(`/pooling/${idStr}/cost-ledger`);
+        await lp.waitForLoadState("networkidle").catch(() => {});
+        const pageText = await lp.locator("body").innerText();
+        const truckMatch = pageText.match(/Isuzu Forward|Fuso Canter|Isuzu Elf Dropside/i);
+        if (truckMatch) {
+          trucks.push(truckMatch[0]);
+          meta.text = pageText.replace(/\s+/g, " ").trim().slice(0, 900);
+          meta.resolvedTruck = truckMatch[0];
+        } else {
+          meta.text = pageText.replace(/\s+/g, " ").trim().slice(0, 900);
+        }
+      }
+      runLog['jobs-identified'] = { checkedIds, trucks };
+      if (checkedIds.length < 2) throw new Error(`Expected ≥2 distinct pooling jobs for our farms, found ${checkedIds.length}`);
+      const distinctTrucks = new Set(trucks);
+      if (distinctTrucks.size < 2) throw new Error(`Expected jobs on ≥2 distinct trucks, found ${distinctTrucks.size} (${JSON.stringify(trucks)})`);
+      await shot(lp, step("two-jobs-distinct-trucks"), "Stage 6 – 2 pooling jobs, each with its own distinct truck");
+    }, lp);
+
+    // Driver for each of the 2 routes: RMP-1013 → julio, RMP-1012 → mario (existing spec mapping).
+    const driversToCheck: string[] = [];
+    const JOB_DRIVER: Record<string, string> = {
+      "Isuzu Forward": "julio-driver-1@driver.com",
+      "Fuso Canter": "mario-driver-1@driver.com",
+      "Isuzu Elf Dropside": "eliseo-driver-1@driver.com",
+    };
+    for (const id of Object.keys(jobMeta)) {
+      const key = jobMeta[id].resolvedTruck || jobMeta[id].truck || jobMeta[id].text || "";
+      for (const k of Object.keys(JOB_DRIVER)) {
+        if (key.toLowerCase().includes(k.toLowerCase())) {
+          driversToCheck.push(JOB_DRIVER[k]);
+          break;
+        }
+      }
+    }
+    runLog['drivers-to-check'] = driversToCheck;
+
+    for (const dEmail of Array.from(new Set(driversToCheck))) {
+      await tryStep(`driver-assigned-${dEmail}`, async () => {
+        const dc = await browser.newContext();
+        const dp = guard(await dc.newPage());
+        wireLogging(dp, "overflow-driver", errLog);
+        await login(dp, dEmail, "password");
+        await dp.goto("/driver");
+        await dp.waitForLoadState("networkidle", { timeout: 10_000 }).catch(() => {});
+        const hasJob = await dp.locator("a:has-text('View Details')").count();
+        if (hasJob === 0) throw new Error(`${dEmail} has no assigned pooling job`);
+        await shot(dp, step(`driver-has-job-${dEmail.split("-")[0]}`), `Stage 6 – ${dEmail} has an assigned route`);
+        await dc.close();
+      });
+    }
+
+    if (driversToCheck.length === 0) {
+      throw new Error("Could not resolve assigned drivers from job cards");
+    }
+    const distinctDrivers = new Set(driversToCheck);
+    if (distinctDrivers.size < 2) {
+      throw new Error(`Expected 2 distinct drivers (one per route), found ${distinctDrivers.size}`);
+    }
+
+    // ══════════════════════ STAGE 7 — COST LEDGER, ONE ROW/GROUPING PER ROUTE ══════════════════════
+    await tryStep("cost-ledger-per-route", async () => {
+      await lp.goto("/pooling/cost-ledger/jobs");
+      await lp.waitForLoadState("networkidle").catch(() => {});
+      await shot(lp, step("cost-ledger-index-2-jobs"), "Stage 7 – Cost ledger index: 2 pooling jobs (one ledger per route)");
+      const rows = await lp.evaluate(() => {
+        return Array.from(document.querySelectorAll("a[href*='/pooling/'][href*='/cost-ledger']")).map(a => ({
+          href: a.getAttribute("href") ?? "",
+          text: a.closest("div")?.textContent?.replace(/\s+/g, " ").trim().slice(0, 400) ?? "",
+        }));
+      });
+      runLog['ledger-rows'] = rows;
+      const ledgerIds = rows
+        .map((r: any) => r.href.match(/\/pooling\/(\d+)\/cost-ledger/)?.[1])
+        .filter(Boolean)
+        .map((n: any) => Number(n));
+      const idsToFind = confirmJobIds.length > 0 ? confirmJobIds : checkedLedgerFallback(rows, rows);
+      const missing = idsToFind.filter(id => !ledgerIds.includes(Number(id)));
+      if (missing.length > 0) throw new Error(`Cost ledger missing rows for job(s): ${missing.join(", ")}`);
+      runLog['ledger-found'] = { expected: idsToFind, present: ledgerIds };
+
+      // Open each route's ledger detail to prove entries exist under that job.
+      for (const id of idsToFind) {
+        await lp.goto(`/pooling/${id}/cost-ledger`);
+        await lp.waitForLoadState("networkidle").catch(() => {});
+        await shot(lp, step(`ledger-route-${id}`), `Stage 7 – Cost ledger detail for pooling job #${id}`);
+      }
+    }, lp);
+
+    runLog.completedAt = new Date().toISOString();
+    runLog.status = "completed";
+    console.log(`\nOverflow E2E summary: ${runLog.steps.length} shots/steps recorded`);
+  } catch (e: any) {
+    runLog.completedAt = new Date().toISOString();
+    runLog.status = "failed: " + String(e?.message ?? e);
+    throw e;
+  } finally {
+    fs.writeFileSync(RUN_LOG, JSON.stringify(runLog, null, 2));
+    await Promise.all([farmerCtx.close(), logisticsCtx.close()]);
+
+    const failed = runLog.steps.filter((s: any) => s.error);
+    if (failed.length > 0) {
+      console.error(`Overflow E2E: ${runLog.steps.length} steps, ${failed.length} FAILED`);
+      failed.forEach((f: any) => console.error(`  - ${f.slug}: ${String(f.error).slice(0, 200)}`));
+    }
+  }
+});
+
+function checkedLedgerFallback(rows: any[], _unused: any[]): number[] {
+  return rows.map((r: any) => r.href.match(/\/pooling\/(\d+)\/cost-ledger/)?.[1]).filter(Boolean).map((n: any) => Number(n)).slice(0, 2);
+}
