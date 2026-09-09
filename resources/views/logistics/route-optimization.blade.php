@@ -313,6 +313,37 @@
             <div id="confirm-feedback" class="hidden mt-4 p-4 rounded-xl text-sm font-bold animate-pulse"></div>
         </div>
 
+        {{-- Multi-Truck Plan Panel (overflow -> extra truck) --}}
+        <div id="plan-all-panel" class="hidden mt-8 space-y-5">
+            <div class="flex items-center justify-between">
+                <h2 class="text-lg font-bold text-slate-800 dark:text-slate-200 heading-font"><x-icon name="calculator" class="w-5 h-5" /> Multi-Truck Route Plan</h2>
+                <span class="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-md bg-brand/10 text-brand dark:bg-brand/10 dark:text-brand-light border border-brand/20 dark:border-brand/15"><span id="plan-all-count">0</span> routes</span>
+            </div>
+
+            {{-- Amber warning: some farms could not be loaded (no more trucks) --}}
+            <div id="plan-all-unassigned-banner" class="hidden p-4 rounded-xl text-sm font-bold bg-[var(--color-warning-bg)] text-[var(--color-warning-text)] border border-[var(--color-warning-border)] flex items-start gap-2">
+                <span><svg class="w-5 h-5 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg></span>
+                <span id="plan-all-unassigned-text"></span>
+            </div>
+
+            <div id="plan-all-cards" class="space-y-5"></div>
+
+            <div class="flex flex-wrap items-end gap-4 pt-4 bg-white dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700/80 rounded-2xl shadow-sm p-5">
+                <div class="flex-1 min-w-[220px]">
+                    <label for="plan-all-notes" class="block text-xs font-bold text-slate-400 dark:text-slate-600 uppercase tracking-widest mb-2">Instructions / Notes (optional)</label>
+                    <input id="plan-all-notes" type="text" maxlength="500"
+                           placeholder="e.g., Deliver to port before 12:00 PM, secure tarpaulin"
+                           class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-xl px-4 py-3 text-sm focus:border-brand focus:ring-4 focus:ring-brand/10 transition outline-none">
+                </div>
+                <x-button id="btn-confirm-all" size="lg">
+                    <span><x-icon name="inbox" class="w-4 h-4" /></span> Confirm All Routes
+                </x-button>
+            </div>
+
+            {{-- Confirm feedback --}}
+            <div id="confirm-all-feedback" class="hidden mt-4 p-4 rounded-xl text-sm font-bold animate-pulse"></div>
+        </div>
+
         {{-- ─── Open Haul Requests (list-first primary) + My Routes ─── --}}
         <div class="space-y-6 mt-8">
 
@@ -494,6 +525,7 @@
             let selectedFarmIds     = new Set(); // Farms ticked into this load (manual split)
             let toggledFarmIds     = new Set(); // Farms the user explicitly ticked/unticked (stick across redraws)
             let currentPlan          = null;  // Final calculated cost and weight allocations
+            let currentPlans         = [];    // Multi-route plans from planAll
             let currentFarmDistances = {};    // Per-farm road distances from OSRM (km)
             let rateTouched = false;            // User typed a hauling rate — stop auto-filling
             let suggestedPrefilled = false;     // Suggested rate auto-filled once per page
@@ -1179,11 +1211,10 @@
                     btnGenerate.disabled = true;
                     btnGenerate.textContent = 'Generating...';
                     try {
-                        const res = await fetch('{{ route("pooling.plan") }}', {
+                        const res = await fetch('{{ route("pooling.planAll") }}', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
                             body: JSON.stringify({
-                                truck_id:    parseInt(truckSelect.value),
                                 harvest_ids: harvestIds,
                                 start_lat:   startMarker.getLatLng().lat,
                                 start_lng:   startMarker.getLatLng().lng,
@@ -1197,10 +1228,12 @@
                             }),
                         });
 
-                        const plan = await res.json();
-                        if (!res.ok || plan.success === false) { Swal.fire({ icon: 'error', title: 'Could not build route', text: plan.error || plan.message || 'Planning failed. Adjust your selection and try again.', confirmButtonColor: '#16283C', background: document.documentElement.classList.contains('dark') ? '#1e293b' : '#fff', color: document.documentElement.classList.contains('dark') ? '#e2e8f0' : '#1e293b', customClass: { popup: 'rounded-xl' } }); btnGenerate.textContent = 'Generate Route Plan'; refreshGenerateState(); return; }
-                        currentPlan = plan;
-                        renderPlanPanel(plan);
+                        const data = await res.json();
+                        if (!res.ok || data.error || !data.plans || data.plans.length === 0) {
+                            Swal.fire({ icon: 'error', title: 'Could not build routes', text: (data && (data.error || data.message)) || 'No available trucks with active drivers. Adjust your selection and try again.', confirmButtonColor: '#16283C', background: document.documentElement.classList.contains('dark') ? '#1e293b' : '#fff', color: document.documentElement.classList.contains('dark') ? '#e2e8f0' : '#1e293b', customClass: { popup: 'rounded-xl' } });
+                            btnGenerate.textContent = 'Generate Route Plan'; refreshGenerateState(); return;
+                        }
+                        renderPlanAllPanel(data);
                     } catch (err) {
                         console.error(err);
                     } finally {
@@ -1216,6 +1249,73 @@
                     confirmColor: '#16283C'
                 });
             });
+
+            function renderPlanAllPanel(data) {
+                var plans = data.plans || [];
+                if (plans.length === 0) return;
+
+                if (plans.length === 1) {
+                    var plan = plans[0];
+                    currentPlan = plan;
+                    document.getElementById('plan-all-panel').classList.add('hidden');
+                    document.getElementById('plan-panel').classList.remove('hidden');
+                    renderPlanPanel(plan);
+                    if (plan.truck_name) {
+                        document.getElementById('plan-truck-label').textContent = plan.truck_name + ' (' + Number(plan.truck_capacity_kg || 0).toLocaleString() + ' kg)';
+                    }
+                    var banner = document.getElementById('plan-capacity-banner');
+                    if ((data.unassigned || 0) > 0) {
+                        banner.classList.remove('hidden');
+                        document.getElementById('plan-capacity-banner-text').textContent = data.message || (data.unassigned + ' farm(s) could not be loaded - no more available trucks.');
+                    } else {
+                        banner.classList.add('hidden');
+                    }
+                    return;
+                }
+
+                currentPlans = plans;
+                document.getElementById('plan-panel').classList.add('hidden');
+                var panel = document.getElementById('plan-all-panel');
+                panel.classList.remove('hidden');
+                panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+                document.getElementById('plan-all-count').textContent = plans.length;
+                var banner = document.getElementById('plan-all-unassigned-banner');
+                if ((data.unassigned || 0) > 0) {
+                    banner.classList.remove('hidden');
+                    document.getElementById('plan-all-unassigned-text').textContent = data.message || (data.unassigned + ' farm(s) could not be loaded - no more available trucks.');
+                } else {
+                    banner.classList.add('hidden');
+                }
+
+                var container = document.getElementById('plan-all-cards');
+                container.innerHTML = '';
+                plans.forEach(function (plan, idx) {
+                    var distKm = (plan.road_distance_km != null && Number(plan.road_distance_km) > 0) ? Number(plan.road_distance_km) : (plan.total_distance_km || 0);
+                    var stopsHtml = (plan.selected_harvests || []).map(function (h) {
+                        return '<div class="flex items-center justify-between gap-2 py-1.5 border-b border-slate-100 dark:border-slate-700/40 last:border-0">'
+                            + '<span class="text-xs text-slate-600 dark:text-slate-300"><span class="font-mono text-slate-400 dark:text-slate-600">#' + h.harvest_id + '</span> ' + _escHtml(h.farm_name || '-') + ' <span class="text-slate-400"> - ' + _escHtml(h.crop || '-') + '</span></span>'
+                            + '<span class="text-xs font-bold text-slate-700 dark:text-slate-300">' + Number(h.quantity_kg).toLocaleString() + ' kg</span></div>';
+                    }).join('');
+
+                    container.innerHTML +=
+                    '<div class="bg-white dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700/80 rounded-2xl shadow-sm p-5">'
+                        + '<div class="flex items-center justify-between mb-4">'
+                        + '<h3 class="text-sm font-bold text-slate-800 dark:text-slate-200 heading-font flex items-center gap-2"><span class="flex h-6 w-6 items-center justify-center rounded-md bg-brand/10 text-brand dark:bg-brand/10 dark:text-brand-light text-xs font-black">' + (idx + 1) + '</span> Route ' + (idx + 1) + '</h3>'
+                        + '<span class="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-md bg-[var(--color-warning-bg)] text-[var(--color-warning-text)] border border-[var(--color-warning-border)]">Truck auto-assigned</span>'
+                        + '</div>'
+                        + '<dl class="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-2 text-sm mb-4">'
+                        + '<div class="flex justify-between"><dt class="text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider text-[10px]">Truck</dt><dd class="font-bold text-slate-700 dark:text-slate-300 text-xs text-right">' + _escHtml(plan.truck_name || 'Truck #' + plan.truck_id) + '</dd></div>'
+                        + '<div class="flex justify-between"><dt class="text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider text-[10px]">Capacity</dt><dd class="font-bold text-slate-700 dark:text-slate-300 text-xs text-right">' + Number(plan.truck_capacity_kg || 0).toLocaleString() + ' kg</dd></div>'
+                        + '<div class="flex justify-between"><dt class="text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider text-[10px]">Load</dt><dd class="font-bold text-brand dark:text-brand-light text-xs text-right">' + Number(plan.total_kg || 0).toLocaleString() + ' kg (' + Number(plan.load_percentage || 0).toFixed(1) + '%)</dd></div>'
+                        + '<div class="flex justify-between"><dt class="text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider text-[10px]">Farms</dt><dd class="font-bold text-slate-700 dark:text-slate-300 text-xs text-right">' + (plan.farm_count || 0) + '</dd></div>'
+                        + '<div class="flex justify-between"><dt class="text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider text-[10px]">Distance</dt><dd class="font-bold text-slate-700 dark:text-slate-300 text-xs text-right">' + distKm.toFixed(2) + ' km</dd></div>'
+                        + '<div class="flex justify-between"><dt class="text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider text-[10px]">Total Haul Cost</dt><dd class="font-bold text-gold-700 dark:text-gold-light text-xs text-right">₱' + Number(plan.price_reference || 0).toLocaleString(undefined, {minimumFractionDigits: 2}) + '</dd></div>'
+                        + '</dl>'
+                        + '<p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-600 mb-1">Pickup Stops</p>' + stopsHtml
+                    + '</div>';
+                });
+            }
 
             function renderPlanPanel(plan) {
                 const panel = document.getElementById('plan-panel');
@@ -1328,7 +1428,7 @@
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
                             body: JSON.stringify({
-                                truck_id:       parseInt(truckSelect.value),
+                                truck_id:       currentPlan.truck_id ? parseInt(currentPlan.truck_id) : parseInt(truckSelect.value),
                                 harvest_ids:    harvestIds,
                                 stop_order:     harvestIds,
                                 total_kg:       currentPlan.total_kg,
@@ -1383,6 +1483,73 @@
                 });
             });
 
+            document.getElementById('btn-confirm-all').addEventListener('click', function () {
+                var btn = this;
+                swalConfirm(async function () {
+                    btn.disabled = true;
+                    btn.innerHTML = '<span><svg class="w-4 h-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></span> Creating Proposals...';
+                    var plansPayload = (currentPlans || []).map(function (plan) {
+                        var harvestIds = plan.selected_harvests.map(function (h) { return h.harvest_id; });
+                        return {
+                            truck_id:             parseInt(plan.truck_id),
+                            harvest_ids:          harvestIds,
+                            stop_order:           harvestIds,
+                            total_kg:             plan.total_kg,
+                            start_lat:            startMarker.getLatLng().lat,
+                            start_lng:            startMarker.getLatLng().lng,
+                            end_lat:              endMarker.getLatLng().lat,
+                            end_lng:              endMarker.getLatLng().lng,
+                            radius_km:            parseFloat(document.getElementById('radius-select').value),
+                            hauling_rate_per_kg:  (function(){ var el = document.getElementById('hauling-rate'); return el ? parseFloat(el.value) : null; })(),
+                            notes:                document.getElementById('plan-all-notes').value,
+                            route_distance_km:    currentRouteKm(),
+                            terrain:              (function () { var el = document.getElementById('terrain-select'); return el ? el.value : 'flat'; })(),
+                            route_geometry:       currentRouteGeoJSON ? currentRouteGeoJSON.coordinates : [],
+                            farm_distances:       currentFarmDistances,
+                        };
+                    });
+
+                    try {
+                        const res = await fetch('{{ route("pooling.confirmBatch") }}', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                            body: JSON.stringify({ plans: plansPayload }),
+                        });
+                        const result = await res.json();
+                        var feedback = document.getElementById('confirm-all-feedback');
+                        feedback.classList.remove('hidden');
+                        if (res.ok && result.success) {
+                            feedback.className = 'mt-4 p-4 rounded-xl bg-brand/10 dark:bg-brand/10 text-brand-dark dark:text-brand-light border border-brand/20 dark:border-brand/15 font-bold flex items-center gap-2';
+                            feedback.textContent = result.message + ' Farmers are now notified to review and accept their cost share.';
+                            window.__nextSteps = {
+                                title: 'Routes created',
+                                message: 'Each route is now an open pooling proposal sent to its farmers.',
+                                steps: [
+                                    'Farmers review their cost share and accept or decline per route.',
+                                    "When all of a route's farmers accept, that route is confirmed.",
+                                    'Assign a driver to each confirmed route so the trip can begin.',
+                                    'Monitor every route under your Pooling Proposals page.'
+                                ],
+                                cta: { label: 'View Proposals', url: '{{ route("pooling.index") }}' }
+                            };
+                            showNextSteps();
+                        } else {
+                            feedback.className = 'mt-4 p-4 rounded-xl bg-rose-50 dark:bg-rose-950/20 text-rose-800 dark:text-rose-400 border border-rose-200/60 dark:border-rose-900/30 font-bold flex items-center gap-2';
+                            feedback.textContent = result.error || 'Route confirmation failed. Please try again.';
+                            btn.disabled = false;
+                            btn.innerHTML = '<span><svg class="w-4 h-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></span> Confirm All Routes';
+                        }
+                    } catch (err) { console.error(err); }
+                }, {
+                    title: 'Confirm all routes?',
+                    text: 'Create a pooling proposal for every route shown above? Farmers will be notified to review their cost share.',
+                    icon: 'question',
+                    confirmText: 'Yes, confirm all',
+                    cancelText: 'Cancel',
+                    confirmColor: '#16283C'
+                });
+            });
+
             document.getElementById('radius-select').addEventListener('change', async function () {
                 if (!baseRouteGeoJSON) return;
                 const nearbyFarms = await findFarmsAlongRoute();
@@ -1403,6 +1570,8 @@
                 renderOpenHaulRequests();
                 historyLayer.clearLayers();
                 document.getElementById('plan-panel').classList.add('hidden');
+                document.getElementById('plan-all-panel').classList.add('hidden');
+                currentPlans = [];
                 btnGenerate.disabled = true; this.classList.add('hidden');
             });
                 });
