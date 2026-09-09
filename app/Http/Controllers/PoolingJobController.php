@@ -9,6 +9,7 @@ use App\Traits\GeometryHelper;
 use App\Traits\Notifiable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
@@ -169,6 +170,11 @@ class PoolingJobController extends Controller
                 'plans.*.hauling_rate_per_kg' => 'nullable|numeric|min:0.1',
                 'plans.*.terrain'             => 'nullable|string|in:flat,rolling,mountainous',
                 'plans.*.notes'               => 'nullable|string|max:500',
+                'plans.*.stop_order'        => 'nullable|array',
+                'plans.*.stop_order.*'      => 'integer|exists:harvests,id',
+                'plans.*.farm_distances'    => 'nullable|array',
+                'plans.*.farm_distances.*'  => 'numeric|min:0',
+                'plans.*.route_distance_km' => 'nullable|numeric|min:0',
             ]);
 
             if ($validator->fails()) {
@@ -182,14 +188,25 @@ class PoolingJobController extends Controller
             }
 
             $jobIds = [];
-            foreach ($validator->validated()['plans'] as $planData) {
-                $result = $this->jobService->confirmPoolingPlan($planData, $logisticsProfile->id);
+            try {
+                $jobIds = DB::transaction(function () use ($validator, $logisticsProfile) {
+                    $ids = [];
+                    foreach ($validator->validated()['plans'] as $planData) {
+                        $result = $this->jobService->confirmPoolingPlan($planData, $logisticsProfile->id);
 
-                if (isset($result['error'])) {
-                    return response()->json(['error' => 'Route for truck #' . $planData['truck_id'] . ': ' . $result['error']], $result['status'] ?? 422);
-                }
+                        if (isset($result['error'])) {
+                            throw new \RuntimeException('Route for truck #' . $planData['truck_id'] . ': ' . $result['error'], $result['status'] ?? 422);
+                        }
 
-                $jobIds[] = $result['pooling_job_id'];
+                        $ids[] = $result['pooling_job_id'];
+                    }
+                    return $ids;
+                });
+            } catch (\RuntimeException $e) {
+                return response()->json(['error' => $e->getMessage()], $e->getCode() !== 0 ? $e->getCode() : 500);
+            } catch (\Exception $e) {
+                Log::error('Pooling confirm-batch error: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+                return response()->json(['error' => 'Route confirmation failed. Please try again or contact support.'], 500);
             }
 
             return response()->json([
