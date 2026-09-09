@@ -8,17 +8,16 @@ use Illuminate\Support\Facades\Log;
 
 class WeatherService
 {
-    private string $apiKey;
     private string $baseUrl = 'https://api.openweathermap.org/data/2.5';
 
-    public function __construct()
+    private function apiKey(): string
     {
-        $this->apiKey = config('services.openweather.key', '');
+        return (string) config('services.openweather.key', '');
     }
 
     public function getWeather(float $lat, float $lng, ?int $poolingJobId = null): ?array
     {
-        if (empty($this->apiKey)) {
+        if (empty($this->apiKey())) {
             return $this->getFallbackWeather();
         }
 
@@ -32,7 +31,7 @@ class WeatherService
             $response = Http::timeout(5)->get("{$this->baseUrl}/weather", [
                 'lat' => $lat,
                 'lon' => $lng,
-                'appid' => $this->apiKey,
+                'appid' => $this->apiKey(),
                 'units' => 'metric',
             ]);
 
@@ -114,7 +113,7 @@ class WeatherService
 
     public function getForecast(float $lat, float $lng): ?array
     {
-        if (empty($this->apiKey)) return null;
+        if (empty($this->apiKey())) return null;
 
         $cacheKey = 'weather-forecast:' . round($lat, 2) . ':' . round($lng, 2);
         if ($cached = Cache::get($cacheKey)) {
@@ -125,7 +124,7 @@ class WeatherService
             $response = Http::timeout(5)->get("{$this->baseUrl}/forecast", [
                 'lat' => $lat,
                 'lon' => $lng,
-                'appid' => $this->apiKey,
+                'appid' => $this->apiKey(),
                 'units' => 'metric',
                 'cnt' => 8,
             ]);

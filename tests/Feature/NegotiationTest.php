@@ -245,6 +245,9 @@ class NegotiationTest extends TestCase
         $negotiation = $this->createOpenNegotiation($buyer, $farmer, $harvest);
 
         $this->actingAs($farmer)->get("/negotiations/{$negotiation->id}")
+            ->assertRedirect(route('farmer.deal-room', $negotiation->id));
+
+        $this->actingAs($farmer)->get(route('farmer.deal-room', $negotiation->id))
             ->assertStatus(200);
     }
 

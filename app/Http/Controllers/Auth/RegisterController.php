@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Validation\Rule;
 
 class RegisterController extends Controller
 {
@@ -48,6 +49,13 @@ class RegisterController extends Controller
             'business_permit_no'  => 'nullable|string|max:255',
             'logistics_type'      => 'nullable|in:cooperative,company',
             'cda_registration_no' => 'nullable|string|max:255',
+
+            // Cooperative membership must point at a verified cooperative
+            'cooperative_id'      => [
+                'nullable',
+                'integer',
+                Rule::exists('logistics_profiles', 'id')->where(fn ($q) => $q->where('is_verified', true)),
+            ],
         ]);
 
         try {

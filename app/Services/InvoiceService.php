@@ -42,6 +42,11 @@ class InvoiceService
         $html = $this->renderInvoiceHtml($job, $invoice);
         $pdfPath = "invoices/{$invoiceNumber}.pdf";
 
+        $pdfDir = storage_path('app/private/invoices');
+        if (!is_dir($pdfDir)) {
+            \Illuminate\Support\Facades\File::makeDirectory($pdfDir, 0755, true);
+        }
+
         Pdf::loadHTML($html)->save(storage_path("app/private/{$pdfPath}"));
 
         $invoice->update([
