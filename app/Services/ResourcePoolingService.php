@@ -733,6 +733,7 @@ class ResourcePoolingService
 
         if ($availableTrucks->isEmpty()) {
             return ['plans' => [], 'overflow' => false, 'total_farms' => 0, 'selected_total' => 0,
+                    'unassigned' => count($nearbyHarvestIds),
                     'message' => 'No available trucks with active drivers.'];
         }
 

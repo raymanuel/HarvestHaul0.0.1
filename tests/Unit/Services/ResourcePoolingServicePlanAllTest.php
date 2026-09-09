@@ -127,5 +127,6 @@ class ResourcePoolingServicePlanAllTest extends TestCase
 
         $this->assertCount(0, $result['plans']);
         $this->assertNotNull($result['message']);
+        $this->assertEquals(2, $result['unassigned']);
     }
 }
