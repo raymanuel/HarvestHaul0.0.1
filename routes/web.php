@@ -267,6 +267,8 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
                 Route::get('/{poolingJob}', [PoolingJobController::class, 'show'])->name('show')->whereNumber('poolingJob');       // Maps to: /pooling/{poolingJob}
                 Route::post('/plan', [PoolingJobController::class, 'plan'])->name('plan')->middleware('throttle:30,10');    // Maps to: /pooling/plan
                 Route::post('/confirm', [PoolingJobController::class, 'confirm'])->name('confirm')->middleware('throttle:10,10');    // Maps to: /pooling/confirm
+                Route::post('/plan-all', [PoolingJobController::class, 'planAll'])->name('planAll')->middleware('throttle:30,10');
+                Route::post('/confirm-batch', [PoolingJobController::class, 'confirmBatch'])->name('confirmBatch')->middleware('throttle:10,10');
             });
 
             // Haul Requests - logistics expresses intent

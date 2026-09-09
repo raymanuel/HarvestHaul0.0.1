@@ -115,6 +115,95 @@ class PoolingJobController extends Controller
         }
     }
 
+    public function planAll(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'harvest_ids'   => 'required|array|min:1|max:50',
+                'harvest_ids.*' => 'integer|exists:harvests,id',
+                'start_lat'     => 'required|numeric',
+                'start_lng'     => 'required|numeric',
+                'end_lat'       => 'required|numeric',
+                'end_lng'       => 'required|numeric',
+                'radius_km'     => 'required|numeric|min:1|max:200',
+                'hauling_rate_per_kg' => 'nullable|numeric|min:0.1',
+                'farm_distances'    => 'nullable|array',
+                'farm_distances.*'  => 'nullable|numeric|min:0',
+                'route_distance_km' => 'nullable|numeric|min:0',
+                'terrain'          => 'nullable|string|in:flat,rolling,mountainous',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json(['error' => $validator->errors()->first()], 422);
+            }
+
+            $result = $this->jobService->preparePlanAll(Auth::user(), $validator->validated());
+
+            if (isset($result['status'])) {
+                return response()->json(['error' => $result['error']], $result['status']);
+            }
+
+            return response()->json($result);
+
+        } catch (\Exception $e) {
+            Log::error('Pooling plan-all algorithm error: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+            return response()->json(['error' => 'Route planning failed. Please try again or contact support.'], 500);
+        }
+    }
+
+    public function confirmBatch(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'plans' => 'required|array|min:1|max:20',
+                'plans.*.truck_id'            => 'required|integer|exists:trucks,id',
+                'plans.*.harvest_ids'         => 'required|array|min:1',
+                'plans.*.harvest_ids.*'       => 'integer|exists:harvests,id',
+                'plans.*.total_kg'            => 'required|numeric|min:0.01',
+                'plans.*.start_lat'           => 'required|numeric|between:-90,90',
+                'plans.*.start_lng'           => 'required|numeric|between:-180,180',
+                'plans.*.end_lat'             => 'required|numeric|between:-90,90',
+                'plans.*.end_lng'             => 'required|numeric|between:-180,180',
+                'plans.*.radius_km'           => 'required|numeric|min:1|max:200',
+                'plans.*.route_geometry'      => 'required|array',
+                'plans.*.hauling_rate_per_kg' => 'nullable|numeric|min:0.1',
+                'plans.*.terrain'             => 'nullable|string|in:flat,rolling,mountainous',
+                'plans.*.notes'               => 'nullable|string|max:500',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json(['error' => $validator->errors()->first()], 422);
+            }
+
+            $logisticsProfile = Auth::user()->logisticsProfile;
+
+            if (!$logisticsProfile) {
+                return response()->json(['error' => 'No logistics profile found.'], 403);
+            }
+
+            $jobIds = [];
+            foreach ($validator->validated()['plans'] as $planData) {
+                $result = $this->jobService->confirmPoolingPlan($planData, $logisticsProfile->id);
+
+                if (isset($result['error'])) {
+                    return response()->json(['error' => 'Route for truck #' . $planData['truck_id'] . ': ' . $result['error']], $result['status'] ?? 422);
+                }
+
+                $jobIds[] = $result['pooling_job_id'];
+            }
+
+            return response()->json([
+                'success' => true,
+                'job_ids' => $jobIds,
+                'message' => count($jobIds) . ' route(s) created successfully.',
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Pooling confirm-batch error: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+            return response()->json(['error' => 'Route confirmation failed. Please try again or contact support.'], 500);
+        }
+    }
+
     public function index()
     {
         $logisticsProfile = auth()->user()->logisticsProfile;

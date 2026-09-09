@@ -86,6 +86,29 @@ class PoolingJobService
         return $plan;
     }
 
+    public function preparePlanAll(User $user, array $validated): array
+    {
+        $logisticsProfile = $user->logisticsProfile;
+
+        if (!$logisticsProfile) {
+            return ['error' => 'No logistics profile found.', 'status' => 403];
+        }
+
+        return $this->poolingService->planAll(
+            logisticsProfileId: $logisticsProfile->id,
+            nearbyHarvestIds: $validated['harvest_ids'],
+            startLat: (float) $validated['start_lat'],
+            startLng: (float) $validated['start_lng'],
+            endLat: (float) $validated['end_lat'],
+            endLng: (float) $validated['end_lng'],
+            radiusKm: (float) $validated['radius_km'],
+            haulingRatePerKg: (float) ($validated['hauling_rate_per_kg'] ?? 0),
+            farmDistances: $validated['farm_distances'] ?? [],
+            routeDistanceKm: (float) ($validated['route_distance_km'] ?? 0),
+            terrain: $validated['terrain'] ?? 'flat',
+        );
+    }
+
     public function getProposalsForPartner(int $logisticsProfileId): array
     {
         $proposals = PoolingJob::where('logistics_profile_id', $logisticsProfileId)
