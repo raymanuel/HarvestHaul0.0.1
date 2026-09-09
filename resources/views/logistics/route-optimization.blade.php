@@ -1487,7 +1487,7 @@
                 var btn = this;
                 swalConfirm(async function () {
                     btn.disabled = true;
-                    btn.innerHTML = '<span><svg class="w-4 h-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></span> Creating Proposals...';
+                    btn.textContent = 'Creating Proposals...';
                     var plansPayload = (currentPlans || []).map(function (plan) {
                         var harvestIds = plan.selected_harvests.map(function (h) { return h.harvest_id; });
                         return {
@@ -1539,7 +1539,15 @@
                             btn.disabled = false;
                             btn.innerHTML = '<span><svg class="w-4 h-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></span> Confirm All Routes';
                         }
-                    } catch (err) { console.error(err); }
+                    } catch (err) {
+                        console.error(err);
+                        var feedback = document.getElementById('confirm-all-feedback');
+                        feedback.classList.remove('hidden');
+                        feedback.className = 'mt-4 p-4 rounded-xl bg-rose-50 dark:bg-rose-950/20 text-rose-800 dark:text-rose-400 border border-rose-200/60 dark:border-rose-900/30 font-bold flex items-center gap-2';
+                        feedback.textContent = 'Route confirmation failed. Please try again.';
+                        btn.disabled = false;
+                        btn.innerHTML = '<span><svg class="w-4 h-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></span> Confirm All Routes';
+                    }
                 }, {
                     title: 'Confirm all routes?',
                     text: 'Create a pooling proposal for every route shown above? Farmers will be notified to review their cost share.',
