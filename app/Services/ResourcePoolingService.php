@@ -708,6 +708,70 @@ class ResourcePoolingService
      * @return float             Distance in km
      */
 
+    // ─────────────────────────────────────────────────────────
+    // PLAN-ALL (MULTI-TRUCK) — chains plan() across all available trucks
+    // ─────────────────────────────────────────────────────────
+
+    public function planAll(
+        int $logisticsProfileId,
+        array $nearbyHarvestIds,
+        float $startLat,
+        float $startLng,
+        float $endLat,
+        float $endLng,
+        float $radiusKm,
+        float $haulingRatePerKg = 0,
+        array $farmDistances = [],
+        float $routeDistanceKm = 0,
+        string $terrain = 'flat'
+    ): array {
+        $availableTrucks = Truck::where('logistics_profile_id', $logisticsProfileId)
+            ->where('status', 'available')
+            ->whereHas('driver', fn($q) => $q->whereHas('driverProfile', fn($dq) => $dq->where('employment_status', 'active')))
+            ->orderByDesc('capacity_kg')
+            ->get();
+
+        if ($availableTrucks->isEmpty()) {
+            return ['plans' => [], 'overflow' => false, 'total_farms' => 0, 'selected_total' => 0,
+                    'message' => 'No available trucks with active drivers.'];
+        }
+
+        $remainingHarvestIds = $nearbyHarvestIds;
+        $plans = [];
+        $totalAssigned = 0;
+
+        foreach ($availableTrucks as $truck) {
+            if (empty($remainingHarvestIds)) break;
+
+            $plan = $this->plan(
+                truck: $truck, nearbyHarvestIds: $remainingHarvestIds,
+                startLat: $startLat, startLng: $startLng,
+                endLat: $endLat, endLng: $endLng,
+                radiusKm: $radiusKm, haulingRatePerKg: $haulingRatePerKg,
+                farmDistances: $farmDistances, routeDistanceKm: $routeDistanceKm,
+                terrain: $terrain,
+            );
+
+            if (!isset($plan['success']) || !$plan['success']) continue;
+
+            $plans[] = $plan;
+            $selectedIds = collect($plan['selected_harvests'])->pluck('harvest_id')->toArray();
+            $remainingHarvestIds = array_values(array_diff($remainingHarvestIds, $selectedIds));
+            $totalAssigned += count($selectedIds);
+        }
+
+        return [
+            'plans'          => $plans,
+            'overflow'       => count($plans) > 1,
+            'total_farms'    => count($nearbyHarvestIds),
+            'selected_total' => $totalAssigned,
+            'unassigned'     => count($remainingHarvestIds),
+            'message'        => !empty($remainingHarvestIds)
+                ? count($remainingHarvestIds) . " farm(s) could not be assigned — no more available trucks."
+                : null,
+        ];
+    }
+
     /**
      * Returns a standardized empty/failure plan response.
      * Used when the algorithm can't produce a valid plan.
