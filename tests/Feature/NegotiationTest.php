@@ -77,6 +77,8 @@ class NegotiationTest extends TestCase
             'status'     => 'OPEN',
             'negotiated_price'  => null,
             'negotiated_volume' => null,
+            'destination_latitude'  => $harvest->destination_latitude ?? 7.07,
+            'destination_longitude' => $harvest->destination_longitude ?? 125.61,
             'last_activity_at'  => now(),
         ]);
     }
@@ -256,6 +258,18 @@ class NegotiationTest extends TestCase
 
         $this->actingAs($outsider)->get("/negotiations/{$negotiation->id}")
             ->assertStatus(403);
+    }
+
+    public function test_room_provides_fair_rate_reference_when_coords_and_volume_exist(): void
+    {
+        $buyer = $this->createVerifiedBuyer();
+        $farmer = $this->createVerifiedFarmer();
+        $harvest = $this->createActiveHarvest($farmer);
+        $negotiation = $this->createOpenNegotiation($buyer, $farmer, $harvest);
+
+        $response = $this->actingAs($buyer)->get("/negotiations/{$negotiation->id}");
+        $response->assertOk()
+            ->assertViewHas('rateReference', fn ($ref) => is_float($ref) && $ref > 0);
     }
 
     // ─── GET MESSAGES ────────────────────────────────────────

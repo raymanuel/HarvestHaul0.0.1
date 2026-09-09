@@ -9,34 +9,34 @@
         <header class="mb-8 pt-8">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <span class="text-[10px] font-bold uppercase tracking-widest text-[#16283C] dark:text-[#D7BC7A] bg-[#16283C]/10 dark:bg-[#16283C]/10 px-3 py-1 rounded-full border border-[#16283C]/20">My Profile</span>
+                    <span class="text-[10px] font-bold uppercase tracking-widest text-[#16283C] dark:text-[#D7BC7A] bg-[#16283C]/10 dark:bg-[#16283C]/10 px-3 py-1 rounded-md border border-[#16283C]/20">My Profile</span>
                     <h1 class="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight heading-font mt-3">Profile Settings</h1>
                 </div>
                 <div class="flex items-center gap-3">
                     <!-- Profile Verification Badge -->
                     @if($profile?->is_verified)
-                        <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#16283C]/10 dark:bg-[#16283C]/10 border border-[#16283C]/20 dark:border-[#16283C]/30 text-[#16283C] dark:text-[#D7BC7A] rounded-full text-xs font-bold">
+                        <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#16283C]/10 dark:bg-[#16283C]/10 border border-[#16283C]/20 dark:border-[#16283C]/30 text-[#16283C] dark:text-[#D7BC7A] rounded-md text-xs font-bold">
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                             Profile Verified
                         </span>
                     @else
-                        <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[var(--color-warning-bg)] border border-[var(--color-warning-border)] text-[var(--color-warning-text)] rounded-full text-xs font-bold">
+                        <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[var(--color-warning-bg)] border border-[var(--color-warning-border)] text-[var(--color-warning-text)] rounded-md text-xs font-bold">
                             Profile Pending
                         </span>
                     @endif
 
                     <!-- Email Verification Badge -->
                     @if($user->hasVerifiedEmail())
-                        <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[var(--color-info-bg)] border border-[var(--color-info-border)] text-[var(--color-info-text)] rounded-full text-xs font-bold">
+                        <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[var(--color-info-bg)] border border-[var(--color-info-border)] text-[var(--color-info-text)] rounded-md text-xs font-bold">
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                             </svg>
                             Email Verified
                         </span>
                     @else
-                        <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[var(--color-warning-bg)] border border-[var(--color-warning-border)] text-[var(--color-warning-text)] rounded-full text-xs font-bold">
+                        <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[var(--color-warning-bg)] border border-[var(--color-warning-border)] text-[var(--color-warning-text)] rounded-md text-xs font-bold">
                             Email Unverified
                         </span>
                     @endif
@@ -181,11 +181,11 @@
                     <div class="flex items-center gap-3">
                         <span class="text-xs font-bold text-slate-500 dark:text-slate-400">Membership Type:</span>
                         @if($profile?->affiliation_type === 'cooperative')
-                            <span class="inline-flex items-center gap-1 px-3 py-1 bg-[#16283C]/10 border border-[#16283C]/20 text-[#16283C] dark:text-[#D7BC7A] rounded-lg text-xs font-bold">
+                            <span class="inline-flex items-center gap-1 px-3 py-1 bg-[#16283C]/10 border border-[#16283C]/20 text-[#16283C] dark:text-[#D7BC7A] rounded-md text-xs font-bold">
                                 Cooperative Member
                             </span>
                         @else
-                            <span class="inline-flex items-center gap-1 px-3 py-1 bg-[var(--color-warning-bg)] border border-[var(--color-warning-border)] text-[var(--color-warning-text)] rounded-lg text-xs font-bold">
+                            <span class="inline-flex items-center gap-1 px-3 py-1 bg-[var(--color-warning-bg)] border border-[var(--color-warning-border)] text-[var(--color-warning-text)] rounded-md text-xs font-bold">
                                 Independent Farmer
                             </span>
                         @endif
@@ -197,24 +197,26 @@
                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-[var(--color-warning-text)] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
                                 <span class="text-sm font-bold text-[var(--color-warning-text)]">Membership request pending for {{ $profile->cooperative->company_name }}</span>
                             </div>
-                            <form action="{{ route('farmer.join-cooperative.cancel', $profile->cooperative_id) }}" method="POST" class="inline" id="cancel-coop-form">
-                                @csrf
-                                @method('DELETE')
-                                <button type="button" onclick="swalConfirm(document.getElementById('cancel-coop-form'), {title: 'Cancel Request?', text: 'Your pending request will be cancelled.', confirmText: 'Yes, cancel', icon: 'warning', confirmColor: '#f59e0b'})" class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 bg-[var(--color-warning-bg)] text-[var(--color-warning-text)] hover:opacity-80 rounded-lg text-xs font-bold transition cursor-pointer">
+<button type="button" form="cancel-coop-form" onclick="swalConfirm(document.getElementById('cancel-coop-form'), {title: 'Cancel Request?', text: 'Your pending request will be cancelled.', confirmText: 'Yes, cancel', icon: 'warning', confirmColor: '#f59e0b'})" class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 bg-[var(--color-warning-bg)] text-[var(--color-warning-text)] hover:opacity-80 rounded-xl text-xs font-bold transition cursor-pointer">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                                     Cancel Request
                                 </button>
-                            </form>
                         </div>
                     @elseif($profile?->membership_status === 'approved' && $profile?->cooperative_id)
-                        <div class="p-4 bg-[#16283C]/5 dark:bg-[#16283C]/10 border border-[#16283C]/15 dark:border-[#16283C]/25 rounded-xl flex items-center gap-2.5">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-[#16283C] dark:text-[#D7BC7A] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                            <span class="text-sm font-bold text-[#16283C] dark:text-[#D7BC7A]">Member of {{ $profile->cooperative->company_name }}</span>
+                        <div class="p-4 bg-[#16283C]/5 dark:bg-[#16283C]/10 border border-[#16283C]/15 dark:border-[#16283C]/25 rounded-xl flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                            <div class="flex items-center gap-2.5">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-[#16283C] dark:text-[#D7BC7A] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                <span class="text-sm font-bold text-[#16283C] dark:text-[#D7BC7A]">Member of {{ $profile->cooperative->company_name }}</span>
+                            </div>
+                            <button type="button" form="leave-coop-form" onclick="swalConfirm(document.getElementById('leave-coop-form'), {title: 'Leave Cooperative?', text: 'You will no longer be a member of {{ addslashes($profile->cooperative->company_name) }}. Your harvests become independent again.', confirmText: 'Yes, leave', icon: 'warning', confirmColor: '#ef4444'})" class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 bg-red-50 text-red-600 hover:bg-red-100 dark:bg-red-950/20 dark:hover:bg-red-950/40 dark:text-red-400 rounded-xl text-xs font-bold transition cursor-pointer">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+                                    Leave Cooperative
+                                </button>
                         </div>
                     @elseif($profile?->membership_status === 'rejected')
                         <div class="p-4 bg-slate-50 dark:bg-slate-700/30 border border-slate-200/50 dark:border-slate-600/40 rounded-xl flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                             <span class="text-sm font-bold text-slate-600 dark:text-slate-300">Request was not approved.</span>
-                            <a href="{{ route('farmer.join-cooperative.index') }}" class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 bg-[#16283C]/10 text-[#16283C] hover:bg-[#16283C]/15 dark:bg-[#16283C]/10 dark:hover:bg-[#16283C]/15 dark:text-[#D7BC7A] rounded-lg text-xs font-bold transition">
+                            <a href="{{ route('farmer.join-cooperative.index') }}" class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 bg-[#16283C]/10 text-[#16283C] hover:bg-[#16283C]/15 dark:bg-[#16283C]/10 dark:hover:bg-[#16283C]/15 dark:text-[#D7BC7A] rounded-xl text-xs font-bold transition">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
                                 Request to Join a Cooperative
                             </a>
@@ -222,13 +224,13 @@
                     @elseif($profile?->affiliation_type === 'independent' && is_null($profile?->membership_status))
                         <div class="p-4 bg-slate-50 dark:bg-slate-700/30 border border-slate-200/50 dark:border-slate-600/40 rounded-xl flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                             <span class="text-sm font-bold text-slate-600 dark:text-slate-300">Join a cooperative to access shared logistics and better rates.</span>
-                            <a href="{{ route('farmer.join-cooperative.index') }}" class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 bg-[#16283C]/10 text-[#16283C] hover:bg-[#16283C]/15 dark:bg-[#16283C]/10 dark:hover:bg-[#16283C]/15 dark:text-[#D7BC7A] rounded-lg text-xs font-bold transition">
+                            <a href="{{ route('farmer.join-cooperative.index') }}" class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 bg-[#16283C]/10 text-[#16283C] hover:bg-[#16283C]/15 dark:bg-[#16283C]/10 dark:hover:bg-[#16283C]/15 dark:text-[#D7BC7A] rounded-xl text-xs font-bold transition">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
                                 Join a Cooperative
                             </a>
                         </div>
                     @else
-                        <p class="text-xs text-slate-500 dark:text-slate-400 font-medium bg-slate-50 dark:bg-slate-700/30 p-3 rounded-lg border border-slate-200/50 dark:border-slate-600/40">
+                        <p class="text-xs text-slate-500 dark:text-slate-400 font-medium bg-slate-50 dark:bg-slate-700/30 p-3 rounded-md border border-slate-200/50 dark:border-slate-600/40">
                             You are registered as an independent farmer. Contact your cooperative administrator to change your affiliation type.
                         </p>
                     @endif
@@ -248,6 +250,20 @@
                 </x-button>
             </div>
         </form>
+
+        {{-- Standalone forms for coop actions; buttons link via form="..." attribute (kept outside the profile form to avoid invalid HTML nesting) --}}
+        @if($profile?->membership_status === 'pending' && $profile?->cooperative_id)
+            <form action="{{ route('farmer.join-cooperative.cancel', $profile->cooperative_id) }}" method="POST" id="cancel-coop-form" class="hidden">
+                @csrf
+                @method('DELETE')
+            </form>
+        @endif
+        @if($profile?->membership_status === 'approved' && $profile?->cooperative_id)
+            <form method="POST" action="{{ route('farmer.join-cooperative.leave') }}" id="leave-coop-form" class="hidden">
+                @csrf
+                @method('DELETE')
+            </form>
+        @endif
 
         {{-- ═══════════════════════════════════════════ --}}
         {{-- PASSWORD CHANGE --}}
@@ -272,23 +288,56 @@
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
                     <div>
                         <label for="current_password" class="text-xs font-bold text-slate-600 dark:text-slate-400 block mb-1.5">Current Password</label>
+                        <div class="relative">
                         <input type="password" id="current_password" name="current_password" required
-                            class="px-4 py-3 w-full bg-white/80 dark:bg-slate-700/50 border border-slate-200/80 dark:border-slate-600/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition text-sm">
+                            class="px-4 py-3 pr-12 w-full bg-white/80 dark:bg-slate-700/50 border border-slate-200/80 dark:border-slate-600/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition text-sm">
+                        <button type="button" onclick="togglePassword('current_password', 'current_password-eye')" aria-label="Toggle password visibility"
+                            class="absolute right-1 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center text-slate-400 hover:text-[#16283C] dark:hover:text-white transition focus:outline-none">
+                            <svg id="current_password-eye" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                <circle cx="12" cy="12" r="3"/>
+                            </svg>
+                        </button>
+                        </div>
                     </div>
                     <div>
                         <label for="password" class="text-xs font-bold text-slate-600 dark:text-slate-400 block mb-1.5">New Password</label>
+                        <div class="relative">
                         <input type="password" id="password" name="password" required
-                            class="px-4 py-3 w-full bg-white/80 dark:bg-slate-700/50 border border-slate-200/80 dark:border-slate-600/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition text-sm">
+                            class="px-4 py-3 pr-12 w-full bg-white/80 dark:bg-slate-700/50 border border-slate-200/80 dark:border-slate-600/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition text-sm">
+                        <button type="button" onclick="togglePassword('password', 'password-eye')" aria-label="Toggle password visibility"
+                            class="absolute right-1 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center text-slate-400 hover:text-[#16283C] dark:hover:text-white transition focus:outline-none">
+                            <svg id="password-eye" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                <circle cx="12" cy="12" r="3"/>
+                            </svg>
+                        </button>
+                        </div>
                     </div>
                     <div>
                         <label for="password_confirmation" class="text-xs font-bold text-slate-600 dark:text-slate-400 block mb-1.5">Confirm New Password</label>
+                        <div class="relative">
                         <input type="password" id="password_confirmation" name="password_confirmation" required
-                            class="px-4 py-3 w-full bg-white/80 dark:bg-slate-700/50 border border-slate-200/80 dark:border-slate-600/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition text-sm">
+                            class="px-4 py-3 pr-12 w-full bg-white/80 dark:bg-slate-700/50 border border-slate-200/80 dark:border-slate-600/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition text-sm">
+                        <button type="button" onclick="togglePassword('password_confirmation', 'password_confirmation-eye')" aria-label="Toggle password visibility"
+                            class="absolute right-1 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center text-slate-400 hover:text-[#16283C] dark:hover:text-white transition focus:outline-none">
+                            <svg id="password_confirmation-eye" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                <circle cx="12" cy="12" r="3"/>
+                            </svg>
+                        </button>
+                        </div>
                     </div>
                 </div>
 
                 <div class="flex justify-end mt-6">
-                    <button type="submit" class="px-6 py-2.5 bg-brand hover:bg-brand-dark text-white font-bold rounded-xl text-xs shadow-md shadow-brand/15 transition duration-200 cursor-pointer inline-flex items-center gap-2">
+                    <button type="submit" class="px-6 py-2.5 bg-brand hover:bg-brand-dark text-white dark:bg-[#D7BC7A] dark:hover:bg-[#BFA05A] dark:text-[#17202B] font-bold rounded-xl text-xs shadow-md shadow-brand/15 transition duration-200 cursor-pointer inline-flex items-center gap-2">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
                         </svg>

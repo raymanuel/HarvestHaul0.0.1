@@ -122,14 +122,45 @@ class PoolingJobPolicyTest extends TestCase
         $this->assertTrue($farmer->can('view', $job));
     }
 
-    public function test_buyer_on_job_can_view(): void
+    public function test_buyer_with_completed_deal_in_job_can_view(): void
     {
         $logisticsUser = $this->createLogisticsUser();
         $buyer = User::factory()->buyer()->create(['email_verified_at' => now()]);
-        $job = $this->createJob($logisticsUser, ['buyer_id' => $buyer->id]);
+        $farmer = $this->createFarmerUser();
+        $harvest = $this->createHarvestForFarmer($farmer);
+        $job = $this->createJob($logisticsUser);
+
+        $job->harvests()->attach($harvest->id, [
+            'pickup_order' => 1,
+            'quantity_kg'  => 100,
+            'status'       => 'pending',
+        ]);
+
+        \App\Models\Negotiation::create([
+            'buyer_id'          => $buyer->id,
+            'farmer_id'         => $farmer->id,
+            'harvest_id'        => $harvest->id,
+            'status'            => 'COMPLETED',
+            'negotiated_price'  => 20,
+            'negotiated_volume' => 100,
+            'last_activity_at'  => now(),
+        ]);
+
         $job->load('harvests');
 
         $this->assertTrue($buyer->can('view', $job));
+    }
+
+    public function test_buyer_id_without_completed_deal_cannot_view_job(): void
+    {
+        $logisticsUser = $this->createLogisticsUser();
+        $buyer = User::factory()->buyer()->create(['email_verified_at' => now()]);
+        // Jobs no longer store a single buyer: a route can pool many buyers.
+        // buyer_id alone must not grant access — derived from completed negotiations.
+        $job = $this->createJob($logisticsUser, ['buyer_id' => $buyer->id]);
+        $job->load('harvests');
+
+        $this->assertFalse($buyer->can('view', $job));
     }
 
     public function test_driver_on_job_can_view(): void

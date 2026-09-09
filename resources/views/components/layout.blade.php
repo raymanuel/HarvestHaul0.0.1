@@ -267,19 +267,19 @@
 <body class="app-shell m-0 p-0 text-slate-800 antialiased min-h-screen overflow-x-hidden">
 
     <!-- Skip to content link for keyboard accessibility -->
-    <a href="#main-content" class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:bg-brand focus:text-white focus:px-4 focus:py-2 focus:rounded-lg focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-harvest">
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:bg-brand focus:text-white focus:dark:bg-[#D7BC7A] focus:dark:text-[#17202B] focus:px-4 focus:py-2 focus:rounded-xl focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-harvest">
         Skip to main content
     </a>
 
     <!-- Mobile Top Header -->
     <header class="lg:hidden sticky top-0 z-50 bg-[var(--color-surface)] dark:bg-[var(--color-surface-card-dark)] text-slate-900 dark:text-white px-5 py-4 flex justify-between items-center border-b border-slate-900/10 dark:border-black/20 shadow-md">
         <a href="/dashboard" class="flex items-center gap-2 group">
-            <div class="w-8 h-8 rounded-lg bg-brand-700 flex items-center justify-center">
-                        <x-brand-logo class="w-5 h-5 text-[var(--color-brand-light)]" />
+            <div class="w-8 h-8 rounded-md bg-white border border-slate-200 flex items-center justify-center">
+                        <x-brand-logo class="w-5 h-5 text-[var(--color-brand-green)]" />
             </div>
             <span class="text-lg font-bold tracking-tight heading-font text-brand dark:text-white">HarvestHaul</span>
         </a>
-        <button id="mobile-menu-btn" onclick="toggleMobileSidebar()" aria-controls="sidebar-nav" aria-expanded="false" class="p-2 bg-slate-900/5 hover:bg-slate-900/10 rounded-lg text-slate-700 dark:bg-white/10 dark:hover:bg-white/20 dark:text-white transition" aria-label="Open Navigation Menu">
+        <button id="mobile-menu-btn" onclick="toggleMobileSidebar()" aria-controls="sidebar-nav" aria-expanded="false" class="p-2 bg-slate-900/5 hover:bg-slate-900/10 rounded-xl text-slate-700 dark:bg-white/10 dark:hover:bg-white/20 dark:text-white transition" aria-label="Open Navigation Menu">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
             </svg>
@@ -295,8 +295,8 @@
             <!-- Sidebar Header & Logo -->
             <div class="px-5 py-5 border-b border-[var(--color-dark-border)] shrink-0 flex items-center logo-container">
                 <a href="/dashboard" class="flex items-center gap-3 group logo-link">
-                    <div class="w-9 h-9 rounded-xl bg-brand-700 flex items-center justify-center shadow-md shrink-0">
-                <x-brand-logo class="w-5 h-5 text-[var(--color-brand-light)]" />
+                    <div class="w-9 h-9 rounded-xl bg-white border border-slate-200 flex items-center justify-center shadow-md shrink-0">
+                <x-brand-logo class="w-5 h-5 text-[var(--color-brand-green)]" />
                     </div>
                     <span class="text-xl font-bold tracking-tight text-white heading-font logo-text">HarvestHaul</span>
                 </a>
@@ -325,7 +325,7 @@
                 </div>
 
                 <!-- User profile and avatar menu -->
-                <div class="flex items-center gap-6 select-none">
+                <div class="flex items-center gap-4 select-none">
                     <!-- Notifications Dropdown -->
                     <x-notification-dropdown />
 
@@ -345,7 +345,7 @@
 
                     <!-- Profile Menu Dropdown -->
                     <div class="relative" id="profile-menu">
-                        <button onclick="toggleProfileDropdown()" class="flex items-center gap-3.5 pl-6 border-l border-slate-900/15 hover:opacity-90 transition cursor-pointer focus:outline-none text-left dark:border-white/15" aria-haspopup="true" aria-expanded="false" id="profile-menu-btn">
+                        <button onclick="toggleProfileDropdown()" class="flex items-center gap-3.5 pl-5 border-l border-slate-900/15 hover:opacity-90 transition cursor-pointer focus:outline-none text-left dark:border-white/15" aria-haspopup="true" aria-expanded="false" id="profile-menu-btn">
                             <div class="w-10 h-10 rounded-xl bg-slate-900/5 border border-slate-900/10 flex items-center justify-center text-slate-700 font-extrabold uppercase text-sm select-none dark:bg-white/10 dark:border-white/15 dark:text-white">
                                 {{ substr(Auth::user()->name, 0, 2) }}
                             </div>
@@ -610,6 +610,23 @@
 
     <script src="{{ asset('assets/js/swal-helpers.js') }}"></script>
 
+    {{-- Show/hide password toggle (used by profile & x-input password fields) --}}
+    <script>
+        function togglePassword(fieldId, iconId) {
+            const field = document.getElementById(fieldId);
+            const icon  = document.getElementById(iconId);
+            if (!field || !icon) return;
+            const isHidden = field.type === 'password';
+            field.type = isHidden ? 'text' : 'password';
+            icon.innerHTML = isHidden
+                ? `<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+                   <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+                   <line x1="1" y1="1" x2="23" y2="23"/>`
+                : `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                   <circle cx="12" cy="12" r="3"/>`;
+        }
+    </script>
+
     {{-- Inline form validation on blur --}}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -687,7 +704,7 @@
     @stack('scripts')
 
     {{-- Floating Negotiations Widget --}}
-    @if(Auth::check() && !Route::is('negotiations.room') && !Route::is('haul-negotiations.room') && (Auth::user()->role === 'farmer' || Auth::user()->role === 'buyer' || (Auth::user()->role === 'logistics_partner' && $authUser->logisticsProfile && $authUser->logisticsProfile->isCooperative())))
+    @if(Auth::check() && (Auth::user()->role === 'farmer' || Auth::user()->role === 'buyer' || (Auth::user()->role === 'logistics_partner' && $authUser->logisticsProfile && $authUser->logisticsProfile->isCooperative())))
         <x-negotiations-widget />
     @endif
 

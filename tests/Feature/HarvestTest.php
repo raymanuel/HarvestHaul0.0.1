@@ -112,6 +112,8 @@ class HarvestTest extends TestCase
             'user_id'    => $user->id,
             'crop_id'    => $crop->id,
             'quantity_kg' => 500,
+            'destination_latitude'  => 7.07,
+            'destination_longitude' => 125.61,
         ]);
     }
 

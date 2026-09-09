@@ -18,38 +18,45 @@ Standalone pages that do not extend a Blade layout (welcome, auth/verified, lega
 
 ## Color
 
-Teal Tide palette is fixed - do not rebrand.
+Ink Navy + Gold palette is fixed - do not rebrand.
 
 ### Brand tokens (`resources/css/app.css` @theme)
 
 | Token | Hex | Use |
 |-------|-----|-----|
-| `--color-brand` / brand-600 | #0F766E | Primary teal: buttons, links, accents |
-| `--color-brand-light` | #14B8A6 | Teal on dark surfaces |
-| `--color-brand-700` | #0D9488 | Hover teal, icon fills, map lines |
-| `--color-brand-dark` | #0B4F49 | Deep teal: dark buttons, footer, banners |
-| `--color-harvest` / harvest-600 | #F26B5E | Coral: buyer-side CTAs, welcome accents |
-| `--color-harvest-dark` | #E14B3D | Coral hover; Express Haul Intent buttons |
-| `--color-harvest-700` | #C23A2E | Coral deep accent (eyebrow-free labels, icons) |
+| `--color-brand` | #16283C | Primary Ink Navy: buttons, links, accents |
+| `--color-brand-dark` | #0E1620 | Deep navy: hover states, footer, drawers |
+| `--color-brand-green` | #16A34A | Logo accent leaf (white logo chip only) |
+| `--color-gold` / gold-500 | #BFA05A | Gold accent: active nav, welcome pops, premium emphasis |
+| `--color-gold-light` | #D7BC7A | Gold on dark surfaces (text/borders, never a fill) |
+| `--color-gold-600` / gold-700 | #7C6527 / #8A7030 | Gold deep accent (readable on light surfaces) |
+
+Deprecated aliases: `accent-*` and `harvest-*` still exist and are byte-identical to
+`gold`/`gold-light`/`gold-600`/`gold-700`. Use `gold` when a file is touched; do not
+blanket-replace.
 
 ### Surfaces
 
 | Context | Light | Dark |
 |---------|-------|------|
-| Page canvas | #FAFAFA | slate-950 family |
-| Cards | white | slate-800/80 |
-| Chrome (sidebar/topbar) | #101A2B / #0B1220 | same |
+| Page canvas | `--color-surface` #F5F6F2 (cream) | `--color-surface-dark` #0E1620 |
+| Cards | `--color-surface-card` #FFFFFF (warm cream via `.app-shell`) | `--color-surface-card-dark` #14202D (ink navy) |
+| Chrome (sidebar/topbar) | #16283C / #0E1620 | same |
 
 Neutrals for borders on standalone pages: `#e5e7eb` (never the old cream `#e2e0dc`).
 
 ### Rules
 
-- Warnings and pending states are always amber (`amber-50/200` bg, `amber-700` text). Never green.
+- Gold (#BFA05A / #D7BC7A) is **accent only** — never a field, button fill, or bubble
+  background. Ink Navy (#16283C) fills primary buttons; gold marks active/emphasis.
+- Warnings and pending states are always amber (`warning-bg`/`warning-border`/`warning-text`,
+  dark variants `-dark`). Never green.
 - No gradient text (`bg-clip-text`), no gradient CTA buttons, no decorative eyebrow labels
   (small uppercase tracked kickers above headings are deleted on sight).
 - No emojis anywhere in UI copy.
-- Map/data-viz colors stay inside palette: polylines/markers use teal ramp (#0D9488/#14B8A6);
-  Express-intent actions use coral (#E14B3D). No violet/blue/emerald one-offs.
+- Map/data-viz colors stay inside palette: polylines/markers use navy/gold ramp; the solid
+  gold bubble is banned. No violet/emerald one-offs (blue = info, rose = cancelled, purple =
+  booked/assigned semantics only).
 
 ## Components
 
@@ -57,7 +64,7 @@ Neutrals for borders on standalone pages: `#e5e7eb` (never the old cream `#e2e0d
 
 Replaces all duplicated CTA class strings. Props:
 
-- `variant`: `primary` (teal solid), `harvest` (coral solid), `secondary` (slate outline fill),
+- `variant`: `primary` (Ink Navy solid), `secondary` (slate outline fill),
   `ghost` (text-only), `danger` (red)
 - `size`: `sm` / `md` / `lg`
 - `full`: adds `w-full`

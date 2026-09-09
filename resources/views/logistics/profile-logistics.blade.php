@@ -8,34 +8,34 @@
         <header class="mb-8 pt-8">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <span class="text-[10px] font-bold uppercase tracking-widest text-[#16283C] dark:text-[#D7BC7A] bg-[#16283C]/10 dark:bg-[#16283C]/10 px-3 py-1 rounded-full border border-[#16283C]/20">My Profile</span>
+                    <span class="text-[10px] font-bold uppercase tracking-widest text-[#16283C] dark:text-[#D7BC7A] bg-[#16283C]/10 dark:bg-[#16283C]/10 px-3 py-1 rounded-md border border-[#16283C]/20">My Profile</span>
                     <h1 class="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight heading-font mt-3">Profile Settings</h1>
                 </div>
                 <div class="flex items-center gap-3">
                     <!-- Profile Verification Badge -->
                     @if($profile?->is_verified)
-                        <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#16283C]/10 border border-[#16283C]/20 text-[#16283C] dark:text-[#D7BC7A] rounded-full text-xs font-bold">
+                        <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#16283C]/10 border border-[#16283C]/20 text-[#16283C] dark:text-[#D7BC7A] rounded-md text-xs font-bold">
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                             Profile Verified
                         </span>
                     @else
-                        <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[var(--color-warning-bg)] border border-[var(--color-warning-border)] text-[var(--color-warning-text)] rounded-full text-xs font-bold">
+                        <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[var(--color-warning-bg)] border border-[var(--color-warning-border)] text-[var(--color-warning-text)] rounded-md text-xs font-bold">
                             Profile Pending
                         </span>
                     @endif
 
                     <!-- Email Verification Badge -->
                     @if($user->hasVerifiedEmail())
-                        <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[var(--color-info-bg)] border border-[var(--color-info-border)] text-[var(--color-info-text)] rounded-full text-xs font-bold">
+                        <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[var(--color-info-bg)] border border-[var(--color-info-border)] text-[var(--color-info-text)] rounded-md text-xs font-bold">
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                             </svg>
                             Email Verified
                         </span>
                     @else
-                        <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[var(--color-warning-bg)] border border-[var(--color-warning-border)] text-[var(--color-warning-text)] rounded-full text-xs font-bold">
+                        <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[var(--color-warning-bg)] border border-[var(--color-warning-border)] text-[var(--color-warning-text)] rounded-md text-xs font-bold">
                             Email Unverified
                         </span>
                     @endif
@@ -141,11 +141,11 @@
                     <div class="flex items-center gap-3">
                         <span class="text-xs font-bold text-slate-500 dark:text-slate-400">Organization Type:</span>
                         @if($profile?->logistics_type === 'cooperative')
-                            <span class="inline-flex items-center gap-1 px-3 py-1 bg-[#16283C]/10 border border-[#16283C]/20 text-[#16283C] dark:text-[#D7BC7A] rounded-lg text-xs font-bold">
+                            <span class="inline-flex items-center gap-1 px-3 py-1 bg-[#16283C]/10 border border-[#16283C]/20 text-[#16283C] dark:text-[#D7BC7A] rounded-md text-xs font-bold">
                                 Cooperative
                             </span>
                         @else
-                            <span class="inline-flex items-center gap-1 px-3 py-1 bg-[#0E1620]/10 border border-[#0E1620]/20 text-[#0E1620] dark:text-[#E9EEF4] rounded-lg text-xs font-bold">
+                            <span class="inline-flex items-center gap-1 px-3 py-1 bg-[#0E1620]/10 border border-[#0E1620]/20 text-[#0E1620] dark:text-[#E9EEF4] rounded-md text-xs font-bold">
                                  Private Company
                             </span>
                         @endif
@@ -233,7 +233,7 @@
                         </div>
                     @else
                         <div class="flex items-end">
-                            <p class="text-xs text-slate-500 dark:text-slate-400 font-medium bg-slate-50 dark:bg-slate-700/30 p-3 rounded-lg border border-slate-200/50 dark:border-slate-600/40 w-full">
+                            <p class="text-xs text-slate-500 dark:text-slate-400 font-medium bg-slate-50 dark:bg-slate-700/30 p-3 rounded-md border border-slate-200/50 dark:border-slate-600/40 w-full">
                                 CDA Registration is only applicable for cooperatives.
                             </p>
                         </div>
@@ -278,23 +278,56 @@
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
                     <div>
                         <label for="current_password" class="text-xs font-bold text-slate-600 dark:text-slate-400 block mb-1.5">Current Password</label>
-                        <input type="password" id="current_password" name="current_password" required
-                            class="px-4 py-3 w-full bg-white/80 dark:bg-slate-700/50 border border-slate-200/80 dark:border-slate-600/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition text-sm">
+                        <div class="relative">
+                            <input type="password" id="current_password" name="current_password" required
+                                class="px-4 py-3 pr-12 w-full bg-white/80 dark:bg-slate-700/50 border border-slate-200/80 dark:border-slate-600/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition text-sm">
+                            <button type="button" onclick="togglePassword('current_password', 'current_password-eye')" aria-label="Toggle password visibility"
+                                class="absolute right-1 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center text-slate-400 hover:text-[#16283C] dark:hover:text-white transition focus:outline-none">
+                                <svg id="current_password-eye" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                    <circle cx="12" cy="12" r="3"/>
+                                </svg>
+                            </button>
+                        </div>
                     </div>
                     <div>
                         <label for="password" class="text-xs font-bold text-slate-600 dark:text-slate-400 block mb-1.5">New Password</label>
-                        <input type="password" id="password" name="password" required
-                            class="px-4 py-3 w-full bg-white/80 dark:bg-slate-700/50 border border-slate-200/80 dark:border-slate-600/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition text-sm">
+                        <div class="relative">
+                            <input type="password" id="password" name="password" required
+                                class="px-4 py-3 pr-12 w-full bg-white/80 dark:bg-slate-700/50 border border-slate-200/80 dark:border-slate-600/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition text-sm">
+                            <button type="button" onclick="togglePassword('password', 'password-eye')" aria-label="Toggle password visibility"
+                                class="absolute right-1 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center text-slate-400 hover:text-[#16283C] dark:hover:text-white transition focus:outline-none">
+                                <svg id="password-eye" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                    <circle cx="12" cy="12" r="3"/>
+                                </svg>
+                            </button>
+                        </div>
                     </div>
                     <div>
                         <label for="password_confirmation" class="text-xs font-bold text-slate-600 dark:text-slate-400 block mb-1.5">Confirm New Password</label>
-                        <input type="password" id="password_confirmation" name="password_confirmation" required
-                            class="px-4 py-3 w-full bg-white/80 dark:bg-slate-700/50 border border-slate-200/80 dark:border-slate-600/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition text-sm">
+                        <div class="relative">
+                            <input type="password" id="password_confirmation" name="password_confirmation" required
+                                class="px-4 py-3 pr-12 w-full bg-white/80 dark:bg-slate-700/50 border border-slate-200/80 dark:border-slate-600/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition text-sm">
+                            <button type="button" onclick="togglePassword('password_confirmation', 'password_confirmation-eye')" aria-label="Toggle password visibility"
+                                class="absolute right-1 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center text-slate-400 hover:text-[#16283C] dark:hover:text-white transition focus:outline-none">
+                                <svg id="password_confirmation-eye" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                    <circle cx="12" cy="12" r="3"/>
+                                </svg>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
                 <div class="flex justify-end mt-6">
-                    <button type="submit" class="px-6 py-2.5 bg-brand hover:bg-brand-dark text-white font-bold rounded-xl text-xs shadow-md shadow-brand/15 transition duration-200 cursor-pointer inline-flex items-center gap-2">
+                    <button type="submit" class="px-6 py-2.5 bg-brand hover:bg-brand-dark text-white dark:bg-[#D7BC7A] dark:hover:bg-[#BFA05A] dark:text-[#17202B] font-bold rounded-xl text-xs shadow-md shadow-brand/15 transition duration-200 cursor-pointer inline-flex items-center gap-2">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
                         </svg>
