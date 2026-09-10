@@ -85,7 +85,7 @@
                                         </div>
                                     </td>
                                     <td class="py-4 px-3 font-mono text-sm font-semibold text-slate-700 dark:text-slate-300">
-                                        {{ $driver->license_number }}
+                                        {{ $driver->license_no }}
                                     </td>
                                     <td class="py-4 px-3">
                                         @if($driver->identity_verified)
