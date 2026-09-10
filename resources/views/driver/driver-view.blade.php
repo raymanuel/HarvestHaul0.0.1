@@ -45,10 +45,9 @@
             />
 
             <x-stat-card
-                title="Completed Today"
+                title="Completed"
                 :value="$completedToday"
-                :href="route('driver.dashboard')"
-                linkText="View History"
+                unit="total runs"
             />
         </div>
 
@@ -170,12 +169,23 @@
                         View Details
                     </a>
                     @if($job->status->value === 'confirmed')
-                        <form method="POST" action="{{ route('driver.jobs.status', $job) }}" class="flex-1">
-                            @csrf @method('PATCH')
-                            <x-button type="submit" size="lg" full class="rounded-2xl .5 shadow-lg active:scale-[0.98]">
-                                <span>Start Run</span>
-                            </x-button>
-                        </form>
+                        @if(!$job->accepted_at)
+                            <form method="POST" action="{{ route('driver.jobs.accept', $job) }}" class="flex-1">
+                                @csrf
+                                <button type="button"
+                                    onclick="swalConfirm(this.closest('form'), {title: 'Accept Job?', text: 'Accept Route #{{ $job->id }} and prepare to depart.', confirmText: 'Yes, accept', icon: 'question', confirmColor: '#16283C'})"
+                                    class="w-full text-center text-xs font-bold text-white bg-[#16283C] hover:bg-[#1e3a56] dark:bg-[#D7BC7A] dark:hover:bg-[#BFA05A] dark:text-[#17202B] py-3.5 rounded-2xl transition duration-200 shadow-sm active:scale-[0.98]">
+                                    Accept Job
+                                </button>
+                            </form>
+                        @else
+                            <form method="POST" action="{{ route('driver.jobs.status', $job) }}" class="flex-1">
+                                @csrf @method('PATCH')
+                                <x-button type="submit" size="lg" full class="rounded-2xl shadow-lg active:scale-[0.98]">
+                                    <span>Start Run</span>
+                                </x-button>
+                            </form>
+                        @endif
                     @endif
                 </div>
 
@@ -196,6 +206,44 @@
                 </div>
             </div>
         @endforelse
+
+        {{-- Identity Verification Section --}}
+        @php
+            $driverProfile = Auth::user()->driverProfile;
+            $needsUpload = $driverProfile && !$driverProfile->id_photo_path;
+        @endphp
+
+        @if($needsUpload)
+            <div class="bg-white dark:bg-slate-800 border border-amber-200 dark:border-amber-800 rounded-3xl p-6 shadow-sm">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 flex items-center justify-center">
+                        <x-icon name="document" class="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                    </div>
+                    <div>
+                        <h2 class="text-sm font-extrabold text-slate-800 dark:text-white heading-font">Identity Verification Required</h2>
+                        <p class="text-[11px] text-slate-500 dark:text-slate-400">Upload your ID and a selfie to get verified.</p>
+                    </div>
+                </div>
+                <form method="POST" action="{{ route('driver.identity.upload') }}" enctype="multipart/form-data">
+                    @csrf
+                    <div class="space-y-3">
+                        <div>
+                            <label class="text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">ID Photo</label>
+                            <input type="file" name="id_photo" accept="image/*" required
+                                   class="mt-1 w-full text-xs text-slate-600 dark:text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-brand/10 file:text-[#16283C] dark:file:bg-gold-light/10 dark:file:text-[#D7BC7A] hover:file:bg-brand/20">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Selfie</label>
+                            <input type="file" name="selfie" accept="image/*" required
+                                   class="mt-1 w-full text-xs text-slate-600 dark:text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-brand/10 file:text-[#16283C] dark:file:bg-gold-light/10 dark:file:text-[#D7BC7A] hover:file:bg-brand/20">
+                        </div>
+                    </div>
+                    <button type="submit" class="mt-4 w-full bg-[#16283C] hover:bg-[#1e3a56] dark:bg-[#D7BC7A] dark:hover:bg-[#BFA05A] dark:text-[#17202B] text-white text-xs font-bold py-3 rounded-xl transition active:scale-[0.98]">
+                        Upload Documents
+                    </button>
+                </form>
+            </div>
+        @endif
 
     </main>
 
