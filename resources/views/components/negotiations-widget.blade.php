@@ -230,7 +230,13 @@
     }
 
     fetchList();
-    pollTimer = setInterval(fetchList, 10000);
+    // Reuse the shared 10s poller from notification-dropdown where present;
+    // fall back to a private interval only if the shared registry is missing.
+    if (window.hhPollTasks) {
+        window.hhPollTasks.push(fetchList);
+    } else {
+        pollTimer = setInterval(fetchList, 10000);
+    }
 
     toggle.addEventListener('click', togglePopup);
     closeBtn.addEventListener('click', closePopup);
