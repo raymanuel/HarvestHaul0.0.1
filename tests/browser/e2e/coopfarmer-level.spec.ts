@@ -1,4 +1,5 @@
 import { test, expect, Page } from "@playwright/test";
+import { execSync } from "child_process";
 import * as fs from "fs";
 import * as path from "path";
 import { fileURLToPath } from "url";
@@ -53,6 +54,18 @@ const fixture = (name: string) => {
 const F_RECEIPT = fixture("receipt.png");
 const F_LOAD = fixture("load-photo.png");
 const F_DELIVERY = fixture("delivery-photo.png");
+
+// M3 test-data hygiene: these specs post real harvests + negotiations into a
+// SHARED persistent DB. `php artisan pooling:reset-e2e` surgically clears only
+// rows tagged E2E (harvest.notes LIKE 'E2E%'), so run N+1 never inherits the
+// completed negotiations / pooling jobs left by an aborted run N.
+function resetE2eState() {
+  try {
+    execSync("php artisan pooling:reset-e2e --yes", { cwd: process.cwd(), stdio: "ignore" });
+  } catch {
+    console.warn("  [warn] pooling:reset-e2e failed (is PHP/MySQL up?) — proceeding; leftovers may contaminate this run");
+  }
+}
 
 // Laravel's throttle:N,1 buckets are SHARED per user across ALL throttled routes,
 // so a single user must stay ≤5 throttled POSTs inside any rolling 60s window.
@@ -117,7 +130,10 @@ const swalSubmit = async (page: Page, urlRe: RegExp) => {
   const resp = page
     .waitForResponse(r => urlRe.test(r.url()) && r.status() < 500, { timeout: 30_000 })
     .catch(() => ({}));
-  await swalConfirm(page);
+  // SweetAlerts can lag a few seconds under heavy DB load mid-run — don't let a
+  // slow alert fail a whole multi-hour run.
+  await page.waitForSelector(SWAL_CONFIRM, { timeout: 30_000 }).catch(() => { throw new Error("SweetAlert confirm did not appear in 30s"); });
+  await page.locator(SWAL_CONFIRM).click({ noWaitAfter: true });
   await resp;
   await page.waitForLoadState("networkidle", { timeout: 20_000 }).catch(() => {});
   await page.waitForTimeout(600);
@@ -169,8 +185,136 @@ async function waitForStatus(page: Page, label: string, timeout = 25_000) {
   throw new Error(`Deal status badge did not reach "${label}"`);
 }
 
+// Route-optimization helpers. Two traps make the naive render flow flaky:
+//   1. The start-marker popup ("Coop Hub") is open on some page loads (warm
+//      cache renders Leaflet before we probe it) and closed on others, so the
+//      `hasStartMarker` heuristic arbitrarily skips the two map clicks that
+//      place start+end markers and generate the base route.
+//   2. The plan-all HTTP proxy must NOT point at the URL it is intercepting
+//      (the proxied fetch re-enters the same route handler → recursion/hang).
+// `ensurePickupQueue` therefore polls and clicks the map until the queue is
+// full instead of trusting popup state; extra clicks after a route is drawn
+// are no-ops because the map's click handler stops once start+end exist.
+async function ensurePickupQueue(lp: Page, minChecks: number) {
+  for (let i = 0; i < 40; i++) {
+    const satisfied = await lp
+      .evaluate((minCheck: number) => {
+        const checks = Array.from(document.querySelectorAll("#pickup-queue input[type='checkbox'][data-farm-id]"));
+        return checks.length >= minCheck && checks.every(c => (c as HTMLInputElement).checked);
+      }, minChecks)
+      .catch(() => false);
+    if (satisfied) return;
+    const mapBox = await lp.locator(".leaflet-container").boundingBox().catch(() => null);
+    if (mapBox) {
+      const fx = i % 2 === 0 ? 0.35 : 0.65;
+      const fy = i % 2 === 0 ? 0.3 : 0.7;
+      await lp.evaluate(([cx, cy]) => {
+        const el = document.querySelector(".leaflet-container");
+        if (el) el.dispatchEvent(new MouseEvent("click", { clientX: cx, clientY: cy, bubbles: true }));
+      }, [mapBox.x + mapBox.width * fx, mapBox.y + mapBox.height * fy]).catch(() => {});
+    }
+    await lp.waitForTimeout(800);
+  }
+  throw new Error(`Pickup queue never satisfied (needed ≥${minChecks} checked farms)`);
+}
+
+// Capture the exact lon/lat of the intended cooperative farms from the page's
+// own `farms` JSON (server-rendered from the DB), so the OSRM mock can admit
+// ONLY those farms into the 50km pickup queue. Deterministic even when the DB
+// carries extra seed farms. Empty → caller falls back to admitting everything.
+// NOTE: must be an in-page fetch() — a page.request.get() to this route makes
+// Playwright drop the browser session (the next goto lands on /login).
+async function captureIntendedFarmCoords(lp: Page, names: string[]): Promise<Array<[number, number]>> {
+  try {
+    const raw: string = await lp.evaluate(async () => await (await fetch("/route-optimization")).text());
+    const scriptRe = /<script[^>]*>([\s\S]*?)<\/script>/gi;
+    const jsonRe = /const farms\s*=\s*(\[[\s\S]*?\])/;
+    let m: RegExpExecArray | null;
+    while ((m = scriptRe.exec(raw))) {
+      const j = m[1].match(jsonRe);
+      if (!j) continue;
+      try {
+        const farmsJson = JSON.parse(j[1]);
+        return (farmsJson as any[])
+          .filter((f: any) => names.includes(f.name))
+          .map((f: any) => [Number(f.farmer_profile.longitude), Number(f.farmer_profile.latitude)] as [number, number]);
+      } catch { /* try next script */ }
+    }
+  } catch { /* fall through to empty → admit-all */ }
+  return [];
+}
+
+// Per-farm nearest-leg lookup (?overview=false): farms we recognize get a
+// sub-radius distance, everyone else is pushed past the 50km filter.
+function mockPerFarmDistance(route: any, admit: Array<[number, number]>, url: string) {
+  const farmPart = (url.match(/driving\/([^?]+)/) || [])[1]?.split(";")[0] || "";
+  const [lon, lat] = farmPart.split(",").map(Number);
+  let hit = admit.length === 0;
+  for (const [aLon, aLat] of admit) {
+    if (Math.abs(lon - aLon) < 0.001 && Math.abs(lat - aLat) < 0.001) { hit = true; break; }
+  }
+  route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ code: "Ok", routes: [{ distance: hit ? 120 : 999000, duration: 0 }] }) });
+}
+
+// The generate button stays disabled until a truck with an assigned driver is
+// selected (fresh page loads lose the auto-recommended truck). Pick the first
+// such truck deterministically, then wait for the button.
+async function ensureGenerateEnabled(lp: Page) {
+  const pick = await lp.evaluate(() => {
+    const btn = document.getElementById("btn-generate-plan") as HTMLButtonElement | null;
+    if (btn && !btn.disabled) return { ready: true, index: -1 };
+    const sel = document.getElementById("truck-select") as HTMLSelectElement | null;
+    if (!sel) return { ready: false, index: -2 };
+    for (let i = 0; i < sel.options.length; i++) {
+      const d = (sel.options[i].dataset.driver || "").trim();
+      if (sel.options[i].value && d && d !== "No driver assigned") return { ready: false, index: i };
+    }
+    return { ready: false, index: -3 };
+  });
+  if (pick.ready) return;
+  if (pick.index < 0) throw new Error("No truck with an assigned driver is available for route generation");
+  await lp.selectOption("#truck-select", { index: pick.index });
+  await lp.evaluate(() => {
+    document.getElementById("truck-select")!.dispatchEvent(new Event("change"));
+  });
+  await lp.waitForFunction(() => {
+    const b = document.getElementById("btn-generate-plan");
+    return b && !b.disabled;
+  }, undefined, { timeout: 25_000 });
+}
+
+// Deterministically get all farms into the pickup queue and make sure the
+// generate button is armed. Shared by the level-up and overflow tests.
+async function renderPickupAndEnable(lp: Page, minChecks: number) {
+  await ensurePickupQueue(lp, minChecks);
+  await ensureGenerateEnabled(lp);
+}
+
 // `pace()` parks until ≥60s after the last throttled POST for that user, then
 // `lastLpPostAt` is refreshed right after each LP POST.
+// The farmer's "Agree to These Terms" button is inserted by the negotiation room's
+// message poll. A poll can briefly fail mid-run, so retry by re-logging-in and
+// re-opening the room (fresh render + fresh poll loop) instead of failing a whole
+// run on one mailbox hiccup.
+async function farmerAgreeWithRetry(fp: Page, negId: string, email: string, password: string, retries = 3): Promise<void> {
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    await login(fp, email, password);
+    await fp.goto(`/negotiations/${negId}`);
+    await fp.waitForLoadState("networkidle").catch(() => {});
+    const agreeBtn = fp.locator("#agree-btn");
+    const ok = await agreeBtn.waitFor({ state: "visible", timeout: 30_000 }).then(() => true).catch(() => false);
+    if (ok) {
+      await agreeBtn.click();
+      await swalConfirm(fp);
+      await waitForStatus(fp, "AGREED");
+      return;
+    }
+    console.log(`  [pace] farmer agree attempt ${attempt} missed #agree-btn — re-opening room`);
+    await fp.waitForTimeout(2500);
+  }
+  throw new Error(`Farmer agree did not render after ${retries} attempts (negotiation ${negId})`);
+}
+
 async function pace(page: Page) {
   const since = Date.now() - lastLpPostAt;
   if (since < 60_000) {
@@ -204,6 +348,8 @@ async function finalizeDealWithRetry(lp: Page, negId: string, rate: string, retr
       });
     }
     const finResp = lp.waitForResponse(r => /\/negotiations\/\d+\/finalize$/.test(r.url()), { timeout: 30_000 }).catch(() => null);
+    await lp.waitForLoadState("networkidle").catch(() => {});
+    await lp.waitForTimeout(600);
     await lp.locator("button[type='submit']", { hasText: /Close Deal/i }).click();
     lastLpPostAt = Date.now();
     const res = await finResp;
@@ -364,10 +510,22 @@ test("Coop farmer level-up: 3 farms × custom crops → negotiations → route o
   }
 
   try {
+    // ═══════ M3 HYGIENE — clear E2E-tagged pooling/negotiation leftovers from run N ═══════
+    resetE2eState();
+
     // ══════════════════════ STAGE 1 — THREE COOP FARMERS POST (2 CUSTOM + 1 MANGO) ══════════════════════
     for (const f of A.farmers) {
       await tryStep(`harvest-${f.crop}`, async () => createHarvest(f, fp), fp);
     }
+
+    // farmer0 also posts a SECOND crop so the accept-all assertion in Stage 5 can
+    // prove one Accept marks BOTH of farmer0's crops on the same route offer.
+    await tryStep("harvest-farmer0-pomelo", async () => {
+      await createHarvest(
+        { email: A.farmers[0].email, password: A.farmers[0].password, name: A.farmers[0].name, crop: "Pomelo", variety: "Pink", custom: true, qty: "100", price: "60", rate: "2.90" },
+        fp
+      );
+    }, fp);
 
     // ══════════════════════ STAGE 2 — COOP SEES ALL THREE ON CROP BOARD + ROUTE MAP ══════════════════════
     await tryStep("coop-crop-board", async () => {
@@ -393,7 +551,7 @@ test("Coop farmer level-up: 3 farms × custom crops → negotiations → route o
       await tryStep(`negotiation-${tag}-start`, async () => {
         await lp.goto("/buyer/crop-board");
         await lp.waitForLoadState("networkidle").catch(() => {});
-        const card = lp.locator("div:has(> div > a[href*='/buyer/crop-board/'])").filter({ hasText: f.name }).first();
+        const card = lp.locator("div:has(> div > a[href*='/buyer/crop-board/'])").filter({ hasText: f.name }).filter({ hasText: f.crop }).first();
         const link = card.locator("a[href*='/buyer/crop-board/']").first();
         await link.waitFor({ state: "visible", timeout: 20_000 });
         await link.click();
@@ -432,17 +590,13 @@ test("Coop farmer level-up: 3 farms × custom crops → negotiations → route o
         const negId = negotiationUrl.match(/negotiations\/(\d+)/)?.[1];
         if (!negId) throw new Error("Could not extract negotiation ID");
 
-        await login(fp, f.email, f.password);
-        await fp.goto(`/negotiations/${negId}`);
-        await fp.waitForLoadState("networkidle").catch(() => {});
+        // The farmer's "Agree to These Terms" button is inserted client-side by the
+        // room's first successful message poll. Under heavy throttling the poll can
+        // briefly fail; re-login + re-open the room delivers a fresh render/poll.
+        await farmerAgreeWithRetry(fp, negId, f.email, f.password);
         runLog[`negotiation-id-${tag}`] = Number(negId);
         await shot(fp, step(`farmer-room-${tag}`), `${f.name} views negotiation room`);
-        const agreeBtn = fp.locator("#agree-btn");
-        await agreeBtn.waitFor({ state: "visible", timeout: 30_000 });
         await shot(fp, step(`farmer-agree-visible-${tag}`), `${f.name} sees "Agree to These Terms"`);
-        await agreeBtn.click();
-        await swalConfirm(fp);
-        await waitForStatus(fp, "AGREED");
         await shot(fp, step(`farmer-agreed-${tag}`), `${f.name} agreed to terms`);
       }, fp);
 
@@ -492,6 +646,82 @@ test("Coop farmer level-up: 3 farms × custom crops → negotiations → route o
       }, lp);
     }
 
+    // farmer0's SECOND crop (Pomelo) must also reach a Done Deal so BOTH of
+    // farmer0's crops ride the consolidated route offer (accept-all assertion).
+    {
+      const f = { email: A.farmers[0].email, password: A.farmers[0].password, name: A.farmers[0].name, crop: "Pomelo", variety: "Pink", custom: true, qty: "100", price: "60", rate: "2.90" };
+      const tag = "pomelo";
+      await pace(lp);
+
+      await tryStep(`negotiation-${tag}-start`, async () => {
+        await lp.goto("/buyer/crop-board");
+        await lp.waitForLoadState("networkidle").catch(() => {});
+        const card = lp.locator("div:has(> div > a[href*='/buyer/crop-board/'])").filter({ hasText: f.name }).filter({ hasText: f.crop }).first();
+        const link = card.locator("a[href*='/buyer/crop-board/']").first();
+        await link.waitFor({ state: "visible", timeout: 20_000 });
+        await link.click();
+        await lp.waitForURL(/\/buyer\/crop-board\/\d+/, { timeout: 20_000 });
+        await lp.getByRole("button", { name: /Initiate Negotiation/i }).click();
+        await swalConfirm(lp);
+        lastLpPostAt = Date.now();
+        await lp.waitForURL(/negotiations\/\d+/, { timeout: 20_000 });
+        await shot(lp, step(`negotiation-started-${tag}`), `Negotiation room opened for ${f.crop}`);
+      }, lp);
+
+      await tryStep(`negotiation-${tag}-chat`, async () => {
+        await lp.locator("#message-input").fill(`Hello ${f.name}! The cooperative would like to buy your ${f.crop} (${f.variety}), ${f.qty}kg at ₱${f.price}/kg.`);
+        await lp.locator("#send-message-form button[type='submit']").click();
+        lastLpPostAt = Date.now();
+        await lp.waitForTimeout(2000);
+        await shot(lp, step(`negotiation-message-${tag}`), `Chat message sent for ${f.crop}`);
+      }, lp);
+
+      await tryStep(`negotiation-${tag}-propose`, async () => {
+        await lp.fill("#negotiated_price", f.price);
+        await lp.fill("#negotiated_volume", f.qty);
+        await lp.fill("#term_hauling_rate", f.rate);
+        await lp.click("#propose-btn");
+        await swalConfirm(lp);
+        lastLpPostAt = Date.now();
+        const offered = await lp.locator("#chat-messages-container").getByText(/\[System Offer\]/i).first()
+          .waitFor({ state: "visible", timeout: 20_000 }).then(() => true).catch(() => false);
+        if (!offered) throw new Error("Proposal did not persist — no [System Offer] message in chat");
+        await shot(lp, step(`proposal-sent-${tag}`), `Terms proposed for ${f.crop}: ₱${f.price}/kg, ${f.qty}kg, haul ₱${f.rate}/kg`);
+      }, lp);
+
+      await tryStep(`negotiation-${tag}-farmer-agrees`, async () => {
+        const negotiationUrl = lp.url();
+        const negId = negotiationUrl.match(/negotiations\/(\d+)/)?.[1];
+        if (!negId) throw new Error("Could not extract negotiation ID");
+
+        await farmerAgreeWithRetry(fp, negId, f.email, f.password);
+        await shot(fp, step(`farmer-agreed-${tag}`), `${f.name} agreed to ${f.crop} terms`);
+      }, fp);
+
+      await tryStep(`negotiation-${tag}-finalize`, async () => {
+        await lp.reload();
+        await lp.waitForLoadState("networkidle").catch(() => {});
+        const rateInput = lp.locator("#hauling_rate_per_kg");
+        await rateInput.waitFor({ state: "visible", timeout: 20_000 }).catch(() => {});
+        if (await rateInput.isVisible().catch(() => false)) {
+          await rateInput.fill(f.rate);
+        }
+        await lp.evaluate(() => {
+          const latEl = document.getElementById("destination_latitude") as HTMLInputElement;
+          const lngEl = document.getElementById("destination_longitude") as HTMLInputElement;
+          const addrEl = document.getElementById("destination_address") as HTMLInputElement;
+          if (latEl && !latEl.value) latEl.value = "6.1164";
+          if (lngEl && !lngEl.value) lngEl.value = "125.1716";
+          if (addrEl && !addrEl.value) addrEl.value = "GenSan Wholesale Market Hub";
+        });
+        const negId = lp.url().match(/negotiations\/(\d+)/)?.[1];
+        if (!negId) throw new Error("Could not extract negotiation ID for finalize");
+await finalizeDealWithRetry(lp, negId, f.rate);
+        await lp.waitForLoadState("networkidle").catch(() => {});
+        await shot(lp, step(`deal-finalized-${tag}`), `DONE DEAL — ${f.crop} locked to ${f.rate}/kg haul rate`);
+      }, lp);
+    }
+
     // ══════════════════════ STAGE 3.5 — DONE DEALS FEED THE PLANNER ══════════════════════
     await tryStep("deals-feed-planner", async () => {
       await lp.goto("/route-optimization");
@@ -532,8 +762,20 @@ test("Coop farmer level-up: 3 farms × custom crops → negotiations → route o
         waypoints: throughFarm.coordinates.map((c: number[]) => ({ geometry: { coordinates: c } })),
       });
 
+      // Admit ONLY the 3 cooperative farms into the pickup queue (extra seed
+      // farms would overflow the 2500kg compact truck and disable generate).
+      const admitCoords = await captureIntendedFarmCoords(lp, A.farmers.map((f: any) => f.name));
+
       await lp.route("**/router.project-osrm.org/route/v1/driving/**", (route) => {
-        route.fulfill({ status: 200, contentType: "application/json", body: mockRouteBody });
+        const url = route.request().url();
+        if (url.includes("overview=false")) {
+          // Per-farm nearest-leg lookups (?overview=false) must return a distance
+          // WELL UNDER the 50km search radius for the intended farms, far OVER for
+          // everyone else. Distance only — no geometry consumed by the caller.
+          mockPerFarmDistance(route, admitCoords, url);
+        } else {
+          route.fulfill({ status: 200, contentType: "application/json", body: mockRouteBody });
+        }
       });
       await lp.route("**/router.project-osrm.org/trip/v1/**", (route) => {
         route.fulfill({ status: 200, contentType: "application/json", body: mockTripBody });
@@ -551,28 +793,24 @@ test("Coop farmer level-up: 3 farms × custom crops → negotiations → route o
       });
       await lp.selectOption("#radius-select", "50");
 
-      const hasStartMarker = await lp.evaluate(() => document.querySelector(".leaflet-popup")?.textContent?.includes("Coop Hub") ?? false);
-      if (!hasStartMarker) {
-        const mapBox = await lp.locator(".leaflet-container").boundingBox();
-        if (!mapBox) throw new Error("Leaflet map not found");
-        await lp.evaluate(([cx, cy]) => {
-          document.querySelector(".leaflet-container")!.dispatchEvent(new MouseEvent("click", { clientX: cx, clientY: cy, bubbles: true }));
-        }, [mapBox.x + mapBox.width * 0.3, mapBox.y + mapBox.height * 0.3]);
-        await lp.waitForTimeout(400);
-        await lp.evaluate(([cx, cy]) => {
-          document.querySelector(".leaflet-container")!.dispatchEvent(new MouseEvent("click", { clientX: cx, clientY: cy, bubbles: true }));
-        }, [mapBox.x + mapBox.width * 0.7, mapBox.y + mapBox.height * 0.7]);
-      }
-
       // All 3 cooperative farms must be ticked into the pickup queue…
-      await lp.waitForFunction(() => {
-        const checks = Array.from(document.querySelectorAll("#pickup-queue input[type='checkbox'][data-farm-id]"));
-        return checks.length >= 3 && checks.every(c => (c as HTMLInputElement).checked);
-      }, undefined, { timeout: 30_000 });
+      await ensurePickupQueue(lp, 3);
 
       // …on the compact truck (2500kg Isuzu Elf Dropside), NOT the suggested
       // 4500kg Isuzu Forward — that one stays free for the multi-truck overflow.
-      await lp.selectOption("#truck-select", "1");
+      const compactTruckValue = await lp.evaluate(() => {
+        const sel = document.getElementById("truck-select") as HTMLSelectElement | null;
+        if (!sel) return "";
+        for (const o of Array.from(sel.options)) {
+          if (o.value && Math.abs(parseFloat(o.dataset.capacity) - 2500) < 1) return o.value;
+        }
+        return "";
+      });
+      if (!compactTruckValue) throw new Error("No 2500kg compact truck option on #truck-select");
+      await lp.selectOption("#truck-select", compactTruckValue);
+      await lp.evaluate(() => {
+        document.getElementById("truck-select")!.dispatchEvent(new Event("change"));
+      });
       await lp.waitForFunction(() => {
         const b = document.getElementById("btn-generate-plan");
         return b && !b.disabled;
@@ -636,7 +874,8 @@ test("Coop farmer level-up: 3 farms × custom crops → negotiations → route o
     }, lp);
 
     // ══════════════════════ STAGE 5 — EVERY FARMER READS THE OFFER + ACCEPTS ══════════════════════
-    for (const f of A.farmers) {
+    for (let i = 0; i < A.farmers.length; i++) {
+      const f = A.farmers[i];
       const tag = f.crop.toLowerCase();
       await tryStep(`farmer-accept-${tag}`, async () => {
         await login(fp, f.email, f.password);
@@ -653,6 +892,23 @@ test("Coop farmer level-up: 3 farms × custom crops → negotiations → route o
         await fp.waitForLoadState("networkidle", { timeout: 60_000 }).catch(() => {});
         await fp.waitForTimeout(1000);
         await shot(fp, step(`farmer-accepted-${tag}`), `${f.name} accepted the Route Offer`);
+
+        // Accept-all (Task 4): farmer0 owns TWO crops on this one route offer —
+        // a single Accept must have marked BOTH pivots accepted, and the offer
+        // card must now show the "Accepted — awaiting other farmers." state.
+        if (i === 0) {
+          try {
+            await fp.waitForFunction(() => /Accepted — awaiting other farmers/i.test(document.body.innerText), undefined, { timeout: 60_000 });
+          } catch { /* falls through to the throwing assertion below with a clear message */ }
+          const bodyText = (await fp.locator("body").innerText()).replace(/\s+/g, " ");
+          const hasAcceptedBanner = /Accepted — awaiting other farmers/i.test(bodyText);
+          const hasCargo1 = bodyText.includes(f.crop);              // e.g. Guyabano
+          const hasCargo2 = bodyText.includes("Pomelo");            // farmer0's second crop
+          runLog['accept-all'] = { hasAcceptedBanner, hasCargo1: f.crop, hasCargo2: "Pomelo", found1: hasCargo1, found2: hasCargo2 };
+          console.log("  [info] accept-all:", JSON.stringify(runLog['accept-all']));
+          if (!hasAcceptedBanner) throw new Error("Accept-all: offer card did not reach 'Accepted — awaiting other farmers.' after ONE accept");
+          if (!(hasCargo1 && hasCargo2)) throw new Error(`Accept-all: one Accept did not cover both crops (Guyabano=${hasCargo1} Pomelo=${hasCargo2})`);
+        }
       }, fp);
     }
 
@@ -714,6 +970,8 @@ test("Coop farmer level-up: 3 farms × custom crops → negotiations → route o
       await dp.goto("/driver");
       await dp.locator("a:has-text('View Details')").first().click();
       await driverJobDetail(dp);
+      await dp.waitForLoadState("networkidle").catch(() => {});
+      await dp.waitForTimeout(800);
       const acceptBtn = dp.getByRole("button", { name: /Accept Job/i }).first();
       if (await acceptBtn.isVisible().catch(() => false)) {
         await acceptBtn.click();
@@ -1014,7 +1272,7 @@ test("Coop farmer multi-truck overflow: 5 farms × 5700kg → 2 routes on 2 truc
     }
   });
 
-  async function createHarvest(f: typeof A.farmers[number], page: Page) {
+  async function createHarvest(f: typeof A.farmers[number], page: Page, note?: string) {
     await login(page, f.email, f.password);
     await page.goto("/harvests/create");
     await page.waitForSelector("#crop_search", { state: "visible", timeout: 20_000 });
@@ -1041,7 +1299,7 @@ test("Coop farmer multi-truck overflow: 5 farms × 5700kg → 2 routes on 2 truc
     await page.fill("#quantity_kg", f.qty);
     await page.fill("#suggested_price_per_kg", f.price);
     await page.fill("#harvest_date", tomorrow());
-    await page.fill("#notes", `E2E overflow run — ${f.crop} (${f.variety}) from ${f.name}`);
+    await page.fill("#notes", note ?? `E2E overflow run — ${f.crop} (${f.variety}) from ${f.name}`);
     await shot(page, step(`harvest-custom-${f.crop.toLowerCase()}`), `Overflow custom crop typed: ${f.crop} / ${f.variety}`);
 
     const submitBtn = page.locator("#post-harvest-btn");
@@ -1058,10 +1316,43 @@ test("Coop farmer multi-truck overflow: 5 farms × 5700kg → 2 routes on 2 truc
   }
 
   try {
+    // ═══════ M3 HYGIENE — clear E2E-tagged pooling/negotiation leftovers from run N ═══════
+    resetE2eState();
+
     // ══════════════════════ STAGE 1 — ALL 5 COOP FARMERS POST CUSTOM CROPS ══════════════════════
     for (const f of A.farmers) {
       await tryStep(`harvest-${f.crop}`, async () => createHarvest(f, fp), fp);
     }
+
+    // Excluded-farm coverage (Task 1): farmer1 posts a SECOND crop that is NEVER
+    // negotiated. planAll must exclude it with a reason instead of vetoing the run,
+    // and the amber banner must list "Tupi Harvests Owner: No agreement yet for Papaya".
+    // We capture its harvest id from the harvest index page so we can inject it into
+    // the planAll harvest_ids (un-negotiated ACTIVE crops are not shown on the route map).
+    let excludedHarvestId = 0;
+    await tryStep("harvest-excluded-papaya", async () => {
+      await createHarvest(
+        { email: A.farmers[1].email, password: A.farmers[1].password, name: A.farmers[1].name, crop: "Papaya", variety: "Solo", custom: true, qty: "100", price: "50", rate: "2.40" },
+        fp,
+        "E2E overflow excluded — Papaya (Solo) from Tupi Harvests Owner"
+      );
+      await fp.goto("/harvests");
+      await fp.waitForLoadState("networkidle").catch(() => {});
+      excludedHarvestId = await fp.evaluate(() => {
+        const rows = Array.from(document.querySelectorAll("tbody tr"));
+        for (const row of rows) {
+          if ((row.textContent || "").includes("E2E overflow excluded")) {
+            const a = row.querySelector("a[href*='/edit']");
+            const m = a?.getAttribute("href")?.match(/\/harvests\/(\d+)\/edit/);
+            if (m) return Number(m[1]);
+          }
+        }
+        return 0;
+      });
+      if (!excludedHarvestId) throw new Error("Could not capture excluded farm's harvest id from /harvests");
+      runLog['excluded-harvest-id'] = excludedHarvestId;
+      console.log("  [info] excluded harvest id:", excludedHarvestId);
+    }, fp);
 
     // ══════════════════════ STAGE 2 — COOP SEES ALL 5 ON CROP BOARD + ROUTE MAP ══════════════════════
     await tryStep("coop-crop-board-5", async () => {
@@ -1086,7 +1377,7 @@ test("Coop farmer multi-truck overflow: 5 farms × 5700kg → 2 routes on 2 truc
       await tryStep(`negotiation-${tag}-start`, async () => {
         await lp.goto("/buyer/crop-board");
         await lp.waitForLoadState("networkidle").catch(() => {});
-        const card = lp.locator("div:has(> div > a[href*='/buyer/crop-board/'])").filter({ hasText: f.name }).first();
+        const card = lp.locator("div:has(> div > a[href*='/buyer/crop-board/'])").filter({ hasText: f.name }).filter({ hasText: f.crop }).first();
         const link = card.locator("a[href*='/buyer/crop-board/']").first();
         await link.waitFor({ state: "visible", timeout: 20_000 });
         await link.click();
@@ -1205,7 +1496,12 @@ if (addrEl && !addrEl.value) addrEl.value = "GenSan Wholesale Market Hub";
     }, lp);
 
     // ══════════════════════ STAGE 4 — MULTI-ROUTE: planAll → 2 PLANS → CONFIRM ALL ══════════════════════
-    let routingMode: "real" | "mock" = "real";
+    // Deterministic mock (like the level-up test): the browser's OSRM calls are
+    // intercepted by the through-farm geometry so all 5 pickup farms land in the
+    // queue, while /pooling/plan-all runs against the REAL endpoint (it needs no
+    // OSRM — the frontend supplies road distance) so the excluded-farm banner
+    // exercises the genuine server path.
+    let routingMode: "real" | "mock" = "mock";
     let planAllData: any = null;
     let confirmJobIds: number[] = [];
 
@@ -1220,12 +1516,22 @@ if (addrEl && !addrEl.value) addrEl.value = "GenSan Wholesale Market Hub";
         waypoints: throughFarm.coordinates.map((c: number[]) => ({ geometry: { coordinates: c } })),
       });
 
+      // Admit ONLY the 5 cooperative farms into the pickup queue (extra seed
+      // farms would exceed the 2-truck split and break the per-truck assertions).
+      const admitCoords = await captureIntendedFarmCoords(lp, A.farmers.map((f: any) => f.name));
+
       await lp.route("**/router.project-osrm.org/route/v1/driving/**", (route) => {
-        if (routingMode === "real") return route.continue();
-        route.fulfill({ status: 200, contentType: "application/json", body: mockRouteBody });
+        const url = route.request().url();
+        if (url.includes("overview=false")) {
+          // Per-farm nearest-leg lookups (?overview=false) must return a distance
+          // WELL UNDER the 50km search radius for the intended farms, far OVER for
+          // everyone else. Distance only — no geometry consumed by the caller.
+          mockPerFarmDistance(route, admitCoords, url);
+        } else {
+          route.fulfill({ status: 200, contentType: "application/json", body: mockRouteBody });
+        }
       });
       await lp.route("**/router.project-osrm.org/trip/v1/**", (route) => {
-        if (routingMode === "real") return route.continue();
         route.fulfill({ status: 200, contentType: "application/json", body: mockTripBody });
       });
 
@@ -1240,59 +1546,55 @@ if (addrEl && !addrEl.value) addrEl.value = "GenSan Wholesale Market Hub";
         });
         await lp.selectOption("#radius-select", "50");
 
-        const hasStartMarker = await lp.evaluate(() => document.querySelector(".leaflet-popup")?.textContent?.includes("Coop Hub") ?? false);
-        if (!hasStartMarker) {
-          const mapBox = await lp.locator(".leaflet-container").boundingBox();
-          if (!mapBox) throw new Error("Leaflet map not found");
-          await lp.evaluate(([cx, cy]) => {
-            document.querySelector(".leaflet-container")!.dispatchEvent(new MouseEvent("click", { clientX: cx, clientY: cy, bubbles: true }));
-          }, [mapBox.x + mapBox.width * 0.3, mapBox.y + mapBox.height * 0.3]);
-          await lp.waitForTimeout(400);
-          await lp.evaluate(([cx, cy]) => {
-            document.querySelector(".leaflet-container")!.dispatchEvent(new MouseEvent("click", { clientX: cx, clientY: cy, bubbles: true }));
-          }, [mapBox.x + mapBox.width * 0.7, mapBox.y + mapBox.height * 0.7]);
-        }
-
-        // All 5 farms must be ticked into the pickup queue before generating.
-        await lp.waitForFunction(() => {
-          const checks = Array.from(document.querySelectorAll("#pickup-queue input[type='checkbox'][data-farm-id]"));
-          return checks.length >= 5 && checks.every(c => (c as HTMLInputElement).checked);
-        }, undefined, { timeout: 30_000 });
-
-        await lp.waitForFunction(() => {
-          const b = document.getElementById("btn-generate-plan");
-          return b && !b.disabled;
-        }, undefined, { timeout: 25_000 });
+        // All 5 farms must be ticked into the pickup queue, and a truck with an
+        // assigned driver must be armed, before generating.
+        await ensurePickupQueue(lp, 5);
+        await ensureGenerateEnabled(lp);
       };
 
       await lp.goto("/route-optimization");
       await lp.waitForLoadState("networkidle").catch(() => {});
       await renderMulti();
 
+      // Inject the never-negotiated Papaya harvest into the planAll payload so the
+      // backend exercises its no-agreement exclusion path (Task 1) deterministically.
+      // We mutate the inferred body and CONTINUE to the real endpoint — proxying
+      // via a fetch() to the SAME URL would re-enter this handler (recursion).
+      await lp.route("**/pooling/plan-all", (route) => {
+        try {
+          const body = route.request().postDataJSON();
+          if (!body) return route.continue();
+          if (Array.isArray(body.harvest_ids) && excludedHarvestId && !body.harvest_ids.includes(excludedHarvestId)) {
+            body.harvest_ids.push(excludedHarvestId);
+            body.farm_distances = body.farm_distances || {};
+            body.farm_distances[excludedHarvestId] = 3;
+          }
+          route.continue({ postData: JSON.stringify(body) });
+        } catch (e) {
+          route.fulfill({ status: 500, contentType: "application/json", body: JSON.stringify({ error: String(e) }) });
+        }
+      });
+
       const planAllRespP = lp.waitForResponse(r => /pooling\/plan-all/.test(r.url()) && r.status() < 500, { timeout: 60_000 }).catch(() => null);
       await lp.click("#btn-generate-plan");
       await swalConfirm(lp);
 
-      let multiVisible = await lp.waitForSelector("#plan-all-panel:not(.hidden)", { state: "visible", timeout: 40_000 }).then(() => true).catch(() => false);
-      if (!multiVisible && routingMode === "real") {
-        await shot(lp, step("real-osrm-planall-failed"), "Real OSRM planAll failed/unreachable — falling back to deterministic mock");
-        routingMode = "mock";
-        await lp.goto("/route-optimization");
-        await lp.waitForLoadState("networkidle").catch(() => {});
-        await renderMulti();
-        const planAllRespP2 = lp.waitForResponse(r => /pooling\/plan-all/.test(r.url()) && r.status() < 500, { timeout: 60_000 }).catch(() => null);
-        await lp.click("#btn-generate-plan");
-        await swalConfirm(lp);
-        multiVisible = await lp.waitForSelector("#plan-all-panel:not(.hidden)", { state: "visible", timeout: 40_000 }).then(() => true).catch(() => false);
-        if (!multiVisible) throw new Error("Multi-plan panel never appeared (mock too)");
-        const resp2 = await planAllRespP2;
-        if (resp2) planAllData = await resp2.json().catch(() => null);
-      } else {
-        const resp1 = await planAllRespP;
-        if (resp1) planAllData = await resp1.json().catch(() => null);
-      }
+      const multiVisible = await lp.waitForSelector("#plan-all-panel:not(.hidden)", { state: "visible", timeout: 40_000 }).then(() => true).catch(() => false);
+      if (!multiVisible) throw new Error("Multi-plan panel never appeared");
+      const resp1 = await planAllRespP;
+      if (resp1) planAllData = await resp1.json().catch(() => null);
 
       await shot(lp, step("plan-all-panel-2-routes"), `Stage 4 – Multi-Truck Route Plan panel (mode: ${routingMode})`);
+
+      // Excluded-farm coverage (Task 1): the no-agreement Papaya must appear in the
+      // amber banner as "- <farm>: No agreement yet for <crop> — settle a price first."
+      const bannerVisible = await lp.locator("#plan-all-unassigned-banner").count().then(n => n > 0).catch(() => false);
+      const bannerText = bannerVisible ? (await lp.locator("#plan-all-unassigned-text").innerText()).replace(/\s+/g, " ") : "";
+      runLog['plan-all-excluded-banner'] = { visible: bannerVisible, text: bannerText.slice(0, 400) };
+      console.log("  [info] plan-all excluded banner:", JSON.stringify(runLog['plan-all-excluded-banner']));
+      if (!bannerVisible) throw new Error("No-agreement excluded farm should trigger the amber planAll banner (#plan-all-unassigned-banner)");
+      if (!/Tupi Harvests Owner/i.test(bannerText)) throw new Error("Banner missing excluded farm name (Tupi Harvests Owner)");
+      if (!/No agreement yet for Papaya/i.test(bannerText)) throw new Error("Banner missing exclusion reason 'No agreement yet for Papaya'");
 
       runLog['planAll-response'] = {
         overflow: planAllData?.overflow,
@@ -1328,6 +1630,27 @@ if (addrEl && !addrEl.value) addrEl.value = "GenSan Wholesale Market Hub";
       const missingOnCards = expectedCrops.filter(c => !cardText.includes(c));
       if (missingOnCards.length > 0) throw new Error(`Rendered plan cards missing our crops: ${missingOnCards.join(", ")}`);
       runLog['plan-all-cards'] = { card_count: cardCount, text_has_all_5: missingOnCards.length === 0 };
+
+      // Per-truck route geometry (Task 1): every rendered card must carry its own
+      // Distance readout (75.00 km in mock mode, real distance in live OSRM mode).
+      const cardDistances: string[] = [];
+      for (let attempt = 0; attempt < 20; attempt++) {
+        cardDistances.length = 0;
+        const cards = await lp.locator("#plan-all-cards > div").all();
+        for (const card of cards) {
+          const ct = (await card.innerText()).replace(/\s+/g, " ");
+          const m = ct.match(/Distance\s+([\d.]+)\s*km/i);
+          cardDistances.push(m ? m[1] : "");
+        }
+        const allValid = cardDistances.length >= 2 && cardDistances.every((d) => d !== "" && Number(d) > 0);
+        if (allValid) break;
+        await lp.waitForTimeout(1000);
+      }
+      runLog['cards-distances'] = cardDistances;
+      console.log("  [info] per-card distances:", JSON.stringify(cardDistances));
+      if (cardDistances.length < 2) throw new Error(`Expected ≥2 plan cards with per-truck Distance, got ${cardDistances.length}`);
+      if (cardDistances.some((d) => d === "")) throw new Error("At least one plan card is missing its per-truck Distance readout");
+      if (cardDistances.some((d) => Number(d) <= 0)) throw new Error("Per-truck Distance never populated past its 0.00 placeholder");
     }, lp);
 
     await tryStep("route-confirm-all", async () => {
@@ -1346,6 +1669,31 @@ if (addrEl && !addrEl.value) addrEl.value = "GenSan Wholesale Market Hub";
       await shot(lp, step("route-proposals-created"), "Stage 4 – Confirm All Routes: 2 pooling proposals created");
       console.log("  [info] confirmAll job_ids:", JSON.stringify(confirmJobIds));
     }, lp);
+
+    // ══════════════════════ STAGE 4.2 — EXCLUDED FARM GETS "CROP NOT INCLUDED" NOTIFICATION ══════════════════════
+    await tryStep("excluded-farm-notification", async () => {
+      // Farmer layouts don't render the notification dropdown, so drive the browser
+// directly to the JSON API route (authenticated navigation, keeps the session).
+      let notif: { title: boolean; message: boolean } | null = null;
+      for (let attempt = 0; attempt < 4 && !notif; attempt++) {
+        await login(fp, A.farmers[1].email, A.farmers[1].password);
+        await fp.goto("/api/notifications?per_page=10");
+        const present = await fp.waitForFunction(
+          () => /Crop Was Not Included/i.test(document.body.innerText) && /was not included in this route/i.test(document.body.innerText),
+          undefined, { timeout: 30_000 }
+        ).then(() => true).catch(() => false);
+        if (present) {
+          const bodyText = (await fp.locator("body").innerText()).replace(/\s+/g, " ");
+          notif = { title: true, message: /was not included in this route/i.test(bodyText) };
+        } else {
+          await fp.waitForTimeout(2500);
+        }
+      }
+      runLog['excluded-farm-notification'] = notif;
+      console.log("  [info] excluded-farm notification:", JSON.stringify(runLog['excluded-farm-notification']));
+      if (!notif) throw new Error(`No 'Route Offer — Your Crop Was Not Included' notification for ${A.farmers[1].name}`);
+      if (!notif.message) throw new Error("Excluded-farm notification message missing 'was not included in this route'");
+    }, fp);
 
     // ══════════════════════ STAGE 5 — EVERY FARMER ACCEPTS THEIR ROUTE OFFER ══════════════════════
     for (const f of A.farmers) {
