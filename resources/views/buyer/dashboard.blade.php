@@ -24,7 +24,7 @@
                 title="Pending Confirmations"
                 :value="$pendingConfirmations->count()"
                 unit="deliveries"
-                href="{{ route('buyer.negotiations') }}"
+                href="{{ route('buyer.tracking') }}"
                 linkText="View Deliveries"
             />
 
@@ -41,7 +41,7 @@
                 value="{{ number_format($monthlySpent, 2) }}"
                 unit="PHP"
                 href="{{ route('buyer.negotiations') }}"
-                linkText="View Deals"
+                linkText="View Negotiations"
             >
                 <span class="text-[9px] font-semibold text-slate-500 dark:text-slate-400">{{ number_format($monthlyKg, 0) }} kg purchased</span>
             </x-stat-card>
