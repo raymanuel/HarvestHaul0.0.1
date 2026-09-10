@@ -21,6 +21,10 @@
                 <p class="text-sm text-slate-500 dark:text-slate-400 mt-2 max-w-md mx-auto">There are currently no active crop products posted by verified independent farmers on the marketplace.</p>
             </div>
         @else
+            <div id="new-posts-banner" class="hidden mb-6 bg-[#16283C]/10 dark:bg-[#D7BC7A]/10 border border-[#16283C]/20 dark:border-[#D7BC7A]/20 rounded-xl px-5 py-3 flex items-center justify-between">
+                <p class="text-xs font-bold text-[#16283C] dark:text-[#D7BC7A]">New posts available</p>
+                <button onclick="window.location.reload()" class="text-[10px] font-bold text-[#16283C] dark:text-[#D7BC7A] underline">Refresh</button>
+            </div>
             <div id="crop-board-freshness" class="mb-4 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
                 Updated just now
             </div>
@@ -155,7 +159,11 @@
                     lastChecked = Date.now();
                     updateFreshness();
                     if (data.count !== lastCount) {
-                        window.location.reload();
+                        // Instead of window.location.reload(), show a banner
+                        var banner = document.getElementById('new-posts-banner');
+                        if (banner) {
+                            banner.classList.remove('hidden');
+                        }
                     }
                 })
                 .catch(function () {});
