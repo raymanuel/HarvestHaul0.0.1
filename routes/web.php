@@ -179,6 +179,7 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
         Route::middleware(EnsureUserIsFarmer::class)->group(function () {
             // Harvest Posts Management
             Route::resource('harvests', HarvestController::class)->except(['show']);
+            Route::get('harvests/{harvest}', [HarvestController::class, 'show'])->name('harvests.show');
             Route::post('harvests/{harvest}/mark-as-sold', [HarvestController::class, 'markAsSold'])->name('harvests.mark-as-sold')->middleware('throttle:10,10');
 
             // FIXED: Changed path and name to prevent collision with Logistics group

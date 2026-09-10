@@ -9,6 +9,7 @@ use App\Models\HarvestStatus;
 use App\Models\NegotiationStatus;
 use App\Models\Crop;
 use App\Models\CropVariety;
+use App\Models\PoolingJobStatus;
 use App\Services\CropResolverService;
 use App\Traits\Notifiable;
 
@@ -40,6 +41,42 @@ class HarvestController extends Controller
         $harvests = $query->latest()->paginate(20)->withQueryString();
 
         return view('harvests.index', compact('harvests', 'tab'));
+    }
+
+    public function show(Harvest $harvest)
+    {
+        if ($harvest->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $harvest->load([
+            'crop',
+            'cropVariety',
+            'destination',
+            'negotiations' => function ($q) {
+                $q->with(['buyer', 'messages'])->latest();
+            },
+            'poolingJobs' => function ($q) {
+                $q->with(['truck', 'driver', 'harvests'])->latest();
+            },
+        ]);
+
+        $activeNegotiation = $harvest->negotiations
+            ->where('status', '!=', NegotiationStatus::CANCELLED)
+            ->sortByDesc('last_activity_at')
+            ->first();
+
+        $activePoolingJob = $harvest->poolingJobs
+            ->whereIn('status', [
+                PoolingJobStatus::PENDING,
+                PoolingJobStatus::CONFIRMED,
+                PoolingJobStatus::IN_PROGRESS,
+                PoolingJobStatus::AWAITING_CONFIRMATION,
+            ])
+            ->sortByDesc('created_at')
+            ->first();
+
+        return view('farmers.crop-hub', compact('harvest', 'activeNegotiation', 'activePoolingJob'));
     }
 
     public function create()
