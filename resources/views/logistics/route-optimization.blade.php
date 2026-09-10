@@ -323,7 +323,7 @@
             {{-- Amber warning: some farms could not be loaded (no more trucks) --}}
             <div id="plan-all-unassigned-banner" class="hidden p-4 rounded-xl text-sm font-bold bg-[var(--color-warning-bg)] text-[var(--color-warning-text)] border border-[var(--color-warning-border)] flex items-start gap-2">
                 <span><svg class="w-5 h-5 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg></span>
-                <span id="plan-all-unassigned-text"></span>
+                <div id="plan-all-unassigned-text"></div>
             </div>
 
             <div id="plan-all-cards" class="space-y-5"></div>
@@ -526,6 +526,7 @@
             let toggledFarmIds     = new Set(); // Farms the user explicitly ticked/unticked (stick across redraws)
             let currentPlan          = null;  // Final calculated cost and weight allocations
             let currentPlans         = [];    // Multi-route plans from planAll
+            let currentExcluded      = [];    // Excluded farms from planAll
             let currentFarmDistances = {};    // Per-farm road distances from OSRM (km)
             let rateTouched = false;            // User typed a hauling rate — stop auto-filling
             let suggestedPrefilled = false;     // Suggested rate auto-filled once per page
@@ -1274,6 +1275,7 @@
                 }
 
                 currentPlans = plans;
+                currentExcluded = data.excluded || [];
                 document.getElementById('plan-panel').classList.add('hidden');
                 var panel = document.getElementById('plan-all-panel');
                 panel.classList.remove('hidden');
@@ -1281,9 +1283,22 @@
 
                 document.getElementById('plan-all-count').textContent = plans.length;
                 var banner = document.getElementById('plan-all-unassigned-banner');
-                if ((data.unassigned || 0) > 0) {
+                var bannerText = document.getElementById('plan-all-unassigned-text');
+                var unassignedCount = data.unassigned || 0;
+                var excludedList = currentExcluded;
+                if (unassignedCount > 0 || excludedList.length > 0) {
+                    var html = '';
+                    if (unassignedCount > 0) {
+                        html += _escHtml(data.message || (unassignedCount + ' farm(s) could not be loaded - no more available trucks.'));
+                    }
+                    if (excludedList.length > 0) {
+                        if (html) html += '<br>';
+                        excludedList.forEach(function (e) {
+                            html += '<br>- ' + _escHtml(e.farm_name || 'Farm') + ': ' + _escHtml(e.reason || 'Excluded');
+                        });
+                    }
+                    bannerText.innerHTML = html;
                     banner.classList.remove('hidden');
-                    document.getElementById('plan-all-unassigned-text').textContent = data.message || (data.unassigned + ' farm(s) could not be loaded - no more available trucks.');
                 } else {
                     banner.classList.add('hidden');
                 }
@@ -1291,7 +1306,9 @@
                 var container = document.getElementById('plan-all-cards');
                 container.innerHTML = '';
                 plans.forEach(function (plan, idx) {
-                    var distKm = (plan.road_distance_km != null && Number(plan.road_distance_km) > 0) ? Number(plan.road_distance_km) : (plan.total_distance_km || 0);
+                    var distKm = plan._distanceKm != null && plan._distanceKm > 0
+                        ? plan._distanceKm
+                        : ((plan.road_distance_km != null && Number(plan.road_distance_km) > 0) ? Number(plan.road_distance_km) : (plan.total_distance_km || 0));
                     var stopsHtml = (plan.selected_harvests || []).map(function (h) {
                         return '<div class="flex items-center justify-between gap-2 py-1.5 border-b border-slate-100 dark:border-slate-700/40 last:border-0">'
                             + '<span class="text-xs text-slate-600 dark:text-slate-300"><span class="font-mono text-slate-400 dark:text-slate-600">#' + h.harvest_id + '</span> ' + _escHtml(h.farm_name || '-') + ' <span class="text-slate-400"> - ' + _escHtml(h.crop || '-') + '</span></span>'
@@ -1315,6 +1332,55 @@
                         + '<p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-600 mb-1">Pickup Stops</p>' + stopsHtml
                     + '</div>';
                 });
+
+                if (plans.length > 1) {
+                    (async function () {
+                        for (var i = 0; i < plans.length; i++) {
+                            var p = plans[i];
+                            try {
+                                var coords = [startMarker.getLatLng()];
+                                (p.stops || []).forEach(function (s) { coords.push({ lat: s.latitude, lng: s.longitude }); });
+                                coords.push(endMarker.getLatLng());
+                                var osrmUrl = buildOsrmUrl(coords);
+                                var res = await fetch(osrmUrl);
+                                var osrmData = await res.json();
+                                if (osrmData.routes && osrmData.routes.length) {
+                                    p._geometry = osrmData.routes[0].geometry;
+                                    p._distanceKm = (osrmData.routes[0].distance || 0) / 1000;
+                                }
+                            } catch (err) {
+                                console.error('Per-truck OSRM error for route ' + (i + 1) + ':', err);
+                            }
+                        }
+                        container.innerHTML = '';
+                        plans.forEach(function (plan, idx) {
+                            var distKm = plan._distanceKm != null && plan._distanceKm > 0
+                                ? plan._distanceKm
+                                : ((plan.road_distance_km != null && Number(plan.road_distance_km) > 0) ? Number(plan.road_distance_km) : (plan.total_distance_km || 0));
+                            var stopsHtml = (plan.selected_harvests || []).map(function (h) {
+                                return '<div class="flex items-center justify-between gap-2 py-1.5 border-b border-slate-100 dark:border-slate-700/40 last:border-0">'
+                                    + '<span class="text-xs text-slate-600 dark:text-slate-300"><span class="font-mono text-slate-400 dark:text-slate-600">#' + h.harvest_id + '</span> ' + _escHtml(h.farm_name || '-') + ' <span class="text-slate-400"> - ' + _escHtml(h.crop || '-') + '</span></span>'
+                                    + '<span class="text-xs font-bold text-slate-700 dark:text-slate-300">' + Number(h.quantity_kg).toLocaleString() + ' kg</span></div>';
+                            }).join('');
+                            container.innerHTML +=
+                            '<div class="bg-white dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700/80 rounded-2xl shadow-sm p-5">'
+                                + '<div class="flex items-center justify-between mb-4">'
+                                + '<h3 class="text-sm font-bold text-slate-800 dark:text-slate-200 heading-font flex items-center gap-2"><span class="flex h-6 w-6 items-center justify-center rounded-md bg-brand/10 text-brand dark:bg-brand/10 dark:text-brand-light text-xs font-black">' + (idx + 1) + '</span> Route ' + (idx + 1) + '</h3>'
+                                + '<span class="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-md bg-[var(--color-warning-bg)] text-[var(--color-warning-text)] border border-[var(--color-warning-border)]">Truck auto-assigned</span>'
+                                + '</div>'
+                                + '<dl class="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-2 text-sm mb-4">'
+                                + '<div class="flex justify-between"><dt class="text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider text-[10px]">Truck</dt><dd class="font-bold text-slate-700 dark:text-slate-300 text-xs text-right">' + _escHtml(plan.truck_name || 'Truck #' + plan.truck_id) + '</dd></div>'
+                                + '<div class="flex justify-between"><dt class="text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider text-[10px]">Capacity</dt><dd class="font-bold text-slate-700 dark:text-slate-300 text-xs text-right">' + Number(plan.truck_capacity_kg || 0).toLocaleString() + ' kg</dd></div>'
+                                + '<div class="flex justify-between"><dt class="text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider text-[10px]">Load</dt><dd class="font-bold text-brand dark:text-brand-light text-xs text-right">' + Number(plan.total_kg || 0).toLocaleString() + ' kg (' + Number(plan.load_percentage || 0).toFixed(1) + '%)</dd></div>'
+                                + '<div class="flex justify-between"><dt class="text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider text-[10px]">Farms</dt><dd class="font-bold text-slate-700 dark:text-slate-300 text-xs text-right">' + (plan.farm_count || 0) + '</dd></div>'
+                                + '<div class="flex justify-between"><dt class="text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider text-[10px]">Distance</dt><dd class="font-bold text-slate-700 dark:text-slate-300 text-xs text-right">' + distKm.toFixed(2) + ' km</dd></div>'
+                                + '<div class="flex justify-between"><dt class="text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider text-[10px]">Total Haul Cost</dt><dd class="font-bold text-gold-700 dark:text-gold-light text-xs text-right">₱' + Number(plan.price_reference || 0).toLocaleString(undefined, {minimumFractionDigits: 2}) + '</dd></div>'
+                                + '</dl>'
+                                + '<p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-600 mb-1">Pickup Stops</p>' + stopsHtml
+                            + '</div>';
+                        });
+                    })();
+                }
             }
 
             function renderPlanPanel(plan) {
@@ -1502,9 +1568,9 @@
                             radius_km:            parseFloat(document.getElementById('radius-select').value),
                             hauling_rate_per_kg:  (function(){ var el = document.getElementById('hauling-rate'); return el ? parseFloat(el.value) : null; })(),
                             notes:                document.getElementById('plan-all-notes').value,
-                            route_distance_km:    currentRouteKm(),
+                            route_distance_km:    plan._distanceKm ?? currentRouteKm(),
                             terrain:              (function () { var el = document.getElementById('terrain-select'); return el ? el.value : 'flat'; })(),
-                            route_geometry:       currentRouteGeoJSON ? currentRouteGeoJSON.coordinates : [],
+                            route_geometry:       (plan._geometry?.coordinates) ?? (currentRouteGeoJSON ? currentRouteGeoJSON.coordinates : []),
                             farm_distances:       currentFarmDistances,
                         };
                     });
@@ -1513,7 +1579,7 @@
                         const res = await fetch('{{ route("pooling.confirmBatch") }}', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-                            body: JSON.stringify({ plans: plansPayload }),
+                            body: JSON.stringify({ plans: plansPayload, excluded: currentExcluded ?? [] }),
                         });
                         const result = await res.json();
                         var feedback = document.getElementById('confirm-all-feedback');
@@ -1580,6 +1646,7 @@
                 document.getElementById('plan-panel').classList.add('hidden');
                 document.getElementById('plan-all-panel').classList.add('hidden');
                 currentPlans = [];
+                currentExcluded = [];
                 btnGenerate.disabled = true; this.classList.add('hidden');
             });
                 });
