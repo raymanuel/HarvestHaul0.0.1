@@ -6,7 +6,7 @@
         <header class="mb-8 pt-8">
             <div class="flex items-center gap-2 mb-2">
                 <a href="{{ route('buyer.crop-board') }}" class="text-xs font-bold text-[#16283C] dark:text-[#D7BC7A] hover:underline flex items-center gap-1">
-                    ← Crop Board
+                    ← Back to Crop Board
                 </a>
             </div>
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
