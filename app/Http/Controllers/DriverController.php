@@ -49,13 +49,6 @@ class DriverController extends Controller
             ->where('status', 'completed')
             ->count();
 
-        $profile = $user->driverProfile;
-        $shiftEnd = $profile?->last_shift_ended_at;
-        $elapsed = $shiftEnd ? now()->diffInSeconds($shiftEnd, true) : PHP_INT_MAX;
-        $restRemaining = max(0, (8 * 3600) - $elapsed);
-        $shiftReady = $restRemaining === 0;
-        $shiftRestRemaining = $shiftReady ? null : gmdate('H\h i\m', (int) $restRemaining);
-
         $weekStart = now()->startOfWeek();
         $fuelSummary = \App\Models\FuelLog::where('driver_id', $user->id)
             ->where('created_at', '>=', $weekStart)
@@ -64,10 +57,7 @@ class DriverController extends Controller
 
         return view('driver.driver-view', [
             'jobs'               => $jobs,
-            'completedJobs'      => $completedJobs,
             'completedToday'     => $completedJobs,
-            'shiftReady'         => $shiftReady,
-            'shiftRestRemaining' => $shiftRestRemaining,
             'fuelThisWeekLiters' => (float) ($fuelSummary->liters ?? 0),
             'fuelThisWeekCost'   => (float) ($fuelSummary->cost ?? 0),
         ]);

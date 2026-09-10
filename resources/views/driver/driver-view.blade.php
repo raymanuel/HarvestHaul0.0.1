@@ -51,13 +51,7 @@
             />
         </div>
 
-        <div class="grid grid-cols-2 gap-4 mb-6">
-            <x-stat-card
-                title="Shift Status"
-                value="{{ $shiftReady ? 'Ready' : 'Rest' }}"
-                :unit="$shiftReady ? 'for dispatch' : $shiftRestRemaining . ' left'"
-            />
-
+        <div class="mb-6">
             <x-stat-card
                 title="Fuel This Week"
                 value="{{ number_format($fuelThisWeekLiters, 1) }}"
