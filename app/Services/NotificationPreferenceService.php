@@ -17,7 +17,7 @@ class NotificationPreferenceService
 
     public function getAllForUser(int $userId): array
     {
-        $categories = ['logistics', 'negotiation', 'haul', 'hauling', 'payments', 'weather', 'system', 'delays'];
+        $categories = array_keys(config('notifications.categories', []));
         $prefs = NotificationPreference::where('user_id', $userId)
             ->pluck('enabled', 'category')
             ->toArray();
