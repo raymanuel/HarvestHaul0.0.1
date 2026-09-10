@@ -47,10 +47,7 @@
             </x-stat-card>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-            <x-weather-card class="lg:col-span-1" :weather="$weatherData" />
-            <x-market-prices-card class="lg:col-span-2" />
-        </div>
+        <x-market-prices-card class="mb-6" />
 
         @if($pendingConfirmations->isNotEmpty())
         <div class="mb-10">

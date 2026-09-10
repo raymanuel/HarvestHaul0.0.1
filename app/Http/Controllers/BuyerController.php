@@ -7,7 +7,6 @@ use App\Models\HarvestStatus;
 use App\Models\Negotiation;
 use App\Models\PoolingJob;
 use App\Models\PoolingJobStatus;
-use App\Models\WeatherLog;
 use Illuminate\Support\Facades\DB;
 
 use App\Traits\Notifiable;
@@ -68,9 +67,6 @@ class BuyerController extends Controller
             ->whereColumn('last_activity_at', '>', 'buyer_last_read_at')
             ->count();
 
-        // Latest weather log (buyer has no location preference → most recent anywhere)
-        $weatherData = WeatherLog::orderByDesc('checked_at')->first();
-
         return view('buyer.dashboard', [
             'activeNegotiations'    => $activeNegotiations,
             'completedDeals'        => $completedDeals,
@@ -78,7 +74,6 @@ class BuyerController extends Controller
             'monthlySpent'          => $monthlySpent,
             'monthlyKg'             => $monthlyKg,
             'unreadMessagesCount'   => $unreadMessagesCount,
-            'weatherData'           => $weatherData,
         ]);
     }
 
