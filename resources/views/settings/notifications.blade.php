@@ -15,9 +15,10 @@
             @php
                 $labels = [
                     'logistics' => ['Logistics & Delivery', 'Driver arrivals, deliveries, route updates, route offers'],
-                    'negotiations' => ['Negotiations & Proposals', 'New B2B negotiations, counter-offers, proposal status changes'],
-                    'payments' => ['Payments & Invoices', 'Payment receipts, invoice ready, quantity confirmations'],
-                    'admin' => ['Admin & Verification', 'Identity/profile verification, document approvals'],
+                    'negotiation' => ['Negotiations & Deals', 'New B2B negotiations, counter-offers, deal finalization'],
+                    'haul' => ['Haul Requests', 'Haul intent expressions, rate offers, counter-offers'],
+                    'hauling' => ['Hauling & Cost Shares', 'Cost share breakdowns, payment receipts, quantity confirmations'],
+                    'payments' => ['Payments & Invoices', 'Payment receipts, invoice ready'],
                     'weather' => ['Weather Alerts', 'Severe weather warnings for your area'],
                     'system' => ['System Notifications', 'Auto-expired proposals, auto-completed deliveries'],
                     'delays' => ['Delay Alerts', 'Delivery delay warnings and ETA updates'],
