@@ -143,6 +143,11 @@
                                     $canCreateHaulRequest = !$isCoopFarmer && $harvest->status->value === 'sold' && !$harvest->haulRequest;
                                 @endphp
                                 <div class="flex items-center gap-2">
+                                    <a href="{{ route('harvests.show', $harvest->id) }}"
+                                        class="inline-flex items-center justify-center w-8 h-8 rounded-md bg-brand/10 text-[#16283C] hover:bg-brand/15 dark:bg-gold-light/10 dark:hover:bg-gold-light/15 dark:text-[#D7BC7A] transition"
+                                        title="View Crop Hub">
+                                        <x-icon name="eye" class="w-4 h-4" />
+                                    </a>
                                     @if($canEdit)
                                         <a href="{{ route('harvests.edit', $harvest->id) }}"
                                             class="inline-flex items-center justify-center w-8 h-8 rounded-md bg-brand/10 text-[#16283C] hover:bg-brand/15 dark:bg-gold-light/10 dark:hover:bg-gold-light/15 dark:text-[#D7BC7A] transition"

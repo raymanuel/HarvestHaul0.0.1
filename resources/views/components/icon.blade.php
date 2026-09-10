@@ -108,6 +108,9 @@
         case 'clock':
             $paths = '<path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>';
             break;
+        case 'eye':
+            $paths = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+            break;
         default:
             $paths = '<path d="M20 6L9 17l-5-5"/>';
             break;
