@@ -3,8 +3,9 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use App\Models\User;
 use App\Models\Crop;
+use App\Models\CropCategory;
+use App\Models\User;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Harvest>
@@ -15,7 +16,13 @@ class HarvestFactory extends Factory
     {
         return [
             'user_id' => User::factory()->farmer(),
-            'crop_id' => Crop::factory(),
+            'crop_id' => function () {
+                return Crop::factory()->create([
+                    'crop_category_id' => CropCategory::factory(),
+                ])->id;
+            },
+            'crop_type' => fake()->randomElement(['Rice', 'Corn', 'Coconut', 'Banana', 'Pineapple', 'Mango', 'Avocado', 'Cacao']),
+            'variety' => fake()->randomElement(['IR64', 'Lakatan', 'Cardava', 'Saba', 'Native', 'Hybrid']),
             'quantity_kg' => fake()->randomFloat(2, 10, 5000),
             'unit' => 'kg',
             'status' => 'active',

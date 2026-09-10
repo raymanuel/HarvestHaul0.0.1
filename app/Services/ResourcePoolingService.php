@@ -731,13 +731,68 @@ class ResourcePoolingService
             ->orderByDesc('capacity_kg')
             ->get();
 
+        // A driver can only run one route at a time — when a driver is bound to
+        // multiple trucks, keep only the biggest truck for that driver.
+        $availableTrucks = $availableTrucks->unique('driver_id');
+
         if ($availableTrucks->isEmpty()) {
             return ['plans' => [], 'overflow' => false, 'total_farms' => 0, 'selected_total' => 0,
                     'unassigned' => count($nearbyHarvestIds),
+                    'excluded' => [],
                     'message' => 'No available trucks with active drivers.'];
         }
 
-        $remainingHarvestIds = $nearbyHarvestIds;
+        // Pre-screen the submitted set so one bad farm can't veto the whole run.
+        // Each excluded farm gets a real reason the logistics UI can show/notify.
+        $harvestIds = collect($nearbyHarvestIds);
+        $candidateHarvests = Harvest::whereIn('id', $harvestIds)
+            ->with([
+                'crop',
+                'negotiations' => fn ($q) => $q->where('status', 'COMPLETED'),
+                'farmer.farmerProfile',
+            ])
+            // only farms we're allowed to route
+            ->whereIn('status', HarvestStatus::logisticsVisible())
+            ->whereNotNull('latitude')->whereNotNull('longitude')
+            ->get();
+
+        // Harvests already held by a pending/in-progress/confirmed/awaiting-confirmation job.
+        $alreadyAssignedHarvestIds = DB::table('pooling_job_harvests')
+            ->join('pooling_jobs', 'pooling_jobs.id', '=', 'pooling_job_harvests.pooling_job_id')
+            ->whereNull('pooling_jobs.deleted_at')
+            ->whereIn('pooling_jobs.status', ['pending', 'in_progress', 'confirmed', 'awaiting_confirmation'])
+            ->whereIn('pooling_job_harvests.harvest_id', $harvestIds)
+            ->distinct()
+            ->pluck('harvest_id');
+
+        $excluded = [];
+        $eligibleIds = [];
+        foreach ($candidateHarvests as $h) {
+            if ($h->negotiations->where('status', 'COMPLETED')->isEmpty()) {
+                $cropName = $h->crop?->name ?? ($h->crop_type ?? 'your crop');
+                $excluded[] = ['harvest_id' => $h->id, 'farm_name' => $h->farmer?->name ?? 'Your farm',
+                               'reason' => "No agreement yet for {$cropName} — settle a price first."];
+                continue;
+            }
+            // Same distance check plan() uses: prefer the frontend's off-route
+            // road distance; fall back to straight-line distance from the start.
+            $offRouteKm = $farmDistances[$h->id] ?? null;
+            $dist = $offRouteKm !== null
+                ? (float) $offRouteKm
+                : $this->haversine($startLat, $startLng, (float) $h->latitude, (float) $h->longitude);
+            if ($dist > $radiusKm) {
+                $excluded[] = ['harvest_id' => $h->id, 'farm_name' => $h->farmer?->name ?? 'Your farm',
+                               'reason' => 'This farm is too far (' . round($dist, 1) . " km from the route, max {$radiusKm} km)."];
+                continue;
+            }
+            if ($alreadyAssignedHarvestIds->contains($h->id)) {
+                $excluded[] = ['harvest_id' => $h->id, 'farm_name' => $h->farmer?->name ?? 'Your farm',
+                               'reason' => 'This harvest is already on another route offer.'];
+                continue;
+            }
+            $eligibleIds[] = $h->id;
+        }
+        $remainingHarvestIds = $eligibleIds;
         $plans = [];
         $totalAssigned = 0;
 
@@ -767,9 +822,12 @@ class ResourcePoolingService
             'total_farms'    => count($nearbyHarvestIds),
             'selected_total' => $totalAssigned,
             'unassigned'     => count($remainingHarvestIds),
+            'excluded'       => $excluded,
             'message'        => !empty($remainingHarvestIds)
                 ? count($remainingHarvestIds) . " farm(s) could not be assigned — no more available trucks."
-                : null,
+                : ($excluded !== [] && $plans === []
+                    ? 'No trucks available for the remaining farms.'
+                    : null),
         ];
     }
 
