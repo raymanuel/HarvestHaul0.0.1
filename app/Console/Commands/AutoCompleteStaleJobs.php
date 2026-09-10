@@ -30,6 +30,10 @@ class AutoCompleteStaleJobs extends Command
 
             foreach ($job->harvests as $harvest) {
                 $harvest->update(['status' => 'completed']);
+                $job->harvests()->updateExistingPivot($harvest->id, [
+                    'status'      => 'delivered',
+                    'delivered_at' => now(),
+                ]);
             }
 
             if ($job->truck) {

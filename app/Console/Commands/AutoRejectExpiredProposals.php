@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\HarvestStatus;
+use App\Models\Notification;
 use App\Models\PoolingJob;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
@@ -32,7 +33,7 @@ class AutoRejectExpiredProposals extends Command
 
             // Notify logistics partner
             if ($job->logisticsProfile && $job->logisticsProfile->user_id) {
-                \App\Models\Notification::create([
+                Notification::create([
                     'user_id' => $job->logisticsProfile->user_id,
                     'title' => 'Proposal Expired & Cancelled',
                     'message' => "Proposal #{$job->id} was auto-cancelled after 48 hours with no farmer response.",
@@ -41,11 +42,44 @@ class AutoRejectExpiredProposals extends Command
                 ]);
             }
 
-            // Free harvests back to 'sold'
+            // Notify each participating farmer
+            $notifiedFarmers = [];
+            foreach ($job->harvests as $harvest) {
+                if (isset($notifiedFarmers[$harvest->user_id])) {
+                    continue;
+                }
+                $notifiedFarmers[$harvest->user_id] = true;
+
+                Notification::create([
+                    'user_id' => $harvest->user_id,
+                    'title'   => 'Route Offer Expired',
+                    'message' => "Your route offer #{$job->id} expired. Your crop is back on the haul board — create a new haul request or wait for a new offer.",
+                    'link'    => route('farmer.proposals'),
+                    'type'    => 'proposal_expired',
+                ]);
+            }
+
+            // Free harvests back to an appropriate status
             foreach ($job->harvests as $harvest) {
                 if ($harvest->status === HarvestStatus::ASSIGNED) {
-                    $harvest->update(['status' => 'sold']);
+                    $completedNeg = $harvest->negotiations()
+                        ->where('status', 'COMPLETED')
+                        ->first();
+
+                    $negotiatedVolume = (float) ($completedNeg?->negotiated_volume ?? 0);
+                    $harvestQuantity  = (float) $harvest->quantity_kg;
+
+                    if ($completedNeg && $negotiatedVolume > 0 && $negotiatedVolume < $harvestQuantity) {
+                        $harvest->update(['status' => HarvestStatus::PARTIALLY_SOLD]);
+                    } elseif ($completedNeg && $negotiatedVolume >= $harvestQuantity) {
+                        $harvest->update(['status' => HarvestStatus::SOLD]);
+                    } else {
+                        $harvest->update(['status' => HarvestStatus::ACTIVE]);
+                    }
                 }
+
+                // Set pivot to terminal state
+                $job->harvests()->updateExistingPivot($harvest->id, ['status' => 'cancelled']);
             }
 
             \App\Models\AuditLog::create([

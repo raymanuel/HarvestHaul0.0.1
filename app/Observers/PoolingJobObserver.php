@@ -26,27 +26,9 @@ class PoolingJobObserver
 
     private function onConfirmed(PoolingJob $job): void
     {
-        $job->load('harvests.crop', 'logisticsProfile.user', 'driver');
-
-        // Notify driver if assigned
-        if ($job->driver_id) {
-            self::sendNotification(
-                $job->driver_id,
-                'New Route Confirmed',
-                "Route #{$job->id} has been confirmed and dispatched to you.",
-                route('driver.dashboard')
-            );
-        }
-
-        // Notify logistics partner
-        if ($job->logisticsProfile?->user) {
-            self::sendNotification(
-                $job->logisticsProfile->user_id,
-                'Route Confirmed',
-                "Route #{$job->id} is now confirmed. Total: {$job->total_kg} kg.",
-                route('pooling.index')
-            );
-        }
+        // Notifications are handled exclusively by PoolingJobService::notifyRouteConfirmed
+        // (called from confirmSettledRoute / confirmProposal). The observer intentionally
+        // does NOT send notifications here to avoid duplicate driver + logistics messages.
     }
 
     private function onCancelled(PoolingJob $job): void
