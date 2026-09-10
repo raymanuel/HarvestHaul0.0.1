@@ -34,20 +34,26 @@
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 @foreach($proposals as $proposal)
                     @php
-                        $myHarvest = $proposal->harvests->first();
-                        $pivotStatus = $myHarvest?->pivot?->status ?? 'pending';
-                        $myKg = (float) ($myHarvest?->pivot?->quantity_kg ?? 0);
+                        $myHarvests = $proposal->harvests->where('user_id', Auth::id());
+                        $myKg = (float) $myHarvests->sum(fn($h) => (float) ($h->pivot->quantity_kg ?? 0));
                         $flatRate = (float) ($proposal->hauling_rate_per_kg ?? 0);
-                        $agreedNeg = $myHarvest?->negotiations?->firstWhere('status', 'COMPLETED');
-                        $agreedRate = $agreedNeg?->hauling_rate_per_kg !== null
-                            ? (float) $agreedNeg->hauling_rate_per_kg
+
+                        // Derive per-harvest rates; pick first agreement's rate if available
+                        $firstNeg = $myHarvests->first()?->negotiations?->firstWhere('status', 'COMPLETED');
+                        $agreedRate = $firstNeg?->hauling_rate_per_kg !== null
+                            ? (float) $firstNeg->hauling_rate_per_kg
                             : null;
                         $rate = $agreedRate ?? $flatRate;
-                        $pivotShare = $myHarvest?->pivot?->cost_share;
-                        $yourCostShare = $pivotShare !== null
-                            ? (float) $pivotShare
-                            : ($rate > 0 ? round($rate * $myKg, 2) : 0);
                         $usesAgreedRate = $agreedRate !== null && $agreedRate > 0;
+
+                        $yourCostShare = (float) $myHarvests->sum(fn($h) => (float) ($h->pivot->cost_share ?? 0));
+
+                        // Overall status: accepted if ALL of this farmer's harvests are accepted,
+                        // rejected if ALL are rejected, otherwise pending
+                        $pivotStatuses = $myHarvests->pluck('pivot.status')->unique()->values();
+                        $pivotStatus = $pivotStatuses->count() === 1
+                            ? $pivotStatuses->first()
+                            : ($pivotStatuses->contains('pending') ? 'pending' : 'pending');
                     @endphp
                     <div class="bg-white dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700/80 rounded-2xl shadow-sm p-5 flex flex-col justify-between hover:shadow-md hover:border-brand dark:hover:border-brand/50 transition duration-200 group">
                         <div>
@@ -72,14 +78,18 @@
 
                             <div class="mb-4 bg-slate-50 dark:bg-slate-900/40 rounded-xl p-4 border border-slate-100 dark:border-slate-800/60">
                                 <h4 class="text-[10px] font-bold text-slate-400 dark:text-slate-600 uppercase tracking-wider mb-2.5">Your Included Cargo</h4>
-                                <div class="space-y-1">
-                                    <p class="text-sm font-bold text-slate-800 dark:text-slate-200">
-                                        {{ $myHarvest?->crop?->name }}
-                                        <span class="text-xs font-normal text-slate-405 dark:text-slate-500">({{ $myHarvest?->cropVariety?->name ?? 'Standard' }})</span>
-                                    </p>
-                                    <p class="text-xs text-slate-700 dark:text-slate-400">Quantity: <b class="font-bold text-slate-800 dark:text-slate-300">{{ number_format($myKg) }} kg</b></p>
-                                    <p class="text-xs text-slate-700 dark:text-slate-400 truncate">Target Drop-off: <b class="font-bold text-slate-800 dark:text-slate-300">{{ $myHarvest?->destination?->name ?? $myHarvest?->destination_address ?? 'Wholesale Market' }}</b></p>
-                                </div>
+                                @forelse($myHarvests as $myH)
+                                    <div class="{{ !$loop->first ? 'mt-2.5 pt-2.5 border-t border-slate-200/60 dark:border-slate-700/40' : '' }}">
+                                        <p class="text-sm font-bold text-slate-800 dark:text-slate-200">
+                                            {{ $myH->crop?->name }}
+                                            <span class="text-xs font-normal text-slate-405 dark:text-slate-500">({{ $myH->cropVariety?->name ?? 'Standard' }})</span>
+                                        </p>
+                                        <p class="text-xs text-slate-700 dark:text-slate-400">Quantity: <b class="font-bold text-slate-800 dark:text-slate-300">{{ number_format((float) ($myH->pivot->quantity_kg ?? 0)) }} kg</b></p>
+                                        <p class="text-xs text-slate-700 dark:text-slate-400 truncate">Target Drop-off: <b class="font-bold text-slate-800 dark:text-slate-300">{{ $myH->destination?->name ?? $myH->destination_address ?? 'Wholesale Market' }}</b></p>
+                                    </div>
+                                @empty
+                                    <p class="text-xs text-slate-400 dark:text-slate-500 italic">No crops found for this offer.</p>
+                                @endforelse
                             </div>
 
                             <div class="space-y-2 mb-4 bg-slate-50 dark:bg-slate-900/40 rounded-xl p-4 border border-slate-100 dark:border-slate-800/60 text-xs">
@@ -88,7 +98,7 @@
                                     <span class="font-bold text-slate-700 dark:text-slate-300">₱{{ number_format($rate, 2) }}/kg</span>
                                 </div>
                                 <div class="flex justify-between">
-                                    <span class="text-slate-400">Your Cargo Weight:</span>
+                                    <span class="text-slate-400">Your Total Cargo Weight:</span>
                                     <span class="font-bold text-slate-700 dark:text-slate-300">{{ number_format($myKg) }} kg</span>
                                 </div>
                                 <div class="flex justify-between">

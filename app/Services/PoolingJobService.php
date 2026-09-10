@@ -189,7 +189,6 @@ class PoolingJobService
     public function canAcceptProposal(PoolingJob $job, User $user): array
     {
         $job->load('harvests');
-        $harvest = $job->harvests()->where('user_id', $user->id)->first();
 
         if ($job->status !== PoolingJobStatus::PENDING) {
             return ['success' => false, 'error' => 'This proposal is no longer open for changes.', 'status' => 422];
@@ -199,11 +198,19 @@ class PoolingJobService
             return ['success' => false, 'error' => 'This proposal has expired. Please wait for a new one.', 'status' => 410];
         }
 
-        $job->harvests()->updateExistingPivot($harvest->id, ['status' => 'accepted']);
+        $harvests = $job->harvests()->where('user_id', $user->id)->get();
+
+        if ($harvests->isEmpty()) {
+            return ['success' => false, 'error' => "This route offer doesn't include any of your crops.", 'status' => 403];
+        }
+
+        foreach ($harvests as $h) {
+            $job->harvests()->updateExistingPivot($h->id, ['status' => 'accepted']);
+        }
         $job->load('harvests');
 
-        $ownShare = (float) ($harvest->pivot->cost_share ?? 0);
-        self::notifyHaulingCostShare($user->id, $job->id, $ownShare);
+        $totalOwnShare = (float) $harvests->sum(fn($h) => (float) ($h->pivot->cost_share ?? 0));
+        self::notifyHaulingCostShare($user->id, $job->id, $totalOwnShare);
 
         $coopLogisticsUserId = $job->logisticsProfile?->user_id;
         if ($coopLogisticsUserId) {
