@@ -159,7 +159,7 @@
             @php
                 $allStopsDelivered = true;
                 foreach($job->harvests as $h) {
-                    if($h->pivot->status !== 'delivered') {
+                    if($h->pivot->status !== 'delivered' && $h->pivot->status !== 'rejected') {
                         $allStopsDelivered = false;
                         break;
                     }

@@ -18,8 +18,11 @@ class InvoiceService
 
         $invoiceNumber = $this->generateInvoiceNumber($job);
 
-        // Use sum of individual cost_shares for accurate totals
-        $costShares = $job->harvests->pluck('pivot.cost_share')->filter();
+        // Use sum of individual cost_shares for accurate totals — exclude rejected
+        $costShares = $job->harvests
+            ->filter(fn($h) => ($h->pivot->status ?? 'pending') !== 'rejected')
+            ->pluck('pivot.cost_share')
+            ->filter();
         $totalAmount = $costShares->isNotEmpty()
             ? (float) $costShares->sum()
             : (float) ($job->negotiated_price ?? $job->price_reference ?? 0);
@@ -115,9 +118,9 @@ class InvoiceService
             }
         }
 
-        // Each farmer receives a scoped invoice showing only their share.
+        // Each farmer receives a scoped invoice showing only their share — skip rejected
         foreach ($job->harvests as $h) {
-            if (!$h->user_id) {
+            if (!$h->user_id || ($h->pivot->status ?? 'pending') === 'rejected') {
                 continue;
             }
             $user = User::find($h->user_id);
@@ -148,9 +151,12 @@ class InvoiceService
 
     public function renderInvoiceHtml(PoolingJob $job, Invoice $invoice, ?int $scopeFarmerId = null): string
     {
-        $harvests = $scopeFarmerId !== null
-            ? $job->harvests->filter(fn($h) => (int) $h->user_id === $scopeFarmerId)->values()
-            : $job->harvests;
+        $harvests = $job->harvests
+            ->filter(fn($h) => ($h->pivot->status ?? 'pending') !== 'rejected');
+
+        if ($scopeFarmerId !== null) {
+            $harvests = $harvests->filter(fn($h) => (int) $h->user_id === $scopeFarmerId)->values();
+        }
 
         $entries = $harvests->map(function ($h) {
             $costShare = $h->pivot->cost_share !== null

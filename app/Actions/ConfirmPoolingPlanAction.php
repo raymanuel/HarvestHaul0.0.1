@@ -54,16 +54,18 @@ class ConfirmPoolingPlanAction
     {
         $job->load('harvests.negotiations');
 
-        $totalKg = $job->harvests->sum(fn($h) => (float) ($h->pivot->quantity_kg ?? $h->quantity_kg ?? 0));
+        $activeHarvests = $job->harvests->filter(fn($h) => ($h->pivot->status ?? 'pending') !== 'rejected');
+
+        $totalKg = $activeHarvests->sum(fn($h) => (float) ($h->pivot->quantity_kg ?? $h->quantity_kg ?? 0));
         if ($totalKg <= 0) {
             return;
         }
 
         // Prefer per-farmer negotiated hauling rates.
-        $hasPerFarmerRates = $job->harvests->contains(fn($h) => $this->agreedHaulRate($h) !== null);
+        $hasPerFarmerRates = $activeHarvests->contains(fn($h) => $this->agreedHaulRate($h) !== null);
 
         if ($hasPerFarmerRates) {
-            foreach ($job->harvests as $h) {
+            foreach ($activeHarvests as $h) {
                 $rate = $this->agreedHaulRate($h);
                 $qty  = (float) ($h->pivot->quantity_kg ?? $h->quantity_kg ?? 0);
                 // Fall back to the flat rate when this farmer has no agreed rate.
@@ -74,7 +76,12 @@ class ConfirmPoolingPlanAction
                     'cost_share' => round($rate * $qty, 2),
                 ]);
             }
-            $job->negotiated_price = $job->harvests->sum(fn($h) => (float) ($h->pivot->cost_share ?? 0));
+            // Zero out rejected pivots' cost_share
+            $rejectedIds = $job->harvests->filter(fn($h) => ($h->pivot->status ?? 'pending') === 'rejected')->pluck('id');
+            foreach ($rejectedIds as $rid) {
+                $job->harvests()->updateExistingPivot($rid, ['cost_share' => 0]);
+            }
+            $job->negotiated_price = $activeHarvests->sum(fn($h) => (float) ($h->pivot->cost_share ?? 0));
             $job->save();
             return;
         }
@@ -91,7 +98,7 @@ class ConfirmPoolingPlanAction
 
         $scores = [];
         $farmDistances = $job->farm_distances ?? [];
-        foreach ($job->harvests as $h) {
+        foreach ($activeHarvests as $h) {
             $qty  = (float) ($h->pivot->quantity_kg ?? $h->quantity_kg ?? 0);
             // Prefer OSRM road distance when available, fall back to Haversine
             $dist = $farmDistances[$h->id] ?? null;
@@ -118,6 +125,12 @@ class ConfirmPoolingPlanAction
             $job->harvests()->updateExistingPivot($harvestId, [
                 'cost_share' => round($total * ($score / $totalScore), 2),
             ]);
+        }
+
+        // Zero out rejected pivots' cost_share
+        $rejectedIds = $job->harvests->filter(fn($h) => ($h->pivot->status ?? 'pending') === 'rejected')->pluck('id');
+        foreach ($rejectedIds as $rid) {
+            $job->harvests()->updateExistingPivot($rid, ['cost_share' => 0]);
         }
 
         $job->negotiated_price = $total;

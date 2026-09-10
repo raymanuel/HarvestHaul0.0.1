@@ -51,9 +51,10 @@
                         // Overall status: accepted if ALL of this farmer's harvests are accepted,
                         // rejected if ALL are rejected, otherwise pending
                         $pivotStatuses = $myHarvests->pluck('pivot.status')->unique()->values();
-                        $pivotStatus = $pivotStatuses->count() === 1
-                            ? $pivotStatuses->first()
-                            : ($pivotStatuses->contains('pending') ? 'pending' : 'pending');
+                        $hasPending = $pivotStatuses->contains('pending');
+                        $pivotStatus = $hasPending
+                            ? 'pending'
+                            : ($pivotStatuses->every(fn($s) => $s === 'accepted') ? 'accepted' : 'rejected');
                     @endphp
                     <div class="bg-white dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700/80 rounded-2xl shadow-sm p-5 flex flex-col justify-between hover:shadow-md hover:border-brand dark:hover:border-brand/50 transition duration-200 group">
                         <div>
@@ -120,7 +121,7 @@
                         </div>
 
                         <div class="mt-6 pt-4 border-t border-slate-100 dark:border-slate-700/60 space-y-3">
-                            @if($pivotStatus === 'pending')
+                            @if($hasPending)
                                 <div class="flex gap-2">
                                     <form action="{{ route('pooling.accept', $proposal->id) }}" method="POST" class="flex-1">
                                         @csrf
@@ -139,11 +140,11 @@
                                 <p class="text-[9px] text-slate-500 dark:text-slate-400 mt-2 italic">{{ $usesAgreedRate ? 'Your share is set by the hauling rate agreed in your negotiation chat.' : 'Your share is weighted by cargo volume × haul distance.' }}</p>
                             @elseif($pivotStatus === 'accepted')
                                 <div class="p-3 bg-brand/10 dark:bg-brand/10 text-brand-dark dark:text-brand-light border border-brand/20 text-center rounded-xl text-xs font-bold">
-                                    Accepted. Awaiting other farmers' consensus.
+                                    Accepted — awaiting other farmers.
                                 </div>
                             @elseif($pivotStatus === 'rejected')
                                 <div class="p-3 bg-[var(--color-error-bg)] text-[var(--color-error-text)] border border-[var(--color-error-border)] text-center rounded-xl text-xs font-bold">
-                                    Rejected. Crop returned to haul board.
+                                    Rejected — crop returned to haul board.
                                 </div>
                             @endif
                         </div>

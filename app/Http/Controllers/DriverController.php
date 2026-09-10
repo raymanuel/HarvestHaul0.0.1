@@ -87,7 +87,8 @@ class DriverController extends Controller
         $poolingJob->load([
             'truck',
             'harvests' => function ($query) {
-                $query->orderByPivot('pickup_order');
+                $query->orderByPivot('pickup_order')
+                      ->wherePivot('status', '!=', 'rejected');
             },
             'harvests.crop',
             'harvests.farmer.farmerProfile',
@@ -142,12 +143,11 @@ class DriverController extends Controller
                 return back()->with('error', 'Accept the job before starting the trip.');
             }
 
-            // Reset all non-delivered stop pivots to 'assigned' so the driver's
-            // stop chain (assigned → arrived → loaded → delivered) can start.
-            // The pivot 'status' is repurposed from farmer proposal acceptance
-            // ('accepted') to trip-stop tracking once the route goes live.
+            // Reset all non-delivered, non-rejected stop pivots to 'assigned'
+            // so the driver's stop chain (assigned → arrived → loaded → delivered) can start.
+            // Rejected stops are not part of the delivery chain.
             foreach ($poolingJob->harvests as $harvest) {
-                if ($harvest->pivot->status !== 'delivered') {
+                if ($harvest->pivot->status !== 'delivered' && $harvest->pivot->status !== 'rejected') {
                     $poolingJob->harvests()->updateExistingPivot($harvest->id, ['status' => 'assigned']);
                 }
             }
@@ -159,9 +159,12 @@ class DriverController extends Controller
                 'end_odometer_reading' => 'required|numeric|min:0.01|max:9999999.99',
             ]);
 
-            // Check if all stop statuses are delivered
+            // Check if all non-rejected stop statuses are delivered
             $allDelivered = true;
             foreach ($poolingJob->harvests as $harvest) {
+                if ($harvest->pivot->status === 'rejected') {
+                    continue;
+                }
                 if ($harvest->pivot->status !== 'delivered') {
                     $allDelivered = false;
                     break;

@@ -226,23 +226,30 @@ class PoolingJobService
             && $remaining->every(fn($h) => $h->pivot->status === 'accepted');
 
         if ($allRemainingAccepted) {
-            $job->status = PoolingJobStatus::CONFIRMED;
-            $job->confirmed_at = now();
-            $job->save();
-
-            try {
-                $this->invoiceService->generateInvoice($job);
-            } catch (\Throwable $e) {
-                Log::warning("Invoice generation failed for Route #{$job->id}: " . $e->getMessage());
-            }
-
-            Harvest::whereIn('id', $job->harvests->pluck('id'))->update(['status' => HarvestStatus::ASSIGNED]);
-            self::notifyRouteConfirmed($job);
+            $this->confirmSettledRoute($job);
         } elseif ($job->harvests->contains(fn($h) => $h->pivot->status === 'rejected')) {
             self::notifyProposalPartiallyRejected($job->logisticsProfile?->user_id, $job->id);
         }
 
         return ['success' => true];
+    }
+
+    private function confirmSettledRoute(PoolingJob $job): void
+    {
+        $job->load('harvests.crop');
+
+        $job->status = PoolingJobStatus::CONFIRMED;
+        $job->confirmed_at = now();
+        $job->save();
+
+        try {
+            $this->invoiceService->generateInvoice($job);
+        } catch (\Throwable $e) {
+            Log::warning("Invoice generation failed for Route #{$job->id}: " . $e->getMessage());
+        }
+
+        Harvest::whereIn('id', $job->harvests->pluck('id'))->update(['status' => HarvestStatus::ASSIGNED]);
+        self::notifyRouteConfirmed($job);
     }
 
     public function canRejectProposal(PoolingJob $job, User $user): array
@@ -257,27 +264,35 @@ class PoolingJobService
             return ['success' => false, 'error' => 'This proposal has expired.', 'status' => 410];
         }
 
-        $harvest = $job->harvests()->where('user_id', $user->id)->first();
+        $harvests = $job->harvests()->where('user_id', $user->id)->get();
 
-        if ($harvest->status === HarvestStatus::ASSIGNED) {
-            $hasCompletedDeals = $harvest->negotiations()
-                ->where('status', NegotiationStatus::COMPLETED)
-                ->exists();
-
-            if ($hasCompletedDeals) {
-                $isIndependent = $harvest->user?->farmerProfile?->affiliation_type === 'independent';
-                $harvest->status = HarvestStatus::PARTIALLY_SOLD;
-                $harvest->visibility = $isIndependent ? 'buyers_only' : 'both';
-            } else {
-                $harvest->status = HarvestStatus::ACTIVE;
-            }
-            $harvest->save();
+        if ($harvests->isEmpty()) {
+            return ['success' => false, 'error' => "This route offer doesn't include any of your crops.", 'status' => 403];
         }
 
-        $job->harvests()->detach($harvest->id);
+        foreach ($harvests as $harvest) {
+            if ($harvest->status === HarvestStatus::ASSIGNED) {
+                $hasCompletedDeals = $harvest->negotiations()
+                    ->where('status', NegotiationStatus::COMPLETED)
+                    ->exists();
+
+                if ($hasCompletedDeals) {
+                    $isIndependent = $harvest->user?->farmerProfile?->affiliation_type === 'independent';
+                    $harvest->status = HarvestStatus::PARTIALLY_SOLD;
+                    $harvest->visibility = $isIndependent ? 'buyers_only' : 'both';
+                } else {
+                    $harvest->status = HarvestStatus::ACTIVE;
+                }
+                $harvest->save();
+            }
+
+            $job->harvests()->updateExistingPivot($harvest->id, ['status' => 'rejected']);
+        }
+
         $job->load('harvests');
 
-        if ($job->harvests->isEmpty()) {
+        // All pivots rejected → cancel job entirely
+        if ($job->harvests->every(fn($h) => $h->pivot->status === 'rejected')) {
             $job->status = PoolingJobStatus::CANCELLED;
             $job->save();
 
@@ -285,23 +300,24 @@ class PoolingJobService
                 $job->truck->update(['status' => 'available']);
             }
         } else {
-            $totalKg = $job->harvests->sum('pivot.quantity_kg');
+            // Filter out rejected for weight + farm count
+            $active = $job->harvests->filter(fn($h) => $h->pivot->status !== 'rejected');
+            $totalKg = (float) $active->sum('pivot.quantity_kg');
             $job->total_kg = $totalKg;
-            $job->farm_count = $job->harvests->count();
+            $job->farm_count = $active->count();
             $job->save();
 
             // Re-order remaining stops via nearest-neighbor after rejection
-            $remainingHarvests = $job->harvests();
-            if ($job->harvests->count() > 1) {
+            if ($active->count() > 1) {
                 $reordered = app(ResourcePoolingService::class)
                     ->greedyNearestNeighbor(
-                        $remainingHarvests->get(),
+                        $active->values(),
                         (float) $job->start_latitude,
                         (float) $job->start_longitude
                     );
                 $order = 1;
-                foreach ($reordered as $harvest) {
-                    $job->harvests()->updateExistingPivot($harvest->id, [
+                foreach ($reordered as $h) {
+                    $job->harvests()->updateExistingPivot($h->id, [
                         'pickup_order' => $order++,
                     ]);
                 }
@@ -312,10 +328,19 @@ class PoolingJobService
 
             // With per-farmer agreed hauling rates, each farmer's share is fixed
             // (their rate x their kg), so a rejection does not change the others'
-            // shares — no re-approval cascade needed.
+            // shares — no re-approval cascade needed. But if all remaining pivots
+            // are now settled, auto-confirm the route.
             if (app(\App\Actions\ConfirmPoolingPlanAction::class)::usesPerFarmerRates($job)) {
-                $pendingFarmerIds = [];
+                $settled = $job->harvests
+                    ->filter(fn($h) => $h->pivot->status !== 'rejected')
+                    ->every(fn($h) => in_array($h->pivot->status, ['accepted', 'rejected']));
+
+                if ($settled && $job->status === PoolingJobStatus::PENDING) {
+                    $this->confirmSettledRoute($job);
+                }
             } else {
+                // Flat rate: rejection changes cost shares for everyone, so
+                // other farmers' accepted pivots reset to pending for re-approval.
                 $pendingFarmerIds = [];
                 foreach ($job->harvests as $remaining) {
                     if ($remaining->pivot->status === 'accepted') {
@@ -323,21 +348,21 @@ class PoolingJobService
                         $pendingFarmerIds[] = $remaining->user_id;
                     }
                 }
-            }
 
-            if (!empty($pendingFarmerIds)) {
-                $notifications = [];
-                foreach ($pendingFarmerIds as $farmerId) {
-                    $notifications[] = [
-                        'user_id'    => $farmerId,
-                        'title'      => 'Cost Shares Recalculated — Re-approval Required',
-                        'message'    => "A farmer rejected Route #{$job->id}. Your cost share has been recalculated. Please review and re-accept.",
-                        'link'       => route('farmer.proposals'),
-                        'created_at' => now(),
-                        'updated_at' => now(),
-                    ];
+                if (!empty($pendingFarmerIds)) {
+                    $notifications = [];
+                    foreach ($pendingFarmerIds as $farmerId) {
+                        $notifications[] = [
+                            'user_id'    => $farmerId,
+                            'title'      => 'Cost Shares Recalculated — Re-approval Required',
+                            'message'    => "A farmer rejected Route #{$job->id}. Your cost share has been recalculated. Please review and re-accept.",
+                            'link'       => route('farmer.proposals'),
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ];
+                    }
+                    Notification::insert($notifications);
                 }
-                Notification::insert($notifications);
             }
         }
 

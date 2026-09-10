@@ -80,8 +80,10 @@ class CostLedgerController extends Controller
             'truck',
         ]);
 
-        // Build per-farmer cost ledger entries
-        $ledgerEntries = $poolingJob->harvests->map(function ($harvest) use ($poolingJob) {
+        // Build per-farmer cost ledger entries — exclude rejected pivots
+        $ledgerEntries = $poolingJob->harvests
+            ->filter(fn($harvest) => ($harvest->pivot->status ?? 'pending') !== 'rejected')
+            ->map(function ($harvest) use ($poolingJob) {
             $harvestKg    = (float) $harvest->pivot->quantity_kg;
             $totalKg      = (float) $poolingJob->total_kg;
             $basePrice    = (float) ($poolingJob->negotiated_price ?? $poolingJob->price_reference ?? 0);
@@ -221,8 +223,9 @@ class CostLedgerController extends Controller
             'amount_paid'    => $validated['amount_paid'] ?? null,
         ]);
 
-        // When every stop on the job is paid, settle the freight invoice
+        // When every non-rejected stop on the job is paid, settle the freight invoice
         $allPaid = !$poolingJob->harvests()
+            ->wherePivot('status', '!=', 'rejected')
             ->wherePivot('payment_status', '!=', 'paid')
             ->exists();
         if ($allPaid) {
