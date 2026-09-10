@@ -41,7 +41,7 @@
                             @else
                                 <x-icon name="folder" class="w-12 h-12 text-harvest/40 dark:text-harvest/30" />
                             @endif
-                            <span class="absolute top-3 left-3 text-[9px] font-extrabold uppercase tracking-widest text-harvest-dark dark:text-harvest-light bg-white/70 dark:bg-slate-900/70 backdrop-blur-sm px-2 py-0.5 rounded border border-harvest/20">Post #{{ $post->id }}</span>
+
                         </div>
                         <div class="p-5 flex flex-col flex-1">
                             <div class="flex items-start justify-between gap-2 mb-1">
