@@ -378,8 +378,8 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
         });
 
         Route::middleware(['role:farmer,logistics_partner'])->group(function () {
-            Route::post('/pooling/{poolingJob}/accept', [PoolingJobController::class, 'acceptProposal'])->name('pooling.accept')->middleware('throttle:30,1');
-            Route::post('/pooling/{poolingJob}/reject', [PoolingJobController::class, 'rejectProposal'])->name('pooling.reject')->middleware('throttle:30,1');
+            Route::post('/pooling/{poolingJob}/accept', [PoolingJobController::class, 'acceptProposal'])->name('pooling.accept')->middleware('throttle:30,1', 'role:farmer');
+            Route::post('/pooling/{poolingJob}/reject', [PoolingJobController::class, 'rejectProposal'])->name('pooling.reject')->middleware('throttle:30,1', 'role:farmer');
             Route::get('/invoices/{invoice}/download', [InvoiceController::class, 'download'])->name('invoices.download');
         });
 

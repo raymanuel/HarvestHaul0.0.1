@@ -44,7 +44,7 @@ class InvoiceReady extends Notification implements ShouldQueue
             $message->line('Total amount: ' . $this->displayAmount());
         }
 
-        return $message->action('Download Invoice', url("/invoices/{$this->invoice->invoice_number}/download"));
+        return $message->action('Download Invoice', route('invoices.download', $this->invoice->id));
     }
 
     public function toArray($notifiable): array
@@ -52,7 +52,7 @@ class InvoiceReady extends Notification implements ShouldQueue
         return [
             'title' => "Hauling Invoice #{$this->invoice->invoice_number} Ready",
             'message' => "Hauling invoice #{$this->invoice->invoice_number} for " . $this->displayAmount() . ' is ready for download.',
-            'link' => "/invoices/{$this->invoice->invoice_number}/download",
+            'link' => route('invoices.download', $this->invoice->id),
             'category' => 'payments',
         ];
     }

@@ -268,6 +268,10 @@ class PoolingJobController extends Controller
         $this->jobService->loadHarvests($poolingJob);
         $this->authorize('view', $poolingJob);
 
+        if (!$poolingJob->harvests()->where('user_id', $user->id)->exists()) {
+            abort(403, "You don't have crops on this route offer.");
+        }
+
         $result = $this->jobService->canAcceptProposal($poolingJob, $user);
 
         if (isset($result['error'])) {
@@ -293,6 +297,10 @@ class PoolingJobController extends Controller
 
         $this->jobService->loadHarvests($poolingJob);
         $this->authorize('view', $poolingJob);
+
+        if (!$poolingJob->harvests()->where('user_id', $user->id)->exists()) {
+            abort(403, "You don't have crops on this route offer.");
+        }
 
         $result = $this->jobService->canRejectProposal($poolingJob, $user);
 
