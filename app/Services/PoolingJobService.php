@@ -94,7 +94,7 @@ class PoolingJobService
             return ['error' => 'No logistics profile found.', 'status' => 403];
         }
 
-        return $this->poolingService->planAll(
+        $result = $this->poolingService->planAll(
             logisticsProfileId: $logisticsProfile->id,
             nearbyHarvestIds: $validated['harvest_ids'],
             startLat: (float) $validated['start_lat'],
@@ -107,6 +107,41 @@ class PoolingJobService
             routeDistanceKm: (float) ($validated['route_distance_km'] ?? 0),
             terrain: $validated['terrain'] ?? 'flat',
         );
+
+        if (!empty($result['plans'])) {
+            $result['plans'] = array_map(
+                fn(array $plan) => $this->enrichWithWeather($plan),
+                $result['plans']
+            );
+        }
+
+        return $result;
+    }
+
+    private function enrichWithWeather(array $plan): array
+    {
+        if (empty($plan['selected_harvests'])) {
+            return $plan;
+        }
+
+        $weatherService = app(WeatherService::class);
+        $weatherAlerts = [];
+        $severeWeather = false;
+
+        foreach ($plan['stops'] as $stop) {
+            $wx = $weatherService->getWeather($stop['latitude'], $stop['longitude']);
+            if ($wx && !empty($wx['is_severe'])) {
+                $severeWeather = true;
+                $weatherAlerts[] = $stop['crop'] . ' at ' . ($stop['farm_location'] ?? 'farm') . ': ' . ($wx['advisory'] ?? 'Severe weather');
+            } elseif ($wx && $wx['condition'] !== 'Unknown' && $wx['condition'] !== 'Clear') {
+                $weatherAlerts[] = $stop['crop'] . ' at ' . ($stop['farm_location'] ?? 'farm') . ': ' . ($wx['condition'] ?? '') . ' — ' . ($wx['description'] ?? '');
+            }
+        }
+
+        $plan['weather_alerts'] = $weatherAlerts;
+        $plan['weather_severe'] = $severeWeather;
+
+        return $plan;
     }
 
     public function getProposalsForPartner(int $logisticsProfileId): array

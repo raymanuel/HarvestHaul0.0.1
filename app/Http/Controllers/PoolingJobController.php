@@ -175,6 +175,9 @@ class PoolingJobController extends Controller
                 'plans.*.farm_distances'    => 'nullable|array',
                 'plans.*.farm_distances.*'  => 'numeric|min:0',
                 'plans.*.route_distance_km' => 'nullable|numeric|min:0',
+                'excluded'                   => 'nullable|array',
+                'excluded.*.harvest_id'      => 'integer|exists:harvests,id',
+                'excluded.*.reason'          => 'string|max:255',
             ]);
 
             if ($validator->fails()) {
@@ -207,6 +210,20 @@ class PoolingJobController extends Controller
             } catch (\Exception $e) {
                 Log::error('Pooling confirm-batch error: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
                 return response()->json(['error' => 'Route confirmation failed. Please try again or contact support.'], 500);
+            }
+
+            $excluded = $validator->validated()['excluded'] ?? [];
+            foreach ($excluded as $e) {
+                $harvest = \App\Models\Harvest::find($e['harvest_id'] ?? null);
+                if ($harvest) {
+                    $cropName = $harvest->crop?->name ?? $harvest->crop_type ?? 'crop';
+                    self::sendNotification(
+                        $harvest->user_id,
+                        'Route Offer — Your Crop Was Not Included',
+                        "Your {$cropName} was not included in this route: {$e['reason']}. It is still available — arrange another route offer.",
+                        route('farmer.proposals')
+                    );
+                }
             }
 
             return response()->json([
