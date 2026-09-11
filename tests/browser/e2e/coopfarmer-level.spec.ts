@@ -1596,6 +1596,15 @@ if (addrEl && !addrEl.value) addrEl.value = "GenSan Wholesale Market Hub";
       if (!/Tupi Harvests Owner/i.test(bannerText)) throw new Error("Banner missing excluded farm name (Tupi Harvests Owner)");
       if (!/No agreement yet for Papaya/i.test(bannerText)) throw new Error("Banner missing exclusion reason 'No agreement yet for Papaya'");
 
+      // Marker-dimming coverage: the excluded farm's map pin must be faded (opacity < 0.5)
+      const excludedMarkerOpacity = await lp.evaluate((farmName) => {
+        if (typeof farmMarkers === "undefined") return 1;
+        const entry = farmMarkers.find((m: any) => m.data.name === farmName);
+        return entry ? entry.marker.getOpacity() : 1;
+      }, A.farmers[1].name);
+      runLog["excluded-marker-opacity"] = excludedMarkerOpacity;
+      console.log("  [info] excluded marker opacity:", excludedMarkerOpacity);
+      if (excludedMarkerOpacity >= 0.5) throw new Error(`Excluded farm marker (Tupi Harvests Owner) should be dimmed (opacity < 0.5), got ${excludedMarkerOpacity}`);
       runLog['planAll-response'] = {
         overflow: planAllData?.overflow,
         plan_count: (planAllData?.plans || []).length,

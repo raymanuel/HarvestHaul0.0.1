@@ -795,7 +795,7 @@
 
                 startMarker = null; endMarker = null;
                 baseRouteGeoJSON = null; currentRouteGeoJSON = null; currentRouteDistanceKm = null;
-                farmMarkers.forEach(item => item.marker.setIcon(defaultIcon));
+                farmMarkers.forEach(item => { item.marker.setIcon(defaultIcon); item.marker.setOpacity(1); });
                 destinationMarkers.forEach(function (dm) { dm.marker.setOpacity(1); });
 
                 const startLatLng = L.latLng(farmLat, farmLng);
@@ -990,6 +990,10 @@
                         dm.marker.setOpacity(0.4);
                     }
                 });
+
+                // Excluded farms must stay faded even after a radius change
+                // re-highlights the in-range farms above.
+                dimExcludedMarkers();
 
                 // Sort farmers sequentially from Start depot towards End terminal
                 found.sort((a, b) => a.routePosition - b.routePosition);
@@ -1251,6 +1255,24 @@
                 });
             });
 
+            /**
+             * Dim map pins for farms whose EVERY harvest was excluded by planAll.
+             * A dimmed pin means "this farm is on no route." If even one of the
+             * farm's harvests is routed, the pin stays normal.
+             */
+            function dimExcludedMarkers() {
+                var excludedIds = new Set((currentExcluded || []).map(e => e.harvest_id));
+                if (excludedIds.size === 0) {
+                    farmMarkers.forEach(item => item.marker.setOpacity(1));
+                    return;
+                }
+                farmMarkers.forEach(item => {
+                    var farmIds = (item.data.harvests || []).map(h => h.id);
+                    var anyIncluded = farmIds.length === 0 || farmIds.some(id => !excludedIds.has(id));
+                    item.marker.setOpacity(anyIncluded ? 1 : 0.35);
+                });
+            }
+
             function renderPlanAllPanel(data) {
                 var plans = data.plans || [];
                 if (plans.length === 0) return;
@@ -1258,6 +1280,8 @@
                 if (plans.length === 1) {
                     var plan = plans[0];
                     currentPlan = plan;
+                    currentExcluded = data.excluded || [];
+                    dimExcludedMarkers();
                     document.getElementById('plan-all-panel').classList.add('hidden');
                     document.getElementById('plan-panel').classList.remove('hidden');
                     renderPlanPanel(plan);
@@ -1265,9 +1289,19 @@
                         document.getElementById('plan-truck-label').textContent = plan.truck_name + ' (' + Number(plan.truck_capacity_kg || 0).toLocaleString() + ' kg)';
                     }
                     var banner = document.getElementById('plan-capacity-banner');
+                    var bannerHtml = '';
                     if ((data.unassigned || 0) > 0) {
+                        bannerHtml = _escHtml(data.message || (data.unassigned + ' farm(s) could not be loaded - no more available trucks.'));
+                    }
+                    if ((currentExcluded || []).length > 0) {
+                        if (bannerHtml) bannerHtml += '<br>';
+                        bannerHtml += currentExcluded.map(function (e) {
+                            return '<br>- ' + _escHtml(e.farm_name || 'Farm') + ': ' + _escHtml(e.reason || 'Excluded');
+                        }).join('');
+                    }
+                    if (bannerHtml) {
+                        document.getElementById('plan-capacity-banner-text').innerHTML = bannerHtml;
                         banner.classList.remove('hidden');
-                        document.getElementById('plan-capacity-banner-text').textContent = data.message || (data.unassigned + ' farm(s) could not be loaded - no more available trucks.');
                     } else {
                         banner.classList.add('hidden');
                     }
@@ -1276,6 +1310,7 @@
 
                 currentPlans = plans;
                 currentExcluded = data.excluded || [];
+                dimExcludedMarkers();
                 document.getElementById('plan-panel').classList.add('hidden');
                 var panel = document.getElementById('plan-all-panel');
                 panel.classList.remove('hidden');
@@ -1637,7 +1672,7 @@
                 if (startMarker) map.removeLayer(startMarker); if (endMarker) map.removeLayer(endMarker); if (routePolyline) map.removeLayer(routePolyline);
                 startMarker = null; endMarker = null; currentRouteGeoJSON = null; baseRouteGeoJSON = null; currentRouteDistanceKm = null; lastNearbyFarms = []; selectedFarmIds.clear(); toggledFarmIds.clear(); currentFarmDistances = {};
                 suggestedPrefilled = false;
-                farmMarkers.forEach(item => item.marker.setIcon(defaultIcon));
+                farmMarkers.forEach(item => { item.marker.setIcon(defaultIcon); item.marker.setOpacity(1); });
                 destinationMarkers.forEach(function (dm) { dm.marker.setOpacity(1); });
                 document.getElementById('pickup-queue').innerHTML = '<div class="text-center text-slate-400 mt-10 italic">Awaiting route coordinates...</div>';
                 document.getElementById('route-ready-cue').classList.add('hidden');
