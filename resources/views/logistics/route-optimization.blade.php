@@ -515,6 +515,7 @@
             // Map and routing variables
             let baseRouteGeoJSON     = null;  // Original straight-line route path
             let farmMarkers          = [];    // Array holding all plotted farmer pins
+            window.farmMarkers = farmMarkers;
             let destinationMarkers   = [];    // Array holding all harvest destination markers
             let startMarker          = null;  // Depot / start pin
             let endMarker            = null;  // Market / end destination pin
@@ -1260,7 +1261,7 @@
              * A dimmed pin means "this farm is on no route." If even one of the
              * farm's harvests is routed, the pin stays normal.
              */
-            function dimExcludedMarkers() {
+            window.dimExcludedMarkers = function dimExcludedMarkers() {
                 var excludedIds = new Set((currentExcluded || []).map(e => e.harvest_id));
                 if (excludedIds.size === 0) {
                     farmMarkers.forEach(item => item.marker.setOpacity(1));
