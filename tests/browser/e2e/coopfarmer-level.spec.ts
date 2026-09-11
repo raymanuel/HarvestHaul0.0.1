@@ -1596,15 +1596,21 @@ if (addrEl && !addrEl.value) addrEl.value = "GenSan Wholesale Market Hub";
       if (!/Tupi Harvests Owner/i.test(bannerText)) throw new Error("Banner missing excluded farm name (Tupi Harvests Owner)");
       if (!/No agreement yet for Papaya/i.test(bannerText)) throw new Error("Banner missing exclusion reason 'No agreement yet for Papaya'");
 
-      // Marker-dimming coverage: the excluded farm's map pin must be faded (opacity < 0.5)
-      const excludedMarkerOpacity = await lp.evaluate((farmName) => {
-        if (typeof farmMarkers === "undefined") return 1;
+      // Marker-dimming coverage: Tupi keeps a routed Durian deal, so its pin MUST
+      // stay at full opacity (dim = "farm on no route"; part of their stuff is going).
+      // A farm is only faded when EVERY one of its harvests was excluded.
+      const tupiMarkerOpacity = await lp.evaluate((farmName) => {
+        if (typeof farmMarkers === "undefined") return -1;
         const entry = farmMarkers.find((m: any) => m.data.name === farmName);
-        return entry ? entry.marker.getOpacity() : 1;
+        if (!entry) return -1;
+        // Leaflet 1.x Marker stores the value in options.opacity; getOpacity() is
+        // absent from the vendored vendor/leaflet.js build.
+        return entry.marker.options.opacity;
       }, A.farmers[1].name);
-      runLog["excluded-marker-opacity"] = excludedMarkerOpacity;
-      console.log("  [info] excluded marker opacity:", excludedMarkerOpacity);
-      if (excludedMarkerOpacity >= 0.5) throw new Error(`Excluded farm marker (Tupi Harvests Owner) should be dimmed (opacity < 0.5), got ${excludedMarkerOpacity}`);
+      runLog["tupi-marker-opacity-stays-full"] = tupiMarkerOpacity;
+      console.log("  [info] Tupi marker opacity (expect 1, not dimmed):", tupiMarkerOpacity);
+      if (tupiMarkerOpacity < 0.9) throw new Error(`Tupi Harvests Owner pin must stay full opacity (has routed Durian), got ${tupiMarkerOpacity}`);
+      if (typeof window.dimExcludedMarkers !== "function") throw new Error("dimExcludedMarkers helper not exposed");
       runLog['planAll-response'] = {
         overflow: planAllData?.overflow,
         plan_count: (planAllData?.plans || []).length,

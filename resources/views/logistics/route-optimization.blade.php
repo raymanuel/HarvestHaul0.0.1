@@ -1261,8 +1261,8 @@
              * A dimmed pin means "this farm is on no route." If even one of the
              * farm's harvests is routed, the pin stays normal.
              */
-            window.dimExcludedMarkers = function dimExcludedMarkers() {
-                var excludedIds = new Set((currentExcluded || []).map(e => e.harvest_id));
+            window.dimExcludedMarkers = function dimExcludedMarkers(excluded) {
+                var excludedIds = new Set((excluded || currentExcluded || []).map(e => e.harvest_id));
                 if (excludedIds.size === 0) {
                     farmMarkers.forEach(item => item.marker.setOpacity(1));
                     return;
