@@ -45,7 +45,7 @@
             </div>
 
             <div class="px-5 py-4 text-xs text-slate-500 flex items-center gap-1.5 font-semibold">
-                <span class="text-slate-400">Assigned Fleet:</span>
+                <span class="text-slate-400">Assigned Vehicle:</span>
                 <span class="text-slate-700 font-bold bg-slate-100 px-2 py-0.5 rounded-md">{{ $job->truck->plate_number ?? '—' }}</span>
                 @if($job->truck->vehicle_type ?? false)
                     <span class="text-slate-300">&middot;</span>

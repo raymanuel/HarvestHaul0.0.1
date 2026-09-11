@@ -46,7 +46,7 @@
             </div>
             <span class="text-lg font-bold text-slate-800 heading-font mb-2">Logistics</span>
             <p class="text-[11px] text-slate-400 leading-relaxed">
-                Organize regional pickup runs, manage fleet assets, assign drivers, and trace delivery telemetry.
+                Organize regional pickup runs, manage trucks and drivers, assign drivers, and trace delivery telemetry.
             </p>
             <p class="text-[10px] text-[var(--color-warning-text)] font-semibold mt-1 mb-6">
                 ⓘ Includes buyer capabilities — cooperatives with trucks choose this, not Buyer.
@@ -69,7 +69,7 @@
                 Browse listed farmer harvests, initiate price negotiations directly, and lock deals with custom drop-off locations.
             </p>
             <p class="text-[10px] text-[var(--color-warning-text)] font-semibold mt-1 mb-6">
-                ⓘ For independent buyers without fleet. Cooperatives use Logistics instead.
+                ⓘ For independent buyers without their own trucks. Cooperatives use Logistics instead.
             </p>
             <div class="w-full mt-auto py-2 bg-[#EEF0EB] text-[#16283C] text-xs font-bold rounded-xl group-hover:bg-[#16283C] group-hover:text-white transition duration-300">
                 Register as Buyer →

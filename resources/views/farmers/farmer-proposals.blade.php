@@ -79,7 +79,7 @@
                             <div class="mb-4">
                                 <h4 class="text-[10px] font-bold text-slate-400 dark:text-slate-600 uppercase tracking-wider">Logistics Operator</h4>
                                 <p class="text-sm font-bold text-slate-800 dark:text-slate-200 mt-0.5 flex items-center gap-1.5">
-                                    {{ $proposal->logisticsProfile->company_name ?? 'Independent Fleet Coordinator' }}
+                                    {{ $proposal->logisticsProfile->company_name ?? 'Transport Coordinator' }}
                                 </p>
                             </div>
 

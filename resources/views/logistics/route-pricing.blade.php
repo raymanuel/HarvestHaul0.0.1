@@ -133,7 +133,7 @@
             <h3 class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-2">Academic Reference</h3>
             <div class="p-3 bg-slate-50 dark:bg-slate-900/60 rounded-xl border border-slate-100 dark:border-slate-800">
                 <p class="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
-                    A PIDS/SEARCA study of Mindanao vegetable trucking operations (covering GenSan, Tupi, and Bukidnon routes) found that transport cost per kilogram rises steeply with distance and deteriorating road conditions. Mountainous terrain and unpaved road segments increase per-km cost by 40–70% over flat, paved routes. The study recommends that haulers factor in not just fuel but also vehicle depreciation, maintenance, and driver allowances when setting per-kg rates. Set your actual rate based on your fleet's real operating costs.
+                    A PIDS/SEARCA study of Mindanao vegetable trucking operations (covering GenSan, Tupi, and Bukidnon routes) found that transport cost per kilogram rises steeply with distance and deteriorating road conditions. Mountainous terrain and unpaved road segments increase per-km cost by 40–70% over flat, paved routes. The study recommends that haulers factor in not just fuel but also vehicle depreciation, maintenance, and driver allowances when setting per-kg rates. Set your actual rate based on your vehicles' real operating costs.
                 </p>
             </div>
         </div>

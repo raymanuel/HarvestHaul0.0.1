@@ -506,7 +506,7 @@
                         </p>
                         <div class="flex flex-wrap gap-3">
                             <span class="px-3 py-1.5 rounded-md bg-[#BFA05A]/10 text-[#7C6527] text-xs font-semibold">Sequential Routing</span>
-                            <span class="px-3 py-1.5 rounded-md bg-[#BFA05A]/10 text-[#7C6527] text-xs font-semibold">Fleet Monitoring</span>
+                            <span class="px-3 py-1.5 rounded-md bg-[#BFA05A]/10 text-[#7C6527] text-xs font-semibold">Transport Monitoring</span>
                             <span class="px-3 py-1.5 rounded-md bg-[#BFA05A]/10 text-[#7C6527] text-xs font-semibold">Knapsack Optimization</span>
                         </div>
                     </div>
@@ -723,7 +723,7 @@
                     <div>
                         <h3 class="text-lg font-bold text-[#17202B]">Logistics (Cooperative)</h3>
                         <p class="text-sm text-[#5A6573] mt-1 leading-relaxed max-w-2xl">
-                            Fleet-wide visibility. The Analytics Hub shows trips completed, fuel efficiency (KPL), and refuel expenditure per truck. The Fleet Capacity page shows how many trucks your active harvests require.
+                            Transport-wide visibility. The Analytics Hub shows trips completed, fuel efficiency (KPL), and refuel expenditure per truck. The Capacity page shows how many trucks your active harvests require.
                         </p>
                     </div>
                 </div>

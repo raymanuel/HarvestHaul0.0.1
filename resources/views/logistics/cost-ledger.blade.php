@@ -237,7 +237,7 @@
         {{-- Logistics info: truck + operator --}}
         @if($isOwner)
         <div class="bg-white dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700/80 rounded-2xl shadow-sm p-5">
-            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Fleet & Operator Info</h3>
+            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Vehicles & Operator Info</h3>
             <div class="grid grid-cols-2 gap-4 text-sm">
                 <div>
                     <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Company</p>

@@ -22,7 +22,7 @@
                                 <x-badge color="amber" label="Awaiting Farmer Approval" />
                             </div>
 
-                            <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 mb-1 heading-font">{{ $proposal->truck->truck_name ?? 'Fleet Hauler' }}</h3>
+                            <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 mb-1 heading-font">{{ $proposal->truck->truck_name ?? 'Transport Partner' }}</h3>
 
                             <div class="space-y-1.5 mb-4 text-xs font-semibold">
                                 @php
@@ -111,7 +111,7 @@
                                     <x-badge color="green" label="Ready for Dispatch" />
                                 </div>
 
-                                <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 mb-1 heading-font">{{ $job->truck->truck_name ?? 'Fleet Hauler' }}</h3>
+                                <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 mb-1 heading-font">{{ $job->truck->truck_name ?? 'Transport Partner' }}</h3>
 
                                 <div class="space-y-1.5 mb-4 text-xs font-semibold">
                                     <div class="flex justify-between">
@@ -160,7 +160,7 @@
                                 <x-badge color="red" label="Cancelled" />
                             </div>
                             <p class="text-xs text-slate-500 dark:text-slate-400 font-medium mb-2">
-                                 {{ $proposal->truck->truck_name ?? 'Fleet Hauler' }}
+                                 {{ $proposal->truck->truck_name ?? 'Transport Partner' }}
                             </p>
                             @foreach($proposal->harvests as $harvest)
                                 <div class="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-900/30 px-3 py-2 rounded-xl mb-1">

@@ -68,7 +68,7 @@
                     </div>
                     <div>
                         <h3 class="text-sm font-extrabold mb-0.5">Welcome to HarvestHaul!</h3>
-                        <p class="text-xs text-[#4a6a4a] dark:text-[#6a9a6a] leading-relaxed font-medium">Please complete your business details below to start managing fleet and coordinating shipments.</p>
+                        <p class="text-xs text-[#4a6a4a] dark:text-[#6a9a6a] leading-relaxed font-medium">Please complete your business details below to start managing transport and coordinating shipments.</p>
                     </div>
                 </div>
             </div>

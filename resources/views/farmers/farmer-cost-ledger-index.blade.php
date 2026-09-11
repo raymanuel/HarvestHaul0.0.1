@@ -59,14 +59,14 @@
                                 <div class="min-w-0">
                                     <div class="flex items-center gap-2 flex-wrap">
                                         <p class="text-sm font-bold text-slate-800 dark:text-slate-200 group-hover:text-[#16283C] dark:group-hover:text-[#16283C] transition heading-font truncate">
-                                             {{ $job->truck->truck_name ?? 'Fleet Hauler' }}
+                                             {{ $job->truck->truck_name ?? 'Transport Partner' }}
                                         </p>
                                         <span class="text-[10px] font-bold px-2 py-0.5 rounded-md border {{ $statusColor }} capitalize shrink-0">
                                             {{ str_replace('_', ' ', $job->status->value) }}
                                         </span>
                                     </div>
                                     <div class="flex items-center gap-3 mt-1 text-[11px] text-slate-500 dark:text-slate-400 font-semibold flex-wrap">
-                                        <span>{{ $job->logisticsProfile->company_name ?? $job->logisticsProfile->user->name ?? 'Fleet Coordinator' }}</span>
+                                        <span>{{ $job->logisticsProfile->company_name ?? $job->logisticsProfile->user->name ?? 'Transport Coordinator' }}</span>
                                         <span class="text-slate-300 dark:text-slate-600"></span>
                                         <span>{{ number_format($totalKg, 1) }} kg total</span>
                                         <span class="text-slate-300 dark:text-slate-600"></span>

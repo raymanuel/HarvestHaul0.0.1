@@ -1,4 +1,4 @@
-<x-layout title="Register Fleet Vehicle">
+<x-layout title="Register Vehicle">
 
     <div class="w-full max-w-2xl mx-auto pb-12">
 
@@ -6,8 +6,8 @@
             <a href="{{ route('logistics.vehicles.index') }}" class="text-sm text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 mb-4 inline-block font-semibold transition">
                 ← Back to Vehicles
             </a>
-            <span class="text-xs font-bold uppercase tracking-wider text-[#0E1620] dark:text-[#E9EEF4] bg-[#0E1620]/10 dark:bg-[#0E1620]/10 px-3 py-1.5 rounded-md border border-[#0E1620]/10 dark:border-[#0E1620]/20 inline-block mb-2">Fleet Integration</span>
-            <h1 class="text-3xl font-bold text-slate-900 dark:text-white tracking-tight heading-font">Add Fleet Vehicle</h1>
+            <span class="text-xs font-bold uppercase tracking-wider text-[#0E1620] dark:text-[#E9EEF4] bg-[#0E1620]/10 dark:bg-[#0E1620]/10 px-3 py-1.5 rounded-md border border-[#0E1620]/10 dark:border-[#0E1620]/20 inline-block mb-2">Transport Setup</span>
+            <h1 class="text-3xl font-bold text-slate-900 dark:text-white tracking-tight heading-font">Add Vehicle</h1>
         </header>
 
         {{-- Add Form --}}
@@ -111,7 +111,7 @@
                     {{-- Vehicle Status --}}
                     <div>
                         <label for="status" class="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">
-                            Initial Fleet Status <span class="text-red-500">*</span>
+                            Initial Vehicle Status <span class="text-red-500">*</span>
                         </label>
                         <select name="status" id="status" required
                             class="w-full px-4 py-3 border border-slate-200 dark:border-slate-600 rounded-xl text-sm text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-900/60 focus:outline-none focus:ring-2 focus:ring-[#16283C]/30 dark:focus:ring-[#16283C]/30 focus:border-[#16283C] dark:focus:border-[#16283C] transition">

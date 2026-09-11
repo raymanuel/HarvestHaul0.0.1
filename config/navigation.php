@@ -249,7 +249,7 @@ return [
 
     'logistics_partner' => [
         // Cooperative logistics: Dashboard, Crop Board, Operations, Proposal Inbox,
-        // Deliveries, Route Pricing, Fleet (user-specified order).
+        // Deliveries, Route Pricing, Transport (user-specified order).
         'items' => [
             [
                 'label' => 'Crop Board',
@@ -304,31 +304,38 @@ return [
                 'tooltip' => 'Route Pricing',
             ],
             [
-                'label' => 'Fleet',
+                'label' => 'Transport',
                 'route' => 'logistics.drivers*|logistics.vehicles*|logistics.reports.*|logistics.analytics|logistics.capacity',
-                'letter' => 'F',
-                'tooltip' => 'Fleet',
+                'letter' => 'T',
+                'tooltip' => 'Transport',
                 'children' => [
                     [
                         'label' => 'Drivers',
-                        'route' => 'logistics.drivers*|logistics.vehicles*',
+                        'route' => 'logistics.drivers*',
                         'route_url' => 'logistics.drivers.index',
                         'letter' => 'D',
                         'tooltip' => 'Drivers',
                     ],
                     [
-                        'label' => 'Fleet Reports',
+                        'label' => 'Vehicles',
+                        'route' => 'logistics.vehicles*',
+                        'route_url' => 'logistics.vehicles.index',
+                        'letter' => 'V',
+                        'tooltip' => 'Vehicles',
+                    ],
+                    [
+                        'label' => 'Trip Reports',
                         'route' => 'logistics.reports.*|logistics.analytics',
                         'route_url' => 'logistics.reports.trips',
                         'letter' => 'R',
-                        'tooltip' => 'Fleet Reports',
+                        'tooltip' => 'Trip Reports',
                     ],
                     [
-                        'label' => 'Fleet Capacity',
+                        'label' => 'Capacity',
                         'route' => 'logistics.capacity',
                         'route_url' => 'logistics.capacity',
                         'letter' => 'C',
-                        'tooltip' => 'Fleet Capacity',
+                        'tooltip' => 'Capacity',
                     ],
                 ],
             ],
@@ -373,31 +380,38 @@ return [
                 ],
             ],
             [
-                'label' => 'Fleet',
+                'label' => 'Transport',
                 'route' => 'logistics.drivers*|logistics.vehicles*|logistics.reports.*|logistics.analytics|logistics.capacity',
-                'letter' => 'F',
-                'tooltip' => 'Fleet',
+                'letter' => 'T',
+                'tooltip' => 'Transport',
                 'children' => [
                     [
                         'label' => 'Drivers',
-                        'route' => 'logistics.drivers*|logistics.vehicles*',
+                        'route' => 'logistics.drivers*',
                         'route_url' => 'logistics.drivers.index',
                         'letter' => 'D',
                         'tooltip' => 'Drivers',
                     ],
                     [
-                        'label' => 'Fleet Reports',
+                        'label' => 'Vehicles',
+                        'route' => 'logistics.vehicles*',
+                        'route_url' => 'logistics.vehicles.index',
+                        'letter' => 'V',
+                        'tooltip' => 'Vehicles',
+                    ],
+                    [
+                        'label' => 'Trip Reports',
                         'route' => 'logistics.reports.*|logistics.analytics',
                         'route_url' => 'logistics.reports.trips',
                         'letter' => 'R',
-                        'tooltip' => 'Fleet Reports',
+                        'tooltip' => 'Trip Reports',
                     ],
                     [
-                        'label' => 'Fleet Capacity',
+                        'label' => 'Capacity',
                         'route' => 'logistics.capacity',
                         'route_url' => 'logistics.capacity',
                         'letter' => 'C',
-                        'tooltip' => 'Fleet Capacity',
+                        'tooltip' => 'Capacity',
                     ],
                 ],
             ],

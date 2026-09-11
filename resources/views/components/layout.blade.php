@@ -557,7 +557,7 @@
                 localStorage.setItem('sidebar-collapsed', 'false');
             }
 
-            var panel = btn.parentElement.querySelector('[data-submenu-panel]');
+            var panel = btn.nextElementSibling;
             var chevron = btn.querySelector('[data-submenu-chevron]');
             if (!panel) return;
 

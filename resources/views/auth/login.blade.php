@@ -100,7 +100,7 @@
                     </div>
                     <div style="display:flex; align-items:center; gap:10px;">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0E1620" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                        <span style="font-size:13px; color:rgba(255,255,255,0.65); font-weight:500;">Pool logistics & share fleet resources</span>
+                        <span style="font-size:13px; color:rgba(255,255,255,0.65); font-weight:500;">Pool logistics & share transport resources</span>
                     </div>
                     <div style="display:flex; align-items:center; gap:10px;">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0E1620" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>

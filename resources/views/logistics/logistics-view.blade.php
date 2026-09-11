@@ -62,11 +62,11 @@
                 />
 
                 <x-stat-card
-                    title="Fleet Status"
+                    title="Transport Status"
                     value="{{ $availableTrucks }}/{{ $totalTrucks }}"
                     unit="trucks available"
                     href="{{ route('route.optimization') }}"
-                    linkText="Manage Fleet"
+                    linkText="Manage Transport"
                 >
                     <span class="text-[9px] font-semibold text-slate-500 dark:text-slate-400">{{ $availableDrivers }}/{{ $totalDrivers }} drivers free</span>
                 </x-stat-card>

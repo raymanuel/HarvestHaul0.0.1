@@ -1,9 +1,9 @@
 {{--
-    Logistics Fleet Capacity View
+    Logistics Capacity View
 
     PURPOSE:
     This view displays a decision-support panel to help logistics coordinators
-    determine whether their active truck fleet matches current harvest volume demands.
+    determine whether their active trucks match current harvest volume demands.
 
     ESTIMATE:
     Trucks Needed = Total Active Harvest Weight (kg) / Average Weight per Completed Job
@@ -17,11 +17,11 @@
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                     <h1 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight heading-font">
-                        Fleet Capacity
+                        Transport Capacity
                     </h1>
                 </div>
                 <span class="text-xs font-semibold uppercase tracking-wider text-[#0E1620] dark:text-[#E9EEF4] bg-[#0E1620]/10 dark:bg-[#0E1620]/10 px-3 py-1.5 rounded-md border border-[#0E1620]/10 dark:border-[#0E1620]/20 self-start">
-                    Fleet Capacity
+                    Transport Capacity
                 </span>
             </div>
         </header>
@@ -35,9 +35,9 @@
             };
             $capacityLabel = match(true) {
                 $trucksNeeded === 0   => 'No active load',
-                $surplusShortage > 0  => 'Fleet Sufficient',
+                $surplusShortage > 0  => 'Enough Trucks',
                 $surplusShortage == 0 => 'Exact Capacity',
-                default               => 'Fleet Shortage',
+                default               => 'Truck Shortage',
             };
         @endphp
 
@@ -66,7 +66,7 @@
                 <div class="text-center sm:text-right">
                     <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Trucks Available</p>
                     <p class="text-5xl font-black text-white leading-none">{{ $availableTrucks }}</p>
-                    <p class="text-xs text-slate-400 font-semibold mt-2">of {{ $totalTrucks }} total fleet units</p>
+                    <p class="text-xs text-slate-400 font-semibold mt-2">of {{ $totalTrucks }} total vehicles</p>
                 </div>
             </div>
 
@@ -112,7 +112,7 @@
                 <p class="text-xl font-bold text-slate-800 dark:text-slate-200">{{ number_format($avgTruckCap, 0) }}<span class="text-sm font-semibold text-slate-400 ml-1">kg</span></p>
             </div>
             <div class="bg-white dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700/80 rounded-2xl p-5 shadow-sm">
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Fleet Utilization</p>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Vehicle Usage</p>
                 @php
                     $utilPct = $totalTrucks > 0 ? round((($totalTrucks - $availableTrucks) / $totalTrucks) * 100) : 0;
                 @endphp
