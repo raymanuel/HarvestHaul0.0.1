@@ -54,6 +54,7 @@ use App\Http\Controllers\LogisticsVehicleController;
 use App\Http\Controllers\NegotiationController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\NotificationPreferenceController;
+use App\Http\Controllers\OutboundCustomerController;
 use App\Http\Controllers\PoolingJobController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
@@ -332,6 +333,20 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
 
             // Live Telemetry Signal Broadcast (Ingress) — rate limited to 12 req/min per driver
             Route::post('/tracking/store', [TrackingController::class, 'store'])->name('tracking.store')->middleware('throttle:12,1');
+        });
+
+        /*
+        |------------------------------------------------------------------
+        | 3.5b Outbound Distribution (Coop → Customer)
+        |------------------------------------------------------------------
+        */
+        Route::middleware('coop')->prefix('coop')->name('coop.')->group(function () {
+            Route::get('/customers', [OutboundCustomerController::class, 'index'])->name('customers.index');
+            Route::get('/customers/create', [OutboundCustomerController::class, 'create'])->name('customers.create');
+            Route::post('/customers', [OutboundCustomerController::class, 'store'])->name('customers.store')->middleware('throttle:10,1');
+            Route::get('/customers/{customerCard}/edit', [OutboundCustomerController::class, 'edit'])->name('customers.edit');
+            Route::put('/customers/{customerCard}', [OutboundCustomerController::class, 'update'])->name('customers.update')->middleware('throttle:30,1');
+            Route::delete('/customers/{customerCard}', [OutboundCustomerController::class, 'destroy'])->name('customers.destroy')->middleware('throttle:10,1');
         });
 
         /*
