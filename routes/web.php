@@ -55,6 +55,7 @@ use App\Http\Controllers\NegotiationController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\NotificationPreferenceController;
 use App\Http\Controllers\OutboundCustomerController;
+use App\Http\Controllers\OutboundOrderController;
 use App\Http\Controllers\PoolingJobController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
@@ -347,6 +348,12 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
             Route::get('/customers/{customerCard}/edit', [OutboundCustomerController::class, 'edit'])->name('customers.edit');
             Route::put('/customers/{customerCard}', [OutboundCustomerController::class, 'update'])->name('customers.update')->middleware('throttle:30,1');
             Route::delete('/customers/{customerCard}', [OutboundCustomerController::class, 'destroy'])->name('customers.destroy')->middleware('throttle:10,1');
+
+            Route::get('/outbound', [OutboundOrderController::class, 'index'])->name('outbound.index');
+            Route::get('/outbound/create', [OutboundOrderController::class, 'create'])->name('outbound.create');
+            Route::post('/outbound', [OutboundOrderController::class, 'store'])->name('outbound.store')->middleware('throttle:10,1');
+            Route::get('/outbound/{outboundOrder}', [OutboundOrderController::class, 'show'])->name('outbound.show');
+            Route::post('/outbound/{outboundOrder}/cancel', [OutboundOrderController::class, 'cancel'])->name('outbound.cancel')->middleware('throttle:10,1');
         });
 
         /*
