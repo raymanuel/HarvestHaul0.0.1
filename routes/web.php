@@ -354,6 +354,7 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
             Route::post('/outbound', [OutboundOrderController::class, 'store'])->name('outbound.store')->middleware('throttle:10,1');
             Route::get('/outbound/{outboundOrder}', [OutboundOrderController::class, 'show'])->name('outbound.show');
             Route::post('/outbound/{outboundOrder}/cancel', [OutboundOrderController::class, 'cancel'])->name('outbound.cancel')->middleware('throttle:10,1');
+            Route::post('/outbound/{outboundOrder}/dispatch', [OutboundOrderController::class, 'dispatch'])->name('outbound.dispatch')->middleware('throttle:10,1');
         });
 
         /*

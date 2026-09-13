@@ -2,14 +2,20 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\OutboundDispatchAction;
 use App\Http\Requests\StoreOutboundOrderRequest;
 use App\Models\CustomerCard;
+use App\Models\DriverProfile;
 use App\Models\Negotiation;
 use App\Models\NegotiationStatus;
 use App\Models\OutboundOrder;
+use App\Models\Truck;
+use App\Models\User;
 use App\Traits\Notifiable;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 class OutboundOrderController extends Controller
 {
@@ -105,9 +111,93 @@ class OutboundOrderController extends Controller
     public function show(OutboundOrder $outboundOrder)
     {
         $this->authorizeOwnership($outboundOrder);
+
         $outboundOrder->load(['customerCard', 'orderLines', 'poolingJob.truck', 'poolingJob.driver']);
 
-        return view('outbound.show', compact('outboundOrder'));
+        $trucks = $outboundOrder->logisticsProfile->availableTrucks()->get();
+        $drivers = DriverProfile::where('partner_id', $outboundOrder->logistics_profile_id)->with('user')->get();
+
+        return view('outbound.show', compact('outboundOrder', 'trucks', 'drivers'));
+    }
+
+    public function dispatch(Request $request, OutboundOrder $outboundOrder)
+    {
+        $this->authorizeOwnership($outboundOrder);
+
+        $validator = Validator::make($request->all(), [
+            'truck_id'        => ['required', 'integer'],
+            'driver_id'       => ['required', 'integer'],
+            'start_latitude'  => ['required', 'numeric', 'between:-90,90'],
+            'start_longitude' => ['required', 'numeric', 'between:-180,180'],
+        ]);
+
+        if ($outboundOrder->status !== 'drafted') {
+            $validator->errors()->add('order', 'Only drafted orders can be dispatched.');
+            return back()->withErrors($validator)->withInput();
+        }
+
+        $profileId = Auth::user()->logisticsProfile->id;
+
+        $validated = $validator->validated();
+
+        $truck = Truck::where('id', $validated['truck_id'])
+            ->where('logistics_profile_id', $profileId)->first();
+        if (!$truck) {
+            $validator->errors()->add('truck_id', 'Truck does not belong to your cooperative.');
+        }
+
+        $driver = User::where('id', $validated['driver_id'])
+            ->whereHas('driverProfile', function ($q) use ($profileId) {
+                $q->where('partner_id', $profileId);
+            })->first();
+        if (!$driver) {
+            $validator->errors()->add('driver_id', 'Driver does not belong to your cooperative.');
+        }
+
+        if ($validator->errors()->isNotEmpty()) {
+            return back()->withErrors($validator)->withInput();
+        }
+
+        $job = DB::transaction(function () use ($outboundOrder, $request) {
+            return app(OutboundDispatchAction::class)->execute(
+                $outboundOrder,
+                (int) $request->truck_id,
+                (int) $request->driver_id,
+                (float) $request->start_latitude,
+                (float) $request->start_longitude
+            );
+        });
+
+        self::logAudit(Auth::id(), 'dispatched_outbound_order', 'outbound_orders', $outboundOrder->id, "Coop dispatched outbound order #{$outboundOrder->id} (Route #{$job->id}).");
+
+        $customer = $outboundOrder->customerCard;
+
+        self::sendNotification(
+            Auth::id(),
+            'Outbound order dispatched',
+            "Outbound order #{$outboundOrder->id} to {$customer->name} was dispatched on Route #{$job->id}. Copy the tracking link and send it to {$customer->name} so they can follow the truck.",
+            route('coop.outbound.show', $outboundOrder)
+        );
+
+        self::sendNotification(
+            $driver->id,
+            'New outbound delivery',
+            "Route #{$job->id} delivers {$outboundOrder->total_kg} kg to {$customer->name}. Accept the job and start your trip from the Driver portal.",
+            route('driver.jobs.show', $job)
+        );
+
+        return redirect()->route('coop.outbound.show', $outboundOrder)
+            ->with('success', "Order dispatched to {$customer->name}.")
+            ->with('next_steps', [
+                'title'   => 'Shipment dispatched',
+                'message' => "Route #{$job->id} is assigned to {$truck->truck_name}.",
+                'steps'   => [
+                    'Copy the tracking link below and send it to the customer.',
+                    'The customer opens the link in their browser to follow the truck live.',
+                    'When the truck arrives, the customer taps Confirm received on that page.',
+                ],
+                'cta' => ['label' => 'View Shipment', 'url' => route('coop.outbound.show', $outboundOrder)],
+            ]);
     }
 
     public function cancel(OutboundOrder $outboundOrder)

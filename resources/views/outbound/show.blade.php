@@ -90,11 +90,67 @@
         </div>
 
         @if($outboundOrder->status === 'drafted')
-            <div class="bg-blue-50/60 dark:bg-blue-950/20 border border-blue-200/70 dark:border-blue-900/50 rounded-2xl p-6 mb-6">
-                <h2 class="text-xs font-bold text-blue-700 dark:text-blue-300 uppercase tracking-wider mb-2">Not dispatched yet</h2>
-                <p class="text-xs text-blue-700/80 dark:text-blue-300/80 font-medium">
-                    Choose a truck and driver and press Dispatch to send this shipment. Once dispatched, a tracking link is created for the customer.
+            @php
+                $officeLat = $outboundOrder->logisticsProfile->latitude ?? 6.05;
+                $officeLng = $outboundOrder->logisticsProfile->longitude ?? 125.13;
+            @endphp
+            <div class="bg-amber-50/70 dark:bg-amber-950/20 border border-amber-200/80 dark:border-amber-900/50 rounded-2xl p-6 mb-6">
+                <h2 class="text-xs font-bold text-amber-700 dark:text-amber-300 uppercase tracking-wider mb-2">Dispatch this shipment</h2>
+                <p class="text-xs text-amber-700/80 dark:text-amber-300/80 font-medium mb-4">
+                    Choose a truck and driver, then press Dispatch to send this shipment. Once dispatched, a tracking link is created for the customer.
                 </p>
+                <form action="{{ route('coop.outbound.dispatch', $outboundOrder) }}" method="POST" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    @csrf
+                    <div>
+                        <label for="truck_id" class="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">Truck</label>
+                        <select name="truck_id" id="truck_id" required
+                            class="w-full px-4 py-3 border border-slate-200 dark:border-slate-600 rounded-xl text-sm text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-900/60 focus:outline-none focus:ring-2 focus:ring-[#16283C]/30 focus:border-[#16283C] transition">
+                            @foreach($trucks as $truck)
+                                <option value="{{ $truck->id }}">{{ $truck->truck_name }} · {{ $truck->plate_number }} · {{ number_format((float) $truck->capacity_kg, 0) }} kg</option>
+                            @endforeach
+                        </select>
+                        @error('truck_id')
+                            <p class="text-red-500 dark:text-red-400 text-xs mt-1.5 font-medium">{{ $message }}</p>
+                        @enderror
+                        @if($trucks->isEmpty())
+                            <p class="text-[11px] text-amber-600/80 dark:text-amber-300/70 font-medium mt-1.5">No available trucks. Keep a truck's status 'available' to dispatch.</p>
+                        @endif
+                    </div>
+                    <div>
+                        <label for="driver_id" class="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">Driver</label>
+                        <select name="driver_id" id="driver_id" required
+                            class="w-full px-4 py-3 border border-slate-200 dark:border-slate-600 rounded-xl text-sm text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-900/60 focus:outline-none focus:ring-2 focus:ring-[#16283C]/30 focus:border-[#16283C] transition">
+                            @foreach($drivers as $driverProfile)
+                                <option value="{{ $driverProfile->user_id }}">{{ $driverProfile->user?->name ?? 'Driver #' . $driverProfile->user_id }}</option>
+                            @endforeach
+                        </select>
+                        @error('driver_id')
+                            <p class="text-red-500 dark:text-red-400 text-xs mt-1.5 font-medium">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    <div>
+                        <label for="start_latitude" class="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">Start Latitude</label>
+                        <input type="number" step="any" name="start_latitude" id="start_latitude" value="{{ old('start_latitude', $officeLat) }}" required
+                            class="w-full px-4 py-3 border border-slate-200 dark:border-slate-600 rounded-xl text-sm text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-900/60 focus:outline-none focus:ring-2 focus:ring-[#16283C]/30 focus:border-[#16283C] transition">
+                        @error('start_latitude')
+                            <p class="text-red-500 dark:text-red-400 text-xs mt-1.5 font-medium">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    <div>
+                        <label for="start_longitude" class="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">Start Longitude</label>
+                        <input type="number" step="any" name="start_longitude" id="start_longitude" value="{{ old('start_longitude', $officeLng) }}" required
+                            class="w-full px-4 py-3 border border-slate-200 dark:border-slate-600 rounded-xl text-sm text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-900/60 focus:outline-none focus:ring-2 focus:ring-[#16283C]/30 focus:border-[#16283C] transition">
+                        @error('start_longitude')
+                            <p class="text-red-500 dark:text-red-400 text-xs mt-1.5 font-medium">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    <div class="sm:col-span-2">
+                        <button type="submit"
+                            class="inline-flex items-center gap-2 px-5 py-3 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-bold transition cursor-pointer">
+                            Dispatch Order
+                        </button>
+                    </div>
+                </form>
             </div>
             <form action="{{ route('coop.outbound.cancel', $outboundOrder) }}" method="POST" class="inline" id="cancel-order-form-{{ $outboundOrder->id }}">
                 @csrf
@@ -106,6 +162,17 @@
         @elseif($outboundOrder->status === 'cancelled')
             <div class="bg-red-50/60 dark:bg-red-950/20 border border-red-200/70 dark:border-red-900/50 rounded-2xl p-6">
                 <p class="text-xs font-bold text-red-700 dark:text-red-300 uppercase tracking-wider">This order was cancelled and will not be dispatched.</p>
+            </div>
+        @endif
+
+        @if ($outboundOrder->tracking_token)
+            <div class="rounded-lg border border-slate-200/70 dark:border-slate-700/80 bg-white dark:bg-slate-800 shadow-sm p-4 mb-6">
+                <p class="font-semibold text-sm text-slate-800 dark:text-slate-200">Tracking link for {{ $outboundOrder->customerCard->name }}</p>
+                <p class="text-sm text-gray-600 dark:text-gray-400">Send this link so the customer can follow the truck and confirm receipt.</p>
+                <div class="flex items-center gap-2 mt-2">
+                    <input readonly value="{{ route('outbound.track', $outboundOrder->tracking_token) }}" class="flex-1 px-3 py-2 rounded border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-900/60 text-sm text-slate-600 dark:text-slate-300" />
+                    <button onclick="navigator.clipboard.writeText('{{ route('outbound.track', $outboundOrder->tracking_token) }}')" class="px-3 py-2 rounded bg-blue-600 text-white text-sm font-bold transition cursor-pointer">Copy</button>
+                </div>
             </div>
         @endif
 
