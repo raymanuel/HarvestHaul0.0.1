@@ -10,7 +10,7 @@
                 <div>
                     <span class="text-xs font-bold uppercase tracking-wider text-harvest-dark dark:text-harvest-light bg-harvest/10 dark:bg-harvest/20 px-3 py-1.5 rounded-md border border-harvest/10 dark:border-harvest/20 inline-block mb-2">Outbound Distribution</span>
                     <h1 class="text-3xl font-bold text-slate-900 dark:text-white tracking-tight heading-font">Outbound Orders</h1>
-                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Your manifests — packed crops heading out to customers.</p>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Your order items — packed crops heading out to customers.</p>
                 </div>
                 <div>
                     <x-button tag="a" :href="route('coop.outbound.create')" size="lg">
@@ -31,7 +31,7 @@
                 <p class="text-4xl mb-4 font-bold text-slate-300 dark:text-slate-600">—</p>
                 <p class="text-slate-800 dark:text-slate-200 font-bold text-base mb-1 heading-font">No Outbound Orders Yet</p>
                 <p class="text-slate-500 dark:text-slate-400 font-medium text-xs max-w-sm mx-auto">
-                    Build your first manifest — pick a customer, add crop lines, then assign a truck to dispatch.
+                    Build your first order — pick a customer, add crop lines, then assign a truck to dispatch.
                 </p>
                 <a href="{{ route('coop.outbound.create') }}" class="mt-5 inline-block text-xs font-bold text-[#16283C] dark:text-[#D7BC7A] hover:underline transition">
                     Create first order <span>→</span>

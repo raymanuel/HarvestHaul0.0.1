@@ -123,4 +123,16 @@ class DriverOutboundTest extends TestCase
 
         $this->actingAs($otherDriver)->post(route('driver.jobs.outbound-delivered', $job))->assertForbidden();
     }
+
+    public function test_order_flips_to_in_transit_when_outbound_trip_starts(): void
+    {
+        $coop = $this->coop();
+        $driver = $this->driverFor($coop);
+        [$job, $order] = $this->outboundJobFor($coop, $driver);
+        $job->update(['accepted_at' => now()]);
+
+        $this->actingAs($driver)->patch(route('driver.jobs.status', $job))->assertRedirect();
+
+        $this->assertSame('in_transit', $order->fresh()->status);
+    }
 }

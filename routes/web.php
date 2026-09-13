@@ -92,6 +92,7 @@ Route::get('/email/verified', function () {
 | Public Outbound Customer Tracking (Anonymous — uses opaque token, never IDs)
 |--------------------------------------------------------------------------
 */
+Route::get('/track-out/complete', [OutboundTrackController::class, 'complete'])->name('outbound.track.complete');
 Route::get('/track-out/{token}', [OutboundTrackController::class, 'show'])->name('outbound.track');
 Route::get('/track-out/{token}/ping', [OutboundTrackController::class, 'ping'])->name('outbound.track.ping');
 Route::post('/track-out/{token}/confirm', [OutboundTrackController::class, 'confirm'])

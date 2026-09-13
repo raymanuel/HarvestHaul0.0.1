@@ -8,7 +8,7 @@
             </a>
             <span class="text-xs font-bold uppercase tracking-wider text-harvest-dark dark:text-harvest-light bg-harvest/10 dark:bg-harvest/20 px-3 py-1.5 rounded-md border border-harvest/10 dark:border-harvest/20 inline-block mb-2">Outbound Distribution</span>
             <h1 class="text-3xl font-bold text-slate-900 dark:text-white tracking-tight heading-font">New Outbound Order</h1>
-            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Build a manifest for a customer — the total is rate × kg per line.</p>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Build an order for a customer — the total is rate × kg per line.</p>
         </header>
 
         <x-flash-success />
@@ -55,7 +55,7 @@
 
             <div class="bg-white dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700/80 rounded-2xl shadow-sm p-6 mb-6">
                 <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Manifest Lines</h2>
+                    <h2 class="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Order Items</h2>
                     <button type="button" onclick="addLine()"
                         class="inline-flex items-center gap-1.5 text-xs font-bold text-[#16283C] dark:text-[#D7BC7A] bg-[#16283C]/10 dark:bg-[#16283C]/15 px-3 py-2 rounded-xl hover:bg-[#16283C]/15 dark:hover:bg-[#16283C]/25 transition cursor-pointer">
                         <x-icon name="plus" class="w-3.5 h-3.5" /> Add line
@@ -104,7 +104,7 @@
 
             <div class="flex items-center gap-3 pt-2">
                 <x-button type="submit" size="lg">
-                    Save Manifest
+                    Save Order
                 </x-button>
                 <a href="{{ route('coop.outbound.index') }}"
                     class="text-xs font-bold text-slate-500 dark:text-slate-400 hover:text-slate-600 dark:hover:text-slate-400 px-4 py-3.5 rounded-xl border border-slate-200/60 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-900/30 transition">

@@ -152,6 +152,10 @@ class DriverController extends Controller
                     $poolingJob->harvests()->updateExistingPivot($harvest->id, ['status' => 'assigned']);
                 }
             }
+
+            if ($poolingJob->leg_type === 'outbound') {
+                $poolingJob->outboundOrder?->update(['status' => 'in_transit']);
+            }
         }
 
         if ($newStatus === PoolingJobStatus::AWAITING_CONFIRMATION) {
@@ -233,7 +237,8 @@ class DriverController extends Controller
                     $poolingJob->logisticsProfile->user_id,
                     $user->name,
                     $poolingJob->id,
-                    $poolingJob->harvests
+                    $poolingJob->harvests,
+                    $poolingJob->leg_type
                 );
             }
         }
@@ -245,7 +250,8 @@ class DriverController extends Controller
                     $user->name,
                     $poolingJob->id,
                     $poolingJob->harvests,
-                    $poolingJob->buyer_id
+                    $poolingJob->buyer_id,
+                    $poolingJob->leg_type
                 );
             }
         }

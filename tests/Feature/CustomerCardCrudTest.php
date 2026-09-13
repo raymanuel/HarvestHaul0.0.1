@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\CustomerCard;
+use App\Models\OutboundOrder;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -79,6 +80,24 @@ class CustomerCardCrudTest extends TestCase
 
         $this->actingAs($coop)->delete(route('coop.customers.destroy', $card))->assertRedirect();
         $this->assertDatabaseMissing('customer_cards', ['id' => $card->id]);
+    }
+
+    public function test_coop_cannot_delete_customer_with_orders(): void
+    {
+        $coop = $this->coop();
+        $card = CustomerCard::factory()->create(['logistics_profile_id' => $coop->logisticsProfile->id]);
+        $order = OutboundOrder::factory()->create([
+            'customer_card_id'     => $card->id,
+            'logistics_profile_id' => $coop->logisticsProfile->id,
+        ]);
+
+        $this->actingAs($coop)->delete(route('coop.customers.destroy', $card))
+            ->assertRedirect()
+            ->assertSessionHas('error', "Customer {$card->name} has 1 order(s), so they can't be removed. Keep the card, or finish their open orders first.");
+
+        $this->assertDatabaseHas('customer_cards', ['id' => $card->id]);
+        $this->assertDatabaseHas('outbound_orders', ['id' => $order->id]);
+        $this->assertSame(1, $card->outboundOrders()->count());
     }
 
     public function test_coop_cannot_edit_other_coops_customer(): void

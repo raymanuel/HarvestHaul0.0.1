@@ -223,8 +223,21 @@ trait Notifiable
     // Pooling job notifications
     // ──────────────────────────────────────────────
 
-    protected static function notifyJobInTransit(int $logisticsUserId, string $driverName, int $jobId, $harvests): void
+    protected static function notifyJobInTransit(int $logisticsUserId, string $driverName, int $jobId, $harvests, ?string $legType = null): void
     {
+        if ($legType === 'outbound') {
+            $order = \App\Models\PoolingJob::find($jobId)?->outboundOrder;
+            if ($order) {
+                static::sendNotification(
+                    $logisticsUserId,
+                    'Outbound Delivery In Transit',
+                    "Driver {$driverName} has started outbound delivery #{$order->id} (Route #{$jobId}). The truck is now heading to {$order->customerCard?->name}.",
+                    route('coop.outbound.show', $order)
+                );
+                return;
+            }
+        }
+
         static::sendNotification(
             $logisticsUserId,
             'Job In Transit',
@@ -242,8 +255,21 @@ trait Notifiable
         );
     }
 
-    protected static function notifyJobAwaitingConfirmation(int $logisticsUserId, string $driverName, int $jobId, $harvests, ?int $buyerId): void
+    protected static function notifyJobAwaitingConfirmation(int $logisticsUserId, string $driverName, int $jobId, $harvests, ?int $buyerId, ?string $legType = null): void
     {
+        if ($legType === 'outbound') {
+            $order = \App\Models\PoolingJob::find($jobId)?->outboundOrder;
+            if ($order) {
+                static::sendNotification(
+                    $logisticsUserId,
+                    'Outbound Delivery Awaiting Confirmation',
+                    "Driver {$driverName} finalized outbound delivery #{$order->id} (Route #{$jobId}). Awaiting {$order->customerCard?->name}'s receipt confirmation — monitor it from Outbound Orders.",
+                    route('coop.outbound.show', $order)
+                );
+                return;
+            }
+        }
+
         static::sendNotification(
             $logisticsUserId,
             'Job Awaiting Buyer Confirmation',

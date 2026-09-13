@@ -10,7 +10,7 @@
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                     <h1 class="text-3xl font-bold text-slate-900 dark:text-white tracking-tight heading-font">Outbound Order #{{ $outboundOrder->id }}</h1>
-                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Manifest for {{ $outboundOrder->customerCard->name }}</p>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Items for {{ $outboundOrder->customerCard->name }}</p>
                 </div>
                 @php
                     $statusBadge = match ($outboundOrder->status) {
@@ -58,7 +58,7 @@
 
         <div class="bg-white dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700/80 rounded-2xl shadow-sm overflow-hidden mb-6">
             <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-700/60">
-                <h2 class="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Manifest</h2>
+                <h2 class="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Order Items</h2>
             </div>
             <div class="overflow-x-auto">
                 <table class="w-full text-sm text-left">

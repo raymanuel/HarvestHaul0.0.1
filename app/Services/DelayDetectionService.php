@@ -30,6 +30,9 @@ class DelayDetectionService
     public function checkAllActiveJobs(): array
     {
         $activeJobs = PoolingJob::whereIn('status', ['in_progress'])
+            ->where(function ($q) {
+                $q->where('leg_type', '!=', 'outbound')->orWhereNull('leg_type');
+            })
             ->with(['driver', 'logisticsProfile', 'harvests.farmer', 'harvests.crop'])
             ->get();
 

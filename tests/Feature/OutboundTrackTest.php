@@ -101,12 +101,13 @@ class OutboundTrackTest extends TestCase
         $job->update(['status' => 'awaiting_confirmation']);
 
         $response = $this->post(route('outbound.track.confirm', $order->tracking_token));
-        $response->assertRedirect();
+        $response->assertRedirect(route('outbound.track.complete'));
         $response->assertSessionHas('success', "Delivery confirmed. Thank you for your business! Order #{$order->id} is now complete.");
 
         $order->refresh();
         $job->refresh();
         $this->assertSame('completed', $order->status);
+        $this->assertNull($order->tracking_token);
         $this->assertSame('completed', $job->status->value);
         $this->assertNotNull($order->completed_at);
         $this->assertNotNull($order->confirmed_at);
@@ -129,8 +130,15 @@ class OutboundTrackTest extends TestCase
         $order->update(['status' => 'awaiting_confirmation']);
         $order->poolingJob->update(['status' => 'awaiting_confirmation']);
 
-        $this->post(route('outbound.track.confirm', $order->tracking_token))->assertRedirect();
+        $this->post(route('outbound.track.confirm', $order->tracking_token))->assertRedirect(route('outbound.track.complete'));
         $this->post(route('outbound.track.confirm', $order->tracking_token))
             ->assertSessionHasErrors('order');
+    }
+
+    public function test_confirmation_page_renders(): void
+    {
+        $this->get(route('outbound.track.complete'))
+            ->assertOk()
+            ->assertSee('Thank you, delivery confirmed');
     }
 }

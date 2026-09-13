@@ -77,9 +77,9 @@
                 @endif
             </div>
 
-            {{-- Manifest Lines --}}
+            {{-- Delivery Items --}}
             <div class="px-5 pb-4">
-                <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-2">Manifest</p>
+                <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-2">Delivery Items</p>
                 <div class="bg-slate-50 rounded-xl overflow-hidden">
                     <table class="w-full text-xs">
                         <thead>

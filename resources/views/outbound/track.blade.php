@@ -96,7 +96,7 @@
             <div class="md:col-span-5 space-y-4">
                 <div class="bg-white border border-slate-200/70 rounded-2xl overflow-hidden shadow-sm">
                     <div class="px-5 py-3.5 border-b border-slate-100">
-                        <h2 class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Delivery Manifest</h2>
+                        <h2 class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Delivery Items</h2>
                     </div>
                     <div class="divide-y divide-slate-100">
                         @forelse ($order->orderLines as $line)
@@ -108,7 +108,7 @@
                                 </span>
                             </div>
                         @empty
-                            <div class="px-5 py-4 text-xs italic text-slate-400">No items recorded in the manifest.</div>
+                            <div class="px-5 py-4 text-xs italic text-slate-400">No items recorded in this delivery.</div>
                         @endforelse
                     </div>
                     <div class="px-5 py-3.5 border-t border-slate-100 flex items-center justify-between text-sm">

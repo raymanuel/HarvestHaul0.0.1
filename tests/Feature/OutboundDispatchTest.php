@@ -104,6 +104,29 @@ class OutboundDispatchTest extends TestCase
         $this->assertSame('confirmed', $order->status);
         $this->assertNotNull($order->tracking_token);
         $this->assertNotNull($order->dispatched_at);
+
+        $this->assertSame('reserved', $truck->refresh()->status);
+        $this->assertFalse($coop->logisticsProfile->availableTrucks()->whereKey($truck->id)->exists());
+    }
+
+    public function test_dispatch_refuses_a_truck_that_is_no_longer_available(): void
+    {
+        $coop = $this->coop();
+        $driver = $this->driverFor($coop);
+        $truck = $this->truckFor($coop);
+
+        $this->actingAs($coop)->post(route('coop.outbound.dispatch', $this->orderFor($coop)), [
+            'truck_id' => $truck->id, 'driver_id' => $driver->id,
+            'start_latitude' => 6.05, 'start_longitude' => 125.13,
+        ])->assertRedirect();
+
+        $secondOrder = $this->orderFor($coop);
+        $this->actingAs($coop)->post(route('coop.outbound.dispatch', $secondOrder), [
+            'truck_id' => $truck->id, 'driver_id' => $driver->id,
+            'start_latitude' => 6.05, 'start_longitude' => 125.13,
+        ])->assertStatus(422);
+
+        $this->assertSame('drafted', $secondOrder->fresh()->status);
     }
 
     public function test_dispatch_rejects_foreign_driver_or_truck(): void

@@ -66,6 +66,12 @@ class OutboundCustomerController extends Controller
     public function destroy(CustomerCard $customerCard)
     {
         $this->authorizeOwnership($customerCard);
+
+        $orderCount = $customerCard->outboundOrders()->count();
+        if ($orderCount > 0) {
+            return back()->with('error', "Customer {$customerCard->name} has {$orderCount} order(s), so they can't be removed. Keep the card, or finish their open orders first.");
+        }
+
         $customerCard->delete();
 
         return redirect()->route('coop.customers.index')
