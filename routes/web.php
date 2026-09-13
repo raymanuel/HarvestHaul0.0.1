@@ -56,6 +56,7 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\NotificationPreferenceController;
 use App\Http\Controllers\OutboundCustomerController;
 use App\Http\Controllers\OutboundOrderController;
+use App\Http\Controllers\OutboundTrackController;
 use App\Http\Controllers\PoolingJobController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
@@ -86,6 +87,16 @@ Route::view('/legal/privacy', 'legal.privacy')->name('legal.privacy');
 Route::get('/email/verified', function () {
     return view('auth.verified');
 })->name('verification.success');
+
+/*
+|--------------------------------------------------------------------------
+| Public Outbound Customer Tracking (Anonymous — uses opaque token, never IDs)
+|--------------------------------------------------------------------------
+*/
+Route::get('/track-out/{token}', [OutboundTrackController::class, 'show'])->name('outbound.track');
+Route::get('/track-out/{token}/ping', [OutboundTrackController::class, 'ping'])->name('outbound.track.ping');
+Route::post('/track-out/{token}/confirm', [OutboundTrackController::class, 'confirm'])
+    ->name('outbound.track.confirm')->middleware('throttle:15,1');
 
 /*
 |--------------------------------------------------------------------------

@@ -52,7 +52,7 @@ trait Notifiable
         }
     }
 
-    protected static function logAudit(int $adminId, string $action, string $targetType, int $targetId, string $notes): void
+    protected static function logAudit(?int $adminId, string $action, string $targetType, int $targetId, string $notes): void
     {
         AuditLog::create([
             'admin_id'    => $adminId,
