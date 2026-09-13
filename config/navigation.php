@@ -297,6 +297,22 @@ return [
                 'condition' => 'cooperative_only',
             ],
             [
+                'label' => 'Customers',
+                'route' => 'coop.customers.*',
+                'route_url' => 'coop.customers.index',
+                'letter' => 'C',
+                'tooltip' => 'Customers',
+                'condition' => 'cooperative_only',
+            ],
+            [
+                'label' => 'Outbound Orders',
+                'route' => 'coop.outbound.*',
+                'route_url' => 'coop.outbound.index',
+                'letter' => 'O',
+                'tooltip' => 'Outbound Orders',
+                'condition' => 'cooperative_only',
+            ],
+            [
                 'label' => 'Route Pricing',
                 'route' => 'profile.route-pricing',
                 'route_url' => 'profile.route-pricing',

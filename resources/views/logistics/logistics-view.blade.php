@@ -81,6 +81,10 @@
                 />
             </div>
 
+            @if ($outboundStats !== null)
+                @include('logistics.outbound-section', ['outboundStats' => $outboundStats])
+            @endif
+
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
                 <x-weather-card class="lg:col-span-1" :weather="$weatherData" />
                 <x-market-prices-card class="lg:col-span-2" />
