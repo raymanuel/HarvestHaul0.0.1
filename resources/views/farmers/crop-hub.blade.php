@@ -58,22 +58,36 @@
     {{-- Status Timeline --}}
     @php
         $timelineSteps = [
-            'active'      => ['label' => 'Posted',        'icon' => 'seedling'],
-            'negotiating' => ['label' => 'Negotiating',   'icon' => 'chat'],
-            'sold'        => ['label' => 'Sold',          'icon' => 'check-circle'],
-            'assigned'    => ['label' => 'Assigned',      'icon' => 'users'],
-            'in_progress' => ['label' => 'In Transit',    'icon' => 'truck'],
-            'completed'   => ['label' => 'Completed',     'icon' => 'check'],
+            ['key' => 'active',      'label' => 'Posted',      'icon' => 'seedling'],
+            ['key' => 'negotiating', 'label' => 'Negotiating', 'icon' => 'chat'],
+            ['key' => 'sold',        'label' => 'Sold',        'icon' => 'check-circle'],
+            ['key' => 'assigned',    'label' => 'Assigned',    'icon' => 'users'],
+            ['key' => 'in_progress', 'label' => 'In Transit',  'icon' => 'truck'],
+            ['key' => 'completed',   'label' => 'Completed',   'icon' => 'check'],
         ];
-        $stepKeys = array_keys($timelineSteps);
+        $stepKeys = array_column($timelineSteps, 'key');
         $currentIdx = array_search($status, $stepKeys);
         if ($currentIdx === false) $currentIdx = 0;
         // partially_sold and booked sit between negotiating and sold
         if (in_array($status, ['partially_sold', 'booked'])) $currentIdx = 2;
         if ($status === 'cancelled') $currentIdx = -1;
+
+        $progressSummary = match ($status) {
+            'active'         => 'Your crop is listed on the board — buyers will reach out to negotiate.',
+            'negotiating'    => 'You are in negotiation — open the deal room to continue.',
+            'partially_sold' => 'Part of your crop sold — ' . number_format((float) ($harvest->remaining_quantity_kg ?? 0), 2) . ' kg is still listed on the board.',
+            'sold'           => 'Your crop sold — a delivery proposal will come next for you to accept.',
+            'booked'         => 'Your delivery is booked — it will be assigned for pickup next.',
+            'assigned'       => 'A driver is assigned to pick up your crop.',
+            'in_progress'    => 'Your crop is on the way — track the shipment.',
+            'completed'      => 'Your crop was delivered — view the cost ledger for the charges.',
+            'cancelled'      => 'This post was cancelled.',
+            default          => 'Your crop is being processed.',
+        };
     @endphp
     <div class="bg-white dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700/80 rounded-2xl p-5 shadow-sm mb-8">
-        <h4 class="text-[10px] font-bold text-slate-400 dark:text-slate-600 uppercase tracking-wider mb-4">Progress</h4>
+        <h4 class="text-[10px] font-bold text-slate-400 dark:text-slate-600 uppercase tracking-wider mb-1">Progress</h4>
+        <p class="text-xs font-semibold {{ $status === 'cancelled' ? 'text-red-600 dark:text-red-400' : 'text-slate-600 dark:text-slate-300' }} mb-4">{{ $progressSummary }}</p>
         <div class="flex items-center justify-between gap-1 overflow-x-auto pb-1">
             @foreach($timelineSteps as $idx => $step)
                 @php
@@ -81,16 +95,29 @@
                     $isCurrent = $idx === $currentIdx && $currentIdx >= 0;
                 @endphp
                 <div class="flex flex-col items-center min-w-0 flex-1">
-                    <div class="w-8 h-8 rounded-full flex items-center justify-center border-2 transition
-                        {{ $isActive
-                            ? 'bg-[#16283C] dark:bg-[#D7BC7A] border-[#16283C] dark:border-[#D7BC7A] text-white dark:text-[#17202B]'
-                            : 'bg-slate-100 dark:bg-slate-700 border-slate-200 dark:border-slate-600 text-slate-400 dark:text-slate-500' }}">
-                        <x-icon :name="$step['icon']" class="w-4 h-4" />
+                    <div class="relative">
+                        @if($isCurrent)
+                            <span class="absolute -inset-1.5 rounded-full border-[3px] border-[#D7BC7A] dark:border-[#0E1620]"></span>
+                        @endif
+                        <div class="relative w-8 h-8 rounded-full flex items-center justify-center border-2 transition
+                            {{ $isCurrent
+                                ? 'bg-[#16283C] dark:bg-[#D7BC7A] border-[#16283C] dark:border-[#D7BC7A] text-white dark:text-[#17202B] scale-110'
+                                : ($isActive
+                                    ? 'bg-[#16283C] dark:bg-[#D7BC7A] border-[#16283C] dark:border-[#D7BC7A] text-white dark:text-[#17202B]'
+                                    : 'bg-slate-100 dark:bg-slate-700 border-slate-200 dark:border-slate-600 text-slate-400 dark:text-slate-500') }}">
+                            @if($isCurrent)
+                                <span class="absolute inset-0 rounded-full bg-[#D7BC7A]/60 dark:bg-[#0E1620]/50 animate-ping"></span>
+                            @endif
+                            <x-icon :name="$step['icon']" class="relative w-4 h-4" />
+                        </div>
                     </div>
                     <p class="text-[9px] font-bold mt-1.5 text-center leading-tight
                         {{ $isCurrent ? 'text-[#16283C] dark:text-[#D7BC7A]' : ($isActive ? 'text-slate-600 dark:text-slate-300' : 'text-slate-400 dark:text-slate-600') }}">
                         {{ $step['label'] }}
                     </p>
+                    @if($isCurrent)
+                        <span class="mt-1 text-[8px] font-extrabold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-[#D7BC7A] text-[#17202B]">● Now</span>
+                    @endif
                 </div>
                 @if(!$loop->last)
                     <div class="h-0.5 flex-1 max-w-8 mt-[-12px] rounded

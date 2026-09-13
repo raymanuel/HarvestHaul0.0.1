@@ -63,26 +63,10 @@ class NegotiationController extends Controller
 
         $this->authorize('view', $negotiation);
 
-        $column = $negotiation->buyer_id === $user->id ? 'buyer_last_read_at' : 'farmer_last_read_at';
-        $negotiation->update([$column => now()]);
+        [$haulDistanceKm, $rateReference] = $this->haulContext($negotiation);
+        $this->markNegotiationRead($negotiation, $user);
 
         $negotiation->load(['buyer.logisticsProfile', 'farmer', 'harvest.crop', 'harvest.cropVariety', 'messages.sender']);
-
-$haulDistanceKm = null;
-        $rateReference  = null;
-        $h = $negotiation->harvest;
-        $pickupLat = (float) ($h->latitude ?? $h->farmer?->farmerProfile?->latitude);
-        $pickupLng = (float) ($h->longitude ?? $h->farmer?->farmerProfile?->longitude);
-        $destLat = (float) ($negotiation->destination_latitude ?? $h->destination?->latitude ?? $h->destination_latitude ?? $negotiation->buyer?->logisticsProfile?->latitude);
-        $destLng = (float) ($negotiation->destination_longitude ?? $h->destination?->longitude ?? $h->destination_longitude ?? $negotiation->buyer?->logisticsProfile?->longitude);
-        if ($pickupLat && $pickupLng && $destLat && $destLng) {
-            $haulDistanceKm = round($this->haversine($pickupLat, $pickupLng, $destLat, $destLng), 2);
-            $totalKg = (float) ($negotiation->negotiated_volume ?? $h->quantity_kg ?? 0);
-            if ($totalKg > 0) {
-                $rateReference = app(\App\Services\HaulingRateCalculator::class)
-                    ->suggest($haulDistanceKm, $totalKg)['rate_per_kg'];
-            }
-        }
 
         return view('negotiations.room', compact('negotiation', 'haulDistanceKm', 'rateReference'));
     }
@@ -255,29 +239,56 @@ $haulDistanceKm = null;
             abort(403, 'Farmer access only.');
         }
 
-        $column = $negotiation->buyer_id === $user->id ? 'buyer_last_read_at' : 'farmer_last_read_at';
-        $negotiation->update([$column => now()]);
+        $this->authorize('view', $negotiation);
+
+        [$haulDistanceKm, $rateReference] = $this->haulContext($negotiation);
+        $this->markNegotiationRead($negotiation, $user);
 
         $negotiation->load([
             'buyer.buyerProfile',
             'buyer.logisticsProfile',
-            'messages.sender',
+            'farmer',
             'harvest.crop',
             'harvest.cropVariety',
             'harvest.destination',
-            'harvest.farmer.farmerProfile',
+            'messages.sender',
         ]);
 
-        $haulRequest = $negotiation->haulRequests()->latest()->first();
+        return view('negotiations.room', compact('negotiation', 'haulDistanceKm', 'rateReference'));
+    }
 
-        $haulIntents = HaulIntent::whereHas('haulRequest', function ($q) use ($negotiation) {
-                $q->where('negotiation_id', $negotiation->id);
-            })
-            ->with(['haulRequest.harvest.crop', 'logisticsProfile.user'])
-            ->latest('updated_at')
-            ->get();
+    /**
+     * Straight-line farm→drop-off distance estimate + advisory road-cost rate
+     * reference for the shared negotiation room.
+     *
+     * @return array{0: ?float, 1: ?float}  [haulDistanceKm, rateReference]
+     */
+    private function haulContext(Negotiation $negotiation): array
+    {
+        $h = $negotiation->harvest;
+        $pickupLat = (float) ($h->latitude ?? $h->farmer?->farmerProfile?->latitude);
+        $pickupLng = (float) ($h->longitude ?? $h->farmer?->farmerProfile?->longitude);
+        $destLat = (float) ($negotiation->destination_latitude ?? $h->destination?->latitude ?? $h->destination_latitude ?? $negotiation->buyer?->logisticsProfile?->latitude);
+        $destLng = (float) ($negotiation->destination_longitude ?? $h->destination?->longitude ?? $h->destination_longitude ?? $negotiation->buyer?->logisticsProfile?->longitude);
 
-        return view('deals.deal-room', compact('negotiation', 'haulRequest', 'haulIntents'));
+        if (!$pickupLat || !$pickupLng || !$destLat || !$destLng) {
+            return [null, null];
+        }
+
+        $haulDistanceKm = round($this->haversine($pickupLat, $pickupLng, $destLat, $destLng), 2);
+        $totalKg = (float) ($negotiation->negotiated_volume ?? $h->quantity_kg ?? 0);
+
+        if ($totalKg <= 0) {
+            return [$haulDistanceKm, null];
+        }
+
+        return [$haulDistanceKm, app(\App\Services\HaulingRateCalculator::class)->suggest($haulDistanceKm, $totalKg)['rate_per_kg']];
+    }
+
+    private function markNegotiationRead(Negotiation $negotiation, User $user): void
+    {
+        $column = $negotiation->buyer_id === $user->id ? 'buyer_last_read_at' : 'farmer_last_read_at';
+        $negotiation->update([$column => now()]);
     }
 
     public function listJson()

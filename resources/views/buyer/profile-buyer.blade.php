@@ -155,7 +155,7 @@
                     <div>
                         <label for="password" class="text-xs font-bold text-slate-600 dark:text-slate-400 block mb-1.5">New Password</label>
                         <div class="relative">
-                            <input type="password" id="password" name="password" required
+                            <input type="password" id="password" name="password" required autocomplete="new-password"
                                 class="px-4 py-3 pr-12 w-full bg-white/80 dark:bg-slate-800 border border-slate-200/80 dark:border-slate-600/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition text-sm dark:text-white">
                             <button type="button" onclick="togglePassword('password', 'password-eye')" aria-label="Toggle password visibility"
                                 class="absolute right-1 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center text-slate-400 hover:text-[#0E1620] dark:hover:text-white transition focus:outline-none">
@@ -171,7 +171,7 @@
                     <div>
                         <label for="password_confirmation" class="text-xs font-bold text-slate-600 dark:text-slate-400 block mb-1.5">Confirm New Password</label>
                         <div class="relative">
-                            <input type="password" id="password_confirmation" name="password_confirmation" required
+                            <input type="password" id="password_confirmation" name="password_confirmation" required autocomplete="new-password"
                                 class="px-4 py-3 pr-12 w-full bg-white/80 dark:bg-slate-800 border border-slate-200/80 dark:border-slate-600/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition text-sm dark:text-white">
                             <button type="button" onclick="togglePassword('password_confirmation', 'password_confirmation-eye')" aria-label="Toggle password visibility"
                                 class="absolute right-1 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center text-slate-400 hover:text-[#0E1620] dark:hover:text-white transition focus:outline-none">

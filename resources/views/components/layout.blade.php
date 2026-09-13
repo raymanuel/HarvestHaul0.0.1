@@ -280,7 +280,7 @@
             <span class="text-lg font-bold tracking-tight heading-font text-brand dark:text-white">HarvestHaul</span>
         </a>
         <div class="flex items-center gap-2">
-            <x-notification-dropdown />
+            <x-notification-dropdown variant="mobile" />
             <button id="mobile-menu-btn" onclick="toggleMobileSidebar()" aria-controls="sidebar-nav" aria-expanded="false" class="p-2 bg-slate-900/5 hover:bg-slate-900/10 rounded-xl text-slate-700 dark:bg-white/10 dark:hover:bg-white/20 dark:text-white transition" aria-label="Open Navigation Menu">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
@@ -577,12 +577,6 @@
         function toggleDarkMode() {
             var isDark = document.documentElement.classList.toggle('dark');
             localStorage.setItem('theme', isDark ? 'dark' : 'light');
-        }
-
-        // Notifications Dropdown Toggle
-        function toggleNotificationsDropdown() {
-            var dropdown = document.getElementById('notifications-dropdown');
-            dropdown.classList.toggle('hidden');
         }
 
         // Profile Dropdown Toggle

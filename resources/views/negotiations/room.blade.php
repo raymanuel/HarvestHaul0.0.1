@@ -66,7 +66,7 @@
             <!-- Chat + Propose Terms row, Finalize Panel below -->
             <div class="lg:col-span-3 space-y-8">
 
-            <div class="flex flex-col lg:flex-row bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-3xl overflow-hidden shadow-sm h-[min(820px,88vh)]">
+            <div class="flex flex-col lg:flex-row bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-3xl overflow-hidden shadow-sm h-[min(940px,96vh)]">
 
             <div class="relative flex flex-col flex-1 min-w-0 min-h-0">
             <div class="flex flex-col flex-1 min-h-0">
@@ -92,7 +92,7 @@
                 </div>
 
                 <!-- Chat Messages Scroll Area -->
-                <div class="flex-1 p-6 overflow-y-auto space-y-4" id="chat-messages-container">
+                <div class="flex-1 p-4 overflow-y-auto space-y-3" id="chat-messages-container">
                     @foreach($negotiation->messages as $msg)
                         @php
                             $isSystem = Str::startsWith($msg->message_text, '[System');
@@ -118,7 +118,7 @@
                                         {{ $msg->sender->name }}
                                     </span>
                                     <!-- Bubble -->
-                                    <div class="px-4 py-3 rounded-2xl text-xs leading-relaxed shadow-sm font-medium
+                                    <div class="px-3 py-2 rounded-2xl text-[11px] leading-relaxed shadow-sm font-medium
                                         @if($isMine)
                                             bg-[#16283C] dark:bg-[#D7BC7A] dark:text-[#17202B] text-white rounded-br-none
                                         @else
@@ -126,7 +126,6 @@
                                         @endif">
                                         {{ $msg->message_text }}
                                     </div>
-                                    <!-- Timestamp -->
                                     <span class="text-[9px] text-slate-500 dark:text-slate-400 mt-1 px-1 font-mono">
                                         {{ $msg->created_at->diffForHumans() }}
                                     </span>
@@ -674,9 +673,43 @@
         return '<div class="flex ' + align + ' my-2">' +
             '<div class="max-w-[70%] flex flex-col ' + align + '">' +
             '<span class="text-[10px] text-slate-400 dark:text-slate-500 mb-1 px-1 font-semibold">' + escapeHtml(name) + '</span>' +
-            '<div class="px-4 py-3 rounded-2xl text-xs leading-relaxed shadow-sm font-medium ' + bubble + '">' + escapeHtml(msg.message_text) + '</div>' +
+            '<div class="px-3 py-2 rounded-2xl text-[11px] leading-relaxed shadow-sm font-medium ' + bubble + '">' + escapeHtml(msg.message_text) + '</div>' +
             '<span class="text-[9px] text-slate-500 dark:text-slate-400 mt-1 px-1 font-mono">' + timeAgo(msg.created_at) + '</span>' +
             '</div></div>';
+    }
+
+    // Keep the propose button in sync with who proposed last so the two sides
+    // alternate turns: after YOU offer, you must wait for the other party to
+    // respond (counter-offer or agree) before proposing again.
+    function updateProposeButton(status) {
+        var st = status || 'OPEN';
+        var btn = document.getElementById('propose-btn');
+        if (!btn) return;
+        var hint = document.getElementById('propose-waiting-hint');
+
+        if (st === 'AGREED' || st === 'COMPLETED') {
+            btn.disabled = true;
+            btn.classList.add('cursor-not-allowed', 'opacity-50');
+            if (hint) hint.remove();
+            return;
+        }
+
+        var viewerProposedLast = (lastProposalSenderId !== null && lastProposalSenderId === userId);
+        btn.disabled = viewerProposedLast;
+        btn.classList.toggle('cursor-not-allowed', viewerProposedLast);
+        btn.classList.toggle('opacity-50', viewerProposedLast);
+
+        if (viewerProposedLast) {
+            if (!hint && btn.closest('form')) {
+                var el = document.createElement('p');
+                el.id = 'propose-waiting-hint';
+                el.className = 'text-[10px] font-bold text-[var(--color-warning-text)] mt-3 text-center';
+                el.textContent = 'Waiting for the other party to respond to your offer...';
+                btn.closest('form').insertAdjacentElement('afterend', el);
+            }
+        } else if (hint) {
+            hint.remove();
+        }
     }
 
     // ── Helper: update price/volume/status UI ──
@@ -756,6 +789,7 @@
     // AGREED/COMPLETED             -> disabled "Agreed" button
     function updateAgreeVisibility(status) {
         var st = status || 'OPEN';
+        updateProposeButton(st);
         var proposeForm = document.getElementById('propose-terms-form');
         var existingForm = document.getElementById('agree-terms-form');
         var waitingEl = document.getElementById('agree-waiting');
@@ -838,11 +872,11 @@
         });
     }
 
-    // ── Poll loop every 3s ──
+    // ── Poll loop every 1.5s ──
     (function pollLoop() {
         setTimeout(function () {
             refreshChat().then(pollLoop).catch(pollLoop);
-        }, 3000);
+        }, 1500);
     })();
 
     // ── Send Message (AJAX — input only cleared after the server confirms) ──
@@ -868,15 +902,55 @@
             input.value = text;
             input.focus();
             setConnection(false);
+            swalToast('error', 'Could not send your message. Please try again.');
         });
         return false;
     }
 
     // ── Propose Terms (AJAX, direct append + price update) ──
+
+    // Optimistic echo: render the offer bubble the instant the user confirms so
+    // the wait for the server round-trip is invisible. Replaced by the real
+    // message on success, removed on failure.
+    function buildOfferPreview() {
+        var price = document.getElementById('negotiated_price').value;
+        var vol = document.getElementById('negotiated_volume').value;
+        var haul = document.getElementById('term_hauling_rate').value;
+        var txt = '[System Offer] Proposes terms: \u20B1' + parseFloat(price).toFixed(2) + '/kg for ' + Number(vol).toLocaleString() + ' kg.';
+        if (haul && parseFloat(haul) > 0) txt += ' Hauling rate: \u20B1' + parseFloat(haul).toFixed(2) + '/kg.';
+        return txt;
+    }
+
+    function showOptimisticOffer() {
+        var container = document.getElementById('chat-messages-container');
+        var wrap = document.createElement('div');
+        wrap.className = 'proposal-optimistic';
+        wrap.style.opacity = '0.6';
+        wrap.innerHTML =
+            '<div class="flex justify-center my-3">' +
+            '<div class="px-4 py-2 bg-[var(--color-warning-bg)] border border-[var(--color-warning-border)] rounded-2xl max-w-md text-center">' +
+            '<p class="text-[11px] font-bold text-[var(--color-warning-text)] leading-relaxed italic">' + escapeHtml(buildOfferPreview()) + '</p>' +
+            '<span class="text-[9px] text-slate-500 dark:text-slate-400 mt-1 block font-mono">Sending...</span>' +
+            '</div></div>';
+        container.appendChild(wrap);
+        scrollChatBottom();
+        return wrap;
+    }
+
+    function removeOptimisticOffer(wrap) {
+        if (wrap && wrap.parentNode) wrap.parentNode.removeChild(wrap);
+    }
+
     function proposeTerms(e) {
         e.preventDefault();
         var form = document.getElementById('propose-terms-form');
         swalConfirm(function () {
+            var btn = document.getElementById('propose-btn');
+            if (!btn || btn.disabled) return;
+            btn.disabled = true;
+            var originalText = btn.textContent;
+            btn.textContent = 'Sending...';
+            var optimistic = showOptimisticOffer();
             var data = new FormData(form);
             fetch('{{ route("negotiations.propose", $negotiation->id) }}', {
                 method: 'POST',
@@ -886,9 +960,19 @@
                 if (!r.ok) throw new Error('HTTP ' + r.status);
                 return r.json();
             }).then(function (data) {
+                removeOptimisticOffer(optimistic);
                 if (data.message) appendMessage(data.message);
                 updateDealUI(data);
-            }).catch(function (err) { console.error('proposeTerms:', err); });
+                btn.textContent = originalText;
+                updateProposeButton();
+            }).catch(function (err) {
+                console.error('proposeTerms:', err);
+                removeOptimisticOffer(optimistic);
+                btn.disabled = false;
+                btn.textContent = originalText;
+                updateProposeButton();
+                swalToast('error', 'Could not send your offer. Please try again.');
+            });
         }, {
             title: 'Propose These Terms?',
             text: 'Send this offer to the other party?',
@@ -911,7 +995,7 @@
         }).then(function (data) {
             if (data.message) appendMessage(data.message);
             updateDealUI(data);
-        }).catch(function (err) { console.error('agreeTerms:', err); });
+        }).catch(function (err) { console.error('agreeTerms:', err); swalToast('error', 'Could not agree right now. Please try again.'); });
     }
 
     function agreeTerms(e) {
@@ -977,7 +1061,10 @@
     setupPopover('toggle-counterparty-info', 'popover-counterparty-info');
 
     // Auto-scroll on load
-    document.addEventListener('DOMContentLoaded', scrollChatBottom);
+    document.addEventListener('DOMContentLoaded', function () {
+        scrollChatBottom();
+        updateProposeButton();
+    });
 </script>
 
 @php

@@ -297,6 +297,14 @@ return [
                 'condition' => 'cooperative_only',
             ],
             [
+                'label' => 'Members',
+                'route' => 'logistics.members*',
+                'route_url' => 'logistics.members.index',
+                'letter' => 'M',
+                'tooltip' => 'Members',
+                'condition' => 'cooperative_only',
+            ],
+            [
                 'label' => 'Route Pricing',
                 'route' => 'profile.route-pricing',
                 'route_url' => 'profile.route-pricing',
