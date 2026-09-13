@@ -64,7 +64,6 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\RouteOptimizationController;
 use App\Http\Controllers\TrackingController;
 use App\Http\Middleware\EnsureAccountIsActive;
-use App\Http\Middleware\EnsureUserIsBuyer;
 use App\Http\Middleware\EnsureUserIsFarmer;
 use App\Http\Middleware\EnsureUserIsLogistics;
 use Illuminate\Http\Request;
@@ -374,7 +373,7 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
         | 3.5 Buyer Platform Modules
         |------------------------------------------------------------------
         */
-        Route::middleware(EnsureUserIsBuyer::class)->prefix('buyer')->name('buyer.')->group(function () {
+        Route::middleware('coop.buying')->prefix('buyer')->name('buyer.')->group(function () {
             Route::get('/crop-board', [BuyerController::class, 'cropBoard'])->name('crop-board');
             Route::get('/crop-board/json', [BuyerController::class, 'cropBoardJson'])->name('crop-board.json');
             Route::get('/crop-board/{harvest}', [BuyerController::class, 'showCropDetail'])->name('crop-board.show');

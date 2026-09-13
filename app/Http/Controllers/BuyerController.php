@@ -211,6 +211,14 @@ class BuyerController extends Controller
     {
         $user = Auth::user();
 
+        $isCoop = $user->role === 'logistics_partner'
+            && $user->logisticsProfile
+            && $user->logisticsProfile->isCooperative();
+
+        if ($user->role !== 'buyer' && !$isCoop) {
+            abort(403, 'Only the buyer can confirm receipt for this delivery.');
+        }
+
         if (!$poolingJob->isBuyer($user)) {
             abort(403, 'Only the buyer can confirm receipt for this delivery.');
         }
