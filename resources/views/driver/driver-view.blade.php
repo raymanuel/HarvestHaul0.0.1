@@ -90,7 +90,11 @@
                         </div>
                         <div>
                             <p class="text-[9px] text-slate-500 font-bold uppercase tracking-wider leading-none">Stops</p>
-                            <p class="text-xs font-extrabold text-slate-800 dark:text-white mt-1 heading-font">{{ $job->farm_count }} {{ Str::plural('Farm Stop', $job->farm_count) }}</p>
+                            @if($job->leg_type === 'outbound')
+                                <p class="text-xs font-extrabold text-slate-800 dark:text-white mt-1 heading-font">Outbound Delivery</p>
+                            @else
+                                <p class="text-xs font-extrabold text-slate-800 dark:text-white mt-1 heading-font">{{ $job->farm_count }} {{ Str::plural('Farm Stop', $job->farm_count) }}</p>
+                            @endif
                         </div>
                     </div>
 

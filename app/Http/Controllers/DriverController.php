@@ -74,6 +74,17 @@ class DriverController extends Controller
             abort(403);
         }
 
+        if ($poolingJob->leg_type === 'outbound') {
+            $poolingJob->load(['truck', 'outboundOrder.customerCard', 'outboundOrder.orderLines', 'logisticsProfile']);
+
+            // Outbound legs have no farmer stops, so the farmer-stop ETA/delay
+            // pipeline must be skipped entirely for this view.
+            return view('driver.outbound-job', [
+                'job'   => $poolingJob,
+                'order' => $poolingJob->outboundOrder,
+            ]);
+        }
+
         $poolingJob->load([
             'truck',
             'harvests' => function ($query) {
@@ -149,20 +160,30 @@ class DriverController extends Controller
                 'end_odometer_reading' => 'required|numeric|min:0.01|max:9999999.99',
             ]);
 
-            // Check if all non-rejected stop statuses are delivered
-            $allDelivered = true;
-            foreach ($poolingJob->harvests as $harvest) {
-                if ($harvest->pivot->status === 'rejected') {
-                    continue;
+            if ($poolingJob->leg_type === 'outbound') {
+                // Outbound jobs have no harvests to check: the order delivery must
+                // have been finalized by the driver via markOutboundDelivered().
+                $order = $poolingJob->outboundOrder;
+                if (!$order || !$order->delivered_at) {
+                    return back()->withErrors(['order' => 'Mark the delivery as Delivered before finalizing the trip.']);
                 }
-                if ($harvest->pivot->status !== 'delivered') {
-                    $allDelivered = false;
-                    break;
+                $order->update(['status' => 'awaiting_confirmation']);
+            } else {
+                // Check if all non-rejected stop statuses are delivered
+                $allDelivered = true;
+                foreach ($poolingJob->harvests as $harvest) {
+                    if ($harvest->pivot->status === 'rejected') {
+                        continue;
+                    }
+                    if ($harvest->pivot->status !== 'delivered') {
+                        $allDelivered = false;
+                        break;
+                    }
                 }
-            }
 
-            if (!$allDelivered) {
-                return back()->with('error', 'Cannot finalize job. All crop stops must be marked as Delivered first.');
+                if (!$allDelivered) {
+                    return back()->with('error', 'Cannot finalize job. All crop stops must be marked as Delivered first.');
+                }
             }
 
             $poolingJob->completed_at = now();
@@ -500,5 +521,48 @@ class DriverController extends Controller
         self::sendBulkNotifications($notifications);
 
         return back()->with('success', 'Job accepted successfully.');
+    }
+
+    /**
+     * Mark an outbound delivery as Delivered at the customer's location.
+     * Sets delivered_at on the outbound order; the trip is finalized via
+     * updateStatus once the delivery has been marked.
+     */
+    public function markOutboundDelivered(PoolingJob $poolingJob)
+    {
+        $user = Auth::user();
+
+        if ($poolingJob->driver_id !== $user->id) {
+            abort(403);
+        }
+        if ($poolingJob->leg_type !== 'outbound') {
+            abort(404);
+        }
+        if ($poolingJob->status !== PoolingJobStatus::IN_PROGRESS) {
+            return back()->with('error', 'Job must be in transit before marking delivered.');
+        }
+
+        $order = $poolingJob->outboundOrder;
+        if (!$order) {
+            return back()->with('error', 'No outbound order for this job.');
+        }
+
+        if ($order->delivered_at) {
+            return back()->with('success', 'Delivery already marked Delivered.');
+        }
+
+        $order->update(['delivered_at' => now()]);
+
+        self::logAudit($user->id, 'outbound_delivered', 'outbound_orders', $order->id, "Driver {$user->name} marked outbound order #{$order->id} as delivered.");
+
+        return back()->with('success', 'Delivery marked Delivered. Finalize the trip to send it to the customer for confirmation.')
+            ->with('next_steps', [
+                'title'   => 'Delivered to customer location',
+                'message' => 'Delivery marked Delivered.',
+                'steps'   => [
+                    'Press Finalize Trip to complete the run.',
+                    'The customer will get the tracking link and confirm receipt.',
+                ],
+            ]);
     }
 }

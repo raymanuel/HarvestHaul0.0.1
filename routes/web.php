@@ -341,6 +341,7 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
             Route::patch('/jobs/{poolingJob}/harvests/{harvest}/status', [DriverController::class, 'updateStopStatus'])->name('jobs.stop.status');
             Route::post('/jobs/{poolingJob}/fuel-log', [DriverController::class, 'storeFuelLog'])->name('jobs.fuel-log');
             Route::post('/jobs/{poolingJob}/accept', [DriverController::class, 'acceptJob'])->name('jobs.accept');
+            Route::post('/jobs/{poolingJob}/outbound-delivered', [DriverController::class, 'markOutboundDelivered'])->name('jobs.outbound-delivered')->middleware('throttle:15,1');
             Route::post('/identity-upload', [DriverController::class, 'uploadIdentity'])->name('identity.upload');
 
             // Live Telemetry Signal Broadcast (Ingress) — rate limited to 12 req/min per driver
