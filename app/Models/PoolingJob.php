@@ -47,6 +47,12 @@ class PoolingJob extends Model
         'road_distance_km',
         'terrain',
         'rate_source',
+        'total_kg',
+        'confirmed_at',
+        'completed_at',
+        'leg_type',
+        'customer_card_id',
+        'outbound_order_id',
     ];
 
     /**
@@ -110,6 +116,18 @@ class PoolingJob extends Model
     public function buyer()
     {
         return $this->belongsTo(User::class, 'buyer_id');
+    }
+
+    /** The outbound order (customer distribution) this job fulfils, when leg_type='outbound'. */
+    public function outboundOrder()
+    {
+        return $this->belongsTo(OutboundOrder::class, 'outbound_order_id');
+    }
+
+    /** The customer card this outbound run delivers to. */
+    public function customerCard()
+    {
+        return $this->belongsTo(CustomerCard::class, 'customer_card_id');
     }
 
     /**

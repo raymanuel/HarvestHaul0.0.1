@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
+use App\Models\LogisticsProfile;
 use App\Models\User;
 use App\Models\Truck;
 
@@ -14,11 +15,16 @@ class PoolingJobFactory extends Factory
     public function definition(): array
     {
         return [
-            'logistics_profile_id' => User::factory()->logisticsPartner(),
-            'truck_id' => Truck::factory(),
+            'logistics_profile_id' => LogisticsProfile::factory(),
+            'truck_id' => function (array $attributes) {
+                return Truck::factory()->create([
+                    'logistics_profile_id' => $attributes['logistics_profile_id'],
+                ])->id;
+            },
             'driver_id' => User::factory()->driver(),
             'buyer_id' => null,
             'status' => 'pending',
+            'leg_type' => 'inbound',
             'total_kg' => fake()->randomFloat(2, 100, 5000),
             'truck_capacity_kg' => fake()->randomFloat(2, 5000, 15000),
             'farm_count' => fake()->numberBetween(1, 5),
