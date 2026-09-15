@@ -15,16 +15,11 @@
                         Live Shipment Tracking
                     </h1>
                 </div>
-                <div class="flex items-center gap-3">
-                    <span class="text-xs font-semibold uppercase tracking-wider text-[#16283C] dark:text-[#D7BC7A] bg-[#16283C]/10 dark:bg-[#16283C]/10 px-3 py-1.5 rounded-md border border-[#16283C]/10 dark:border-[#16283C]/20">
-                        GPS Active
-                    </span>
-                </div>
             </div>
         </header>
 
         @if($activeJobs->isEmpty())
-            <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-16 text-center shadow-sm">
+            <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-2xl p-16 text-center shadow-sm">
                 <h3 class="text-base font-bold text-slate-800 dark:text-white heading-font">No Active Shipments</h3>
                 <p class="text-xs text-slate-500 dark:text-slate-400 mt-1.5 max-w-md mx-auto leading-relaxed">
                     There are no shipments currently in transit. Once a logistics partner dispatches an assigned pooling job, real-time GPS telemetry will display here.
@@ -69,7 +64,7 @@
                                          {{ $job->truck->plate_number ?? '—' }}  Driver: {{ $job->driver->name ?? '—' }}
                                     </p>
                                 </div>
-                                <span class="text-[9px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded {{ $job->status->value === 'in_progress' ? 'bg-[#0E1620]/10 dark:bg-[#0E1620]/10 text-[#0E1620] dark:text-[#E9EEF4] border border-[#0E1620]/20' : 'bg-[var(--color-warning-bg)] text-[var(--color-warning-text)] border border-[var(--color-warning-border)]' }}">
+                                <span class="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded {{ $job->status->value === 'in_progress' ? 'bg-[#0E1620]/10 dark:bg-[#0E1620]/10 text-[#0E1620] dark:text-[#E9EEF4] border border-[#0E1620]/20' : 'bg-[var(--color-warning-bg)] text-[var(--color-warning-text)] border border-[var(--color-warning-border)]' }}">
                                     {{ $job->status->value === 'in_progress' ? 'In Transit' : 'Awaiting confirmation' }}
                                 </span>
                             </div>
@@ -97,7 +92,7 @@
                 
                 {{-- Right Panel: Leaflet Map --}}
                 <div class="lg:col-span-8 space-y-4">
-                    <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-3xl overflow-hidden shadow-sm flex flex-col">
+                    <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-2xl overflow-hidden shadow-sm flex flex-col">
                         <div id="liveMap" class="w-full h-[550px] z-0"></div>
                         <div class="bg-slate-50 dark:bg-slate-900/30 px-6 py-4 border-t border-slate-100 dark:border-slate-700/50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs">
                             <div class="flex items-center gap-4 text-slate-500 dark:text-slate-500 font-bold uppercase tracking-wider text-[10px]">

@@ -54,6 +54,9 @@ use App\Http\Controllers\LogisticsVehicleController;
 use App\Http\Controllers\NegotiationController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\NotificationPreferenceController;
+use App\Http\Controllers\OutboundCustomerController;
+use App\Http\Controllers\OutboundOrderController;
+use App\Http\Controllers\OutboundTrackController;
 use App\Http\Controllers\PoolingJobController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
@@ -61,7 +64,6 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\RouteOptimizationController;
 use App\Http\Controllers\TrackingController;
 use App\Http\Middleware\EnsureAccountIsActive;
-use App\Http\Middleware\EnsureUserIsBuyer;
 use App\Http\Middleware\EnsureUserIsFarmer;
 use App\Http\Middleware\EnsureUserIsLogistics;
 use Illuminate\Http\Request;
@@ -84,6 +86,17 @@ Route::view('/legal/privacy', 'legal.privacy')->name('legal.privacy');
 Route::get('/email/verified', function () {
     return view('auth.verified');
 })->name('verification.success');
+
+/*
+|--------------------------------------------------------------------------
+| Public Outbound Customer Tracking (Anonymous — uses opaque token, never IDs)
+|--------------------------------------------------------------------------
+*/
+Route::get('/track-out/complete', [OutboundTrackController::class, 'complete'])->name('outbound.track.complete');
+Route::get('/track-out/{token}', [OutboundTrackController::class, 'show'])->name('outbound.track');
+Route::get('/track-out/{token}/ping', [OutboundTrackController::class, 'ping'])->name('outbound.track.ping');
+Route::post('/track-out/{token}/confirm', [OutboundTrackController::class, 'confirm'])
+    ->name('outbound.track.confirm')->middleware('throttle:15,1');
 
 /*
 |--------------------------------------------------------------------------
@@ -328,6 +341,7 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
             Route::patch('/jobs/{poolingJob}/harvests/{harvest}/status', [DriverController::class, 'updateStopStatus'])->name('jobs.stop.status');
             Route::post('/jobs/{poolingJob}/fuel-log', [DriverController::class, 'storeFuelLog'])->name('jobs.fuel-log');
             Route::post('/jobs/{poolingJob}/accept', [DriverController::class, 'acceptJob'])->name('jobs.accept');
+            Route::post('/jobs/{poolingJob}/outbound-delivered', [DriverController::class, 'markOutboundDelivered'])->name('jobs.outbound-delivered')->middleware('throttle:15,1');
             Route::post('/identity-upload', [DriverController::class, 'uploadIdentity'])->name('identity.upload');
 
             // Live Telemetry Signal Broadcast (Ingress) — rate limited to 12 req/min per driver
@@ -336,10 +350,31 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
 
         /*
         |------------------------------------------------------------------
+        | 3.5b Outbound Distribution (Coop → Customer)
+        |------------------------------------------------------------------
+        */
+        Route::middleware('coop')->prefix('coop')->name('coop.')->group(function () {
+            Route::get('/customers', [OutboundCustomerController::class, 'index'])->name('customers.index');
+            Route::get('/customers/create', [OutboundCustomerController::class, 'create'])->name('customers.create');
+            Route::post('/customers', [OutboundCustomerController::class, 'store'])->name('customers.store')->middleware('throttle:10,1');
+            Route::get('/customers/{customerCard}/edit', [OutboundCustomerController::class, 'edit'])->name('customers.edit');
+            Route::put('/customers/{customerCard}', [OutboundCustomerController::class, 'update'])->name('customers.update')->middleware('throttle:30,1');
+            Route::delete('/customers/{customerCard}', [OutboundCustomerController::class, 'destroy'])->name('customers.destroy')->middleware('throttle:10,1');
+
+            Route::get('/outbound', [OutboundOrderController::class, 'index'])->name('outbound.index');
+            Route::get('/outbound/create', [OutboundOrderController::class, 'create'])->name('outbound.create');
+            Route::post('/outbound', [OutboundOrderController::class, 'store'])->name('outbound.store')->middleware('throttle:10,1');
+            Route::get('/outbound/{outboundOrder}', [OutboundOrderController::class, 'show'])->name('outbound.show');
+            Route::post('/outbound/{outboundOrder}/cancel', [OutboundOrderController::class, 'cancel'])->name('outbound.cancel')->middleware('throttle:10,1');
+            Route::post('/outbound/{outboundOrder}/dispatch', [OutboundOrderController::class, 'dispatch'])->name('outbound.dispatch')->middleware('throttle:10,1');
+        });
+
+        /*
+        |------------------------------------------------------------------
         | 3.5 Buyer Platform Modules
         |------------------------------------------------------------------
         */
-        Route::middleware(EnsureUserIsBuyer::class)->prefix('buyer')->name('buyer.')->group(function () {
+        Route::middleware('coop.buying')->prefix('buyer')->name('buyer.')->group(function () {
             Route::get('/crop-board', [BuyerController::class, 'cropBoard'])->name('crop-board');
             Route::get('/crop-board/json', [BuyerController::class, 'cropBoardJson'])->name('crop-board.json');
             Route::get('/crop-board/{harvest}', [BuyerController::class, 'showCropDetail'])->name('crop-board.show');

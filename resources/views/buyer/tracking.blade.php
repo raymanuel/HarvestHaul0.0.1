@@ -98,7 +98,7 @@
                             @if($delivery->status->value === 'awaiting_confirmation')
                                 <form method="POST" action="{{ route('buyer.confirm-receipt', $delivery) }}">
                                     @csrf
-                                    <x-button type="button" size="lg" full class="active:scale-[0.98]" onclick="swalConfirm(this.closest('form'), {title:'Confirm Receipt?', text:'Mark delivery #{{ $delivery->id }} as received?', icon:'question', confirmText:'Yes, confirm', cancelText:'Cancel', confirmColor:'#16283C'})">
+                                    <x-button type="button" size="lg" full onclick="swalConfirm(this.closest('form'), {title:'Confirm Receipt?', text:'Mark delivery #{{ $delivery->id }} as received?', icon:'question', confirmText:'Yes, confirm', cancelText:'Cancel', confirmColor:'#16283C'})">
                                         <x-icon name="check" class="w-4 h-4" /> Confirm Receipt — I received this delivery
                                     </x-button>
                                 </form>

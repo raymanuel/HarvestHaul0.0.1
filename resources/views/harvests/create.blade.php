@@ -8,7 +8,7 @@
         <a href="{{ route('dashboard') }}" class="text-sm text-slate-400 hover:text-slate-600 dark:text-slate-400 dark:hover:text-slate-300 mb-4 inline-block font-semibold">
             ← Back to Dashboard
         </a>
-        <h1 class="text-3xl font-bold text-slate-900 dark:text-white mb-2">Post New Harvest</h1>
+        <h1 class="text-2xl font-bold text-slate-900 dark:text-white mb-2">Post New Harvest</h1>
     </header>
 
     {{-- PRIORITY 5: Independent Farmer Logistics Warning --}}
@@ -155,46 +155,6 @@
                 <p id="quantity_error" class="hidden mt-2 text-xs text-[var(--color-error-text)]">Please enter quantity.</p>
             </div>
 
-            {{-- Estimated Volume --}}
-            <div class="mb-6">
-                <label for="estimated_volume_cubic_m" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                    Estimated Volume (m³) <span class="text-slate-500 dark:text-slate-400 font-normal">(optional)</span>
-                </label>
-                <input type="number" name="estimated_volume_cubic_m" id="estimated_volume_cubic_m"
-                    value="{{ old('estimated_volume_cubic_m') }}" placeholder="e.g. 2.5" min="0.01" max="99999.99" step="0.01"
-                    class="w-full border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-sm bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition">
-                <p class="mt-1 text-xs text-slate-500 dark:text-slate-400 font-medium">Used for truck space planning. Leave blank if unsure.</p>
-                @error('estimated_volume_cubic_m')
-                    <p class="mt-2 text-xs text-[var(--color-error-text)]">{{ $message }}</p>
-                @enderror
-            </div>
-
-            {{-- Pickup Time Window --}}
-            <div class="mb-6">
-                <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                    Pickup Window <span class="text-slate-500 dark:text-slate-400 font-normal">(optional)</span>
-                </label>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label for="pickup_window_start" class="block text-xs text-slate-500 dark:text-slate-400 mb-1">Earliest pickup</label>
-                        <input type="time" name="pickup_window_start" id="pickup_window_start" value="{{ old('pickup_window_start') }}"
-                            class="w-full border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-sm bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition">
-                    </div>
-                    <div>
-                        <label for="pickup_window_end" class="block text-xs text-slate-500 dark:text-slate-400 mb-1">Latest pickup</label>
-                        <input type="time" name="pickup_window_end" id="pickup_window_end" value="{{ old('pickup_window_end') }}"
-                            class="w-full border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-sm bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition">
-                    </div>
-                </div>
-                <p class="mt-1 text-xs text-slate-500 dark:text-slate-400 font-medium">When can the driver pick up? Helps prioritize routes.</p>
-                @error('pickup_window_start')
-                    <p class="mt-2 text-xs text-[var(--color-error-text)]">{{ $message }}</p>
-                @enderror
-                @error('pickup_window_end')
-                    <p class="mt-2 text-xs text-[var(--color-error-text)]">{{ $message }}</p>
-                @enderror
-            </div>
-
             {{-- Suggested Price --}}
             <div class="mb-6">
                 <label for="suggested_price_per_kg" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
@@ -239,94 +199,168 @@
                 <p id="harvest_date_error" class="hidden mt-2 text-xs text-[var(--color-error-text)]">Please select a harvest date.</p>
             </div>
 
-            {{-- Crop Photos --}}
-            <div class="mb-6">
-                <label for="crop_photos" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                    Crop Photos <span class="text-slate-500 dark:text-slate-400 font-normal">(optional, max 5)</span>
-                </label>
-                <input
-                    type="file"
-                    name="crop_photos[]"
-                    id="crop_photos"
-                    multiple
-                    accept="image/*"
-                    class="w-full border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-sm bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-200 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-brand file:text-white dark:file:bg-gold-light dark:file:text-[#17202B] hover:file:bg-opacity-90 transition"
-                />
-                <p class="mt-1 text-xs text-slate-500 dark:text-slate-400 font-medium">Upload photos of your crop to attract buyers. Max 5 images, 5MB each.</p>
-                @error('crop_photos.*')
-                    <p class="mt-2 text-xs text-[var(--color-error-text)]">{{ $message }}</p>
-                @enderror
-            </div>
+            @php $lockedCoop = $coop && $coop->latitude && $coop->longitude; @endphp
 
-            {{-- Notes --}}
-            <div class="mb-8">
-                <label for="notes" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                    Pickup Notes <span class="text-slate-500 dark:text-slate-400 font-normal">(optional)</span>
-                </label>
-                <textarea
-                    name="notes"
-                    id="notes"
-                    rows="4"
-                    placeholder="e.g. Use the side gate, available after 8am, call before arrival"
-                    class="w-full border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-sm bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent resize-none transition"
-                >{{ old('notes') }}</textarea>
-            </div>
-
-            {{-- Destination --}}
-            <div class="mb-6">
-                <label for="destination_id" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                    Delivery Destination <span class="text-[var(--color-error-text)]">*</span>
-                </label>
-                <select
-                    name="destination_id"
-                    id="destination_id"
-                    class="w-full border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-sm bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition"
-                    onchange="handleDestinationChange(this.value)"
-                >
-                    <option value="" disabled {{ (!$coop && !old('destination_id')) ? 'selected' : '' }}>— Select a destination —</option>
-                    @if ($coop)
-                        <option
-                            value="coop"
-                            data-lat="{{ $coop->latitude }}"
-                            data-lng="{{ $coop->longitude }}"
-                            data-address="{{ $coop->office_address ?: ($coop->company_name . ' Drop-off Point') }}"
-                            {{ (!old('destination_id') && old('destination_id') !== 'custom') ? 'selected' : '' }}
-                        >
-                            {{ $coop->company_name }} (Cooperative Hub)
+            @if ($lockedCoop)
+                {{-- Coop members deliver to their coop hub automatically --}}
+                <div class="mb-6">
+                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                        Delivery Destination
+                    </label>
+                    <div class="w-full border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-sm bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-200 flex items-center gap-2">
+                        <x-icon name="pin" class="w-4 h-4" />
+                        <span class="font-semibold">{{ $coop->company_name }} (Cooperative Hub)</span>
+                    </div>
+                    <p class="mt-1 text-xs text-slate-500 dark:text-slate-400 font-medium">{{ $coop->office_address ?: ($coop->company_name . ' Drop-off Point') }}</p>
+                    <input type="hidden" name="destination_id" value="">
+                    <input type="hidden" name="destination_address" value="{{ $coop->office_address ?: ($coop->company_name . ' Drop-off Point') }}">
+                    <input type="hidden" name="destination_latitude" value="{{ $coop->latitude }}">
+                    <input type="hidden" name="destination_longitude" value="{{ $coop->longitude }}">
+                </div>
+            @else
+                {{-- Destination --}}
+                <div class="mb-6">
+                    <label for="destination_id" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                        Delivery Destination <span class="text-[var(--color-error-text)]">*</span>
+                    </label>
+                    <select
+                        name="destination_id"
+                        id="destination_id"
+                        class="w-full border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-sm bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition"
+                        onchange="handleDestinationChange(this.value)"
+                    >
+                        <option value="" disabled {{ (!$coop && !old('destination_id')) ? 'selected' : '' }}>— Select a destination —</option>
+                        @if ($coop)
+                            <option
+                                value="coop"
+                                data-lat="{{ $coop->latitude }}"
+                                data-lng="{{ $coop->longitude }}"
+                                data-address="{{ $coop->office_address ?: ($coop->company_name . ' Drop-off Point') }}"
+                                {{ (!old('destination_id') && old('destination_id') !== 'custom') ? 'selected' : '' }}
+                            >
+                                {{ $coop->company_name }} (Cooperative Hub)
+                            </option>
+                        @endif
+                        @foreach ($destinations as $destination)
+                            <option
+                                value="{{ $destination->id }}"
+                                data-lat="{{ $destination->latitude }}"
+                                data-lng="{{ $destination->longitude }}"
+                                data-address="{{ $destination->address }}"
+                                {{ old('destination_id') == $destination->id ? 'selected' : '' }}
+                            >
+                                {{ $destination->name }} ({{ ucfirst(str_replace('_', ' ', $destination->type)) }})
+                            </option>
+                        @endforeach
+                        <option value="custom" {{ old('destination_id') === 'custom' ? 'selected' : '' }}>
+                            <x-icon name="pin" class="w-4 h-4" /> Custom Location — Pin on Map
                         </option>
-                    @endif
-                    @foreach ($destinations as $destination)
-                        <option
-                            value="{{ $destination->id }}"
-                            data-lat="{{ $destination->latitude }}"
-                            data-lng="{{ $destination->longitude }}"
-                            data-address="{{ $destination->address }}"
-                            {{ old('destination_id') == $destination->id ? 'selected' : '' }}
-                        >
-                            {{ $destination->name }} ({{ ucfirst(str_replace('_', ' ', $destination->type)) }})
-                        </option>
-                    @endforeach
-                    <option value="custom" {{ old('destination_id') === 'custom' ? 'selected' : '' }}>
-                        <x-icon name="pin" class="w-4 h-4" /> Custom Location — Pin on Map
-                    </option>
-                </select>
-                @error('destination_id')
-                    <p class="mt-2 text-xs text-[var(--color-error-text)]">{{ $message }}</p>
-                @enderror
-                @error('destination_latitude')
-                    <p class="mt-2 text-xs text-[var(--color-error-text)]">Please pin a destination on the map.</p>
-                @enderror
-                <p id="destination_error" class="hidden mt-2 text-xs text-[var(--color-error-text)]">Please select a delivery destination.</p>
-                <p id="destination_pin_error" class="hidden mt-2 text-xs text-[var(--color-error-text)]">Please pin a destination on the map.</p>
-            </div>
+                    </select>
+                    @error('destination_id')
+                        <p class="mt-2 text-xs text-[var(--color-error-text)]">{{ $message }}</p>
+                    @enderror
+                    @error('destination_latitude')
+                        <p class="mt-2 text-xs text-[var(--color-error-text)]">Please pin a destination on the map.</p>
+                    @enderror
+                    <p id="destination_error" class="hidden mt-2 text-xs text-[var(--color-error-text)]">Please select a delivery destination.</p>
+                    <p id="destination_pin_error" class="hidden mt-2 text-xs text-[var(--color-error-text)]">Please pin a destination on the map.</p>
+                </div>
 
-            {{-- Custom Map Pin (hidden until "Custom Location" is selected) --}}
-            <div id="custom_map_wrapper" class="mb-6 hidden">
-                <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Pin Your Destination</label>
-                <p class="text-xs text-slate-500 dark:text-slate-400 mb-2">Click on the map to drop a pin on your delivery destination.</p>
-                <div id="destination-map" class="w-full rounded-xl border border-slate-300 dark:border-slate-700" style="height: 300px;"></div>
-                <p id="pin-feedback" class="text-xs text-slate-500 dark:text-slate-400 mt-2 italic">No pin placed yet.</p>
-            </div>
+                {{-- Custom Map Pin (hidden until "Custom Location" is selected) --}}
+                <div id="custom_map_wrapper" class="mb-6 hidden">
+                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Pin Your Destination</label>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mb-2">Click on the map to drop a pin on your delivery destination.</p>
+                    <div id="destination-map" class="w-full rounded-xl border border-slate-300 dark:border-slate-700" style="height: 300px;"></div>
+                    <p id="pin-feedback" class="text-xs text-slate-500 dark:text-slate-400 mt-2 italic">No pin placed yet.</p>
+                </div>
+            @endif
+
+            @php
+                $advOpen = $errors->any()
+                    || old('estimated_volume_cubic_m') || old('pickup_window_start') || old('pickup_window_end') || old('notes');
+            @endphp
+            <details class="mb-8 group" {{ $advOpen ? 'open' : '' }}>
+                <summary class="flex items-center gap-1.5 text-sm font-semibold text-slate-600 dark:text-slate-300 cursor-pointer select-none hover:text-brand transition">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-4 h-4 transition-transform group-open:rotate-180">
+                        <path d="M6 9l6 6 6-6"/>
+                    </svg>
+                    Advanced options
+                </summary>
+                <div class="mt-4 space-y-6">
+                    {{-- Estimated Volume --}}
+                    <div>
+                        <label for="estimated_volume_cubic_m" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                            Estimated Volume (m³) <span class="text-slate-500 dark:text-slate-400 font-normal">(optional)</span>
+                        </label>
+                        <input type="number" name="estimated_volume_cubic_m" id="estimated_volume_cubic_m"
+                            value="{{ old('estimated_volume_cubic_m') }}" placeholder="e.g. 2.5" min="0.01" max="99999.99" step="0.01"
+                            class="w-full border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-sm bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition">
+                        <p class="mt-1 text-xs text-slate-500 dark:text-slate-400 font-medium">Used for truck space planning. Leave blank if unsure.</p>
+                        @error('estimated_volume_cubic_m')
+                            <p class="mt-2 text-xs text-[var(--color-error-text)]">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    {{-- Pickup Time Window --}}
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                            Pickup Window <span class="text-slate-500 dark:text-slate-400 font-normal">(optional)</span>
+                        </label>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="pickup_window_start" class="block text-xs text-slate-500 dark:text-slate-400 mb-1">Earliest pickup</label>
+                                <input type="time" name="pickup_window_start" id="pickup_window_start" value="{{ old('pickup_window_start') }}"
+                                    class="w-full border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-sm bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition">
+                            </div>
+                            <div>
+                                <label for="pickup_window_end" class="block text-xs text-slate-500 dark:text-slate-400 mb-1">Latest pickup</label>
+                                <input type="time" name="pickup_window_end" id="pickup_window_end" value="{{ old('pickup_window_end') }}"
+                                    class="w-full border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-sm bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition">
+                            </div>
+                        </div>
+                        <p class="mt-1 text-xs text-slate-500 dark:text-slate-400 font-medium">When can the driver pick up? Helps prioritize routes.</p>
+                        @error('pickup_window_start')
+                            <p class="mt-2 text-xs text-[var(--color-error-text)]">{{ $message }}</p>
+                        @enderror
+                        @error('pickup_window_end')
+                            <p class="mt-2 text-xs text-[var(--color-error-text)]">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    {{-- Crop Photos --}}
+                    <div>
+                        <label for="crop_photos" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                            Crop Photos <span class="text-slate-500 dark:text-slate-400 font-normal">(optional, max 5)</span>
+                        </label>
+                        <input
+                            type="file"
+                            name="crop_photos[]"
+                            id="crop_photos"
+                            multiple
+                            accept="image/*"
+                            class="w-full border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-sm bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-200 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-brand file:text-white dark:file:bg-gold-light dark:file:text-[#17202B] hover:file:bg-opacity-90 transition"
+                        />
+                        <p class="mt-1 text-xs text-slate-500 dark:text-slate-400 font-medium">Upload photos of your crop to attract buyers. Max 5 images, 5MB each.</p>
+                        @error('crop_photos.*')
+                            <p class="mt-2 text-xs text-[var(--color-error-text)]">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    {{-- Notes --}}
+                    <div>
+                        <label for="notes" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                            Pickup Notes <span class="text-slate-500 dark:text-slate-400 font-normal">(optional)</span>
+                        </label>
+                        <textarea
+                            name="notes"
+                            id="notes"
+                            rows="4"
+                            placeholder="e.g. Use the side gate, available after 8am, call before arrival"
+                            class="w-full border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-sm bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent resize-none transition"
+                        >{{ old('notes') }}</textarea>
+                    </div>
+                </div>
+            </details>
 
             {{-- Hidden fields — always submitted --}}
             <input type="hidden" name="destination_address"   id="destination_address"   value="{{ old('destination_address') }}">
@@ -733,6 +767,11 @@
 }
 
 // Restore old() state on validation failure
+@if ($lockedCoop)
+document.addEventListener('DOMContentLoaded', () => {
+    // Destination is locked to the coop hub; nothing to restore.
+});
+@else
 document.addEventListener('DOMContentLoaded', () => {
     const oldDestId = "{{ old('destination_id') }}";
     if (oldDestId) {
@@ -743,6 +782,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     @endif
 });
+@endif
 </script>
 
 <x-location-picker-modal />

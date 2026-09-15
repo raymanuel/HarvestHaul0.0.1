@@ -1,7 +1,7 @@
 <link rel="stylesheet" href="{{ asset('vendor/leaflet/leaflet.css') }}" />
 
 <div id="location-picker-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 backdrop-blur-sm">
-    <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-3xl shadow-2xl w-full max-w-xl mx-4 overflow-hidden">
+    <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-2xl shadow-xl w-full max-w-xl mx-4 overflow-hidden">
 
         {{-- Header --}}
         <div class="flex items-center justify-between px-6 pt-5 pb-3">
@@ -50,7 +50,7 @@
 
         {{-- Action Buttons --}}
         <div class="px-6 pb-6 flex items-center gap-3">
-            <button type="button" id="location-picker-save-permanently" class="flex-1 px-4 py-3 bg-[#16283C] hover:bg-[#0E1620] text-white dark:bg-[#D7BC7A] dark:hover:bg-[#BFA05A] dark:text-[#17202B] font-bold rounded-xl text-xs shadow-md shadow-[#16283C]/15 transition cursor-pointer inline-flex items-center justify-center gap-2">
+            <button type="button" id="location-picker-save-permanently" class="flex-1 px-4 py-3 bg-[#16283C] hover:bg-[#0E1620] text-white dark:bg-[#D7BC7A] dark:hover:bg-[#BFA05A] dark:text-[#17202B] font-bold rounded-xl text-xs transition cursor-pointer inline-flex items-center justify-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                 </svg>

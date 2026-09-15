@@ -5,12 +5,12 @@
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
                 <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-600 mb-1">Admin / Security control</p>
-                <h1 class="text-2xl font-extrabold text-slate-800 dark:text-white heading-font tracking-tight">User Management</h1>
+                <h1 class="text-2xl font-bold text-slate-800 dark:text-white heading-font tracking-tight">User Management</h1>
             </div>
             <div class="flex items-center gap-3">
                 <span class="text-[10px] font-bold uppercase tracking-widest text-[#16283C] dark:text-[#D7BC7A] bg-[#16283C]/10 dark:bg-[#16283C]/10 px-3 py-1.5 rounded-md border border-[#16283C]/10 dark:border-[#16283C]/20">{{ $users->count() }} Total Accounts</span>
                 <button onclick="openCreateUserModal()"
-                    class="bg-[#16283C] hover:bg-[#0E1620] text-white dark:bg-[#D7BC7A] dark:hover:bg-[#BFA05A] dark:text-[#17202B] text-xs font-bold px-4 py-2.5 rounded-xl shadow-md shadow-[#16283C]/10 hover:shadow-lg transition-all flex items-center gap-1.5 cursor-pointer">
+                    class="bg-[#16283C] hover:bg-[#0E1620] text-white dark:bg-[#D7BC7A] dark:hover:bg-[#BFA05A] dark:text-[#17202B] text-xs font-bold px-4 py-2.5 rounded-xl shadow-sm hover:shadow-md transition-all flex items-center gap-1.5 cursor-pointer">
                     <x-icon name="plus" class="w-4 h-4" /> Add User
                 </button>
             </div>
@@ -45,10 +45,10 @@
         <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-900/40 transition">
             <td class="px-4 py-3">
                 <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-md bg-gradient-to-tr from-slate-100 to-slate-50 dark:from-slate-700 dark:to-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-[10px] font-extrabold text-slate-600 dark:text-slate-300 uppercase shrink-0">{{ substr($user->name, 0, 2) }}</div>
+                    <div class="w-8 h-8 rounded-md bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-[10px] font-extrabold text-slate-600 dark:text-slate-300 uppercase shrink-0">{{ substr($user->name, 0, 2) }}</div>
                     <div class="truncate max-w-[180px]">
                         <span class="font-bold text-slate-800 dark:text-slate-200 text-sm block leading-tight">{{ $user->name }}</span>
-                        <span class="text-[9px] text-slate-400 dark:text-slate-600 font-bold uppercase tracking-wider">Joined {{ $user->created_at->format('M d, Y') }}</span>
+                        <span class="text-[10px] text-slate-400 dark:text-slate-600 font-bold uppercase tracking-wider">Joined {{ $user->created_at->format('M d, Y') }}</span>
                     </div>
                 </div>
             </td>
@@ -63,7 +63,7 @@
                     <div class="space-y-0.5">
                         <p>{{ $user->farmerProfile?->phone ?? 'No Phone' }}</p>
                         <p class="text-[10px] text-slate-400">{{ $user->farmerProfile?->farm_location ?? 'No Location' }}</p>
-                        <p class="text-[9px] bg-slate-50 dark:bg-slate-900 px-1.5 py-0.5 rounded border border-slate-100 dark:border-slate-800 inline-block capitalize font-bold">
+                        <p class="text-[10px] bg-slate-50 dark:bg-slate-900 px-1.5 py-0.5 rounded border border-slate-100 dark:border-slate-800 inline-block capitalize font-bold">
                             {{ $user->farmerProfile?->affiliation_type ?? 'Independent' }}
                             @if($user->farmerProfile?->cooperative)
                                 ({{ $user->farmerProfile->cooperative->company_name }})
@@ -74,7 +74,7 @@
                     <div class="space-y-0.5">
                         <p class="font-bold text-slate-700 dark:text-slate-300">{{ $user->logisticsProfile?->company_name ?? 'No Company' }}</p>
                         <p>{{ $user->logisticsProfile?->phone ?? 'No Phone' }}</p>
-                        <p class="text-[9px] uppercase tracking-wide text-slate-400 font-extrabold">{{ $user->logisticsProfile?->logistics_type ?? 'Company' }}</p>
+                        <p class="text-[10px] uppercase tracking-wide text-slate-400 font-extrabold">{{ $user->logisticsProfile?->logistics_type ?? 'Company' }}</p>
                     </div>
                 @elseif($user->role === 'driver')
                     <div class="space-y-0.5">
@@ -87,7 +87,7 @@
                 @elseif($user->role === 'buyer')
                     <div class="space-y-0.5">
                         <p>{{ $user->phone ?? 'No Phone' }}</p>
-                        <p class="text-[9px] bg-slate-50 dark:bg-slate-900 px-1.5 py-0.5 rounded border border-slate-100 dark:border-slate-800 inline-block capitalize font-bold">
+                        <p class="text-[10px] bg-slate-50 dark:bg-slate-900 px-1.5 py-0.5 rounded border border-slate-100 dark:border-slate-800 inline-block capitalize font-bold">
                             {{ $user->affiliation_type ?? 'Independent' }}
                             @if($user->cooperative)
                                 ({{ $user->cooperative->company_name }})

@@ -9,7 +9,6 @@
                 </svg>
             </a>
             <div>
-                <p class="text-[10px] text-[#16283C]/60 font-bold uppercase tracking-widest">Cargo Details</p>
                 <h1 class="text-xl font-bold leading-tight heading-font mt-0.5">Job #{{ $job->id }}</h1>
             </div>
         </div>
@@ -69,7 +68,7 @@
                         <x-icon name="clock" class="w-3 h-3" /> Arrival Estimate
                     </h3>
                     @if(isset($eta['weather_adjusted']) && $eta['weather_adjusted'])
-                        <span class="text-[9px] font-bold text-[var(--color-warning-text)] bg-[var(--color-warning-bg)] border border-[var(--color-warning-border)] px-2 py-0.5 rounded">
+                        <span class="text-[10px] font-bold text-[var(--color-warning-text)] bg-[var(--color-warning-bg)] border border-[var(--color-warning-border)] px-2 py-0.5 rounded">
                             Weather Adjusted
                         </span>
                     @endif
@@ -121,17 +120,17 @@
                     @csrf
                     <div class="grid grid-cols-3 gap-2">
                         <div>
-                            <label for="fuel_liters" class="block text-[9px] font-bold text-slate-400 uppercase mb-1">Liters</label>
+                            <label for="fuel_liters" class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Liters</label>
                             <input type="number" step="0.01" name="fuel_liters" id="fuel_liters" required placeholder="0.00"
                                 class="w-full border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-700 font-bold focus:outline-none focus:ring-2 focus:ring-[#16283C]/10 focus:border-[#16283C]">
                         </div>
                         <div>
-                            <label for="cost" class="block text-[9px] font-bold text-slate-400 uppercase mb-1">Cost (₱)</label>
+                            <label for="cost" class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Cost (₱)</label>
                             <input type="number" step="0.01" name="cost" id="cost" required placeholder="0.00"
                                 class="w-full border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-700 font-bold focus:outline-none focus:ring-2 focus:ring-[#16283C]/10 focus:border-[#16283C]">
                         </div>
                         <div>
-                            <label for="odometer_reading" class="block text-[9px] font-bold text-slate-400 uppercase mb-1">Odometer (km)</label>
+                            <label for="odometer_reading" class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Odometer (km)</label>
                             <input type="number" step="0.1" name="odometer_reading" id="odometer_reading" required placeholder="0.0"
                                 class="w-full border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-700 font-bold focus:outline-none focus:ring-2 focus:ring-[#16283C]/10 focus:border-[#16283C]">
                         </div>
@@ -147,7 +146,7 @@
         @if($job->status->value === 'confirmed' && !$job->accepted_at)
             <form method="POST" action="{{ route('driver.jobs.accept', $job) }}" onsubmit="event.preventDefault(); swalConfirm(this, {title:'Accept Job?', text:'Accept this delivery job and begin your trip?', icon:'question', confirmText:'Yes, accept', cancelText:'Cancel', confirmColor:'#16283C'});">
                 @csrf
-                <x-button type="submit" size="lg" full class="rounded-2xl active:scale-[0.98]">
+                <x-button type="submit" size="lg" full class="rounded-2xl">
                     Accept Job
                 </x-button>
             </form>
@@ -168,7 +167,7 @@
             <form method="POST" action="{{ route('driver.jobs.status', $job) }}" onsubmit="event.preventDefault(); var btn = this.querySelector('button[type=submit], x-button[type=submit], [data-confirm-label]'); var done = {{ $job->status->value === 'confirmed' ? 'false' : 'true' }}; swalConfirm(this, done ? {title:'Finalize Job?', text:'Mark this job as completed?', icon:'success', confirmText:'Yes, complete', cancelText:'Cancel', confirmColor:'#16283C'} : {title:'Start Job?', text:'Mark this job as in transit?', icon:'question', confirmText:'Yes, start', cancelText:'Cancel', confirmColor:'#16283C'});">
                 @csrf @method('PATCH')
                 @if($job->status->value === 'confirmed')
-                    <x-button type="submit" size="lg" full class="rounded-2xl active:scale-[0.98]" :disabled="!$job->accepted_at">
+                    <x-button type="submit" size="lg" full class="rounded-2xl" :disabled="!$job->accepted_at">
                         Start Job — Mark In Transit
                     </x-button>
                 @else
@@ -178,7 +177,7 @@
                             <input type="number" step="0.01" min="0.01" name="end_odometer_reading" id="end_odometer_reading" required placeholder="0.00"
                                 class="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-xs text-slate-700 font-bold focus:outline-none focus:ring-2 focus:ring-[#16283C]/10 focus:border-[#16283C]">
                         </div>
-                        <x-button type="submit" size="lg" full class="rounded-2xl active:scale-[0.98]">
+                        <x-button type="submit" size="lg" full class="rounded-2xl">
                             Finalize Job — Mark Completed
                         </x-button>
                     @else
@@ -365,17 +364,17 @@
     {{-- Status Banner (hidden by default, shown when needed) --}}
     <div id="offline-banner" class="hidden fixed bottom-5 left-4 right-4 max-w-sm mx-auto z-50">
         <div id="offline-badge"
-             class="hidden bg-rose-600 text-white text-xs font-bold px-4 py-3 rounded-2xl shadow-xl flex items-center gap-2.5 border border-rose-500">
+             class="hidden bg-rose-600 text-white text-xs font-bold px-4 py-3 rounded-2xl flex items-center gap-2.5 border border-rose-500">
             <span class="w-2 h-2 rounded-full bg-white animate-pulse shrink-0"></span>
             <span>Offline — GPS pings queued locally</span>
         </div>
         <div id="syncing-badge"
-             class="hidden bg-[var(--color-warning-text)] text-white text-xs font-bold px-4 py-3 rounded-2xl shadow-xl flex items-center gap-2.5 border border-[var(--color-warning-border)]">
+             class="hidden bg-[var(--color-warning-text)] text-white text-xs font-bold px-4 py-3 rounded-2xl flex items-center gap-2.5 border border-[var(--color-warning-border)]">
             <span class="w-2 h-2 rounded-full bg-white animate-pulse shrink-0"></span>
             <span id="syncing-text">Syncing queued pings…</span>
         </div>
         <div id="synced-badge"
-             class="hidden bg-[#16283C] text-white text-xs font-bold px-4 py-3 rounded-2xl shadow-xl flex items-center gap-2.5 border border-[#16283C]">
+             class="hidden bg-[#16283C] text-white text-xs font-bold px-4 py-3 rounded-2xl flex items-center gap-2.5 border border-[#16283C]">
             <span class="text-[#16283C]"><svg class="w-4 h-4 inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span>
             <span id="synced-text">All pings synced successfully</span>
         </div>

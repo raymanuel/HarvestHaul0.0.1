@@ -8,8 +8,7 @@
             </a>
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <span class="text-xs font-bold uppercase tracking-wider text-[#0E1620] dark:text-[#E9EEF4] bg-[#0E1620]/10 dark:bg-[#0E1620]/10 px-3 py-1.5 rounded-md border border-[#0E1620]/10 dark:border-[#0E1620]/20 inline-block mb-2">Transport Management</span>
-                    <h1 class="text-3xl font-bold text-slate-900 dark:text-white tracking-tight heading-font">Vehicles</h1>
+                    <h1 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight heading-font">Vehicles</h1>
                 </div>
                 <div>
                     <x-button tag="a" :href="route('logistics.vehicles.create')" size="lg">

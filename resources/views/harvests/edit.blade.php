@@ -6,7 +6,7 @@
         <a href="{{ route('harvests.index') }}" class="text-sm text-slate-400 hover:text-slate-600 dark:text-slate-400 dark:hover:text-slate-300 mb-4 inline-block font-semibold">
             ← Back to My Posts
         </a>
-        <h1 class="text-3xl font-bold text-slate-900 dark:text-white mb-2">Edit Harvest</h1>
+        <h1 class="text-2xl font-bold text-slate-900 dark:text-white mb-2">Edit Harvest</h1>
     </header>
 
     {{-- Status Banner --}}
@@ -171,48 +171,6 @@
                 <p id="quantity_error" class="hidden mt-2 text-xs text-[var(--color-error-text)]">Please enter quantity.</p>
             </div>
 
-            {{-- Estimated Volume --}}
-            <div class="mb-6">
-                <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                    Estimated Volume (m³) <span class="text-slate-500 dark:text-slate-400 font-normal">(optional)</span>
-                </label>
-                <input type="number" name="estimated_volume_cubic_m" id="estimated_volume_cubic_m"
-                    value="{{ old('estimated_volume_cubic_m', $harvest->estimated_volume_cubic_m) }}" placeholder="e.g. 2.5" min="0.01" max="99999.99" step="0.01"
-                    class="w-full border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-sm bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition">
-                <p class="mt-1 text-xs text-slate-500 dark:text-slate-400 font-medium">Used for truck space planning. Leave blank if unsure.</p>
-                @error('estimated_volume_cubic_m')
-                    <p class="mt-2 text-xs text-[var(--color-error-text)]">{{ $message }}</p>
-                @enderror
-            </div>
-
-            {{-- Pickup Time Window --}}
-            <div class="mb-6">
-                <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                    Pickup Window <span class="text-slate-500 dark:text-slate-400 font-normal">(optional)</span>
-                </label>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label for="pickup_window_start" class="block text-xs text-slate-500 dark:text-slate-400 mb-1">Earliest pickup</label>
-                        <input type="time" name="pickup_window_start" id="pickup_window_start"
-                            value="{{ old('pickup_window_start', $harvest->pickup_window_start ? \Carbon\Carbon::parse($harvest->pickup_window_start)->format('H:i') : '') }}"
-                            class="w-full border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-sm bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition">
-                    </div>
-                    <div>
-                        <label for="pickup_window_end" class="block text-xs text-slate-500 dark:text-slate-400 mb-1">Latest pickup</label>
-                        <input type="time" name="pickup_window_end" id="pickup_window_end"
-                            value="{{ old('pickup_window_end', $harvest->pickup_window_end ? \Carbon\Carbon::parse($harvest->pickup_window_end)->format('H:i') : '') }}"
-                            class="w-full border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-sm bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition">
-                    </div>
-                </div>
-                <p class="mt-1 text-xs text-slate-500 dark:text-slate-400 font-medium">When can the driver pick up? Helps prioritize routes.</p>
-                @error('pickup_window_start')
-                    <p class="mt-2 text-xs text-[var(--color-error-text)]">{{ $message }}</p>
-                @enderror
-                @error('pickup_window_end')
-                    <p class="mt-2 text-xs text-[var(--color-error-text)]">{{ $message }}</p>
-                @enderror
-            </div>
-
             {{-- Suggested Price --}}
             <div class="mb-6">
                 <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
@@ -255,18 +213,77 @@
                 <p id="harvest_date_error" class="hidden mt-2 text-xs text-[var(--color-error-text)]">Please select a harvest date.</p>
             </div>
 
-            {{-- Notes --}}
-            <div class="mb-8">
-                <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                    Pickup Notes <span class="text-slate-500 dark:text-slate-400 font-normal">(optional)</span>
-                </label>
-                <textarea
-                    name="notes"
-                    rows="4"
-                    placeholder="e.g. Use the side gate, available after 8am, call before arrival"
-                    class="w-full border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-sm bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent resize-none transition"
-                >{{ old('notes', $harvest->notes) }}</textarea>
-            </div>
+            @php
+                $advOpen = $errors->any()
+                    || old('estimated_volume_cubic_m', $harvest->estimated_volume_cubic_m)
+                    || old('pickup_window_start', $harvest->pickup_window_start)
+                    || old('pickup_window_end', $harvest->pickup_window_end)
+                    || old('notes', $harvest->notes);
+            @endphp
+            <details class="mb-8 group" {{ $advOpen ? 'open' : '' }}>
+                <summary class="flex items-center gap-1.5 text-sm font-semibold text-slate-600 dark:text-slate-300 cursor-pointer select-none hover:text-brand transition">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-4 h-4 transition-transform group-open:rotate-180">
+                        <path d="M6 9l6 6 6-6"/>
+                    </svg>
+                    Advanced options
+                </summary>
+                <div class="mt-4 space-y-6">
+                    {{-- Estimated Volume --}}
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                            Estimated Volume (m³) <span class="text-slate-500 dark:text-slate-400 font-normal">(optional)</span>
+                        </label>
+                        <input type="number" name="estimated_volume_cubic_m" id="estimated_volume_cubic_m"
+                            value="{{ old('estimated_volume_cubic_m', $harvest->estimated_volume_cubic_m) }}" placeholder="e.g. 2.5" min="0.01" max="99999.99" step="0.01"
+                            class="w-full border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-sm bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition">
+                        <p class="mt-1 text-xs text-slate-500 dark:text-slate-400 font-medium">Used for truck space planning. Leave blank if unsure.</p>
+                        @error('estimated_volume_cubic_m')
+                            <p class="mt-2 text-xs text-[var(--color-error-text)]">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    {{-- Pickup Time Window --}}
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                            Pickup Window <span class="text-slate-500 dark:text-slate-400 font-normal">(optional)</span>
+                        </label>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="pickup_window_start" class="block text-xs text-slate-500 dark:text-slate-400 mb-1">Earliest pickup</label>
+                                <input type="time" name="pickup_window_start" id="pickup_window_start"
+                                    value="{{ old('pickup_window_start', $harvest->pickup_window_start ? \Carbon\Carbon::parse($harvest->pickup_window_start)->format('H:i') : '') }}"
+                                    class="w-full border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-sm bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition">
+                            </div>
+                            <div>
+                                <label for="pickup_window_end" class="block text-xs text-slate-500 dark:text-slate-400 mb-1">Latest pickup</label>
+                                <input type="time" name="pickup_window_end" id="pickup_window_end"
+                                    value="{{ old('pickup_window_end', $harvest->pickup_window_end ? \Carbon\Carbon::parse($harvest->pickup_window_end)->format('H:i') : '') }}"
+                                    class="w-full border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-sm bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition">
+                            </div>
+                        </div>
+                        <p class="mt-1 text-xs text-slate-500 dark:text-slate-400 font-medium">When can the driver pick up? Helps prioritize routes.</p>
+                        @error('pickup_window_start')
+                            <p class="mt-2 text-xs text-[var(--color-error-text)]">{{ $message }}</p>
+                        @enderror
+                        @error('pickup_window_end')
+                            <p class="mt-2 text-xs text-[var(--color-error-text)]">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    {{-- Notes --}}
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                            Pickup Notes <span class="text-slate-500 dark:text-slate-400 font-normal">(optional)</span>
+                        </label>
+                        <textarea
+                            name="notes"
+                            rows="4"
+                            placeholder="e.g. Use the side gate, available after 8am, call before arrival"
+                            class="w-full border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-sm bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent resize-none transition"
+                        >{{ old('notes', $harvest->notes) }}</textarea>
+                    </div>
+                </div>
+            </details>
 
             {{-- Actions --}}
             <div class="flex gap-3">

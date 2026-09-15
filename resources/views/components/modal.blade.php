@@ -16,7 +16,7 @@
 @endphp
 
 <div id="{{ $id }}" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 backdrop-blur-sm" onclick="if(event.target===this)closeModal('{{ $id }}')">
-    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full {{ $maxWidth }} mx-4 border border-slate-100 dark:border-slate-700 p-7">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl w-full {{ $maxWidth }} mx-4 border border-slate-100 dark:border-slate-700 p-7">
         @if($title || $closeable)
             <div class="flex items-center justify-between mb-4">
                 <h3 class="text-base font-extrabold text-slate-800 dark:text-white heading-font">{{ $title }}</h3>

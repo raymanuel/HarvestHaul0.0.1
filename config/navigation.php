@@ -248,8 +248,8 @@ return [
     ],
 
     'logistics_partner' => [
-        // Cooperative logistics: Dashboard, Crop Board, Operations, Proposal Inbox,
-        // Deliveries, Route Pricing, Transport (user-specified order).
+        // Cooperative logistics: Dashboard, Crop Board, Proposal Inbox, Operations,
+        // Incoming, Customers, Customer Orders, Transport (user-specified order).
         'items' => [
             [
                 'label' => 'Crop Board',
@@ -260,8 +260,15 @@ return [
                 'condition' => 'cooperative_only',
             ],
             [
+                'label' => 'Proposal Inbox',
+                'route' => 'pooling.index',
+                'route_url' => 'pooling.index',
+                'letter' => 'P',
+                'tooltip' => 'Proposal Inbox',
+            ],
+            [
                 'label' => 'Operations',
-                'route' => 'route.optimization|pooling.cost-ledger*',
+                'route' => 'route.optimization|pooling.cost-ledger*|profile.route-pricing|logistics.members*',
                 'letter' => 'O',
                 'tooltip' => 'Operations',
                 'children' => [
@@ -279,37 +286,46 @@ return [
                         'letter' => 'C',
                         'tooltip' => 'Cost Ledger',
                     ],
+                    [
+                        'label' => 'Route Pricing',
+                        'route' => 'profile.route-pricing',
+                        'route_url' => 'profile.route-pricing',
+                        'letter' => 'P',
+                        'tooltip' => 'Route Pricing',
+                    ],
+                    [
+                        'label' => 'Members',
+                        'route' => 'logistics.members*',
+                        'route_url' => 'logistics.members.index',
+                        'letter' => 'M',
+                        'tooltip' => 'Members',
+                        'condition' => 'cooperative_only',
+                    ],
                 ],
             ],
             [
-                'label' => 'Proposal Inbox',
-                'route' => 'pooling.index',
-                'route_url' => 'pooling.index',
-                'letter' => 'P',
-                'tooltip' => 'Proposal Inbox',
-            ],
-            [
-                'label' => 'Deliveries',
+                'label' => 'Incoming',
                 'route' => 'buyer.tracking',
                 'route_url' => 'buyer.tracking',
-                'letter' => 'D',
-                'tooltip' => 'Deliveries',
+                'letter' => 'I',
+                'tooltip' => 'Incoming Deliveries',
                 'condition' => 'cooperative_only',
             ],
             [
-                'label' => 'Members',
-                'route' => 'logistics.members*',
-                'route_url' => 'logistics.members.index',
-                'letter' => 'M',
-                'tooltip' => 'Members',
+                'label' => 'Customers',
+                'route' => 'coop.customers.*',
+                'route_url' => 'coop.customers.index',
+                'letter' => 'C',
+                'tooltip' => 'Customers',
                 'condition' => 'cooperative_only',
             ],
             [
-                'label' => 'Route Pricing',
-                'route' => 'profile.route-pricing',
-                'route_url' => 'profile.route-pricing',
-                'letter' => 'R',
-                'tooltip' => 'Route Pricing',
+                'label' => 'Customer Orders',
+                'route' => 'coop.outbound.*',
+                'route_url' => 'coop.outbound.index',
+                'letter' => 'O',
+                'tooltip' => 'Customer Orders',
+                'condition' => 'cooperative_only',
             ],
             [
                 'label' => 'Transport',

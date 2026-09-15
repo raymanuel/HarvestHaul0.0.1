@@ -170,6 +170,14 @@ class HarvestController extends Controller
             return back()->withInput()->with('error', 'Please provide a pickup location for this harvest.');
         }
 
+        if ($farmerProfile?->isCooperativeMember() && $farmerProfile->cooperative?->latitude && $farmerProfile->cooperative?->longitude) {
+            $coop = $farmerProfile->cooperative;
+            $validated['destination_id']        = null;
+            $validated['destination_address']   = $coop->office_address ?: ($coop->company_name . ' Drop-off Point');
+            $validated['destination_latitude']  = $coop->latitude;
+            $validated['destination_longitude'] = $coop->longitude;
+        }
+
         $harvest = Auth::user()->harvests()->create([
             'crop_id'               => $crop->id,
             'crop_variety_id'       => $cropVariety->id,

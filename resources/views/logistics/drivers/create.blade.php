@@ -6,8 +6,7 @@
             <a href="{{ route('logistics.drivers.index') }}" class="text-sm text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 mb-4 inline-block font-semibold transition">
                 ← Back to Drivers
             </a>
-            <span class="text-xs font-bold uppercase tracking-wider text-[#16283C] dark:text-[#D7BC7A] bg-[#16283C]/10 dark:bg-[#16283C]/10 px-3 py-1.5 rounded-md border border-[#16283C]/10 dark:border-[#16283C]/20 inline-block mb-2">Transport Setup</span>
-            <h1 class="text-3xl font-bold text-slate-900 dark:text-white tracking-tight heading-font">Add Driver Account</h1>
+            <h1 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight heading-font">Add Driver Account</h1>
         </header>
 
         {{-- Add Form --}}

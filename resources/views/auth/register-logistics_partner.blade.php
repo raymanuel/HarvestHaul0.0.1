@@ -1,13 +1,13 @@
 <x-register-layout maxWidth="480px">
 
     <div class="mb-8 text-center">
-        <div class="w-14 h-14 bg-brand-700 text-white rounded-2xl flex items-center justify-center mx-auto mb-3.5 shadow-md shadow-[#16283C]/10">
+        <div class="w-14 h-14 bg-brand-700 text-white rounded-2xl flex items-center justify-center mx-auto mb-3.5">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M8 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" />
                 <path stroke-linecap="round" stroke-linejoin="round" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l2.414 2.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1m-6 0a1 1 0 001-1m9 1a1 1 0 01-1-1m-3 0a1 1 0 001-1m-1 0H8m9-1v-4a1 1 0 00-1-1h-2" />
             </svg>
         </div>
-        <h2 class="text-xl font-extrabold text-slate-800 heading-font tracking-tight">Logistics Partner</h2>
+        <h2 class="text-xl font-bold text-slate-800 heading-font tracking-tight">Logistics Partner</h2>
         <p class="text-xs text-slate-500 mt-1.5 font-semibold">Join the network, dispatch trucks, and secure cargo contracts</p>
     </div>
 
@@ -86,7 +86,7 @@
                         {{ old('logistics_type') === 'company' ? 'checked' : '' }}
                         class="hidden" onchange="handleLogisticsType()">
                     <span class="text-xs font-bold text-slate-800">Logistics Company</span>
-                    <span class="text-[9px] text-slate-400 font-medium leading-tight">Commercial hauler</span>
+                    <span class="text-[10px] text-slate-400 font-medium leading-tight">Commercial hauler</span>
                 </label>
 
                 <!-- Cooperative Card -->
@@ -95,7 +95,7 @@
                         {{ old('logistics_type') === 'cooperative' ? 'checked' : '' }}
                         class="hidden" onchange="handleLogisticsType()">
                     <span class="text-xs font-bold text-slate-800">Cooperative</span>
-                    <span class="text-[9px] text-slate-400 font-medium leading-tight">Agribusiness entity</span>
+                    <span class="text-[10px] text-slate-400 font-medium leading-tight">Agribusiness entity</span>
                 </label>
             </div>
         </div>

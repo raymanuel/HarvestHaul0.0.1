@@ -36,7 +36,7 @@
                     @if($companyName)
                         {{ $companyName }}
                         @if($isCoop)
-                            <span class="text-[9px] font-bold uppercase tracking-widest text-brand dark:text-brand-light bg-brand/10 border border-brand/15 px-2 py-0.5 rounded ml-2">Cooperative</span>
+                            <span class="text-[10px] font-bold uppercase tracking-widest text-brand dark:text-brand-light bg-brand/10 border border-brand/15 px-2 py-0.5 rounded ml-2">Cooperative</span>
                         @endif
                     @else
                         Logistics Partner
@@ -53,13 +53,23 @@
                     linkText="View Dispatches"
                 />
 
-                <x-stat-card
-                    title="Available Pickups"
-                    :value="$activeHarvestCount"
-                    unit="harvests"
-                    :href="$isCoop ? route('buyer.crop-board') : route('pooling.index')"
-                    :linkText="$isCoop ? 'View Crop Board' : 'View Proposal Inbox'"
-                />
+                @if($isCoop)
+                    <x-stat-card
+                        title="Customer Orders"
+                        :value="$activeCustomerOrderCount"
+                        unit="active orders"
+                        href="{{ route('coop.outbound.index') }}"
+                        linkText="View Customer Orders"
+                    />
+                @else
+                    <x-stat-card
+                        title="Available Pickups"
+                        :value="$activeHarvestCount"
+                        unit="harvests"
+                        href="{{ route('pooling.index') }}"
+                        linkText="View Proposal Inbox"
+                    />
+                @endif
 
                 <x-stat-card
                     title="Transport Status"
@@ -68,7 +78,7 @@
                     href="{{ route('route.optimization') }}"
                     linkText="Manage Transport"
                 >
-                    <span class="text-[9px] font-semibold text-slate-500 dark:text-slate-400">{{ $availableDrivers }}/{{ $totalDrivers }} drivers free</span>
+                    <span class="text-[10px] font-semibold text-slate-500 dark:text-slate-400">{{ $availableDrivers }}/{{ $totalDrivers }} drivers free</span>
                 </x-stat-card>
 
                 <x-stat-card
@@ -86,8 +96,8 @@
                 <x-market-prices-card class="lg:col-span-2" />
             </div>
         @else
-            <div class="bg-surface-card dark:bg-surface-card-dark border border-slate-200/60 dark:border-dark-border rounded-3xl p-12 text-center shadow-sm max-w-4xl mx-auto mb-12">
-                <div class="w-16 h-16 rounded-2xl bg-warning-bg border border-warning-border flex items-center justify-center text-warning-text shrink-0 mx-auto mb-6 shadow-inner select-none" aria-hidden="true"><svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
+            <div class="bg-surface-card dark:bg-surface-card-dark border border-slate-200/60 dark:border-dark-border rounded-2xl p-12 text-center shadow-sm max-w-4xl mx-auto mb-12">
+                <div class="w-10 h-10 rounded-2xl bg-warning-bg border border-warning-border flex items-center justify-center text-warning-text shrink-0 mx-auto mb-6 shadow-inner select-none" aria-hidden="true"><svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
                 <div class="mt-8">
                     <a href="{{ route('logistics.documents') }}" class="bg-brand hover:bg-brand-dark text-white dark:bg-[#D7BC7A] dark:hover:bg-[#BFA05A] dark:text-[#17202B] text-sm font-bold px-6 py-3 rounded-xl transition shadow-md">
                         Review Compliance Documents

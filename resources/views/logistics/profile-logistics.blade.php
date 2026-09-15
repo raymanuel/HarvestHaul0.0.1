@@ -8,8 +8,7 @@
         <header class="mb-8 pt-8">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <span class="text-[10px] font-bold uppercase tracking-widest text-[#16283C] dark:text-[#D7BC7A] bg-[#16283C]/10 dark:bg-[#16283C]/10 px-3 py-1 rounded-md border border-[#16283C]/20">My Profile</span>
-                    <h1 class="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight heading-font mt-3">Profile Settings</h1>
+                    <h1 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight heading-font mt-3">Profile Settings</h1>
                 </div>
                 <div class="flex items-center gap-3">
                     <!-- Profile Verification Badge -->
@@ -61,7 +60,7 @@
         @endif
 
         @if (session('profile_complete'))
-            <div class="mb-6 p-5 rounded-2xl bg-gradient-to-r from-[#16283C]/10 to-[#0E1620]/5 dark:from-[#16283C]/20 dark:to-[#0E1620]/10 border border-[#16283C]/20 dark:border-[#16283C]/30 text-brand-dark dark:text-brand-light">
+            <div class="mb-6 p-5 rounded-2xl bg-[#16283C]/10 dark:bg-[#16283C]/20 border border-[#16283C]/20 dark:border-[#16283C]/30 text-brand-dark dark:text-brand-light">
                 <div class="flex items-start gap-3">
                     <div class="w-9 h-9 rounded-[10px] bg-[#16283C] flex items-center justify-center shrink-0">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
@@ -82,7 +81,7 @@
             @method('PUT')
 
             {{-- ── ACCOUNT INFORMATION ── --}}
-            <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6 sm:p-8 shadow-sm">
+            <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-2xl p-6 sm:p-8 shadow-sm">
                 <div class="flex items-center gap-3 mb-6">
                     <div class="w-10 h-10 rounded-2xl bg-[#16283C]/10 border border-[#16283C]/15 flex items-center justify-center text-[#16283C] dark:text-[#D7BC7A] shrink-0">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -110,7 +109,7 @@
             </div>
 
             {{-- ── BUSINESS DETAILS ── --}}
-            <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6 sm:p-8 shadow-sm">
+            <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-2xl p-6 sm:p-8 shadow-sm">
                 <div class="flex items-center gap-3 mb-6">
                     <div class="w-10 h-10 rounded-2xl bg-[#0E1620]/10 border border-[#0E1620]/15 flex items-center justify-center text-[#0E1620] dark:text-[#E9EEF4] shrink-0">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -155,7 +154,7 @@
 
             {{-- ── LOCATION (COOPERATIVE ONLY) ── --}}
             @if($profile?->logistics_type === 'cooperative')
-                <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6 sm:p-8 shadow-sm">
+                <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-2xl p-6 sm:p-8 shadow-sm">
                     <div class="flex items-center gap-3 mb-6">
                         <div class="w-10 h-10 rounded-2xl bg-harvest/10 border border-harvest/15 flex items-center justify-center text-harvest-dark dark:text-harvest-light shrink-0">
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -192,7 +191,7 @@
                         <input type="hidden" id="longitude" name="longitude" value="{{ old('longitude', $profile->longitude ?? '') }}">
 
                         @if(!$profile->latitude || !$profile->longitude)
-                            <div class="p-4 bg-amber-500/10 dark:bg-amber-500/10 border-l-4 border-amber-500 rounded-r-xl">
+                            <div class="p-4 bg-amber-500/10 dark:bg-amber-500/10 border border-amber-500/30 rounded-xl">
                                 <p class="text-xs font-semibold text-amber-800 dark:text-amber-400 leading-relaxed">
                                     No location pinned yet. Without it, you cannot use the fixed drop-off option when finalizing a deal — you would need to pin a custom destination each time.
                                 </p>
@@ -203,7 +202,7 @@
             @endif
 
             {{-- ── REGULATORY CREDENTIALS ── --}}
-            <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6 sm:p-8 shadow-sm">
+            <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-2xl p-6 sm:p-8 shadow-sm">
                 <div class="flex items-center gap-3 mb-6">
                     <div class="w-10 h-10 rounded-2xl bg-amber-500/10 border border-amber-500/15 flex items-center justify-center text-amber-700 dark:text-amber-400 shrink-0">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -262,7 +261,7 @@
             @csrf
             @method('PUT')
 
-            <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6 sm:p-8 shadow-sm">
+            <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-2xl p-6 sm:p-8 shadow-sm">
                 <div class="flex items-center gap-3 mb-6">
                     <div class="w-10 h-10 rounded-2xl bg-brand/10 border border-brand/15 flex items-center justify-center text-brand dark:text-brand-light shrink-0">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -327,7 +326,7 @@
                 </div>
 
                 <div class="flex justify-end mt-6">
-                    <button type="submit" class="px-6 py-2.5 bg-brand hover:bg-brand-dark text-white dark:bg-[#D7BC7A] dark:hover:bg-[#BFA05A] dark:text-[#17202B] font-bold rounded-xl text-xs shadow-md shadow-brand/15 transition duration-200 cursor-pointer inline-flex items-center gap-2">
+                    <button type="submit" class="px-6 py-2.5 bg-brand hover:bg-brand-dark text-white dark:bg-[#D7BC7A] dark:hover:bg-[#BFA05A] dark:text-[#17202B] font-bold rounded-xl text-xs shadow-sm transition duration-200 cursor-pointer inline-flex items-center gap-2">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
                         </svg>

@@ -17,15 +17,15 @@
     }
 @endphp
 
-<div {{ $attributes->merge(['class' => 'bg-surface-card dark:bg-surface-card-dark border border-slate-200/60 dark:border-dark-border rounded-3xl overflow-hidden flex flex-col']) }}>
+<div {{ $attributes->merge(['class' => 'bg-surface-card dark:bg-surface-card-dark border border-slate-200/60 dark:border-dark-border rounded-2xl overflow-hidden flex flex-col']) }}>
 
     {{-- Header --}}
     <div class="px-6 pt-6 pb-4 border-b border-slate-100 dark:border-dark-border">
         <div class="flex items-center justify-between">
-            <h2 class="text-sm font-extrabold text-slate-900 dark:text-white heading-font">Weather Conditions</h2>
+            <h2 class="text-sm font-bold text-slate-900 dark:text-white heading-font">Weather Conditions</h2>
             <div class="flex items-center gap-2">
                 @if($checkedAt)
-                    <span class="text-[9px] font-bold {{ $fresh ? 'text-info-text bg-info-bg border-info-border' : 'text-warning-text bg-warning-bg border-warning-border' }} px-2 py-0.5 rounded border">
+                    <span class="text-[10px] font-bold {{ $fresh ? 'text-info-text bg-info-bg border-info-border' : 'text-warning-text bg-warning-bg border-warning-border' }} px-2 py-0.5 rounded border">
                         {{ \Carbon\Carbon::parse($checkedAt)->diffForHumans() }}
                     </span>
                 @endif
@@ -54,8 +54,8 @@
                 </div>
                 <div>
                     <div class="flex items-baseline gap-2">
-                        <span class="text-3xl font-mono font-extrabold text-slate-900 dark:text-white">{{ $temp !== null ? round($temp) . '°' : '—' }}</span>
-                        <span class="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Celsius</span>
+                        <span class="text-2xl font-mono font-extrabold text-slate-900 dark:text-white">{{ $temp !== null ? round($temp) . '°' : '—' }}</span>
+                        <span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Celsius</span>
                     </div>
                     <p class="text-[11px] font-bold text-slate-700 dark:text-slate-300 capitalize">{{ $condition ?: 'Unknown' }}{{ $desc ? ' — ' . $desc : '' }}</p>
                 </div>
@@ -63,11 +63,11 @@
 
             <div class="flex gap-6 text-right shrink-0">
                 <div>
-                    <p class="text-[8px] font-bold uppercase tracking-wider text-text-muted dark:text-text-dark-muted">Wind</p>
+                    <p class="text-[10px] font-bold uppercase tracking-wider text-text-muted dark:text-text-dark-muted">Wind</p>
                     <p class="text-[12px] font-mono font-extrabold text-slate-800 dark:text-slate-200">{{ $wind !== null ? round($wind) . ' km/h' : '—' }}</p>
                 </div>
                 <div>
-                    <p class="text-[8px] font-bold uppercase tracking-wider text-text-muted dark:text-text-dark-muted">Humidity</p>
+                    <p class="text-[10px] font-bold uppercase tracking-wider text-text-muted dark:text-text-dark-muted">Humidity</p>
                     <p class="text-[12px] font-mono font-extrabold text-slate-800 dark:text-slate-200">{{ $humidity !== null ? round($humidity) . '%' : '—' }}</p>
                 </div>
             </div>

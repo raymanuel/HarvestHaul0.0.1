@@ -52,7 +52,7 @@ trait Notifiable
         }
     }
 
-    protected static function logAudit(int $adminId, string $action, string $targetType, int $targetId, string $notes): void
+    protected static function logAudit(?int $adminId, string $action, string $targetType, int $targetId, string $notes): void
     {
         AuditLog::create([
             'admin_id'    => $adminId,
@@ -223,8 +223,21 @@ trait Notifiable
     // Pooling job notifications
     // ──────────────────────────────────────────────
 
-    protected static function notifyJobInTransit(int $logisticsUserId, string $driverName, int $jobId, $harvests): void
+    protected static function notifyJobInTransit(int $logisticsUserId, string $driverName, int $jobId, $harvests, ?string $legType = null): void
     {
+        if ($legType === 'outbound') {
+            $order = \App\Models\PoolingJob::find($jobId)?->outboundOrder;
+            if ($order) {
+                static::sendNotification(
+                    $logisticsUserId,
+                    'Outbound Delivery In Transit',
+                    "Driver {$driverName} has started the delivery for customer order #{$order->id} (Route #{$jobId}). The truck is now heading to {$order->customerCard?->name}.",
+                    route('coop.outbound.show', $order)
+                );
+                return;
+            }
+        }
+
         static::sendNotification(
             $logisticsUserId,
             'Job In Transit',
@@ -242,8 +255,21 @@ trait Notifiable
         );
     }
 
-    protected static function notifyJobAwaitingConfirmation(int $logisticsUserId, string $driverName, int $jobId, $harvests, ?int $buyerId): void
+    protected static function notifyJobAwaitingConfirmation(int $logisticsUserId, string $driverName, int $jobId, $harvests, ?int $buyerId, ?string $legType = null): void
     {
+        if ($legType === 'outbound') {
+            $order = \App\Models\PoolingJob::find($jobId)?->outboundOrder;
+            if ($order) {
+                static::sendNotification(
+                    $logisticsUserId,
+                    'Customer Delivery Awaiting Confirmation',
+                    "Driver {$driverName} marked customer order #{$order->id} as delivered (Route #{$jobId}). Awaiting {$order->customerCard?->name}'s confirmation — track it from the Customer Orders page.",
+                    route('coop.outbound.show', $order)
+                );
+                return;
+            }
+        }
+
         static::sendNotification(
             $logisticsUserId,
             'Job Awaiting Buyer Confirmation',

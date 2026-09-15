@@ -19,7 +19,7 @@
                 <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-600 mb-1">{{ $breadcrumb }}</p>
             @endif
 
-            <h1 class="{{ $variant === 'admin' ? 'text-2xl font-extrabold' : 'text-3xl font-extrabold' }} text-slate-900 dark:text-white tracking-tight heading-font">{{ $title }}</h1>
+            <h1 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight heading-font">{{ $title }}</h1>
         </div>
         <div class="flex items-center gap-3">
             @if($showDate)

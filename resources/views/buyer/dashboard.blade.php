@@ -43,7 +43,7 @@
                 href="{{ route('buyer.negotiations') }}"
                 linkText="View Negotiations"
             >
-                <span class="text-[9px] font-semibold text-slate-500 dark:text-slate-400">{{ number_format($monthlyKg, 0) }} kg purchased</span>
+                <span class="text-[10px] font-semibold text-slate-500 dark:text-slate-400">{{ number_format($monthlyKg, 0) }} kg purchased</span>
             </x-stat-card>
         </div>
 
@@ -51,7 +51,7 @@
 
         @if($pendingConfirmations->isNotEmpty())
         <div class="mb-10">
-            <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-3xl shadow-sm">
+            <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-2xl shadow-sm">
                 <div class="px-6 pt-6 pb-4">
                     <h2 class="text-[10px] font-bold uppercase tracking-widest text-gold-600 dark:text-gold-light">Pending Confirmations</h2>
                 </div>                <div class="overflow-x-auto">
@@ -84,7 +84,7 @@
                                         @csrf
                                         <button type="button"
                                             onclick="swalConfirm(this.closest('form'), {title:'Confirm Receipt?', text:'Mark delivery #{{ $job->id }} as received?', confirmText:'Yes, confirm', icon:'question', confirmColor:'#16283C'})"
-                                            class="inline-flex items-center gap-1.5 px-4 py-2 bg-harvest hover:bg-harvest-dark text-text text-[10px] font-bold rounded-xl transition shadow-sm shadow-harvest/10 cursor-pointer">
+                                            class="inline-flex items-center gap-1.5 px-4 py-2 bg-harvest hover:bg-harvest-dark text-text text-[10px] font-bold rounded-xl transition cursor-pointer">
                                             Confirm Receipt
                                         </button>
                                     </form>

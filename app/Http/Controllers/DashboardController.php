@@ -14,6 +14,7 @@ use App\Models\InvoiceStatus;
 use App\Models\FuelLog;
 use App\Models\User;
 use App\Models\WeatherLog;
+use App\Models\OutboundOrder;
 
 use App\Http\Controllers\Admin\AdminDashboardController;
 use Carbon\Carbon;
@@ -44,6 +45,7 @@ class DashboardController extends Controller
         $totalDrivers = 0;
         $pendingInvoiceCount = 0;
         $overdueInvoiceCount = 0;
+        $activeCustomerOrderCount = 0;
 
         if ($user->role === 'logistics_partner' && $logisticsProfile = $user->logisticsProfile) {
 
@@ -104,6 +106,10 @@ class DashboardController extends Controller
             $overdueInvoiceCount = Invoice::where('logistics_profile_id', $logisticsProfile->id)
                 ->where('status', InvoiceStatus::OVERDUE)
                 ->count();
+
+            $activeCustomerOrderCount = $logisticsProfile->isCooperative() ? OutboundOrder::forProfile($logisticsProfile->id)
+                ->whereIn('status', ['confirmed', 'in_transit', 'awaiting_confirmation'])
+                ->count() : 0;
         }
 
         /**
@@ -197,6 +203,7 @@ class DashboardController extends Controller
                 'totalDrivers' => $totalDrivers,
                 'pendingInvoiceCount' => $pendingInvoiceCount,
                 'overdueInvoiceCount' => $overdueInvoiceCount,
+                'activeCustomerOrderCount' => $activeCustomerOrderCount,
             ]),
 
             'admin' => app(AdminDashboardController::class)->index(),

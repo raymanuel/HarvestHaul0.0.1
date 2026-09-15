@@ -6,7 +6,7 @@
             <header class="mb-8 pt-8">
                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div>
-                        <h1 class="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight heading-font">
+                        <h1 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight heading-font">
                             Transport Analytics Hub
                         </h1>
                     </div>
@@ -39,9 +39,6 @@
             <div class="bg-white dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700/80 rounded-2xl shadow-sm overflow-hidden mb-8">
                 <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-700/60 flex items-center justify-between">
                     <h2 class="text-sm font-bold text-slate-800 dark:text-slate-200 heading-font">Efficiency & Expenditure per Vehicle</h2>
-                    <span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-900/50 px-2.5 py-1 rounded-md border border-slate-200/60 dark:border-slate-700">
-                        Breakdown
-                    </span>
                 </div>
 
                 @if($truckAnalytics->isEmpty())
@@ -108,9 +105,6 @@
             <div class="bg-white dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700/80 rounded-2xl shadow-sm overflow-hidden">
                 <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-700/60 flex items-center justify-between">
                     <h2 class="text-sm font-bold text-slate-800 dark:text-slate-200 heading-font">Recent Fuel Purchase Logs</h2>
-                    <span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-900/50 px-2.5 py-1 rounded-md border border-slate-200/60 dark:border-slate-700">
-                        Driver Refuel Records
-                    </span>
                 </div>
 
                 @if($fuelLogs->isEmpty())

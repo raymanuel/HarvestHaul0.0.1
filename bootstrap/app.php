@@ -26,6 +26,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'buyer' => \App\Http\Middleware\EnsureUserIsBuyer::class,
             'role' => \App\Http\Middleware\CheckRole::class,
             'farmer.location' => \App\Http\Middleware\EnsureFarmerHasLocation::class,
+            'coop' => \App\Http\Middleware\EnsureCoopOperations::class,
+            'coop.buying' => \App\Http\Middleware\EnsureCoopBuyingAccess::class,
         ]);
     })->create();
 

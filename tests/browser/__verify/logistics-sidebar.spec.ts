@@ -44,17 +44,19 @@ test.describe("Logistics sidebar reorganization", () => {
     expectOrderedSubsequence(labels, [
       "Dashboard",
       "Crop Board",
-      "Operations",
       "Proposal Inbox",
-      "Deliveries",
-      "Route Pricing",
-      "Fleet",
+      "Operations",
+      "Incoming",
+      "Customers",
+      "Customer Orders",
+      "Transport",
     ]);
 
+    expect(labels).not.toContain("Deliveries");
     expect(labels).not.toContain("Reference");
     expect(labels).not.toContain("Market Prices");
-    expect(labels).not.toContain("Members");
     expect(labels).not.toContain("Business License Docs");
+    expect(labels).toContain("Members");
 
     const dropdown = await profileDropdownLabels(page);
     expect(dropdown).toContain("Business Docs");
@@ -69,7 +71,7 @@ test.describe("Logistics sidebar reorganization", () => {
       "Dashboard",
       "Proposal Inbox",
       "Operations",
-      "Fleet",
+      "Transport",
       "Route Pricing",
       "Live Tracking",
       "Haul Negotiations",

@@ -14,8 +14,7 @@
                 ->values();
         @endphp
         <header class="pt-8 mb-6 border-b border-slate-200/80 dark:border-slate-700/80 pb-5">
-            <span class="text-xs font-bold uppercase tracking-wider text-brand dark:text-brand-light bg-brand/10 dark:bg-brand/10 px-3 py-1.5 rounded-md border border-brand/10 dark:border-brand/20 self-start">Routing</span>
-            <h1 class="text-3xl font-bold text-slate-900 dark:text-white heading-font mt-2">Route Planning</h1>
+            <h1 class="text-2xl font-bold text-slate-900 dark:text-white heading-font mt-2">Route Planning</h1>
 
         </header>
 
@@ -418,7 +417,7 @@
                             </p>
                         </div>
                         <div class="flex flex-col items-end gap-1.5 shrink-0">
-                            <span class="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md
+                            <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md
                                 {{ $route['status'] === 'in_progress' ? 'bg-[var(--color-info-bg)] text-[var(--color-info-text)] border border-[var(--color-info-border)]' : '' }}
                                 {{ $route['status'] === 'confirmed' ? 'bg-brand text-white dark:bg-brand-light dark:text-brand border border-brand dark:border-brand-light' : '' }}
                                 {{ $route['status'] === 'awaiting_confirmation' ? 'bg-[var(--color-warning-bg)] text-[var(--color-warning-text)] border border-[var(--color-warning-border)]' : '' }}
@@ -1033,9 +1032,9 @@
                             : 'bg-slate-50 dark:bg-slate-900/40 p-4 rounded-xl border border-slate-200/70 dark:border-slate-700/60 opacity-60 filter grayscale relative overflow-hidden');
 
                     const capacityBadge = exceedsCapacity
-                        ? `<span class="inline-block mt-2 text-[9px] font-bold uppercase tracking-wider bg-rose-50 dark:bg-rose-950/20 text-rose-600 dark:text-rose-400 border border-rose-300/50 dark:border-rose-900/30 px-2 py-0.5 rounded-md"><svg class="w-4 h-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg> Over Limit</span>`
+                        ? `<span class="inline-block mt-2 text-[10px] font-bold uppercase tracking-wider bg-rose-50 dark:bg-rose-950/20 text-rose-600 dark:text-rose-400 border border-rose-300/50 dark:border-rose-900/30 px-2 py-0.5 rounded-md"><svg class="w-4 h-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg> Over Limit</span>`
                         : (included ? ''
-                            : `<span class="inline-block mt-2 text-[9px] font-bold uppercase tracking-wider bg-slate-100 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 px-2 py-0.5 rounded-md">Not in this load</span>`);
+                            : `<span class="inline-block mt-2 text-[10px] font-bold uppercase tracking-wider bg-slate-100 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 px-2 py-0.5 rounded-md">Not in this load</span>`);
 
                     queueContainer.innerHTML += `
                         <div class="${cardClass}">

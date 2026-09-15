@@ -4,9 +4,8 @@
     <header class="pt-8 mb-8">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-                <h1 class="text-2xl font-extrabold text-slate-800 dark:text-white heading-font tracking-tight">System Audit Logs</h1>
+                <h1 class="text-2xl font-bold text-slate-800 dark:text-white heading-font tracking-tight">System Audit Logs</h1>
             </div>
-            <span class="text-[10px] font-bold uppercase tracking-widest text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-900/50 px-3 py-1.5 rounded-md border border-slate-200/50 dark:border-slate-700 self-start">Activity Log</span>
         </div>
     </header>
 
@@ -26,7 +25,7 @@
             </td>
             <td class="px-4 py-3">
                 <div class="flex items-center gap-3">
-                    <div class="w-7 h-7 rounded-md bg-gradient-to-tr from-slate-100 to-slate-50 dark:from-slate-700 dark:to-slate-800 border border-slate-200/50 dark:border-slate-700 flex items-center justify-center text-[9px] font-extrabold text-slate-600 dark:text-slate-300 uppercase">{{ substr($log->admin->name ?? '—', 0, 2) }}</div>
+                    <div class="w-7 h-7 rounded-md bg-slate-100 dark:bg-slate-700 border border-slate-200/50 dark:border-slate-700 flex items-center justify-center text-[10px] font-extrabold text-slate-600 dark:text-slate-300 uppercase">{{ substr($log->admin->name ?? '—', 0, 2) }}</div>
                     <span class="font-bold text-slate-800 dark:text-slate-200 text-sm">{{ $log->admin->name ?? '—' }}</span>
                 </div>
             </td>

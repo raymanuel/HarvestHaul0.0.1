@@ -1,12 +1,12 @@
 <x-register-layout maxWidth="480px">
 
     <div class="mb-8 text-center">
-        <div class="w-14 h-14 bg-brand-700 text-white rounded-2xl flex items-center justify-center mx-auto mb-3.5 shadow-md shadow-[#16283C]/10">
+        <div class="w-14 h-14 bg-brand-700 text-white rounded-2xl flex items-center justify-center mx-auto mb-3.5">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
             </svg>
         </div>
-        <h2 class="text-xl font-extrabold text-slate-800 heading-font tracking-tight">Commercial Buyer</h2>
+        <h2 class="text-xl font-bold text-slate-800 heading-font tracking-tight">Commercial Buyer</h2>
         <p class="text-xs text-slate-500 mt-1.5 font-semibold">Join the network, purchase harvests directly, and manage drops</p>
     </div>
 

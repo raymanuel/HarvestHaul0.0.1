@@ -15,7 +15,7 @@
     $attrs = $attributes->merge([
         'role' => 'region',
         'aria-label' => $title,
-        'class' => 'bg-surface-card dark:bg-surface-card-dark border border-slate-200/60 dark:border-dark-border rounded-2xl p-5 hover:-translate-y-1 hover:shadow-xl hover:border-slate-300 dark:hover:border-dark-border-light transition-all duration-300 group flex flex-col justify-between min-h-[140px]',
+        'class' => 'bg-surface-card dark:bg-surface-card-dark border border-slate-200/60 dark:border-dark-border rounded-2xl p-5 hover:border-slate-300 dark:hover:border-dark-border-light transition group flex flex-col justify-between min-h-[140px]',
     ]);
 @endphp
 
@@ -32,14 +32,14 @@
             @endif
         </div>
         @if(isset($subBadges) && count($subBadges) > 0)
-            <p class="text-3xl font-extrabold text-text dark:text-text-dark tracking-tight heading-font">{{ $value }}</p>
+            <p class="text-2xl font-extrabold text-text dark:text-text-dark tracking-tight heading-font">{{ $value }}</p>
                 <div class="flex flex-wrap gap-1.5 mt-3">
                 @foreach($subBadges as $label => $count)
-                    <span class="text-[9px] font-semibold text-text-muted bg-slate-100 dark:text-text-dark-muted dark:bg-dark-hover-bg border border-slate-200/60 dark:border-dark-border px-2 py-0.5 rounded-md">{{ $count }} {{ $label }}</span>
+                    <span class="text-[10px] font-semibold text-text-muted bg-slate-100 dark:text-text-dark-muted dark:bg-dark-hover-bg border border-slate-200/60 dark:border-dark-border px-2 py-0.5 rounded-md">{{ $count }} {{ $label }}</span>
                 @endforeach
             </div>
         @else
-            <p class="text-3xl font-extrabold text-text dark:text-text-dark tracking-tight heading-font mt-1">
+            <p class="text-2xl font-extrabold text-text dark:text-text-dark tracking-tight heading-font mt-1">
                 {{ $value }} <span class="text-xs font-semibold text-text-muted dark:text-text-dark-muted">{{ $unit }}</span>
             </p>
         @endif
@@ -50,7 +50,7 @@
         @else
             {{ $slot->isNotEmpty() ? $slot : '' }}
             @if($linkText)
-                <span class="text-gold-600 dark:text-gold-light font-bold text-xs inline-flex items-center gap-1.5 group-hover:translate-x-1 duration-200">
+                <span class="text-gold-600 dark:text-gold-light font-bold text-xs inline-flex items-center gap-1.5">
                     {{ $linkText }} <span>→</span>
                 </span>
             @endif

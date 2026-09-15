@@ -5,9 +5,8 @@
     <header class="pt-8 mb-8">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-                <h1 class="text-2xl font-extrabold text-slate-800 dark:text-white heading-font tracking-tight">Farmer Documents</h1>
+                <h1 class="text-2xl font-bold text-slate-800 dark:text-white heading-font tracking-tight">Farmer Documents</h1>
             </div>
-            <span class="text-[10px] font-bold uppercase tracking-widest text-[var(--color-warning-text)] bg-[var(--color-warning-bg)] px-3 py-1.5 rounded-md border border-[var(--color-warning-border)] self-start">Verification</span>
         </div>
     </header>
 
@@ -39,7 +38,7 @@
                 {{-- Farmer Header --}}
                 <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-700/60 bg-slate-50/50 dark:bg-slate-900/40">
                     <div class="flex items-center gap-3">
-                        <div class="w-9 h-9 rounded-md bg-gradient-to-tr from-[#16283C]/15 to-[#16283C]/10 dark:from-[#16283C]/10 dark:to-[#16283C]/5 border border-[#16283C]/20 dark:border-[#16283C]/15 flex items-center justify-center text-[10px] font-extrabold text-[#16283C] dark:text-[#D7BC7A] uppercase">{{ substr($farmer->name ?? '?', 0, 2) }}</div>
+                        <div class="w-9 h-9 rounded-md bg-[#16283C]/10 dark:bg-[#16283C]/10 border border-[#16283C]/20 dark:border-[#16283C]/15 flex items-center justify-center text-[10px] font-extrabold text-[#16283C] dark:text-[#D7BC7A] uppercase">{{ substr($farmer->name ?? '?', 0, 2) }}</div>
                         <div>
                             <p class="text-sm font-extrabold text-slate-800 dark:text-slate-200">{{ $farmer->name ?? 'Farmer #' . $userId }}</p>
                             <p class="text-[10px] text-slate-500 dark:text-slate-400 font-semibold">{{ $farmer->email ?? '' }} — ID #{{ $userId }}</p>
