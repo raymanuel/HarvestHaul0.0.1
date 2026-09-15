@@ -217,7 +217,7 @@ path when you create the job).
 - [ ] Login as a demo account: `demo.admin@harvesthaul.app` / `demo1234`.
 - [ ] Login as `demo.farmer1@harvesthaul.app`, post a harvest, upload a photo —
       the photo shows up (proves `storage:link` worked).
-- [ ] Login as `demo.logistics@harvesthaul.app`, `demo.driver@harvesthaul.app`,
+- [ ] Login as `demo.coop@harvesthaul.app`, `demo.driver@harvesthaul.app`,
       `demo.buyer@harvesthaul.app` — each lands on its own dashboard.
 - [ ] Open a PDF invoice (works, no email dependence).
 - [ ] Weather card shows live data (your OpenWeather key is in `.env`).

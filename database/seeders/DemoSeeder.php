@@ -42,16 +42,20 @@ class DemoSeeder extends Seeder
         }
 
         // ---------------------------------------------------------------
-        // 1) Admin
+        // 1) Admins (5 demo accounts)
         // ---------------------------------------------------------------
-        $admin = $this->upsertUser('DEMO Admin', 'demo.admin@harvesthaul.app', 'admin');
+        $this->upsertUser('DEMO Admin', 'demo.admin@harvesthaul.app', 'admin');
+        $this->upsertUser('DEMO Admin Ray', 'demo.adminray@harvesthaul.app', 'admin');
+        $this->upsertUser('DEMO Admin Iver', 'demo.adminiver@harvesthaul.app', 'admin');
+        $this->upsertUser('DEMO Admin Jake', 'demo.adminjake@harvesthaul.app', 'admin');
+        $this->upsertUser('DEMO Admin Gab', 'demo.admingab@harvesthaul.app', 'admin');
 
         // ---------------------------------------------------------------
         // 2) Logistics partner (cooperative) — the demo hauling hub
         // ---------------------------------------------------------------
         $logisticsUser = $this->upsertUser(
             'DEMO South Cotabato Agri Transport COOP',
-            'demo.logistics@harvesthaul.app',
+            'demo.coop@harvesthaul.app',
             'logistics_partner'
         );
 
@@ -146,7 +150,7 @@ class DemoSeeder extends Seeder
             ]);
         }
 
-        $this->command?->info('Demo data ready. Login emails: demo.admin@ / demo.logistics@ / demo.farmer1@ / demo.farmer2@ / demo.farmer3@ / demo.buyer@ / demo.driver@ — all @harvesthaul.app, password: ' . self::DEMO_PASSWORD);
+        $this->command?->info('Demo data ready. Login emails: demo.admin@ / demo.adminray@ / demo.adminiver@ / demo.adminjake@ / demo.admingab@ / demo.coop@ / demo.farmer1@ / demo.farmer2@ / demo.farmer3@ / demo.buyer@ / demo.driver@ — all @harvesthaul.app, password: ' . self::DEMO_PASSWORD);
     }
 
     private function upsertUser(string $name, string $email, string $role): User
