@@ -231,7 +231,7 @@ trait Notifiable
                 static::sendNotification(
                     $logisticsUserId,
                     'Outbound Delivery In Transit',
-                    "Driver {$driverName} has started outbound delivery #{$order->id} (Route #{$jobId}). The truck is now heading to {$order->customerCard?->name}.",
+                    "Driver {$driverName} has started the delivery for customer order #{$order->id} (Route #{$jobId}). The truck is now heading to {$order->customerCard?->name}.",
                     route('coop.outbound.show', $order)
                 );
                 return;
@@ -262,8 +262,8 @@ trait Notifiable
             if ($order) {
                 static::sendNotification(
                     $logisticsUserId,
-                    'Outbound Delivery Awaiting Confirmation',
-                    "Driver {$driverName} finalized outbound delivery #{$order->id} (Route #{$jobId}). Awaiting {$order->customerCard?->name}'s receipt confirmation — monitor it from Outbound Orders.",
+                    'Customer Delivery Awaiting Confirmation',
+                    "Driver {$driverName} marked customer order #{$order->id} as delivered (Route #{$jobId}). Awaiting {$order->customerCard?->name}'s confirmation — track it from the Customer Orders page.",
                     route('coop.outbound.show', $order)
                 );
                 return;

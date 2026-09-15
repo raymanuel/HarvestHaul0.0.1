@@ -11,14 +11,14 @@
             </div>
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <h1 class="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight heading-font">My Deals</h1>
+                    <h1 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight heading-font">My Deals</h1>
                 </div>
             </div>
         </header>
 
         <!-- Deals List -->
         @if($negotiations->isEmpty())
-            <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-12 text-center">
+            <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-2xl p-12 text-center">
                 <h3 class="text-lg font-bold text-slate-800 dark:text-white heading-font">No Deals Yet</h3>
                 <p class="text-sm text-slate-500 dark:text-slate-400 mt-2 max-w-md mx-auto">You have not started any crop purchase deals yet. Head to the Crop Board to find fresh harvests.</p>
                 <div class="mt-6">

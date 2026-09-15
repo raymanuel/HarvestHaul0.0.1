@@ -1,0 +1,517 @@
+{
+  "scenario": "Single-truck day: 3 farms → 1 route → 1 customer delivery",
+  "startedAt": "2026-09-13T20:09:35.336Z",
+  "steps": [
+    {
+      "slug": "harvest-form-mango",
+      "label": "DEMO Farmer Rosa Dizon posts 400kg of Mango — destination defaults to the Cooperative Hub for coop members",
+      "url": "http://127.0.0.1:8000/harvests/create",
+      "time": "2026-09-13T20:09:50.656Z"
+    },
+    {
+      "slug": "harvest-confirm-mango",
+      "label": "Post harvest confirmation dialog — Mango",
+      "url": "http://127.0.0.1:8000/harvests/create",
+      "time": "2026-09-13T20:09:51.742Z"
+    },
+    {
+      "slug": "harvest-posted-mango",
+      "label": "Harvest posted: Mango (Carabao), 400kg",
+      "url": "http://127.0.0.1:8000/harvests",
+      "time": "2026-09-13T20:09:54.828Z"
+    },
+    {
+      "slug": "harvest-form-banana",
+      "label": "DEMO Farmer Jocelyn Ramos posts 350kg of Banana — destination defaults to the Cooperative Hub for coop members",
+      "url": "http://127.0.0.1:8000/harvests/create",
+      "time": "2026-09-13T20:10:02.876Z"
+    },
+    {
+      "slug": "harvest-confirm-banana",
+      "label": "Post harvest confirmation dialog — Banana",
+      "url": "http://127.0.0.1:8000/harvests/create",
+      "time": "2026-09-13T20:10:03.869Z"
+    },
+    {
+      "slug": "harvest-posted-banana",
+      "label": "Harvest posted: Banana (Cavendish), 350kg",
+      "url": "http://127.0.0.1:8000/harvests",
+      "time": "2026-09-13T20:10:08.524Z"
+    },
+    {
+      "slug": "harvest-form-pineapple",
+      "label": "DEMO Farmer Dante Mabuhay posts 250kg of Pineapple — destination defaults to the Cooperative Hub for coop members",
+      "url": "http://127.0.0.1:8000/harvests/create",
+      "time": "2026-09-13T20:10:17.901Z"
+    },
+    {
+      "slug": "harvest-confirm-pineapple",
+      "label": "Post harvest confirmation dialog — Pineapple",
+      "url": "http://127.0.0.1:8000/harvests/create",
+      "time": "2026-09-13T20:10:18.910Z"
+    },
+    {
+      "slug": "harvest-posted-pineapple",
+      "label": "Harvest posted: Pineapple (MD2 Gold), 250kg",
+      "url": "http://127.0.0.1:8000/harvests",
+      "time": "2026-09-13T20:10:22.118Z"
+    },
+    {
+      "slug": "crop-detail-mango",
+      "label": "Crop board detail — Mango from DEMO Farmer Rosa Dizon",
+      "url": "http://127.0.0.1:8000/buyer/crop-board/33",
+      "time": "2026-09-13T20:10:28.243Z"
+    },
+    {
+      "slug": "negotiation-started-mango",
+      "label": "Negotiation room opened for Mango",
+      "url": "http://127.0.0.1:8000/negotiations/29",
+      "time": "2026-09-13T20:10:30.284Z"
+    },
+    {
+      "slug": "negotiation-message-mango",
+      "label": "DEMO Farmer Rosa Dizon receives the coop team's first message — negotiation chat",
+      "url": "http://127.0.0.1:8000/negotiations/29",
+      "time": "2026-09-13T20:10:32.601Z"
+    },
+    {
+      "slug": "proposal-sent-mango",
+      "label": "Terms proposed for Mango: ₱55/kg, 400kg, haul ₱2.50/kg",
+      "url": "http://127.0.0.1:8000/negotiations/29",
+      "time": "2026-09-13T20:10:34.171Z"
+    },
+    {
+      "slug": "farmer-agree-mango",
+      "label": "DEMO Farmer Rosa Dizon sees the agreed terms in the negotiation room",
+      "url": "http://127.0.0.1:8000/farmer/deals/29",
+      "time": "2026-09-13T20:10:49.832Z"
+    },
+    {
+      "slug": "farmer-agreed-mango",
+      "label": "DEMO Farmer Rosa Dizon agreed to the coop's terms for Mango",
+      "url": "http://127.0.0.1:8000/farmer/deals/29",
+      "time": "2026-09-13T20:10:49.998Z"
+    },
+    {
+      "slug": "finalize-room-mango",
+      "label": "Coop logistics finalizes the deal for Mango",
+      "url": "http://127.0.0.1:8000/negotiations/29",
+      "time": "2026-09-13T20:10:53.918Z"
+    },
+    {
+      "slug": "deal-finalized-mango",
+      "label": "DONE DEAL — Mango locked at ₱55/kg, haul ₱2.50/kg",
+      "url": "http://127.0.0.1:8000/buyer/negotiations",
+      "time": "2026-09-13T20:11:00.535Z"
+    },
+    {
+      "slug": "crop-detail-banana",
+      "label": "Crop board detail — Banana from DEMO Farmer Jocelyn Ramos",
+      "url": "http://127.0.0.1:8000/buyer/crop-board/34",
+      "time": "2026-09-13T20:12:01.631Z"
+    },
+    {
+      "slug": "negotiation-started-banana",
+      "label": "Negotiation room opened for Banana",
+      "url": "http://127.0.0.1:8000/negotiations/30",
+      "time": "2026-09-13T20:12:13.641Z"
+    },
+    {
+      "slug": "negotiation-message-banana",
+      "label": "DEMO Farmer Jocelyn Ramos receives the coop team's first message — negotiation chat",
+      "url": "http://127.0.0.1:8000/negotiations/30",
+      "time": "2026-09-13T20:12:15.961Z"
+    },
+    {
+      "slug": "proposal-sent-banana",
+      "label": "Terms proposed for Banana: ₱28/kg, 350kg, haul ₱2.50/kg",
+      "url": "http://127.0.0.1:8000/negotiations/30",
+      "time": "2026-09-13T20:12:20.307Z"
+    },
+    {
+      "slug": "farmer-agree-banana",
+      "label": "DEMO Farmer Jocelyn Ramos sees the agreed terms in the negotiation room",
+      "url": "http://127.0.0.1:8000/farmer/deals/30",
+      "time": "2026-09-13T20:12:34.048Z"
+    },
+    {
+      "slug": "farmer-agreed-banana",
+      "label": "DEMO Farmer Jocelyn Ramos agreed to the coop's terms for Banana",
+      "url": "http://127.0.0.1:8000/farmer/deals/30",
+      "time": "2026-09-13T20:12:34.222Z"
+    },
+    {
+      "slug": "finalize-room-banana",
+      "label": "Coop logistics finalizes the deal for Banana",
+      "url": "http://127.0.0.1:8000/negotiations/30",
+      "time": "2026-09-13T20:12:39.556Z"
+    },
+    {
+      "slug": "deal-finalized-banana",
+      "label": "DONE DEAL — Banana locked at ₱28/kg, haul ₱2.50/kg",
+      "url": "http://127.0.0.1:8000/buyer/negotiations",
+      "time": "2026-09-13T20:12:45.763Z"
+    },
+    {
+      "slug": "crop-detail-pineapple",
+      "label": "Crop board detail — Pineapple from DEMO Farmer Dante Mabuhay",
+      "url": "http://127.0.0.1:8000/buyer/crop-board/35",
+      "time": "2026-09-13T20:13:47.070Z"
+    },
+    {
+      "slug": "negotiation-started-pineapple",
+      "label": "Negotiation room opened for Pineapple",
+      "url": "http://127.0.0.1:8000/negotiations/31",
+      "time": "2026-09-13T20:13:51.365Z"
+    },
+    {
+      "slug": "negotiation-message-pineapple",
+      "label": "DEMO Farmer Dante Mabuhay receives the coop team's first message — negotiation chat",
+      "url": "http://127.0.0.1:8000/negotiations/31",
+      "time": "2026-09-13T20:13:53.819Z"
+    },
+    {
+      "slug": "proposal-sent-pineapple",
+      "label": "Terms proposed for Pineapple: ₱35/kg, 250kg, haul ₱2.50/kg",
+      "url": "http://127.0.0.1:8000/negotiations/31",
+      "time": "2026-09-13T20:13:56.371Z"
+    },
+    {
+      "slug": "farmer-agree-pineapple",
+      "label": "DEMO Farmer Dante Mabuhay sees the agreed terms in the negotiation room",
+      "url": "http://127.0.0.1:8000/farmer/deals/31",
+      "time": "2026-09-13T20:14:10.768Z"
+    },
+    {
+      "slug": "farmer-agreed-pineapple",
+      "label": "DEMO Farmer Dante Mabuhay agreed to the coop's terms for Pineapple",
+      "url": "http://127.0.0.1:8000/farmer/deals/31",
+      "time": "2026-09-13T20:14:10.938Z"
+    },
+    {
+      "slug": "finalize-room-pineapple",
+      "label": "Coop logistics finalizes the deal for Pineapple",
+      "url": "http://127.0.0.1:8000/negotiations/31",
+      "time": "2026-09-13T20:14:14.694Z"
+    },
+    {
+      "slug": "deal-finalized-pineapple",
+      "label": "DONE DEAL — Pineapple locked at ₱35/kg, haul ₱2.50/kg",
+      "url": "http://127.0.0.1:8000/buyer/negotiations",
+      "time": "2026-09-13T20:14:21.418Z"
+    },
+    {
+      "slug": "route-map-trucks",
+      "label": "3 farms in the pickup queue, truck selected",
+      "url": "http://127.0.0.1:8000/route-optimization",
+      "time": "2026-09-13T20:14:27.528Z"
+    },
+    {
+      "slug": "plan-single-panel",
+      "label": "Route plan panel — one truck carries all 3 farms",
+      "url": "http://127.0.0.1:8000/route-optimization",
+      "time": "2026-09-13T20:14:29.897Z"
+    },
+    {
+      "slug": "route-proposals-created",
+      "label": "Route offer created for the single-truck route",
+      "url": "http://127.0.0.1:8000/route-optimization",
+      "time": "2026-09-13T20:14:31.848Z"
+    },
+    {
+      "slug": "farmer-proposal-mango",
+      "label": "Route Offer visible to DEMO Farmer Rosa Dizon for Mango",
+      "url": "http://127.0.0.1:8000/farmer/proposals",
+      "time": "2026-09-13T20:14:41.472Z"
+    },
+    {
+      "slug": "farmer-accepted-mango",
+      "label": "DEMO Farmer Rosa Dizon accepted the Route Offer",
+      "url": "http://127.0.0.1:8000/farmer/proposals",
+      "time": "2026-09-13T20:14:49.318Z"
+    },
+    {
+      "slug": "farmer-proposal-banana",
+      "label": "Route Offer visible to DEMO Farmer Jocelyn Ramos for Banana",
+      "url": "http://127.0.0.1:8000/farmer/proposals",
+      "time": "2026-09-13T20:15:00.950Z"
+    },
+    {
+      "slug": "farmer-accepted-banana",
+      "label": "DEMO Farmer Jocelyn Ramos accepted the Route Offer",
+      "url": "http://127.0.0.1:8000/farmer/proposals",
+      "time": "2026-09-13T20:15:08.823Z"
+    },
+    {
+      "slug": "farmer-proposal-pineapple",
+      "label": "Route Offer visible to DEMO Farmer Dante Mabuhay for Pineapple",
+      "url": "http://127.0.0.1:8000/farmer/proposals",
+      "time": "2026-09-13T20:15:20.616Z"
+    },
+    {
+      "slug": "farmer-accepted-pineapple",
+      "label": "DEMO Farmer Dante Mabuhay accepted the Route Offer",
+      "url": "http://127.0.0.1:8000/farmer/proposals",
+      "time": "2026-09-13T20:15:49.776Z"
+    },
+    {
+      "slug": "driver-dashboard-driver2",
+      "label": "Driver portal — driver2 has an inbound route waiting",
+      "url": "http://127.0.0.1:8000/driver",
+      "time": "2026-09-13T20:16:00.096Z"
+    },
+    {
+      "slug": "driver-job-detail-driver2",
+      "label": "Driver job detail — pickup sequence with each farm stop",
+      "url": "http://127.0.0.1:8000/driver/jobs/14",
+      "time": "2026-09-13T20:16:01.793Z"
+    },
+    {
+      "slug": "driver-accepted-driver2",
+      "label": "Driver driver2 accepted the inbound route",
+      "url": "http://127.0.0.1:8000/driver/jobs/14",
+      "time": "2026-09-13T20:16:06.553Z"
+    },
+    {
+      "slug": "trip-started-driver2",
+      "label": "Route In Transit — live GPS tracking active",
+      "url": "http://127.0.0.1:8000/driver/jobs/14",
+      "time": "2026-09-13T20:16:11.281Z"
+    },
+    {
+      "slug": "stop-1-arrived-driver2",
+      "label": "Stop 1 — truck arrives at the farm",
+      "url": "http://127.0.0.1:8000/driver/jobs/14",
+      "time": "2026-09-13T20:16:20.523Z"
+    },
+    {
+      "slug": "stop-1-loaded-driver2",
+      "label": "Stop 1 — cargo loaded with photo proof",
+      "url": "http://127.0.0.1:8000/driver/jobs/14",
+      "time": "2026-09-13T20:16:24.492Z"
+    },
+    {
+      "slug": "stop-1-delivered-driver2",
+      "label": "Stop 1 — crop delivered to the coop hub",
+      "url": "http://127.0.0.1:8000/driver/jobs/14",
+      "time": "2026-09-13T20:16:28.598Z"
+    },
+    {
+      "slug": "stop-2-arrived-driver2",
+      "label": "Stop 2 — truck arrives at the farm",
+      "url": "http://127.0.0.1:8000/driver/jobs/14",
+      "time": "2026-09-13T20:16:32.032Z"
+    },
+    {
+      "slug": "stop-2-loaded-driver2",
+      "label": "Stop 2 — cargo loaded with photo proof",
+      "url": "http://127.0.0.1:8000/driver/jobs/14",
+      "time": "2026-09-13T20:16:39.860Z"
+    },
+    {
+      "slug": "stop-2-delivered-driver2",
+      "label": "Stop 2 — crop delivered to the coop hub",
+      "url": "http://127.0.0.1:8000/driver/jobs/14",
+      "time": "2026-09-13T20:16:43.574Z"
+    },
+    {
+      "slug": "stop-3-arrived-driver2",
+      "label": "Stop 3 — truck arrives at the farm",
+      "url": "http://127.0.0.1:8000/driver/jobs/14",
+      "time": "2026-09-13T20:16:49.465Z"
+    },
+    {
+      "slug": "stop-3-loaded-driver2",
+      "label": "Stop 3 — cargo loaded with photo proof",
+      "url": "http://127.0.0.1:8000/driver/jobs/14",
+      "time": "2026-09-13T20:16:52.646Z"
+    },
+    {
+      "slug": "stop-3-delivered-driver2",
+      "label": "Stop 3 — crop delivered to the coop hub",
+      "url": "http://127.0.0.1:8000/driver/jobs/14",
+      "time": "2026-09-13T20:16:59.326Z"
+    },
+    {
+      "slug": "run-completed-driver2",
+      "label": "Inbound run completed — receipt confirmation pending",
+      "url": "http://127.0.0.1:8000/driver/jobs/14",
+      "time": "2026-09-13T20:17:19.259Z"
+    },
+    {
+      "slug": "buyer-tracking-awaiting",
+      "label": "1 route(s) awaiting coop receipt confirmation",
+      "url": "http://127.0.0.1:8000/buyer/tracking",
+      "time": "2026-09-13T20:17:22.206Z"
+    },
+    {
+      "slug": "receipts-confirmed",
+      "label": "Coop logistics confirmed receipt for every route — inbound leg complete",
+      "url": "http://127.0.0.1:8000/buyer/tracking",
+      "time": "2026-09-13T20:17:46.173Z"
+    },
+    {
+      "slug": "outbound-order-form",
+      "label": "3 crop line(s) for Robinsons Place General Santos",
+      "url": "http://127.0.0.1:8000/coop/outbound/create",
+      "time": "2026-09-13T20:17:54.507Z"
+    },
+    {
+      "slug": "outbound-order-saved",
+      "label": "Customer order saved (Drafted)",
+      "url": "http://127.0.0.1:8000/coop/outbound",
+      "time": "2026-09-13T20:17:59.804Z"
+    },
+    {
+      "slug": "order-drafted-dispatch",
+      "label": "Drafted customer order — Dispatch form (truck + driver + start point)",
+      "url": "http://127.0.0.1:8000/coop/outbound/7",
+      "time": "2026-09-13T20:18:03.808Z"
+    },
+    {
+      "slug": "order-dispatched-tracking-link",
+      "label": "Shipment dispatched — tracking link generated for the customer",
+      "url": "http://127.0.0.1:8000/coop/outbound/7",
+      "time": "2026-09-13T20:18:09.043Z"
+    },
+    {
+      "slug": "outbound-job-detail-driver",
+      "label": "Driver sees the customer delivery — Robinsons Place General Santos",
+      "url": "http://127.0.0.1:8000/driver/jobs/15",
+      "time": "2026-09-13T20:18:19.671Z"
+    },
+    {
+      "slug": "outbound-in-transit-driver",
+      "label": "Customer delivery In Transit — GPS tracking the truck to the store",
+      "url": "http://127.0.0.1:8000/driver/jobs/15",
+      "time": "2026-09-13T20:18:29.919Z"
+    },
+    {
+      "slug": "outbound-delivered-driver",
+      "label": "Driver marked the delivery at the customer location",
+      "url": "http://127.0.0.1:8000/driver/jobs/15",
+      "time": "2026-09-13T20:18:33.155Z"
+    },
+    {
+      "slug": "outbound-finalized-driver",
+      "label": "Driver finalized the trip — waiting for the customer to confirm receipt",
+      "url": "http://127.0.0.1:8000/driver/jobs/15",
+      "time": "2026-09-13T20:18:37.826Z"
+    },
+    {
+      "slug": "customer-track-page",
+      "label": "Customer tracking page — live truck position + delivery items for Robinsons Place",
+      "url": "http://127.0.0.1:8000/track-out/W8lbRP96edDc83av4LUOmdOgg2ICQvxk",
+      "time": "2026-09-13T20:18:40.495Z"
+    },
+    {
+      "slug": "customer-confirm-prompt",
+      "label": "Customer sees 'Arrived? Confirm Received' on arrival",
+      "url": "http://127.0.0.1:8000/track-out/W8lbRP96edDc83av4LUOmdOgg2ICQvxk",
+      "time": "2026-09-13T20:18:40.803Z"
+    },
+    {
+      "slug": "customer-confirmed-complete",
+      "label": "Order complete — the customer confirmed receipt",
+      "url": "http://127.0.0.1:8000/track-out/complete",
+      "time": "2026-09-13T20:18:46.544Z"
+    },
+    {
+      "slug": "coop-order-completed",
+      "label": "Coop logistics sees the customer order marked Completed",
+      "url": "http://127.0.0.1:8000/coop/outbound/7",
+      "time": "2026-09-13T20:18:50.151Z"
+    }
+  ],
+  "errors": [
+    "[lp] pageerror: Unexpected token '&'",
+    "[lp] pageerror: Unexpected token '&'",
+    "[lp] pageerror: Unexpected token '&'",
+    "[lp] pageerror: Unexpected token '&'",
+    "[lp] pageerror: Unexpected token '&'",
+    "[lp] pageerror: Unexpected token '&'",
+    "[farmer] pageerror: Cannot read properties of null (reading 'innerText')",
+    "[driver] http 429: http://127.0.0.1:8000/driver/tracking/store",
+    "[driver] console.error: Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+    "[driver] http 429: http://127.0.0.1:8000/driver/tracking/store",
+    "[driver] console.error: Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+    "[driver] http 429: http://127.0.0.1:8000/driver/tracking/store",
+    "[driver] console.error: Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+    "[driver] http 429: http://127.0.0.1:8000/driver/tracking/store",
+    "[driver] console.error: Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+    "[driver] http 429: http://127.0.0.1:8000/driver/tracking/store",
+    "[driver] console.error: Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+    "[driver] http 429: http://127.0.0.1:8000/driver/tracking/store",
+    "[driver] console.error: Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+    "[driver] http 429: http://127.0.0.1:8000/driver/tracking/store",
+    "[driver] console.error: Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+    "[driver] http 429: http://127.0.0.1:8000/driver/tracking/store",
+    "[driver] console.error: Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+  ],
+  "info": {
+    "harvestCount": 3,
+    "negotiationIds": {
+      "mango": 29,
+      "banana": 30,
+      "pineapple": 31
+    },
+    "jobIds": [
+      14
+    ],
+    "inboundDrivers": [
+      {
+        "jobId": "14",
+        "plate": "DEMO-IB-002",
+        "driverEmail": "demo.outbound.driver2@harvesthaul.app"
+      }
+    ],
+    "outboundOrderId": 7,
+    "trackingToken": "W8lbRP96edDc83av4LUOmdOgg2ICQvxk",
+    "trucksAtEnd": [
+      [
+        "DEMO-IB-001",
+        "available"
+      ],
+      [
+        "DEMO-IB-002",
+        "available"
+      ],
+      [
+        "DEMO-OB-001",
+        "available"
+      ]
+    ],
+    "orderStatus": "completed",
+    "trackingLink": "/track-out/W8lbRP96edDc83av4LUOmdOgg2ICQvxk"
+  },
+  "dest-mango": "DEMO Outbound Agri COOP (Cooperative Hub)",
+  "dest-banana": "DEMO Outbound Agri COOP (Cooperative Hub)",
+  "dest-pineapple": "DEMO Outbound Agri COOP (Cooperative Hub)",
+  "planAll-response": {
+    "overflow": false,
+    "plan_count": 1,
+    "total_farms": 3,
+    "selected_total": 3,
+    "unassigned": 0
+  },
+  "planAll-per-plan": [
+    {
+      "truck_name": "Isuzu Forward 3T",
+      "truck_id": 10,
+      "capacity": 3000,
+      "crops": [
+        "Banana (Cavendish) (undefined)",
+        "Mango (Carabao) (undefined)",
+        "Pineapple (MD2 Gold) (undefined)"
+      ],
+      "total_kg": 1000
+    }
+  ],
+  "confirm-single-response": {
+    "success": true,
+    "pooling_job_id": 14,
+    "message": "Pooling job confirmed. 3 farm(s) assigned."
+  },
+  "finishedAt": "2026-09-13T20:18:50.354Z",
+  "success": true
+}

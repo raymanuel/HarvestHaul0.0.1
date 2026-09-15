@@ -45,9 +45,9 @@
                 linkText="View Analytics"
             >
                 <div class="flex flex-wrap gap-1.5 mt-3">
-                    <span class="text-[9px] font-semibold text-text-muted bg-slate-100 dark:text-text-dark-muted dark:bg-dark-hover-bg border border-slate-200/60 dark:border-dark-border px-2 py-0.5 rounded-md">{{ $monthlyHarvests }} harvests</span>
-                    <span class="text-[9px] font-semibold text-text-muted bg-slate-100 dark:text-text-dark-muted dark:bg-dark-hover-bg border border-slate-200/60 dark:border-dark-border px-2 py-0.5 rounded-md">{{ $monthlyJobs }} jobs</span>
-                    <span class="text-[9px] font-semibold text-text-muted bg-slate-100 dark:text-text-dark-muted dark:bg-dark-hover-bg border border-slate-200/60 dark:border-dark-border px-2 py-0.5 rounded-md">{{ $monthlyDeals }} deals</span>
+                    <span class="text-[10px] font-semibold text-text-muted bg-slate-100 dark:text-text-dark-muted dark:bg-dark-hover-bg border border-slate-200/60 dark:border-dark-border px-2 py-0.5 rounded-md">{{ $monthlyHarvests }} harvests</span>
+                    <span class="text-[10px] font-semibold text-text-muted bg-slate-100 dark:text-text-dark-muted dark:bg-dark-hover-bg border border-slate-200/60 dark:border-dark-border px-2 py-0.5 rounded-md">{{ $monthlyJobs }} jobs</span>
+                    <span class="text-[10px] font-semibold text-text-muted bg-slate-100 dark:text-text-dark-muted dark:bg-dark-hover-bg border border-slate-200/60 dark:border-dark-border px-2 py-0.5 rounded-md">{{ $monthlyDeals }} deals</span>
                 </div>
             </x-stat-card>
         </div>
@@ -57,7 +57,7 @@
             <a href="{{ route('admin.audit-logs') }}" class="text-brand dark:text-gold-light font-bold text-xs hover:underline transition inline-flex items-center gap-1">View all <span aria-hidden="true">→</span></a>
         </div>
 
-        <div class="bg-surface-card dark:bg-surface-card-dark border border-slate-200/60 dark:border-dark-border rounded-3xl shadow-sm overflow-hidden mb-10">
+        <div class="bg-surface-card dark:bg-surface-card-dark border border-slate-200/60 dark:border-dark-border rounded-2xl shadow-sm overflow-hidden mb-10">
             @if($recentLogs->isEmpty())
                 <div class="p-12 text-center">
                     <svg class="w-10 h-10 text-slate-200 dark:text-slate-700 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
@@ -79,7 +79,7 @@
                             @foreach($recentLogs as $log)
                             <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-900/40 transition">
                                 <td class="px-4 py-3 whitespace-nowrap">
-                                    <span class="bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-400 text-[9px] font-extrabold px-2.5 py-1 rounded-md uppercase tracking-wider">
+                                    <span class="bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-400 text-[10px] font-extrabold px-2.5 py-1 rounded-md uppercase tracking-wider">
                                         {{ ucwords(str_replace('_', ' ', $log->action)) }}
                                     </span>
                                 </td>
@@ -91,7 +91,7 @@
                                 <td class="px-4 py-3 text-slate-500 dark:text-slate-400 text-xs font-semibold max-w-[240px] truncate leading-normal">{{ $log->notes ?? '—' }}</td>
                                 <td class="px-4 py-3 whitespace-nowrap">
                                     <div class="flex items-center gap-2">
-                                        <div class="w-6 h-6 rounded-md bg-gradient-to-tr from-slate-100 to-slate-50 dark:from-slate-700 dark:to-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-[9px] font-extrabold text-slate-600 dark:text-slate-300 uppercase">{{ substr($log->admin->name ?? '—', 0, 2) }}</div>
+                                        <div class="w-6 h-6 rounded-md bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-[10px] font-extrabold text-slate-600 dark:text-slate-300 uppercase">{{ substr($log->admin->name ?? '—', 0, 2) }}</div>
                                         <span class="font-bold text-slate-800 dark:text-slate-200 text-xs">{{ $log->admin->name ?? '—' }}</span>
                                     </div>
                                 </td>

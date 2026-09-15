@@ -4,7 +4,7 @@
     <header class="pt-8 mb-8">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-                <h1 class="text-2xl font-extrabold text-slate-800 dark:text-white heading-font tracking-tight">Farmer Verification</h1>
+                <h1 class="text-2xl font-bold text-slate-800 dark:text-white heading-font tracking-tight">Farmer Verification</h1>
             </div>
             <span class="text-[10px] font-bold uppercase tracking-widest text-[var(--color-warning-text)] bg-[var(--color-warning-bg)] px-3 py-1.5 rounded-md border border-[var(--color-warning-border)] self-start">{{ $farmers->count() }} Farmers</span>
         </div>
@@ -35,7 +35,7 @@
         <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-900/40 transition">
             <td class="px-4 py-3">
                 <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-md bg-gradient-to-tr from-[#16283C]/15 to-[#16283C]/10 dark:from-[#16283C]/10 dark:to-[#16283C]/5 border border-[#16283C]/20 dark:border-[#16283C]/15 flex items-center justify-center text-[10px] font-extrabold text-[#16283C] dark:text-[#D7BC7A] uppercase">{{ substr($farmer->name, 0, 2) }}</div>
+                    <div class="w-8 h-8 rounded-md bg-[#16283C]/10 dark:bg-[#16283C]/10 border border-[#16283C]/20 dark:border-[#16283C]/15 flex items-center justify-center text-[10px] font-extrabold text-[#16283C] dark:text-[#D7BC7A] uppercase">{{ substr($farmer->name, 0, 2) }}</div>
                     <span class="font-bold text-slate-800 dark:text-slate-200 text-sm">{{ $farmer->name }}</span>
                 </div>
             </td>

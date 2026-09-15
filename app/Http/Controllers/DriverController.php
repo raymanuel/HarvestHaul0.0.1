@@ -550,7 +550,7 @@ class DriverController extends Controller
 
         $order = $poolingJob->outboundOrder;
         if (!$order) {
-            return back()->with('error', 'No outbound order for this job.');
+            return back()->with('error', 'No customer order for this job.');
         }
 
         if ($order->delivered_at) {

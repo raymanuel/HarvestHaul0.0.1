@@ -9,7 +9,7 @@
             <span class="text-xl font-bold tracking-tight text-brand-700 dark:text-brand-light heading-font">HarvestHaul</span>
         </a>
 
-        <h1 class="text-3xl font-extrabold tracking-tight text-slate-800 heading-font">Join the Dispatch Network</h1>
+        <h1 class="text-2xl font-bold tracking-tight text-slate-800 heading-font">Join the Dispatch Network</h1>
         <p class="text-xs text-slate-500 mt-2 font-semibold">Select your operational workspace role to begin onboarding</p>
     </div>
 
@@ -18,8 +18,8 @@
 
         <!-- Farmer card -->
         <a href="{{ route('register.role', 'farmer') }}"
-           class="flex flex-col items-center p-6 bg-white border border-[#16283C]/10 hover:border-[#16283C]/30 rounded-3xl shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 no-underline text-center group">
-            <div class="w-14 h-14 rounded-2xl bg-[#EEF0EB] flex items-center justify-center text-[#16283C] mb-6 group-hover:scale-110 group-hover:bg-[#16283C] group-hover:text-white transition-all duration-300">
+           class="flex flex-col items-center p-6 bg-white border border-[#16283C]/10 hover:border-[#16283C]/30 rounded-2xl shadow-sm no-underline text-center group transition-colors duration-300">
+            <div class="w-14 h-14 rounded-2xl bg-[#EEF0EB] flex items-center justify-center text-[#16283C] mb-6 group-hover:bg-[#16283C] group-hover:text-white transition-colors duration-300">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 10a4 4 0 00-4-4H4v4a4 4 0 004 4h4z" />
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 10a4 4 0 014-4h4v4a4 4 0 01-4 4h-4z" />
@@ -37,8 +37,8 @@
 
         <!-- Logistics card -->
         <a href="{{ route('register.role', 'logistics_partner') }}"
-           class="flex flex-col items-center p-6 bg-white border border-[#16283C]/10 hover:border-[#0E1620]/30 rounded-3xl shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 no-underline text-center group">
-            <div class="w-14 h-14 rounded-2xl bg-[#EEF0EB] flex items-center justify-center text-[#0E1620] mb-6 group-hover:scale-110 group-hover:bg-[#0E1620] group-hover:text-white transition-all duration-300">
+           class="flex flex-col items-center p-6 bg-white border border-[#16283C]/10 hover:border-[#0E1620]/30 rounded-2xl shadow-sm no-underline text-center group transition-colors duration-300">
+            <div class="w-14 h-14 rounded-2xl bg-[#EEF0EB] flex items-center justify-center text-[#0E1620] mb-6 group-hover:bg-[#0E1620] group-hover:text-white transition-colors duration-300">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" />
                     <path stroke-linecap="round" stroke-linejoin="round" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1" />
@@ -58,8 +58,8 @@
 
         <!-- Buyer card -->
         <a href="{{ route('register.role', 'buyer') }}"
-           class="flex flex-col items-center p-6 bg-white border border-[#16283C]/10 hover:border-[#16283C]/30 rounded-3xl shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 no-underline text-center group">
-            <div class="w-14 h-14 rounded-2xl bg-[#EEF0EB] flex items-center justify-center text-[#16283C] mb-6 group-hover:scale-110 group-hover:bg-[#16283C] group-hover:text-white transition-all duration-300">
+           class="flex flex-col items-center p-6 bg-white border border-[#16283C]/10 hover:border-[#16283C]/30 rounded-2xl shadow-sm no-underline text-center group transition-colors duration-300">
+            <div class="w-14 h-14 rounded-2xl bg-[#EEF0EB] flex items-center justify-center text-[#16283C] mb-6 group-hover:bg-[#16283C] group-hover:text-white transition-colors duration-300">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                 </svg>

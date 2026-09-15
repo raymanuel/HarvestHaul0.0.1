@@ -20,9 +20,6 @@
                         Transport Capacity
                     </h1>
                 </div>
-                <span class="text-xs font-semibold uppercase tracking-wider text-[#0E1620] dark:text-[#E9EEF4] bg-[#0E1620]/10 dark:bg-[#0E1620]/10 px-3 py-1.5 rounded-md border border-[#0E1620]/10 dark:border-[#0E1620]/20 self-start">
-                    Transport Capacity
-                </span>
             </div>
         </header>
 
@@ -41,9 +38,7 @@
             };
         @endphp
 
-        <div class="bg-gradient-to-br from-slate-800 to-slate-900 dark:from-slate-900 dark:to-slate-950 border border-slate-700/80 rounded-2xl p-6 sm:p-8 shadow-lg mb-8 relative overflow-hidden">
-            {{-- Decorative bg --}}
-            <div class="absolute inset-0 opacity-5 pointer-events-none" style="background-image: radial-gradient(circle at 80% 50%, #16283C 0%, transparent 60%)"></div>
+        <div class="bg-[#16283C] border border-slate-700/80 rounded-2xl p-6 sm:p-8 shadow-lg mb-8 relative overflow-hidden">
 
             <div class="relative grid grid-cols-1 sm:grid-cols-3 gap-6 items-center">
                 {{-- Trucks needed --}}

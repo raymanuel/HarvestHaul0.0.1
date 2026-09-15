@@ -4,9 +4,8 @@
     <header class="pt-8 mb-8">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-                <h1 class="text-2xl font-extrabold text-slate-800 dark:text-white heading-font tracking-tight">Route Pricing</h1>
+                <h1 class="text-2xl font-bold text-slate-800 dark:text-white heading-font tracking-tight">Route Pricing</h1>
             </div>
-            <span class="text-[10px] font-bold uppercase tracking-widest text-harvest-dark dark:text-harvest-light bg-harvest/10 dark:bg-harvest/20 px-3 py-1.5 rounded-md border border-harvest/10 dark:border-harvest/20 self-start">Settings</span>
         </div>
     </header>
 
@@ -14,7 +13,7 @@
 
     {{-- Rate Setting --}}
     <div class="bg-white dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700/80 rounded-2xl shadow-sm p-6 mb-6">
-        <h2 class="text-sm font-extrabold text-slate-800 dark:text-slate-200 mb-1">Default Hauling Rate</h2>
+        <h2 class="text-sm font-bold text-slate-800 dark:text-slate-200 mb-1">Default Hauling Rate</h2>
         <p class="text-xs text-slate-500 dark:text-slate-400 mb-5">This rate pre-fills the hauling rate input on the Route Planning page. You can override it per route.</p>
 
         <form method="POST" action="{{ route('profile.route-pricing.update') }}">
@@ -43,7 +42,7 @@
 
     {{-- NFA Reference Rates --}}
     <div class="bg-white dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700/80 rounded-2xl shadow-sm p-6 mb-6">
-        <h2 class="text-sm font-extrabold text-slate-800 dark:text-slate-200 mb-1">NFA Approved Hauling Rates</h2>
+        <h2 class="text-sm font-bold text-slate-800 dark:text-slate-200 mb-1">NFA Approved Hauling Rates</h2>
         <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">The National Food Authority publishes approved hauling rate schedules used in government grain transport contracts. These serve as industry benchmarks for setting your own rates.</p>
 
         {{-- Region VIII --}}
@@ -141,7 +140,7 @@
 
     {{-- Conversion Note --}}
     <div class="bg-white dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700/80 rounded-2xl shadow-sm p-6">
-        <h2 class="text-sm font-extrabold text-slate-800 dark:text-slate-200 mb-2">Understanding the Rates</h2>
+        <h2 class="text-sm font-bold text-slate-800 dark:text-slate-200 mb-2">Understanding the Rates</h2>
         <div class="space-y-3 text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
             <p>The NFA rates above are expressed in <span class="font-bold">P/MT/km</span> (pesos per metric ton per kilometer). To convert to a per-kg flat rate for HarvestHaul:</p>
             <div class="p-3 bg-slate-50 dark:bg-slate-900/60 rounded-xl border border-slate-100 dark:border-slate-800 font-mono text-slate-700 dark:text-slate-300">

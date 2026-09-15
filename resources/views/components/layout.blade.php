@@ -61,10 +61,10 @@
         }
 
         /* Topbar left offset matches sidebar width */
-        .top-navbar { left: 16rem; right: 0; }
+        .top-navbar { left: 15rem; right: 0; }
         #main-content > main { padding-top: 2rem; }
         @media (min-width: 1024px) {
-            #main-content > main { padding-top: 5rem; }
+            #main-content > main { padding-top: 3rem; }
         }
 
         /* Sidebar collapse: hide text labels.
@@ -95,6 +95,7 @@
             padding-left: 0;
             padding-right: 0;
         }
+        .sidebar-collapsed .nav-link .flex { gap: 0 !important; }
         /* Collapsed: show first-letter badges; expanded: hide */
         .sidebar-collapsed .nav-letter { display: flex !important; }
         #sidebar-nav:not(.sidebar-collapsed) .nav-letter { display: none !important; }
@@ -142,7 +143,7 @@
         /* Collapse toggle */
         .collapse-toggle { transition: transform 0.25s; }
         .sidebar-collapsed .collapse-toggle { transform: rotate(180deg); }
-        .sidebar-collapsed [data-submenu-panel] { padding-left: 0; }
+        .sidebar-collapsed [data-submenu-panel] { display: none !important; }
 
         /* Focus-visible: gold on dark sidebar, navy on light surfaces */
         .nav-link:focus-visible,
@@ -175,29 +176,29 @@
         html.dark #top-navbar p { color: #ffffff; }
 
         /* Ghost buttons — light mode (bumped opacity for 4.5:1+ contrast) */
-        #top-navbar #notifications-menu > button {
+        #top-navbar #notifications-menu-header > button {
             background: var(--color-ghost-btn-bg);
             border-color: var(--color-ghost-btn-border);
             color: var(--color-ghost-btn-text);
         }
-        #top-navbar #notifications-menu > button:hover {
+        #top-navbar #notifications-menu-header > button:hover {
             background: var(--color-ghost-btn-bg-hover);
             color: var(--color-text);
         }
-        #top-navbar #notifications-menu #notification-badge {
+        #top-navbar #notifications-menu-header #notification-badge-header {
             border-color: var(--color-soil-light);
         }
         /* Ghost buttons — dark mode */
-        html.dark #top-navbar #notifications-menu > button {
+        html.dark #top-navbar #notifications-menu-header > button {
             background: var(--color-ghost-btn-bg-dark);
             border-color: var(--color-ghost-btn-border-dark);
             color: var(--color-ghost-btn-text-dark);
         }
-        html.dark #top-navbar #notifications-menu > button:hover {
+        html.dark #top-navbar #notifications-menu-header > button:hover {
             background: var(--color-ghost-btn-bg-dark-hover);
             color: #ffffff;
         }
-        html.dark #top-navbar #notifications-menu #notification-badge {
+        html.dark #top-navbar #notifications-menu-header #notification-badge-header {
             border-color: var(--color-surface-card-dark);
         }
 
@@ -272,17 +273,17 @@
     </a>
 
     <!-- Mobile Top Header -->
-    <header class="lg:hidden sticky top-0 z-50 bg-[var(--color-surface)] dark:bg-[var(--color-surface-card-dark)] text-slate-900 dark:text-white px-5 py-4 flex justify-between items-center border-b border-slate-900/10 dark:border-black/20 shadow-md">
+    <header class="lg:hidden sticky top-0 z-50 bg-[var(--color-surface)] dark:bg-[var(--color-surface-card-dark)] text-slate-900 dark:text-white px-5 py-1.5 flex justify-between items-center border-b border-slate-900/10 dark:border-black/20 shadow-md">
         <a href="/dashboard" class="flex items-center gap-2 group">
             <div class="w-8 h-8 rounded-md bg-white border border-slate-200 flex items-center justify-center">
                         <x-brand-logo class="w-5 h-5 text-[var(--color-brand-green)]" />
             </div>
-            <span class="text-lg font-bold tracking-tight heading-font text-brand dark:text-white">HarvestHaul</span>
+            <span class="text-base font-bold tracking-tight heading-font text-brand dark:text-white">HarvestHaul</span>
         </a>
         <div class="flex items-center gap-2">
-            <x-notification-dropdown />
+            <x-notification-dropdown instance="mobile" />
             <button id="mobile-menu-btn" onclick="toggleMobileSidebar()" aria-controls="sidebar-nav" aria-expanded="false" class="p-2 bg-slate-900/5 hover:bg-slate-900/10 rounded-xl text-slate-700 dark:bg-white/10 dark:hover:bg-white/20 dark:text-white transition" aria-label="Open Navigation Menu">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
                 </svg>
             </button>
@@ -293,15 +294,15 @@
         <!-- Overlay Backdrop for Mobile Navigation -->
         <div id="sidebar-overlay" onclick="toggleMobileSidebar()" class="hidden fixed inset-0 bg-slate-950/40 backdrop-blur-sm z-30 opacity-0 transition-opacity duration-300"></div>
         <!-- Sidebar Navigation Drawer (Collapsible) -->
-        <aside id="sidebar-nav" aria-label="Sidebar" class="fixed inset-y-0 left-0 z-40 w-64 bg-[var(--color-brand-dark)] text-slate-300 border-r border-[var(--color-dark-border)] flex flex-col justify-between transform -translate-x-full lg:translate-x-0 shadow-2xl lg:shadow-none transition-transform duration-300 ease-out">
+        <aside id="sidebar-nav" aria-label="Sidebar" class="fixed inset-y-0 left-0 z-40 w-60 bg-[var(--color-brand-dark)] text-slate-300 border-r border-[var(--color-dark-border)] flex flex-col justify-between transform -translate-x-full lg:translate-x-0 shadow-2xl lg:shadow-none transition-transform duration-300 ease-out">
             
             <!-- Sidebar Header & Logo -->
-            <div class="px-5 py-5 border-b border-[var(--color-dark-border)] shrink-0 flex items-center logo-container">
-                <a href="/dashboard" class="flex items-center gap-3 group logo-link">
-                    <div class="w-9 h-9 rounded-xl bg-white border border-slate-200 flex items-center justify-center shadow-md shrink-0">
-                <x-brand-logo class="w-5 h-5 text-[var(--color-brand-green)]" />
+            <div class="px-4 h-12 border-b border-[var(--color-dark-border)] shrink-0 flex items-center logo-container">
+                <a href="/dashboard" class="flex items-center gap-2.5 group logo-link">
+                    <div class="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center shadow-md shrink-0">
+                <x-brand-logo class="w-4 h-4 text-[var(--color-brand-green)]" />
                     </div>
-                    <span class="text-xl font-bold tracking-tight text-white heading-font logo-text">HarvestHaul</span>
+                    <span class="text-lg font-bold tracking-tight text-white heading-font logo-text">HarvestHaul</span>
                 </a>
             </div>
 
@@ -310,37 +311,34 @@
 
         </aside>
         <!-- Main Display Content Shell Wrapper (Offset on desktop) -->
-        <div id="main-content" tabindex="-1" class="main-wrapper flex-1 lg:pl-64 min-w-0 flex flex-col min-h-screen outline-none">
+        <div id="main-content" tabindex="-1" class="main-wrapper flex-1 lg:pl-60 min-w-0 flex flex-col min-h-screen outline-none">
             <!-- Horizontal Desktop Navbar -->
-            <nav id="top-navbar" class="top-navbar hidden lg:flex fixed top-0 z-30 h-20 bg-[var(--color-surface)] border-b border-slate-900/5 px-8 items-center justify-between shadow-sm dark:bg-[var(--color-surface-card-dark)] dark:border-black/20">
+            <nav id="top-navbar" class="top-navbar hidden lg:flex fixed top-0 z-30 h-12 bg-[var(--color-surface)] border-b border-slate-900/5 px-5 items-center justify-between shadow-sm dark:bg-[var(--color-surface-card-dark)] dark:border-black/20">
                 <!-- Left side: collapse toggle + portal indicator -->
-                <div class="flex items-center gap-4">
+                <div class="flex items-center gap-3">
                     <!-- Topbar collapse toggle -->
-                    <button onclick="toggleSidebarCollapse()" class="w-9 h-9 rounded-xl bg-slate-900/5 border border-slate-900/10 flex items-center justify-center text-slate-600 hover:text-slate-900 hover:bg-slate-900/10 transition dark:bg-white/10 dark:border-white/15 dark:text-white/80 dark:hover:text-white dark:hover:bg-white/20" aria-label="Toggle sidebar">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <button onclick="toggleSidebarCollapse()" class="w-8 h-8 rounded-lg bg-slate-900/5 flex items-center justify-center text-slate-600 hover:text-slate-900 hover:bg-slate-900/10 transition dark:bg-white/10 dark:text-white/80 dark:hover:text-white dark:hover:bg-white/20" aria-label="Toggle sidebar">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
                         </svg>
                     </button>
-                    <div>
-                        <span class="text-xs font-bold uppercase tracking-wider text-brand dark:text-brand-light">HarvestHaul</span>
-                        <h2 class="text-sm font-bold text-slate-900 mt-0.5"><span class="{{ Auth::user()->role === 'buyer' ? 'text-harvest-dark dark:text-harvest-light' : 'text-slate-700 dark:text-white' }} uppercase font-black">{{ ['admin' => 'Administrator', 'farmer' => 'Farmer', 'buyer' => 'Buyer', 'logistics_partner' => 'Logistics Partner', 'driver' => 'Driver'][Auth::user()->role] ?? Auth::user()->role }}</span></h2>
-                    </div>
+                    <h2 class="text-sm font-bold text-slate-900 leading-none"><span class="{{ Auth::user()->role === 'buyer' ? 'text-harvest-dark dark:text-harvest-light' : 'text-slate-700 dark:text-white' }} uppercase font-black">{{ ['admin' => 'Administrator', 'farmer' => 'Farmer', 'buyer' => 'Buyer', 'logistics_partner' => 'Logistics Partner', 'driver' => 'Driver'][Auth::user()->role] ?? Auth::user()->role }}</span></h2>
                 </div>
 
                 <!-- User profile and avatar menu -->
                 <div class="flex items-center gap-4 select-none">
                     <!-- Notifications Dropdown -->
-                    <x-notification-dropdown />
+                    <x-notification-dropdown instance="header" />
 
                     <!-- Dark Mode Toggle (Admin, Farmer, Logistics & Buyer) -->
                     @if(Auth::check() && (Auth::user()->role === 'admin' || Auth::user()->role === 'farmer' || Auth::user()->role === 'logistics_partner' || Auth::user()->role === 'buyer'))
-                        <button onclick="toggleDarkMode()" class="w-10 h-10 rounded-xl bg-slate-900/5 border border-slate-900/10 flex items-center justify-center text-slate-600 hover:text-slate-900 hover:bg-slate-900/10 transition cursor-pointer dark:bg-white/10 dark:border-white/15 dark:text-white/80 dark:hover:text-white dark:hover:bg-white/20" title="Toggle dark mode" aria-label="Toggle dark mode">
+                        <button onclick="toggleDarkMode()" class="w-8 h-8 rounded-lg bg-slate-900/5 flex items-center justify-center text-slate-600 hover:text-slate-900 hover:bg-slate-900/10 transition cursor-pointer dark:bg-white/10 dark:text-white/80 dark:hover:text-white dark:hover:bg-white/20" title="Toggle dark mode" aria-label="Toggle dark mode">
                             <!-- Moon Icon (shown in light mode) -->
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 block dark:hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 block dark:hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
                             </svg>
                             <!-- Sun Icon (shown in dark mode) -->
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 hidden dark:block" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 hidden dark:block" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m12.728 12.728l.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
                             </svg>
                         </button>
@@ -348,8 +346,8 @@
 
                     <!-- Profile Menu Dropdown -->
                     <div class="relative" id="profile-menu">
-                        <button onclick="toggleProfileDropdown()" class="flex items-center gap-3.5 pl-5 border-l border-slate-900/15 hover:opacity-90 transition cursor-pointer focus:outline-none text-left dark:border-white/15" aria-haspopup="true" aria-expanded="false" id="profile-menu-btn">
-                            <div class="w-10 h-10 rounded-xl bg-slate-900/5 border border-slate-900/10 flex items-center justify-center text-slate-700 font-extrabold uppercase text-sm select-none dark:bg-white/10 dark:border-white/15 dark:text-white">
+                        <button onclick="toggleProfileDropdown()" class="flex items-center gap-3 pl-5 border-l border-slate-900/15 hover:opacity-90 transition cursor-pointer focus:outline-none text-left dark:border-white/15" aria-haspopup="true" aria-expanded="false" id="profile-menu-btn">
+                            <div class="w-8 h-8 rounded-lg bg-slate-900/5 border border-slate-900/10 flex items-center justify-center text-slate-700 font-extrabold uppercase text-xs select-none dark:bg-white/10 dark:border-white/15 dark:text-white">
                                 {{ substr(Auth::user()->name, 0, 2) }}
                             </div>
                             <div class="hidden sm:block">
@@ -359,7 +357,6 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
                                     </svg>
                                 </p>
-                                <p class="text-[10px] text-slate-500 font-semibold mt-1 dark:text-white/60">{{ Auth::user()->email }}</p>
                             </div>
                         </button>
 
@@ -397,7 +394,7 @@
                             @endif
                             <form method="POST" action="{{ route('logout') }}" class="w-full" id="logout-form">
                                 @csrf
-                                <button type="button" onclick="swalConfirm(document.getElementById('logout-form'), {title:'Sign Out', text:'Are you sure you want to sign out?', icon:'question', confirmText:'Yes, sign out', cancelText:'Cancel', confirmColor:'#ef4444'})" class="cursor-pointer w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold text-[var(--color-error-text)] hover:bg-[var(--color-error-bg)] transition-all duration-200 active:scale-[0.97] text-left">
+                                <button type="button" onclick="swalConfirm(document.getElementById('logout-form'), {title:'Sign Out', text:'Are you sure you want to sign out?', icon:'question', confirmText:'Yes, sign out', cancelText:'Cancel', confirmColor:'#ef4444'})" class="cursor-pointer w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold text-[var(--color-error-text)] hover:bg-[var(--color-error-bg)] transition-all duration-200 text-left">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 shrink-0 text-[var(--color-error-text)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                                     </svg>
@@ -577,12 +574,6 @@
         function toggleDarkMode() {
             var isDark = document.documentElement.classList.toggle('dark');
             localStorage.setItem('theme', isDark ? 'dark' : 'light');
-        }
-
-        // Notifications Dropdown Toggle
-        function toggleNotificationsDropdown() {
-            var dropdown = document.getElementById('notifications-dropdown');
-            dropdown.classList.toggle('hidden');
         }
 
         // Profile Dropdown Toggle

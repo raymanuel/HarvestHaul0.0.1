@@ -7,7 +7,7 @@
         </a>
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-                <h1 class="text-3xl font-bold text-slate-900 dark:text-white tracking-tight heading-font">My Posts</h1>
+                <h1 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight heading-font">My Posts</h1>
             </div>
 
             @if (Auth::user()->farmerProfile?->is_verified)
@@ -95,7 +95,7 @@
                             </td>
                             <td class="px-6 py-4 text-slate-600 dark:text-slate-400 font-semibold">{{ number_format($harvest->quantity_kg, 2) }} kg
                                 @if($harvest->remaining_quantity_kg && (float)$harvest->remaining_quantity_kg < (float)$harvest->quantity_kg)
-                                    <span class="text-[9px] text-[var(--color-warning-text)] block">({{ number_format($harvest->remaining_quantity_kg, 2) }} kg remaining)</span>
+                                    <span class="text-[10px] text-[var(--color-warning-text)] block">({{ number_format($harvest->remaining_quantity_kg, 2) }} kg remaining)</span>
                                 @endif
                             </td>
                             <td class="px-6 py-4 text-slate-500 dark:text-slate-400 text-xs font-medium">
@@ -132,7 +132,7 @@
                                             @method('DELETE')
                                             <button type="button"
                                                 onclick="swalConfirm(this.closest('form'), {title: 'Remove Post?', text: 'This post will no longer appear on the crop board.', confirmText: 'Yes, remove', icon: 'warning', confirmColor: '#ef4444'})"
-                                                class="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100 dark:bg-rose-950/20 dark:hover:bg-rose-950/40 dark:text-rose-400 transition active:scale-[0.95]"
+                                                class="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100 dark:bg-rose-950/20 dark:hover:bg-rose-950/40 dark:text-rose-400 transition"
                                                 title="Remove Harvest">
                                                 <x-icon name="trash" class="w-4 h-4" />
                                             </button>
@@ -143,7 +143,7 @@
                                             @csrf
                                             <button type="button"
                                                 onclick="swalConfirm(this.closest('form'), {title: 'Mark as Sold?', text: 'This harvest was sold outside the platform. It will be hidden from buyers and shown to logistics partners.', confirmText: 'Yes, mark as sold', icon: 'info', confirmColor: '#16283C'})"
-                                                class="inline-flex items-center gap-1 text-[10px] font-bold text-[#16283C] dark:text-[#D7BC7A] bg-brand/10 hover:bg-brand/15 dark:bg-gold-light/10 dark:hover:bg-gold-light/15 px-2.5 py-1.5 rounded-md transition active:scale-[0.97]"
+                                                class="inline-flex items-center gap-1 text-[10px] font-bold text-[#16283C] dark:text-[#D7BC7A] bg-brand/10 hover:bg-brand/15 dark:bg-gold-light/10 dark:hover:bg-gold-light/15 px-2.5 py-1.5 rounded-md transition"
                                                 title="Mark as Sold">
                                                 <x-icon name="check" class="w-3.5 h-3.5" />
                                                 Sold
@@ -153,7 +153,7 @@
                                     @if($canCreateHaulRequest)
                                         <button type="button"
                                             onclick="showCreateHaulRequest({{ $harvest->id }}, '{{ $harvest->crop->name ?? $harvest->crop_type }}')"
-                                            class="inline-flex items-center gap-1 text-[10px] font-bold text-purple-700 dark:text-purple-400 bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/20 dark:hover:bg-purple-950/40 px-2.5 py-1.5 rounded-xl transition active:scale-[0.97]"
+                                            class="inline-flex items-center gap-1 text-[10px] font-bold text-purple-700 dark:text-purple-400 bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/20 dark:hover:bg-purple-950/40 px-2.5 py-1.5 rounded-xl transition"
                                             title="Request Haul">
                                             <x-icon name="truck" class="w-3.5 h-3.5" />
                                             Request Haul

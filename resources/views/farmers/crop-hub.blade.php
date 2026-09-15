@@ -21,7 +21,7 @@
     {{-- Crop Header --}}
     <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-8">
         <div>
-            <h1 class="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight heading-font">
+            <h1 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight heading-font">
                 {{ $cropName }}@if($variety)<span class="text-sm font-semibold text-slate-500 dark:text-slate-400"> · {{ $variety }}</span>@endif
             </h1>
             <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1 font-semibold">
@@ -38,7 +38,7 @@
             <h4 class="text-[10px] font-bold text-slate-400 dark:text-slate-600 uppercase tracking-wider">Quantity</h4>
             <p class="text-lg font-extrabold text-slate-800 dark:text-white mt-1">{{ number_format($harvest->quantity_kg, 2) }} <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">kg</span></p>
             @if($harvest->remaining_quantity_kg && (float)$harvest->remaining_quantity_kg < (float)$harvest->quantity_kg)
-                <p class="text-[9px] text-[var(--color-warning-text)] font-bold mt-0.5">{{ number_format($harvest->remaining_quantity_kg, 2) }} kg remaining</p>
+                <p class="text-[10px] text-[var(--color-warning-text)] font-bold mt-0.5">{{ number_format($harvest->remaining_quantity_kg, 2) }} kg remaining</p>
             @endif
         </div>
         <div class="bg-white dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700/80 rounded-2xl p-4 shadow-sm">
@@ -87,7 +87,7 @@
                             : 'bg-slate-100 dark:bg-slate-700 border-slate-200 dark:border-slate-600 text-slate-400 dark:text-slate-500' }}">
                         <x-icon :name="$step['icon']" class="w-4 h-4" />
                     </div>
-                    <p class="text-[9px] font-bold mt-1.5 text-center leading-tight
+                    <p class="text-[10px] font-bold mt-1.5 text-center leading-tight
                         {{ $isCurrent ? 'text-[#16283C] dark:text-[#D7BC7A]' : ($isActive ? 'text-slate-600 dark:text-slate-300' : 'text-slate-400 dark:text-slate-600') }}">
                         {{ $step['label'] }}
                     </p>
@@ -195,8 +195,8 @@
     @elseif($status === 'active' && !$activeNegotiation)
         {{-- Waiting for buyer --}}
         <div class="bg-slate-50 dark:bg-slate-900/40 border border-dashed border-slate-300 dark:border-slate-700/80 rounded-2xl p-8 text-center mb-6">
-            <div class="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center mx-auto mb-3">
-                <x-icon name="seedling" class="w-6 h-6 text-slate-300 dark:text-slate-600" />
+            <div class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center mx-auto mb-3">
+                <x-icon name="seedling" class="w-5 h-5 text-slate-300 dark:text-slate-600" />
             </div>
             <p class="text-sm font-bold text-slate-600 dark:text-slate-400 heading-font">Waiting for buyers</p>
             <p class="text-xs text-slate-500 dark:text-slate-500 mt-1 max-w-sm mx-auto">Your crop is listed on the board. Buyers will reach out to start a negotiation.</p>
@@ -241,7 +241,7 @@
                                 @if($neg->last_activity_at) · Last activity {{ $neg->last_activity_at->diffForHumans() }}@endif
                             </p>
                         </div>
-                        <span class="text-[9px] font-extrabold uppercase tracking-widest px-2 py-0.5 rounded border {{ $negStatusClass }} shrink-0">
+                        <span class="text-[10px] font-extrabold uppercase tracking-widest px-2 py-0.5 rounded border {{ $negStatusClass }} shrink-0">
                             {{ $negStatus }}
                         </span>
                     </a>

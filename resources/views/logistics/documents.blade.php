@@ -6,8 +6,7 @@
             <a href="{{ route('dashboard') }}" class="text-sm text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 mb-4 inline-block font-semibold transition">
                 ← Back to Dashboard
             </a>
-            <span class="text-xs font-bold uppercase tracking-wider text-[var(--color-info-text)] bg-[var(--color-info-bg)] px-3 py-1.5 rounded-md border border-[var(--color-info-border)] inline-block mb-2">Document Vault</span>
-            <h1 class="text-3xl font-bold text-slate-900 dark:text-white tracking-tight heading-font">My Business Documents</h1>
+            <h1 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight heading-font">My Business Documents</h1>
         </header>
 
         {{-- Flash Messages --}}
@@ -87,7 +86,7 @@
 
             @if($documents->isEmpty())
                 <div class="bg-slate-50 dark:bg-slate-900/40 border border-dashed border-slate-300 dark:border-slate-700/80 rounded-xl p-10 text-center">
-                    <p class="text-3xl mb-3"><x-icon name="document" class="w-8 h-8" /></p>
+                    <p class="text-2xl mb-3"><x-icon name="document" class="w-8 h-8" /></p>
                     <p class="text-slate-500 dark:text-slate-400 font-medium text-sm">No documents submitted yet.</p>
                 </div>
             @else

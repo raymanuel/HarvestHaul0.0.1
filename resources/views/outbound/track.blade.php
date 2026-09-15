@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Live tracking for your HarvestHaul outbound delivery. Follow your shipment in real time and confirm receipt on arrival.">
+    <meta name="description" content="Live tracking for your HarvestHaul delivery. Follow your shipment in real time and confirm receipt on arrival.">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <meta name="theme-color" content="#16283C">
@@ -54,7 +54,7 @@
         <header class="mb-6">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <p class="text-xs font-bold uppercase tracking-widest text-slate-500">HarvestHaul · Outbound Delivery</p>
+                    <p class="text-xs font-bold uppercase tracking-widest text-slate-500">HarvestHaul · Delivery</p>
                     <h1 class="text-2xl font-bold text-[#16283C] tracking-tight heading-font mt-1">
                         {{ $order->customerCard->name }}
                     </h1>

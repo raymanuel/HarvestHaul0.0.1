@@ -59,7 +59,7 @@ class OutboundTrackController extends Controller
                 self::sendNotification(
                     $order->logisticsProfile->user_id,
                     'Customer confirmed delivery',
-                    "{$order->customerCard->name} confirmed receipt of outbound order #{$order->id}. This order is now complete.",
+                    "{$order->customerCard->name} confirmed receipt of customer order #{$order->id}. This order is now complete.",
                     route('coop.outbound.show', $order)
                 );
             }

@@ -11,7 +11,7 @@
 <div id="neg-widget" class="fixed bottom-6 right-6 z-50">
     {{-- Floating button --}}
     <button id="neg-toggle"
-        class="w-14 h-14 rounded-full bg-[#16283C] hover:bg-brand-dark dark:bg-[#16283C] dark:hover:bg-[#0E1620] text-white dark:text-[#D7BC7A] shadow-2xl shadow-[#16283C]/50 hover:shadow-[#16283C]/60 transition-all duration-200 active:scale-95 flex items-center justify-center cursor-pointer relative ring-2 ring-white/30 dark:ring-gold/40"
+        class="w-14 h-14 rounded-full bg-[#16283C] hover:bg-brand-dark dark:bg-[#16283C] dark:hover:bg-[#0E1620] text-white dark:text-[#D7BC7A] shadow-lg transition-all duration-200 flex items-center justify-center cursor-pointer relative ring-2 ring-white/30 dark:ring-gold/40"
         aria-label="My Deals"
         aria-expanded="false"
         aria-controls="neg-popup"
@@ -24,10 +24,10 @@
 
     {{-- Popup --}}
     <div id="neg-popup" role="dialog" aria-modal="false" aria-label="Deals conversations" tabindex="-1"
-        class="hidden absolute bottom-16 right-0 w-[calc(100vw-3rem)] max-w-96 max-h-[min(520px,calc(100vh-6rem))] bg-white dark:bg-slate-800/95 border border-slate-200/60 dark:border-[#16283C]/20 rounded-2xl shadow-2xl shadow-[#16283C]/10 dark:shadow-[#16283C]/20 overflow-hidden flex flex-col origin-bottom-right"
+        class="hidden absolute bottom-16 right-0 w-[calc(100vw-3rem)] max-w-96 max-h-[min(520px,calc(100vh-6rem))] bg-white dark:bg-slate-800/95 border border-slate-200/60 dark:border-[#16283C]/20 rounded-2xl shadow-xl overflow-hidden flex flex-col origin-bottom-right"
     >
         {{-- Header --}}
-        <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100 dark:border-[#16283C]/10 shrink-0 bg-gradient-to-r from-[#16283C]/5 to-transparent dark:from-[#16283C]/10 dark:to-transparent">
+        <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100 dark:border-[#16283C]/10 shrink-0">
             <div>
                 <h3 class="text-sm font-bold text-slate-800 dark:text-white heading-font">My Deals</h3>
                 <p class="text-[10px] text-slate-500 dark:text-slate-400 font-medium">Your crop &amp; haul conversations</p>
@@ -196,7 +196,7 @@
                 : 'bg-[#16283C]/10 dark:bg-[#16283C]/10 text-[#16283C] dark:text-[#D7BC7A]';
             const volume = item.volume ? ' ' + Number(item.volume).toLocaleString() + ' kg' : '';
             const typeTag = item.type === 'haul'
-                ? '<span class="inline-flex items-center px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-700/60 text-[9px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-300 mr-1.5 align-middle">Haul</span>'
+                ? '<span class="inline-flex items-center px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-700/60 text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-300 mr-1.5 align-middle">Haul</span>'
                 : '';
 
             const unreadBadge = item.unread_count > 0
@@ -215,7 +215,7 @@
                         <span class="text-[10px] font-extrabold uppercase tracking-widest px-2 py-0.5 rounded shrink-0 ${statusClass}">${item.status}</span>
                     </div>
                     <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">${escapeHtml(item.counterpart_name)} ${volume} ${item.rate_label || ''}</p>
-                    <p class="text-[9px] text-slate-500 dark:text-slate-400 mt-0.5">${item.last_activity || ''}</p>
+                    <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">${item.last_activity || ''}</p>
                 </div>
             `;
             list.appendChild(el);

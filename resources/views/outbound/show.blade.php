@@ -1,15 +1,14 @@
-<x-layout title="Outbound Order #{{ $outboundOrder->id }}">
+<x-layout title="Customer Order #{{ $outboundOrder->id }}">
 
     <div class="w-full max-w-4xl mx-auto pb-12">
 
         <header class="pt-8 mb-6 border-b border-slate-200/80 dark:border-slate-700/80 pb-5">
             <a href="{{ route('coop.outbound.index') }}" class="text-sm text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 mb-4 inline-block font-semibold transition">
-                ← Back to Outbound Orders
+                ← Back to Customer Orders
             </a>
-            <span class="text-xs font-bold uppercase tracking-wider text-harvest-dark dark:text-harvest-light bg-harvest/10 dark:bg-harvest/20 px-3 py-1.5 rounded-md border border-harvest/10 dark:border-harvest/20 inline-block mb-2">Outbound Distribution</span>
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <h1 class="text-3xl font-bold text-slate-900 dark:text-white tracking-tight heading-font">Outbound Order #{{ $outboundOrder->id }}</h1>
+                    <h1 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight heading-font">Customer Order #{{ $outboundOrder->id }}</h1>
                     <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Items for {{ $outboundOrder->customerCard->name }}</p>
                 </div>
                 @php
@@ -89,6 +88,66 @@
             </div>
         </div>
 
+        @if($outboundOrder->poolingJob)
+            @php
+                $job = $outboundOrder->poolingJob;
+                $jobStatusLabel = $job->status?->label() ?? 'Pending';
+                $jobStatusBadge = match ($job->status?->color()) {
+                    'green'  => ['bg-[var(--color-success-bg)] text-[var(--color-success-text)] border-[var(--color-success-border)]'],
+                    'orange' => ['bg-orange-50 text-orange-600 border-orange-200 dark:bg-orange-950/30 dark:text-orange-400'],
+                    'blue'   => ['bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-950/30 dark:text-blue-400'],
+                    'amber',
+                    'yellow' => ['bg-[var(--color-warning-bg)] text-[var(--color-warning-text)] border-[var(--color-warning-border)]'],
+                    'red'    => ['bg-[var(--color-error-bg)] text-[var(--color-error-text)] border-[var(--color-error-border)]'],
+                    default  => ['bg-slate-50 dark:bg-slate-700 text-slate-500 dark:text-slate-400 border-slate-200/50 dark:border-slate-600'],
+                };
+            @endphp
+            <div class="bg-white dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700/80 rounded-2xl shadow-sm p-6 mb-6">
+                <div class="flex items-center justify-between gap-4 mb-4">
+                    <h2 class="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Shipment</h2>
+                    <span class="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-md border {{ $jobStatusBadge[0] }}">{{ $jobStatusLabel }}</span>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                    <div>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Route</p>
+                        <p class="font-bold text-slate-800 dark:text-slate-200">Route #{{ $job->id }}</p>
+                    </div>
+                    <div>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Truck</p>
+                        <p class="font-bold text-slate-800 dark:text-slate-200">{{ $job->truck?->truck_name }}</p>
+                        <p class="text-slate-600 dark:text-slate-300 text-xs">{{ $job->truck?->plate_number }} · {{ number_format((float) $job->truck?->capacity_kg ?? 0) }} kg</p>
+                    </div>
+                    <div>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Driver</p>
+                        <p class="text-slate-600 dark:text-slate-300">{{ $job->driver?->name ?? '—' }}</p>
+                    </div>
+                    @if($job->end_odometer_reading)
+                        <div>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">End Odometer</p>
+                            <p class="text-slate-600 dark:text-slate-300">{{ number_format((float) $job->end_odometer_reading) }} km</p>
+                        </div>
+                    @endif
+                    @if($job->actual_distance_km)
+                        <div>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Actual Distance</p>
+                            <p class="text-slate-600 dark:text-slate-300">{{ number_format((float) $job->actual_distance_km) }} km</p>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        @endif
+
+        @if ($outboundOrder->tracking_token)
+            <div class="rounded-lg border border-slate-200/70 dark:border-slate-700/80 bg-white dark:bg-slate-800 shadow-sm p-4 mb-6">
+                <p class="font-semibold text-sm text-slate-800 dark:text-slate-200">Tracking link for {{ $outboundOrder->customerCard->name }}</p>
+                <p class="text-sm text-gray-600 dark:text-gray-400">Send this link so the customer can follow the truck and confirm receipt.</p>
+                <div class="flex items-center gap-2 mt-2">
+                    <input readonly value="{{ route('outbound.track', $outboundOrder->tracking_token) }}" class="flex-1 px-3 py-2 rounded border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-900/60 text-sm text-slate-600 dark:text-slate-300" />
+                    <button onclick="navigator.clipboard.writeText('{{ route('outbound.track', $outboundOrder->tracking_token) }}')" class="px-3 py-2 rounded bg-blue-600 text-white text-sm font-bold transition cursor-pointer">Copy</button>
+                </div>
+            </div>
+        @endif
+
         @if($outboundOrder->status === 'drafted')
             @php
                 $officeLat = $outboundOrder->logisticsProfile->latitude ?? 6.05;
@@ -154,7 +213,7 @@
             </div>
             <form action="{{ route('coop.outbound.cancel', $outboundOrder) }}" method="POST" class="inline" id="cancel-order-form-{{ $outboundOrder->id }}">
                 @csrf
-                <button type="button" onclick="swalConfirm(document.getElementById('cancel-order-form-{{ $outboundOrder->id }}'), {title: 'Cancel Order?', text: 'Cancel outbound order #{{ $outboundOrder->id }}? This cannot be undone.', confirmText: 'Yes, cancel', icon: 'warning', confirmColor: '#ef4444'})"
+                <button type="button" onclick="swalConfirm(document.getElementById('cancel-order-form-{{ $outboundOrder->id }}'), {title: 'Cancel Order?', text: 'Cancel customer order #{{ $outboundOrder->id }}? This cannot be undone.', confirmText: 'Yes, cancel', icon: 'warning', confirmColor: '#ef4444'})"
                     class="inline-flex items-center gap-2 px-4 py-2.5 bg-red-50 text-red-600 hover:bg-red-100 dark:bg-red-950/20 dark:hover:bg-red-950/40 dark:text-red-400 rounded-xl text-xs font-bold transition cursor-pointer">
                     Cancel Order
                 </button>
@@ -162,17 +221,6 @@
         @elseif($outboundOrder->status === 'cancelled')
             <div class="bg-red-50/60 dark:bg-red-950/20 border border-red-200/70 dark:border-red-900/50 rounded-2xl p-6">
                 <p class="text-xs font-bold text-red-700 dark:text-red-300 uppercase tracking-wider">This order was cancelled and will not be dispatched.</p>
-            </div>
-        @endif
-
-        @if ($outboundOrder->tracking_token)
-            <div class="rounded-lg border border-slate-200/70 dark:border-slate-700/80 bg-white dark:bg-slate-800 shadow-sm p-4 mb-6">
-                <p class="font-semibold text-sm text-slate-800 dark:text-slate-200">Tracking link for {{ $outboundOrder->customerCard->name }}</p>
-                <p class="text-sm text-gray-600 dark:text-gray-400">Send this link so the customer can follow the truck and confirm receipt.</p>
-                <div class="flex items-center gap-2 mt-2">
-                    <input readonly value="{{ route('outbound.track', $outboundOrder->tracking_token) }}" class="flex-1 px-3 py-2 rounded border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-900/60 text-sm text-slate-600 dark:text-slate-300" />
-                    <button onclick="navigator.clipboard.writeText('{{ route('outbound.track', $outboundOrder->tracking_token) }}')" class="px-3 py-2 rounded bg-blue-600 text-white text-sm font-bold transition cursor-pointer">Copy</button>
-                </div>
             </div>
         @endif
 

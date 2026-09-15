@@ -19,8 +19,7 @@
             <a href="{{ route('coop.customers.index') }}" class="text-sm text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 mb-4 inline-block font-semibold transition">
                 ← Back to Customers
             </a>
-            <span class="text-xs font-bold uppercase tracking-wider text-harvest-dark dark:text-harvest-light bg-harvest/10 dark:bg-harvest/20 px-3 py-1.5 rounded-md border border-harvest/10 dark:border-harvest/20 inline-block mb-2">Outbound Distribution</span>
-            <h1 class="text-3xl font-bold text-slate-900 dark:text-white tracking-tight heading-font">{{ $title }}</h1>
+            <h1 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight heading-font">{{ $title }}</h1>
         </header>
 
         <x-flash-success />

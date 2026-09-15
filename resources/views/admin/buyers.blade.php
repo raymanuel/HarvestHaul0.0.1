@@ -4,7 +4,7 @@
     <header class="pt-8 mb-8">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-                <h1 class="text-2xl font-extrabold text-slate-800 dark:text-white heading-font tracking-tight">Buyer Verification</h1>
+                <h1 class="text-2xl font-bold text-slate-800 dark:text-white heading-font tracking-tight">Buyer Verification</h1>
             </div>
             <span class="text-[10px] font-bold uppercase tracking-widest text-[#0E1620] dark:text-[#E9EEF4] bg-[#0E1620]/10 dark:bg-[#0E1620]/10 px-3 py-1.5 rounded-md border border-[#0E1620]/10 dark:border-[#0E1620]/20 self-start">{{ $buyers->count() }} Buyers</span>
         </div>
@@ -27,7 +27,7 @@
         <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-900/40 transition">
             <td class="px-4 py-3">
                 <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-md bg-gradient-to-tr from-[#0E1620]/15 to-[#0E1620]/10 dark:from-[#0E1620]/10 dark:to-[#0E1620]/5 border border-[#0E1620]/20 dark:border-[#0E1620]/15 flex items-center justify-center text-[10px] font-extrabold text-[#0E1620] dark:text-[#E9EEF4] uppercase">{{ substr($buyer->name, 0, 2) }}</div>
+                    <div class="w-8 h-8 rounded-md bg-[#0E1620]/10 dark:bg-[#0E1620]/10 border border-[#0E1620]/20 dark:border-[#0E1620]/15 flex items-center justify-center text-[10px] font-extrabold text-[#0E1620] dark:text-[#E9EEF4] uppercase">{{ substr($buyer->name, 0, 2) }}</div>
                     <span class="font-bold text-slate-800 dark:text-slate-200 text-sm">{{ $buyer->name }}</span>
                 </div>
             </td>

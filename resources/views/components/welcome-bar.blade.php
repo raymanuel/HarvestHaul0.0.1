@@ -20,7 +20,7 @@
 
 <header class="mt-4 mb-6">
     @if($greeting)
-        <h1 class="text-3xl lg:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight heading-font mb-1">{{ $greeting }}</h1>
+        <h1 class="text-2xl lg:text-3xl font-bold text-slate-900 dark:text-white tracking-tight heading-font mb-1">{{ $greeting }}</h1>
     @endif
     <p class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">{{ $now->format('l') }}, {{ $now->format('F j, Y') }}</p>
     @if($subtitle)

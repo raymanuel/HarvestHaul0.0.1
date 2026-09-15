@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Delivery confirmed. Thank you for your HarvestHaul outbound order.">
+    <meta name="description" content="Delivery confirmed. Thank you for your HarvestHaul order.">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <meta name="theme-color" content="#16283C">
@@ -23,9 +23,9 @@
 <body class="antialiased text-slate-800">
 
     <main class="w-full max-w-xl mx-auto px-4 py-12">
-        <div class="bg-white border border-slate-200/70 rounded-3xl shadow-sm p-8 text-center">
+        <div class="bg-white border border-slate-200/70 rounded-2xl shadow-sm p-8 text-center">
             <div class="w-14 h-14 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-2xl mx-auto mb-5">✓</div>
-            <p class="text-xs font-bold uppercase tracking-widest text-slate-500">HarvestHaul · Outbound Delivery</p>
+            <p class="text-xs font-bold uppercase tracking-widest text-slate-500">HarvestHaul · Delivery</p>
             <h1 class="text-2xl font-bold text-[#16283C] tracking-tight heading-font mt-2">
                 Thank you, delivery confirmed
             </h1>

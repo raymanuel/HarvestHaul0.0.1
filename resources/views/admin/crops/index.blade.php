@@ -8,10 +8,10 @@
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                     <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-600 mb-1">Admin / Platform settings</p>
-                    <h1 class="text-2xl font-extrabold text-slate-800 dark:text-white heading-font tracking-tight">Crop Registry</h1>
+                    <h1 class="text-2xl font-bold text-slate-800 dark:text-white heading-font tracking-tight">Crop Registry</h1>
                 </div>
                 <button onclick="openCreateEntityModal()"
-                    class="bg-[#16283C] hover:bg-[#0E1620] text-white dark:bg-[#D7BC7A] dark:hover:bg-[#BFA05A] dark:text-[#17202B] text-xs font-bold px-4 py-2.5 rounded-xl shadow-md shadow-[#16283C]/10 hover:shadow-lg transition-all flex items-center gap-1.5 cursor-pointer self-start">
+                    class="bg-[#16283C] hover:bg-[#0E1620] text-white dark:bg-[#D7BC7A] dark:hover:bg-[#BFA05A] dark:text-[#17202B] text-xs font-bold px-4 py-2.5 rounded-xl shadow-sm hover:shadow-md transition-all flex items-center gap-1.5 cursor-pointer self-start">
                     <x-icon name="plus" class="w-4 h-4" /> Add Registry Entity
                 </button>
             </div>
@@ -30,7 +30,7 @@
             {{-- Categories Card --}}
             <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/80 rounded-2xl p-5 flex items-center justify-between shadow-sm hover:shadow-md transition">
                 <div>
-                    <span class="text-[9px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest block mb-1">Crop Categories</span>
+                    <span class="text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest block mb-1">Crop Categories</span>
                     <span class="text-2xl font-black text-slate-800 dark:text-white heading-font">{{ $categories->count() }}</span>
                 </div>
                 <div class="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 flex items-center justify-center text-lg"><x-icon name="folder" class="w-4 h-4" /></div>
@@ -38,7 +38,7 @@
             {{-- Crops Card --}}
             <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/80 rounded-2xl p-5 flex items-center justify-between shadow-sm hover:shadow-md transition">
                 <div>
-                    <span class="text-[9px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest block mb-1">Distinct Crops</span>
+                    <span class="text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest block mb-1">Distinct Crops</span>
                     <span class="text-2xl font-black text-slate-800 dark:text-white heading-font">{{ $categories->sum(fn($c) => $c->crops->count()) }}</span>
                 </div>
                 <div class="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 flex items-center justify-center text-lg"><x-icon name="seedling" class="w-4 h-4" /></div>
@@ -46,7 +46,7 @@
             {{-- Varieties Card --}}
             <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/80 rounded-2xl p-5 flex items-center justify-between shadow-sm hover:shadow-md transition">
                 <div>
-                    <span class="text-[9px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest block mb-1">Total Varieties</span>
+                    <span class="text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest block mb-1">Total Varieties</span>
                     <span class="text-2xl font-black text-slate-800 dark:text-white heading-font">{{ $categories->sum(fn($c) => $c->crops->sum(fn($cr) => $cr->varieties->count())) }}</span>
                 </div>
                 <div class="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 flex items-center justify-center text-lg"><x-icon name="tag" class="w-4 h-4" /></div>
@@ -91,7 +91,7 @@
                     {{-- Collapsible Category Row --}}
                     <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-700/60 bg-slate-50/50 dark:bg-slate-900/40 select-none">
                         <div class="flex items-center gap-3 cursor-pointer" onclick="toggleCategoryCollapse({{ $category->id }})">
-                            <div class="w-8 h-8 rounded-md bg-gradient-to-tr from-[#16283C]/15 to-[#16283C]/10 dark:from-[#16283C]/10 dark:to-[#16283C]/5 border border-[#16283C]/20 dark:border-[#16283C]/15 flex items-center justify-center text-[10px] font-extrabold text-[#16283C] dark:text-[#D7BC7A] uppercase shrink-0">
+                            <div class="w-8 h-8 rounded-md bg-[#16283C]/10 dark:bg-[#16283C]/10 border border-[#16283C]/20 dark:border-[#16283C]/15 flex items-center justify-center text-[10px] font-extrabold text-[#16283C] dark:text-[#D7BC7A] uppercase shrink-0">
                                 {{ substr($category->name, 0, 2) }}
                             </div>
                             <div>
@@ -179,7 +179,7 @@
                                                 <div>
                                                     <p class="text-xs text-slate-700 dark:text-slate-400 font-bold">{{ $variety->name }}</p>
                                                     @if ($variety->description)
-                                                        <p class="text-[9px] text-slate-500 dark:text-slate-400 mt-0.5 font-medium">{{ $variety->description }}</p>
+                                                        <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 font-medium">{{ $variety->description }}</p>
                                                     @endif
                                                 </div>
                                             </div>
@@ -242,7 +242,7 @@
                 </div>
             @empty
                 <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/80 rounded-2xl p-12 text-center shadow-sm">
-                    <div class="text-3xl mb-3">—</div>
+                    <div class="text-2xl mb-3">—</div>
                     <p class="text-slate-500 dark:text-slate-400 text-sm font-semibold">No crop categories found. Create one to populate the registry catalog.</p>
                 </div>
             @endforelse

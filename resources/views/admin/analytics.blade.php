@@ -9,9 +9,6 @@
                         Platform Analytics
                     </h1>
                 </div>
-                <span class="text-xs font-semibold uppercase tracking-wider text-rose-700 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/20 px-3 py-1.5 rounded-md border border-rose-500/10 dark:border-rose-500/20 self-start">
-                    Admin Only
-                </span>
             </div>
         </header>
 
@@ -75,7 +72,7 @@
                                     @php $heightPercent = ($week->avg_price / $maxPrice) * 100; @endphp
                                     <div class="flex-1 bg-gradient-to-t from-[#16283C] to-[#0E1620] rounded-t-sm opacity-80 hover:opacity-100 transition relative group cursor-default"
                                          style="height: {{ $heightPercent }}%; min-height: 4px;">
-                                        <div class="absolute -top-6 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[8px] font-bold px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition whitespace-nowrap z-10">
+                                        <div class="absolute -top-6 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[10px] font-bold px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition whitespace-nowrap z-10">
                                             ₱{{ number_format($week->avg_price, 2) }}  W{{ substr($week->week, -2) }}
                                         </div>
                                     </div>

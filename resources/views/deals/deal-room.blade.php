@@ -25,7 +25,7 @@
         </a>
         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
             <div>
-                <h1 class="text-2xl font-extrabold text-slate-900 dark:text-white heading-font">
+                <h1 class="text-2xl font-bold text-slate-900 dark:text-white heading-font">
                     {{ $cropName }}@if($variety)<span class="text-sm font-semibold text-slate-500 dark:text-slate-400"> · {{ $variety }}</span>@endif
                 </h1>
                 <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1 font-semibold">Negotiating with <span class="text-slate-700 dark:text-slate-200 font-bold">{{ $buyerName }}</span> · Deal #{{ $negotiation->id }}</p>
@@ -46,7 +46,7 @@
         <div class="lg:col-span-2 flex flex-col gap-5">
 
             <!-- Chat console -->
-            <div id="chat-console" class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-3xl overflow-hidden shadow-sm flex flex-col">
+            <div id="chat-console" class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-2xl overflow-hidden shadow-sm flex flex-col">
                 <!-- Console header -->
                 <div class="px-5 py-3.5 bg-slate-50/50 dark:bg-slate-900/40 border-b border-slate-200/60 dark:border-slate-700/60 flex items-center justify-between">
                     <div class="flex items-center gap-2">
@@ -68,14 +68,14 @@
                             <div class="flex justify-center my-3">
                                 <div class="px-4 py-2 bg-[var(--color-warning-bg)] border border-[var(--color-warning-border)] rounded-2xl max-w-md text-center">
                                     <p class="text-[11px] font-bold text-[var(--color-warning-text)] leading-relaxed italic">{{ $message->message_text }}</p>
-                                    <span class="text-[9px] text-slate-500 dark:text-slate-400 mt-1 block font-mono">{{ $message->created_at?->diffForHumans() }}</span>
+                                    <span class="text-[10px] text-slate-500 dark:text-slate-400 mt-1 block font-mono">{{ $message->created_at?->diffForHumans() }}</span>
                                 </div>
                             </div>
                         @elseif($message->sender_id === $user->id)
                             <div class="flex justify-end items-end my-2">
                                 <div class="max-w-[70%] flex flex-col items-end">
                                     <div class="px-4 py-3 rounded-2xl text-xs leading-relaxed shadow-sm font-medium bg-[#16283C] dark:bg-[#D7BC7A] dark:text-[#17202B] text-white rounded-br-none">{{ $message->message_text }}</div>
-                                    <span class="text-[9px] text-slate-500 dark:text-slate-400 mt-1 px-1 font-mono">{{ $message->created_at?->diffForHumans() }}</span>
+                                    <span class="text-[10px] text-slate-500 dark:text-slate-400 mt-1 px-1 font-mono">{{ $message->created_at?->diffForHumans() }}</span>
                                 </div>
                             </div>
                         @else
@@ -83,7 +83,7 @@
                                 <div class="max-w-[70%] flex flex-col items-start">
                                     <span class="text-[10px] text-slate-400 dark:text-slate-500 mb-1 px-1 font-semibold">{{ $message->sender?->name ?? $buyerName }}</span>
                                     <div class="px-4 py-3 rounded-2xl text-xs leading-relaxed shadow-sm font-medium bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-bl-none border border-slate-200/40 dark:border-slate-700/60">{{ $message->message_text }}</div>
-                                    <span class="text-[9px] text-slate-500 dark:text-slate-400 mt-1 px-1 font-mono">{{ $message->created_at?->diffForHumans() }}</span>
+                                    <span class="text-[10px] text-slate-500 dark:text-slate-400 mt-1 px-1 font-mono">{{ $message->created_at?->diffForHumans() }}</span>
                                 </div>
                             </div>
                         @endif
@@ -131,14 +131,14 @@
                             <input type="number" step="0.01" min="0.01" @if($negotiation->harvest) max="{{ $negotiation->harvest->quantity_kg }}" @endif name="negotiated_volume" id="negotiated_volume" required value="{{ $negotiation->negotiated_volume ?? '' }}" placeholder="kg"
                                 class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-800 dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-[#16283C]/10 dark:focus:ring-gold/10 focus:border-[#16283C]/40 dark:focus:border-gold/30">
                             @if($negotiation->harvest)
-                                <p class="text-[9px] text-slate-500 dark:text-slate-400 mt-1">Max: {{ number_format($negotiation->harvest->quantity_kg) }} kg (your posted harvest)</p>
+                                <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-1">Max: {{ number_format($negotiation->harvest->quantity_kg) }} kg (your posted harvest)</p>
                             @endif
                         </div>
                         <div>
                             <label for="term_hauling_rate" class="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Hauling Rate (₱/kg) <span class="normal-case font-semibold text-slate-400">— optional</span></label>
                             <input type="number" step="0.01" min="0" name="hauling_rate_per_kg" id="term_hauling_rate" value="{{ $negotiation->hauling_rate_per_kg ?? '' }}" placeholder="e.g. 5.00"
                                 class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-800 dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-[#16283C]/10 dark:focus:ring-gold/10 focus:border-[#16283C]/40 dark:focus:border-gold/30">
-                            <p class="text-[9px] text-slate-500 dark:text-slate-400 mt-1">A per-kg transport rate proposed with the price, so the grand total includes hauling.</p>
+                            <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-1">A per-kg transport rate proposed with the price, so the grand total includes hauling.</p>
                         </div>
                         <button type="submit" id="propose-btn" class="w-full py-2.5 bg-[#16283C] hover:bg-[#0E1620] dark:bg-[#D7BC7A] dark:hover:bg-[#BFA05A] dark:text-[#17202B] text-white font-bold rounded-xl text-xs transition duration-200 shadow-sm cursor-pointer">Propose These Terms</button>
                     </form>
@@ -216,7 +216,7 @@
                                     <p class="text-[10px] font-mono text-slate-500 dark:text-slate-400">Offer ₱{{ number_format((float) $intent->offer_rate_php_per_kg, 2) }}/kg</p>
                                 @endif
                             </div>
-                            <span class="text-[9px] font-extrabold uppercase tracking-widest px-2 py-0.5 rounded border bg-slate-100 dark:bg-slate-700 border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 capitalize">{{ $intent->status }}</span>
+                            <span class="text-[10px] font-extrabold uppercase tracking-widest px-2 py-0.5 rounded border bg-slate-100 dark:bg-slate-700 border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 capitalize">{{ $intent->status }}</span>
                         </a>
                     @endforeach
                     <a href="{{ route('farmer.haul-requests') }}" class="mt-3 inline-flex items-center gap-1 text-[10px] font-bold text-[#16283C] dark:text-[#D7BC7A] hover:underline">Manage haul requests →</a>
@@ -269,7 +269,7 @@
             return '<div class="flex justify-center my-3">' +
                 '<div class="px-4 py-2 bg-[var(--color-warning-bg)] border border-[var(--color-warning-border)] rounded-2xl max-w-md text-center">' +
                 '<p class="text-[11px] font-bold text-[var(--color-warning-text)] leading-relaxed italic">' + escapeHtml(msg.message_text) + '</p>' +
-                '<span class="text-[9px] text-slate-500 dark:text-slate-400 mt-1 block font-mono">' + timeAgo(msg.created_at) + '</span>' +
+                '<span class="text-[10px] text-slate-500 dark:text-slate-400 mt-1 block font-mono">' + timeAgo(msg.created_at) + '</span>' +
                 '</div></div>';
         }
         var isMine = msg.sender_id === userId;
@@ -282,7 +282,7 @@
             '<div class="max-w-[70%] flex flex-col ' + align + '">' +
             '<span class="text-[10px] text-slate-400 dark:text-slate-500 mb-1 px-1 font-semibold">' + escapeHtml(name) + '</span>' +
             '<div class="px-4 py-3 rounded-2xl text-xs leading-relaxed shadow-sm font-medium ' + bubble + '">' + escapeHtml(msg.message_text) + '</div>' +
-            '<span class="text-[9px] text-slate-500 dark:text-slate-400 mt-1 px-1 font-mono">' + timeAgo(msg.created_at) + '</span>' +
+            '<span class="text-[10px] text-slate-500 dark:text-slate-400 mt-1 px-1 font-mono">' + timeAgo(msg.created_at) + '</span>' +
             '</div></div>';
     }
 

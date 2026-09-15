@@ -109,6 +109,29 @@ class OutboundDispatchTest extends TestCase
         $this->assertFalse($coop->logisticsProfile->availableTrucks()->whereKey($truck->id)->exists());
     }
 
+    public function test_show_page_displays_assigned_truck_and_driver(): void
+    {
+        $coop = $this->coop();
+        $driver = $this->driverFor($coop);
+        $truck = $this->truckFor($coop);
+        $order = $this->orderFor($coop);
+
+        $this->actingAs($coop)->post(route('coop.outbound.dispatch', $order), [
+            'truck_id' => $truck->id,
+            'driver_id' => $driver->id,
+            'start_latitude'  => 6.05,
+            'start_longitude' => 125.13,
+        ])->assertRedirect();
+
+        $response = $this->actingAs($coop)->get(route('coop.outbound.show', $order));
+
+        $response->assertOk();
+        $response->assertSee('Shipment');
+        $response->assertSee('Route #', false);
+        $response->assertSee($truck->plate_number);
+        $response->assertSee($driver->name);
+    }
+
     public function test_dispatch_refuses_a_truck_that_is_no_longer_available(): void
     {
         $coop = $this->coop();

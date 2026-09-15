@@ -21,15 +21,15 @@ async function statCardLink(page: any, title: string): Promise<{ text: string; h
 }
 
 test.describe("Logistics dashboard card actions", () => {
-  test("coop Available Pickups links to the Crop Board", async ({ page }) => {
+  test("coop Customer Orders links to the order list", async ({ page }) => {
     await login(page, "logistics1@test.com");
     await page.goto("/dashboard");
-    await page.waitForSelector('[role="region"][aria-label="Available Pickups"]');
+    await page.waitForSelector('[role="region"][aria-label="Customer Orders"]');
 
-    const card = await statCardLink(page, "Available Pickups");
+    const card = await statCardLink(page, "Customer Orders");
     expect(card).not.toBeNull();
-    expect(card!.text).toContain("View Crop Board");
-    expect(card!.href).toContain("/buyer/crop-board");
+    expect(card!.text).toContain("View Customer Orders");
+    expect(card!.href).toContain("/coop/outbound");
   });
 
   test("independent Available Pickups links to the Proposal Inbox", async ({ page }) => {

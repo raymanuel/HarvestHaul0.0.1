@@ -7,7 +7,7 @@
         </a>
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-                <h1 class="text-3xl font-bold text-slate-900 dark:text-white tracking-tight heading-font">Market Prices</h1>
+                <h1 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight heading-font">Market Prices</h1>
             </div>
             <div class="flex items-center gap-2 self-start sm:self-center">
                 <a href="http://www.bantaypresyo.da.gov.ph/tbl_veg.php" target="_blank" rel="noopener"

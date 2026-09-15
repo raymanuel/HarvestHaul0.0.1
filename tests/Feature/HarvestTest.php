@@ -117,6 +117,61 @@ class HarvestTest extends TestCase
         ]);
     }
 
+    public function test_coop_farmer_harvest_destination_is_forced_to_coop_hub(): void
+    {
+        $coop = User::factory()->logisticsPartner()->create(['email_verified_at' => now()]);
+        $coop->logisticsProfile()->create([
+            'company_name'       => 'Agri Coop Hub',
+            'business_permit_no' => 'BL-99999',
+            'phone'              => '09123456789',
+            'is_verified'        => true,
+            'logistics_type'     => 'cooperative',
+            'office_address'     => 'Coop Drop-off, Gensan',
+            'latitude'           => 6.1050,
+            'longitude'          => 125.1830,
+        ]);
+
+        $user = User::factory()->farmer()->create(['email_verified_at' => now()]);
+        $user->farmerProfile()->create([
+            'phone'            => '09123456789',
+            'farm_location'    => 'Test Farm, Davao',
+            'is_verified'      => true,
+            'latitude'         => 7.0,
+            'longitude'        => 125.5,
+            'affiliation_type' => 'cooperative',
+            'cooperative_id'   => $coop->id,
+            'membership_status'=> 'approved',
+        ]);
+        // Sync users table cooperative_id like the app does
+        $user->update(['cooperative_id' => $coop->id, 'affiliation_type' => 'cooperative']);
+
+        ['crop' => $crop, 'variety' => $variety] = $this->createCropVariety();
+
+        $payload = [
+            'crop_id'               => $crop->id,
+            'crop_variety_id'       => $variety->id,
+            'quantity_kg'           => 500,
+            // A coop farmer's form has no destination fields; even if tampered with, the backend forces the coop hub.
+            'destination_address'   => 'Hacked Destination',
+            'destination_latitude'  => 8.0,
+            'destination_longitude' => 126.0,
+        ];
+
+        $this->actingAs($user)->post('/harvests', $payload)
+            ->assertRedirect(route('harvests.index'))
+            ->assertSessionHas('success');
+
+        $this->assertDatabaseHas('harvests', [
+            'user_id'                => $user->id,
+            'crop_id'                => $crop->id,
+            'quantity_kg'            => 500,
+            'destination_id'         => null,
+            'destination_address'    => 'Coop Drop-off, Gensan',
+            'destination_latitude'   => 6.1050,
+            'destination_longitude'  => 125.1830,
+        ]);
+    }
+
     public function test_store_validates_required_fields(): void
     {
         $user = $this->createVerifiedFarmer();

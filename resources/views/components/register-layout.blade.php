@@ -95,7 +95,6 @@
         }
 
         button.primary-btn:hover { background: #0E1620; }
-        button.primary-btn:active { transform: scale(0.98); }
         @keyframes spin { to { transform: rotate(360deg); } }
         #legal-modal-overlay > div::-webkit-scrollbar { width: 6px; }
         #legal-modal-overlay > div::-webkit-scrollbar-track { background: transparent; }

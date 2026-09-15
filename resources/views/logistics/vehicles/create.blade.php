@@ -6,8 +6,7 @@
             <a href="{{ route('logistics.vehicles.index') }}" class="text-sm text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 mb-4 inline-block font-semibold transition">
                 ← Back to Vehicles
             </a>
-            <span class="text-xs font-bold uppercase tracking-wider text-[#0E1620] dark:text-[#E9EEF4] bg-[#0E1620]/10 dark:bg-[#0E1620]/10 px-3 py-1.5 rounded-md border border-[#0E1620]/10 dark:border-[#0E1620]/20 inline-block mb-2">Transport Setup</span>
-            <h1 class="text-3xl font-bold text-slate-900 dark:text-white tracking-tight heading-font">Add Vehicle</h1>
+            <h1 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight heading-font">Add Vehicle</h1>
         </header>
 
         {{-- Add Form --}}

@@ -8,8 +8,7 @@
             </a>
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <span class="text-xs font-bold uppercase tracking-wider text-harvest-dark dark:text-harvest-light bg-harvest/10 dark:bg-harvest/20 px-3 py-1.5 rounded-md border border-harvest/10 dark:border-harvest/20 inline-block mb-2">Outbound Distribution</span>
-                    <h1 class="text-3xl font-bold text-slate-900 dark:text-white tracking-tight heading-font">Customers</h1>
+                    <h1 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight heading-font">Customers</h1>
                     <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Your buyers — send crop orders and assign trucks to their locations.</p>
                 </div>
                 <div>

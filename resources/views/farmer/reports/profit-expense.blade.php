@@ -3,16 +3,7 @@
 
         <!-- Page Header -->
         <div class="mb-8">
-            <div class="flex items-center gap-3 mb-2">
-                <div class="w-10 h-10 rounded-xl bg-brand/10 dark:bg-gold-light/10 border border-brand/20 dark:border-gold-light/30 flex items-center justify-center text-[#16283C] dark:text-[#D7BC7A]">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                    </svg>
-                </div>
-                <div>
-                    <h1 class="text-2xl font-black text-slate-800 dark:text-white heading-font">Financial Reports</h1>
-                </div>
-            </div>
+            <h1 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight heading-font">Financial Reports</h1>
         </div>
 
         <x-flash-success />

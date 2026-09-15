@@ -8,7 +8,6 @@
                 </svg>
             </a>
             <div>
-                <p class="text-[10px] text-[#16283C]/60 font-bold uppercase tracking-widest">Outbound Delivery</p>
                 <h1 class="text-xl font-bold leading-tight heading-font mt-0.5">Job #{{ $job->id }}</h1>
             </div>
         </div>
@@ -23,7 +22,7 @@
         <div class="bg-white rounded-2xl border border-slate-200/80 overflow-hidden shadow-sm">
             <div class="flex items-start justify-between px-5 py-5 border-b border-slate-100 bg-slate-50/30">
                 <div>
-                    <p class="text-sm font-black text-slate-800 heading-font">Outbound Delivery &middot; {{ number_format($job->total_kg, 1) }} kg</p>
+                    <p class="text-sm font-black text-slate-800 heading-font">Customer Delivery &middot; {{ number_format($job->total_kg, 1) }} kg</p>
                     <p class="text-[11px] text-slate-400 font-semibold mt-1">{{ number_format($job->load_percentage, 1) }}% truck capacity utilized</p>
                 </div>
                 @php
@@ -79,14 +78,14 @@
 
             {{-- Delivery Items --}}
             <div class="px-5 pb-4">
-                <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-2">Delivery Items</p>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Delivery Items</p>
                 <div class="bg-slate-50 rounded-xl overflow-hidden">
                     <table class="w-full text-xs">
                         <thead>
                             <tr class="border-b border-slate-200/60">
-                                <th class="px-3 py-2 text-left text-[9px] font-bold text-slate-400 uppercase tracking-widest">Crop</th>
-                                <th class="px-3 py-2 text-right text-[9px] font-bold text-slate-400 uppercase tracking-widest">Kg</th>
-                                <th class="px-3 py-2 text-right text-[9px] font-bold text-slate-400 uppercase tracking-widest">Subtotal</th>
+                                <th class="px-3 py-2 text-left text-[10px] font-bold text-slate-400 uppercase tracking-widest">Crop</th>
+                                <th class="px-3 py-2 text-right text-[10px] font-bold text-slate-400 uppercase tracking-widest">Kg</th>
+                                <th class="px-3 py-2 text-right text-[10px] font-bold text-slate-400 uppercase tracking-widest">Subtotal</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -128,17 +127,17 @@
                     @csrf
                     <div class="grid grid-cols-3 gap-2">
                         <div>
-                            <label for="fuel_liters" class="block text-[9px] font-bold text-slate-400 uppercase mb-1">Liters</label>
+                            <label for="fuel_liters" class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Liters</label>
                             <input type="number" step="0.01" name="fuel_liters" id="fuel_liters" required placeholder="0.00"
                                 class="w-full border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-700 font-bold focus:outline-none focus:ring-2 focus:ring-[#16283C]/10 focus:border-[#16283C]">
                         </div>
                         <div>
-                            <label for="cost" class="block text-[9px] font-bold text-slate-400 uppercase mb-1">Cost (₱)</label>
+                            <label for="cost" class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Cost (₱)</label>
                             <input type="number" step="0.01" name="cost" id="cost" required placeholder="0.00"
                                 class="w-full border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-700 font-bold focus:outline-none focus:ring-2 focus:ring-[#16283C]/10 focus:border-[#16283C]">
                         </div>
                         <div>
-                            <label for="odometer_reading" class="block text-[9px] font-bold text-slate-400 uppercase mb-1">Odometer (km)</label>
+                            <label for="odometer_reading" class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Odometer (km)</label>
                             <input type="number" step="0.1" name="odometer_reading" id="odometer_reading" required placeholder="0.0"
                                 class="w-full border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-700 font-bold focus:outline-none focus:ring-2 focus:ring-[#16283C]/10 focus:border-[#16283C]">
                         </div>
@@ -152,10 +151,10 @@
 
         {{-- Accept Job --}}
         @if($job->status->value === 'confirmed' && !$job->accepted_at)
-            <form method="POST" action="{{ route('driver.jobs.accept', $job) }}" onsubmit="event.preventDefault(); swalConfirm(this, {title:'Accept Job?', text:'Accept this outbound delivery and begin your trip?', icon:'question', confirmText:'Yes, accept', cancelText:'Cancel', confirmColor:'#16283C'});">
+            <form method="POST" action="{{ route('driver.jobs.accept', $job) }}" onsubmit="event.preventDefault(); swalConfirm(this, {title:'Accept Job?', text:'Accept this customer delivery and begin your trip?', icon:'question', confirmText:'Yes, accept', cancelText:'Cancel', confirmColor:'#16283C'});">
                 @csrf
-                <button type="submit" class="w-full py-4 bg-[#16283C] hover:bg-[#0E1620] text-white text-xs font-bold rounded-2xl shadow-sm transition active:scale-[0.98]">
-                    Accept Outbound Delivery
+                <button type="submit" class="w-full py-4 bg-[#16283C] hover:bg-[#0E1620] text-white text-xs font-bold rounded-2xl shadow-sm transition">
+                    Accept Customer Delivery
                 </button>
             </form>
             <p class="text-[10px] text-slate-400 text-center -mt-2 font-semibold">Accept before starting the trip.</p>
@@ -165,7 +164,7 @@
         @if($job->status->value === 'in_progress' && !$order->delivered_at)
             <form method="POST" action="{{ route('driver.jobs.outbound-delivered', $job) }}" onsubmit="event.preventDefault(); swalConfirm(this, {title:'Mark Delivered?', text:'Confirm you have delivered the goods to the customer?', icon:'success', confirmText:'Yes, delivered', cancelText:'Cancel', confirmColor:'#16283C'});">
                 @csrf
-                <button type="submit" class="w-full py-4 bg-[#16283C] hover:bg-[#0E1620] text-white text-xs font-bold rounded-2xl shadow-sm transition active:scale-[0.98]">
+                <button type="submit" class="w-full py-4 bg-[#16283C] hover:bg-[#0E1620] text-white text-xs font-bold rounded-2xl shadow-sm transition">
                     <x-icon name="pin" class="w-4 h-4 inline" /> Mark Delivered at Customer Location
                 </button>
             </form>
@@ -173,10 +172,10 @@
 
         {{-- Status Action (Start / Finalize) --}}
         @if(in_array($job->status->value, ['confirmed', 'in_progress']))
-            <form method="POST" action="{{ route('driver.jobs.status', $job) }}" onsubmit="event.preventDefault(); swalConfirm(this, {{ $job->status->value === 'confirmed' ? "{title:'Start Trip?', text:'Begin the outbound delivery?', icon:'question', confirmText:'Yes, start', cancelText:'Cancel', confirmColor:'#16283C'}" : ($order->delivered_at ? "{title:'Finalize Job?', text:'Mark this job as completed?', icon:'success', confirmText:'Yes, complete', cancelText:'Cancel', confirmColor:'#16283C'}" : 'false') }});">
+            <form method="POST" action="{{ route('driver.jobs.status', $job) }}" onsubmit="event.preventDefault(); swalConfirm(this, {{ $job->status->value === 'confirmed' ? "{title:'Start Trip?', text:'Begin the customer delivery?', icon:'question', confirmText:'Yes, start', cancelText:'Cancel', confirmColor:'#16283C'}" : ($order->delivered_at ? "{title:'Finalize Job?', text:'Mark this job as completed?', icon:'success', confirmText:'Yes, complete', cancelText:'Cancel', confirmColor:'#16283C'}" : 'false') }});">
                 @csrf @method('PATCH')
                 @if($job->status->value === 'confirmed')
-                    <button type="submit" class="w-full py-4 bg-[#0E1620]/10 hover:bg-[#0E1620]/20 text-[#0E1620] text-xs font-bold rounded-2xl transition active:scale-[0.98] {{ !$job->accepted_at ? 'opacity-50 cursor-not-allowed' : '' }}" {{ !$job->accepted_at ? 'disabled' : '' }}>
+                    <button type="submit" class="w-full py-4 bg-[#0E1620]/10 hover:bg-[#0E1620]/20 text-[#0E1620] text-xs font-bold rounded-2xl transition {{ !$job->accepted_at ? 'opacity-50 cursor-not-allowed' : '' }}" {{ !$job->accepted_at ? 'disabled' : '' }}>
                         Start Job — Mark In Transit
                     </button>
                 @elseif($order->delivered_at)
@@ -185,7 +184,7 @@
                         <input type="number" step="0.01" min="0.01" name="end_odometer_reading" id="end_odometer_reading" required placeholder="0.00"
                             class="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-xs text-slate-700 font-bold focus:outline-none focus:ring-2 focus:ring-[#16283C]/10 focus:border-[#16283C]">
                     </div>
-                    <button type="submit" class="w-full py-4 bg-[#16283C] hover:bg-[#0E1620] text-white text-xs font-bold rounded-2xl transition active:scale-[0.98]">
+                    <button type="submit" class="w-full py-4 bg-[#16283C] hover:bg-[#0E1620] text-white text-xs font-bold rounded-2xl transition">
                         Finalize Job — Mark Completed
                     </button>
                 @else

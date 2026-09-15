@@ -21,7 +21,6 @@
         $accentBg = 'bg-[#16283C] hover:bg-[#0E1620] text-white dark:bg-[#D7BC7A] dark:text-[#17202B] dark:hover:bg-[#BFA05A]';
         $accentBorder = $isBuyer ? 'border-gold/20' : 'border-[#16283C]/20';
         $accentBadge = $isBuyer ? 'bg-gold/10 dark:bg-gold-light/15' : 'bg-[#16283C]/10';
-        $shadowColor = $isBuyer ? 'shadow-gold/10' : 'shadow-[#16283C]/10';
 
         $cropTotal = ($negotiation->negotiated_price && $negotiation->negotiated_volume)
             ? ((float) $negotiation->negotiated_price * (float) $negotiation->negotiated_volume)
@@ -42,7 +41,7 @@
             </div>
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <h1 class="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight heading-font">
+                    <h1 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight heading-font">
                         Crop Deal Chat
                     </h1>
                 </div>
@@ -66,7 +65,7 @@
             <!-- Chat + Propose Terms row, Finalize Panel below -->
             <div class="lg:col-span-3 space-y-8">
 
-            <div class="flex flex-col lg:flex-row bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-3xl overflow-hidden shadow-sm h-[min(820px,88vh)]">
+            <div class="flex flex-col lg:flex-row bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-2xl overflow-hidden shadow-sm h-[min(820px,88vh)]">
 
             <div class="relative flex flex-col flex-1 min-w-0 min-h-0">
             <div class="flex flex-col flex-1 min-h-0">
@@ -106,7 +105,7 @@
                                     <p class="text-[11px] font-bold text-[var(--color-warning-text)] leading-relaxed italic">
                                         {{ $msg->message_text }}
                                     </p>
-                                    <span class="text-[9px] text-slate-500 dark:text-slate-400 mt-1 block font-mono">{{ $msg->created_at->diffForHumans() }}</span>
+                                    <span class="text-[10px] text-slate-500 dark:text-slate-400 mt-1 block font-mono">{{ $msg->created_at->diffForHumans() }}</span>
                                 </div>
                             </div>
                         @else
@@ -127,7 +126,7 @@
                                         {{ $msg->message_text }}
                                     </div>
                                     <!-- Timestamp -->
-                                    <span class="text-[9px] text-slate-500 dark:text-slate-400 mt-1 px-1 font-mono">
+                                    <span class="text-[10px] text-slate-500 dark:text-slate-400 mt-1 px-1 font-mono">
                                         {{ $msg->created_at->diffForHumans() }}
                                     </span>
                                 </div>
@@ -159,7 +158,7 @@
                             @csrf
                             <input type="text" id="message-input" name="message_text" placeholder="Type message..." required autocomplete="off"
                                 class="flex-1 px-4 py-3 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-{{ $themeColor }}-500/10 focus:border-{{ $themeColor }}-500 dark:text-white transition">
-                            <button type="submit" class="px-5 py-3 {{ $accentBg }} text-white font-bold rounded-xl text-xs transition duration-200 shadow-sm {{ $shadowColor }} cursor-pointer">
+                            <button type="submit" class="px-5 py-3 {{ $accentBg }} text-white font-bold rounded-xl text-xs transition duration-200 shadow-sm cursor-pointer">
                                 Send
                             </button>
                         </form>
@@ -324,15 +323,15 @@
                                 <label for="negotiated_volume" class="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Volume (kg)</label>
                                 <input type="number" step="0.01" min="0.01" max="{{ $negotiation->harvest->quantity_kg }}" name="negotiated_volume" id="negotiated_volume" required value="{{ $negotiation->negotiated_volume ?? '' }}" placeholder="kg"
                                     class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-800 dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-{{ $themeColor }}-500/10 focus:border-{{ $themeColor }}-500 transition">
-                                <p class="text-[9px] text-slate-500 dark:text-slate-400 mt-1">Max: {{ number_format($negotiation->harvest->quantity_kg) }} kg (farmer's posted harvest)</p>
+                                <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-1">Max: {{ number_format($negotiation->harvest->quantity_kg) }} kg (farmer's posted harvest)</p>
                             </div>
                             <div class="sm:col-span-2">
                                 <label for="term_hauling_rate" class="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Hauling Rate (₱/kg) <span class="normal-case font-semibold text-slate-400">— optional</span></label>
                                 <input type="number" step="0.01" min="0" name="hauling_rate_per_kg" id="term_hauling_rate" value="{{ $negotiation->hauling_rate_per_kg ?? '' }}" placeholder="e.g. 5.00"
                                     class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-800 dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-{{ $themeColor }}-500/10 focus:border-{{ $themeColor }}-500 transition">
-                                <p class="text-[9px] text-slate-500 dark:text-slate-400 mt-1">A per-kg transport rate proposed with the price, so the grand total includes hauling.</p>
+                                <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-1">A per-kg transport rate proposed with the price, so the grand total includes hauling.</p>
                                 @if(!empty($rateReference))
-                                    <p class="text-[9px] text-slate-500 dark:text-slate-400 mt-0.5">Fair road-cost reference: <span class="font-bold">~₱{{ number_format($rateReference, 2) }}/kg</span> — straight-line farm→market estimate; hilly routes cost more.</p>
+                                    <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">Fair road-cost reference: <span class="font-bold">~₱{{ number_format($rateReference, 2) }}/kg</span> — straight-line farm→market estimate; hilly routes cost more.</p>
                                 @endif
                             </div>
                         </div>
@@ -358,7 +357,7 @@
                             <!-- Agree Button -->
                             <form id="agree-terms-form" class="mb-4" onsubmit="return agreeTerms(event)">
                                 @csrf
-                                <button type="submit" id="agree-btn" class="w-full py-3 {{ $accentBg }} text-white font-bold rounded-xl text-xs transition duration-200 shadow-sm {{ $shadowColor }} cursor-pointer">
+                                <button type="submit" id="agree-btn" class="w-full py-3 {{ $accentBg }} text-white font-bold rounded-xl text-xs transition duration-200 shadow-sm cursor-pointer">
                                     Agree to These Terms
                                 </button>
                             </form>
@@ -381,7 +380,7 @@
                         : '';
                 @endphp
 
-                <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-3xl p-6 shadow-sm">
+                <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-2xl p-6 shadow-sm">
                     <h3 class="text-sm font-extrabold text-slate-800 dark:text-white heading-font mb-2 uppercase tracking-wider text-gold-700 dark:text-gold-light">Finalize & Submit Drop-off</h3>
                     <p class="text-[11px] text-slate-500 dark:text-slate-400 mb-4 leading-relaxed font-semibold">Terms are agreed. Choose the drop-off point below to lock the transaction deal.</p>
 
@@ -463,9 +462,9 @@
                                     <label for="hauling_rate_per_kg" class="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Agreed Hauling Rate (₱/kg)</label>
                                     <input type="number" step="0.01" min="0" name="hauling_rate_per_kg" id="hauling_rate_per_kg" required placeholder="e.g. 5.00" value="{{ $negotiation->hauling_rate_per_kg }}"
                                         class="w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-800 dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-gold/10 focus:border-gold transition">
-                                    <p class="text-[9px] text-slate-500 dark:text-slate-400 mt-1">Auto-filled from the hauling rate agreed in chat, in ₱ per kilogram. You can still adjust it before closing — saved with this deal and used for this farmer's route cost share.</p>
+                                    <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-1">Auto-filled from the hauling rate agreed in chat, in ₱ per kilogram. You can still adjust it before closing — saved with this deal and used for this farmer's route cost share.</p>
                                     @if(!empty($rateReference))
-                                        <p class="text-[9px] text-slate-500 dark:text-slate-400 mt-0.5">Fair road-cost reference: <span class="font-bold">~₱{{ number_format($rateReference, 2) }}/kg</span> — straight-line farm→market estimate; hilly routes cost more.</p>
+                                        <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">Fair road-cost reference: <span class="font-bold">~₱{{ number_format($rateReference, 2) }}/kg</span> — straight-line farm→market estimate; hilly routes cost more.</p>
                                     @endif
                                 </div>
                             </div>
@@ -475,7 +474,7 @@
                         <input type="hidden" name="destination_latitude" id="destination_latitude">
                         <input type="hidden" name="destination_longitude" id="destination_longitude">
 
-                        <button type="submit" class="w-full py-3 bg-[#16283C] hover:bg-[#0E1620] dark:bg-[#D7BC7A] dark:text-[#17202B] dark:hover:bg-[#BFA05A] text-white font-bold rounded-xl text-xs transition duration-200 shadow-md shadow-gold/10 cursor-pointer">
+                        <button type="submit" class="w-full py-3 bg-[#16283C] hover:bg-[#0E1620] dark:bg-[#D7BC7A] dark:text-[#17202B] dark:hover:bg-[#BFA05A] text-white font-bold rounded-xl text-xs transition duration-200 shadow-sm cursor-pointer">
                             Close Deal & Confirm Drop-off
                         </button>
                     </form>
@@ -660,7 +659,7 @@
             return '<div class="flex justify-center my-3">' +
                 '<div class="px-4 py-2 bg-[var(--color-warning-bg)] border border-[var(--color-warning-border)] rounded-2xl max-w-md text-center">' +
                 '<p class="text-[11px] font-bold text-[var(--color-warning-text)] leading-relaxed italic">' + escapeHtml(msg.message_text) + '</p>' +
-                '<span class="text-[9px] text-slate-500 dark:text-slate-400 mt-1 block font-mono">' + timeAgo(msg.created_at) + '</span>' +
+                '<span class="text-[10px] text-slate-500 dark:text-slate-400 mt-1 block font-mono">' + timeAgo(msg.created_at) + '</span>' +
                 '</div></div>';
         }
 
@@ -675,7 +674,7 @@
             '<div class="max-w-[70%] flex flex-col ' + align + '">' +
             '<span class="text-[10px] text-slate-400 dark:text-slate-500 mb-1 px-1 font-semibold">' + escapeHtml(name) + '</span>' +
             '<div class="px-4 py-3 rounded-2xl text-xs leading-relaxed shadow-sm font-medium ' + bubble + '">' + escapeHtml(msg.message_text) + '</div>' +
-            '<span class="text-[9px] text-slate-500 dark:text-slate-400 mt-1 px-1 font-mono">' + timeAgo(msg.created_at) + '</span>' +
+            '<span class="text-[10px] text-slate-500 dark:text-slate-400 mt-1 px-1 font-mono">' + timeAgo(msg.created_at) + '</span>' +
             '</div></div>';
     }
 
@@ -788,7 +787,7 @@
                 proposeForm.insertAdjacentHTML('afterend',
                     '<form id="agree-terms-form" class="mb-4" onsubmit="return agreeTerms(event)">' +
                     '<input type="hidden" name="_token" value="' + csrfToken + '">' +
-                    '<button type="submit" id="agree-btn" class="w-full py-3 {{ $accentBg }} text-white font-bold rounded-xl text-xs transition duration-200 shadow-sm {{ $shadowColor }} cursor-pointer">Agree to These Terms</button></form>');
+                    '<button type="submit" id="agree-btn" class="w-full py-3 {{ $accentBg }} text-white font-bold rounded-xl text-xs transition duration-200 shadow-sm cursor-pointer">Agree to These Terms</button></form>');
             }
         }
     }

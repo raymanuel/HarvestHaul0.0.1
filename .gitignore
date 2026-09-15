@@ -40,3 +40,5 @@ skills-lock.json
 /PENTEST-REVIEW.md
 /scheduler.bat
 dist/
+.rat.last.json
+/storage/rat/

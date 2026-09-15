@@ -26,7 +26,7 @@ class OutboundOrderController extends Controller
         $profileId = Auth::user()->logisticsProfile->id;
 
         $orders = OutboundOrder::forProfile($profileId)
-            ->with(['customerCard'])
+            ->with(['customerCard', 'poolingJob.truck', 'poolingJob.driver'])
             ->latest()
             ->paginate(20);
 
@@ -96,10 +96,10 @@ class OutboundOrderController extends Controller
         self::logAudit(Auth::id(), 'created_outbound_order', 'outbound_orders', $order->id, "Coop created outbound order #{$order->id} for {$card->name}.");
 
         return redirect()->route('coop.outbound.index')
-            ->with('success', "Outbound order for {$card->name} saved.")
+            ->with('success', "Customer order for {$card->name} saved.")
             ->with('next_steps', [
                 'title'   => 'Order drafted',
-                'message' => "Outbound order saved for {$card->name}.",
+                'message' => "Customer order saved for {$card->name}.",
                 'steps'   => [
                     'Choose a truck and driver, then press Dispatch to send the shipment.',
                     'Once dispatched, a tracking link is created for the customer.',
@@ -174,14 +174,14 @@ class OutboundOrderController extends Controller
 
         self::sendNotification(
             Auth::id(),
-            'Outbound order dispatched',
-            "Outbound order #{$outboundOrder->id} to {$customer->name} was dispatched on Route #{$job->id}. Copy the tracking link and send it to {$customer->name} so they can follow the truck.",
+            'Customer order dispatched',
+            "Customer order #{$outboundOrder->id} to {$customer->name} was dispatched on Route #{$job->id}. Copy the tracking link and send it to {$customer->name} so they can follow the truck.",
             route('coop.outbound.show', $outboundOrder)
         );
 
         self::sendNotification(
             $driver->id,
-            'New outbound delivery',
+            'New customer delivery',
             "Route #{$job->id} delivers {$outboundOrder->total_kg} kg to {$customer->name}. Accept the job and start your trip from the Driver portal.",
             route('driver.jobs.show', $job)
         );
@@ -210,7 +210,7 @@ class OutboundOrderController extends Controller
 
         $outboundOrder->update(['status' => 'cancelled']);
 
-        return back()->with('success', 'Outbound order cancelled.');
+        return back()->with('success', 'Customer order cancelled.');
     }
 
     private function authorizeOwnership(OutboundOrder $outboundOrder): void

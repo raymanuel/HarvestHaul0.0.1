@@ -8,7 +8,6 @@
         $accentText = 'text-[#16283C] dark:text-[#D7BC7A]';
         $accentBorder = 'border-[#16283C]/20';
         $accentBadge = 'bg-[#16283C]/10';
-        $shadowColor = 'shadow-[#16283C]/10';
         $backRoute = $isFarmer ? route('farmer.haul-requests') : route('logistics.haul-negotiations');
         $harvest = $haulIntent->haulRequest->harvest;
         $logistics = $haulIntent->logisticsProfile;
@@ -28,7 +27,7 @@
             </div>
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <h1 class="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight heading-font">
+                    <h1 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight heading-font">
                         Haul Deal Chat
                     </h1>
                 </div>
@@ -44,7 +43,7 @@
             </div>
         </header>
 
-        <div class="flex flex-col lg:flex-row bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-3xl overflow-hidden shadow-sm h-[min(820px,88vh)]">
+        <div class="flex flex-col lg:flex-row bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-2xl overflow-hidden shadow-sm h-[min(820px,88vh)]">
 
             <div class="flex flex-col flex-1 min-w-0 min-h-0">
                 <div class="px-6 py-4 bg-slate-50/50 dark:bg-slate-900/40 border-b border-slate-150 dark:border-slate-700/60 flex items-center justify-between shrink-0">
@@ -62,7 +61,7 @@
                             <div class="flex justify-center my-3">
                                 <div class="px-4 py-2 bg-[var(--color-warning-bg)] border border-[var(--color-warning-border)] rounded-2xl max-w-md text-center">
                                     <p class="text-[11px] font-bold text-[var(--color-warning-text)] leading-relaxed italic">{{ $msg->message_text }}</p>
-                                    <span class="text-[9px] text-slate-500 dark:text-slate-400 mt-1 block font-mono">{{ $msg->created_at->diffForHumans() }}</span>
+                                    <span class="text-[10px] text-slate-500 dark:text-slate-400 mt-1 block font-mono">{{ $msg->created_at->diffForHumans() }}</span>
                                 </div>
                             </div>
                         @else
@@ -74,7 +73,7 @@
                                         @else bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-bl-none border border-slate-200/40 dark:border-slate-700/60 @endif">
                                         {{ $msg->message_text }}
                                     </div>
-                                    <span class="text-[9px] text-slate-500 dark:text-slate-400 mt-1 px-1 font-mono">{{ $msg->created_at->diffForHumans() }}</span>
+                                    <span class="text-[10px] text-slate-500 dark:text-slate-400 mt-1 px-1 font-mono">{{ $msg->created_at->diffForHumans() }}</span>
                                 </div>
                             </div>
                         @endif
@@ -93,7 +92,7 @@
                             @csrf
                             <input type="text" id="message-input" name="message_text" placeholder="Type message..." required autocomplete="off"
                                 class="flex-1 px-4 py-3 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-[#16283C]/10 focus:border-[#16283C] dark:text-white transition">
-                            <button type="submit" class="px-5 py-3 {{ $accentBg }} text-white font-bold rounded-xl text-xs transition duration-200 shadow-sm {{ $shadowColor }} cursor-pointer">Send</button>
+                            <button type="submit" class="px-5 py-3 {{ $accentBg }} text-white font-bold rounded-xl text-xs transition duration-200 shadow-sm cursor-pointer">Send</button>
                         </form>
                     @endif
                 </div>
@@ -164,7 +163,7 @@
                         @if($haulIntent->currentRate())
                             <form id="agree-terms-form" onsubmit="return agreeTerms(event)">
                                 @csrf
-                                <button type="submit" id="agree-btn" class="w-full py-3 {{ $accentBg }} text-white font-bold rounded-xl text-xs transition duration-200 shadow-sm {{ $shadowColor }} cursor-pointer">
+                                <button type="submit" id="agree-btn" class="w-full py-3 {{ $accentBg }} text-white font-bold rounded-xl text-xs transition duration-200 shadow-sm cursor-pointer">
                                     {{ $isFarmer ? 'Agree & Book This Rate' : 'Agree to This Rate' }}
                                 </button>
                             </form>
@@ -211,7 +210,7 @@
             return '<div class="flex justify-center my-3">' +
                 '<div class="px-4 py-2 bg-[var(--color-warning-bg)] border border-[var(--color-warning-border)] rounded-2xl max-w-md text-center">' +
                 '<p class="text-[11px] font-bold text-[var(--color-warning-text)] leading-relaxed italic">' + escapeHtml(msg.message_text) + '</p>' +
-                '<span class="text-[9px] text-slate-500 dark:text-slate-400 mt-1 block font-mono">' + timeAgo(msg.created_at) + '</span>' +
+                '<span class="text-[10px] text-slate-500 dark:text-slate-400 mt-1 block font-mono">' + timeAgo(msg.created_at) + '</span>' +
                 '</div></div>';
         }
         var isMine = msg.sender_id === userId;
@@ -224,7 +223,7 @@
             '<div class="max-w-[70%] flex flex-col ' + align + '">' +
             '<span class="text-[10px] text-slate-500 dark:text-slate-400 mb-1 px-1 font-semibold">' + escapeHtml(name) + '</span>' +
             '<div class="px-4 py-3 rounded-2xl text-xs leading-relaxed shadow-sm font-medium ' + bubble + '">' + escapeHtml(msg.message_text) + '</div>' +
-            '<span class="text-[9px] text-slate-500 dark:text-slate-400 mt-1 px-1 font-mono">' + timeAgo(msg.created_at) + '</span>' +
+            '<span class="text-[10px] text-slate-500 dark:text-slate-400 mt-1 px-1 font-mono">' + timeAgo(msg.created_at) + '</span>' +
             '</div></div>';
     }
 

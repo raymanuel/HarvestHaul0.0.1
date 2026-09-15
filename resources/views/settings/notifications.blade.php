@@ -3,7 +3,7 @@
 
     <div class="max-w-2xl mx-auto px-4 py-8 space-y-6">
         <div>
-            <h1 class="text-xl font-extrabold heading-font text-slate-800 dark:text-white">Notification Settings</h1>
+            <h1 class="text-2xl font-bold heading-font text-slate-900 dark:text-white">Notification Settings</h1>
         </div>
 
         <x-flash-success />
@@ -19,7 +19,7 @@
 
             @foreach($labels as $key => $label)
                 @unless($key === 'weather' && auth()->user()->role === 'farmer')
-                <div class="glass-card rounded-xl p-4 flex items-center justify-between">
+                <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-xl p-4 flex items-center justify-between">
                     <div>
                         <p class="text-sm font-bold text-slate-800 dark:text-slate-200">{{ $label[0] }}</p>
                         <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">{{ $label[1] }}</p>
@@ -35,7 +35,7 @@
             @endforeach
 
             <div class="pt-2">
-                <button type="submit" class="w-full bg-brand hover:bg-brand-dark text-white dark:bg-[#D7BC7A] dark:hover:bg-[#BFA05A] dark:text-[#17202B] text-xs font-bold py-2.5 rounded-xl transition-all duration-200 active:scale-[0.98] cursor-pointer">
+                <button type="submit" class="w-full bg-brand hover:bg-brand-dark text-white dark:bg-[#D7BC7A] dark:hover:bg-[#BFA05A] dark:text-[#17202B] text-xs font-bold py-2.5 rounded-xl transition-all duration-200 cursor-pointer">
                     Save Preferences
                 </button>
             </div>

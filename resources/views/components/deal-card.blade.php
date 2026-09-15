@@ -22,7 +22,7 @@
 @endphp
 
 <a href="{{ $url }}"
-   class="group flex items-start gap-4 bg-white dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700/80 rounded-2xl p-5 shadow-sm hover:shadow-md hover:border-gold/40 dark:hover:border-gold-light/40 transition duration-150">
+   class="group flex items-start gap-4 bg-white dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700/80 rounded-2xl p-5 shadow-sm hover:border-gold/40 dark:hover:border-gold-light/40 transition">
     <div class="w-11 h-11 rounded-xl flex items-center justify-center text-sm font-bold shrink-0 {{ $avatar }}">{{ $initial }}</div>
     <div class="min-w-0 flex-1">
         <div class="flex items-center justify-between gap-3">
@@ -40,5 +40,5 @@
             @if($activity)<span class="text-slate-400 dark:text-slate-500">{{ $activity }}</span>@endif
         </div>
     </div>
-    <span class="text-[#16283C] dark:text-[#D7BC7A] font-bold mt-1 group-hover:translate-x-0.5 transition">→</span>
+    <span class="text-[#16283C] dark:text-[#D7BC7A] font-bold mt-1">→</span>
 </a>

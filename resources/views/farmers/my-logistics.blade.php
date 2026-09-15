@@ -22,7 +22,7 @@
                 <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">When you mark a harvest as sold or a logistics partner picks it up, it will appear here.</p>
             </div>
         @else
-            <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-3xl overflow-hidden shadow-sm">
+            <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-2xl overflow-hidden shadow-sm">
                 <div class="overflow-x-auto">
                     <table class="w-full text-sm">
                         <thead>

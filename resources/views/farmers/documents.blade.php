@@ -21,7 +21,6 @@
             <div>
                 <h1 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight heading-font">My Documents</h1>
             </div>
-            <span class="text-xs font-semibold uppercase tracking-wider text-[#16283C] dark:text-[#D7BC7A] bg-[#16283C]/10 dark:bg-[#16283C]/10 px-3 py-1.5 rounded-md border border-[#16283C]/10 dark:border-[#16283C]/20 self-start">Verifications</span>
         </header>
 
         {{-- Flash Messages --}}
@@ -30,7 +29,7 @@
 
         {{-- Upload Form --}}
         <div class="bg-white dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700/80 rounded-2xl shadow-sm p-7 mb-8">
-            <h2 class="text-sm font-extrabold text-slate-800 dark:text-white heading-font mb-4 uppercase tracking-wider">Upload a Document</h2>
+            <h2 class="text-sm font-bold text-slate-800 dark:text-white heading-font mb-4 uppercase tracking-wider">Upload a Document</h2>
 
             <form method="POST" action="{{ route('farmer.documents.store') }}" enctype="multipart/form-data" class="space-y-4">
                 @csrf
@@ -90,7 +89,7 @@
 
                 <div class="pt-2">
                     <button type="submit"
-                        class="py-3 px-6 bg-[#16283C] hover:bg-[#0E1620] text-white dark:bg-[#D7BC7A] dark:hover:bg-[#BFA05A] dark:text-[#17202B] font-bold rounded-xl text-xs transition cursor-pointer shadow-sm shadow-[#16283C]/10">
+                        class="py-3 px-6 bg-[#16283C] hover:bg-[#0E1620] text-white dark:bg-[#D7BC7A] dark:hover:bg-[#BFA05A] dark:text-[#17202B] font-bold rounded-xl text-xs transition cursor-pointer">
                         Upload Document
                     </button>
                 </div>
@@ -99,7 +98,7 @@
 
         {{-- Submitted Documents --}}
         <div class="bg-white dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700/80 rounded-2xl shadow-sm p-7">
-            <h2 class="text-sm font-extrabold text-slate-800 dark:text-white heading-font mb-4 uppercase tracking-wider">Submitted Documents</h2>
+            <h2 class="text-sm font-bold text-slate-800 dark:text-white heading-font mb-4 uppercase tracking-wider">Submitted Documents</h2>
 
             @if($documents->isEmpty())
                 <p class="text-sm text-slate-500 dark:text-slate-400 font-semibold text-center py-6">No documents submitted yet.</p>

@@ -30,9 +30,6 @@
                     </h1>
                 </div>
                 <div class="flex flex-col items-start sm:items-end gap-2 self-start">
-                    <span class="text-xs font-semibold uppercase tracking-wider text-brand dark:text-brand-light bg-brand/10 dark:bg-brand/10 px-3 py-1.5 rounded-md border border-brand/10 dark:border-brand/20">
-                        Cost Ledger
-                    </span>
                     @if($invoice)
                         <a href="{{ route('invoices.download', $invoice) }}" target="_blank"
                            class="inline-flex items-center gap-1.5 text-xs font-bold text-slate-600 dark:text-slate-300 hover:text-brand dark:hover:text-brand-light bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-1.5 shadow-sm transition">

@@ -184,7 +184,7 @@
             </div>
 
             <div class="scroll-reveal">
-                <div class="bg-white rounded-3xl overflow-hidden border border-white/10 shadow-2xl">
+                <div class="bg-white rounded-2xl overflow-hidden border border-white/10 shadow-xl">
                     <div class="flex">
                         <div class="hidden sm:flex w-16 flex-col items-center py-6 gap-4 bg-[#16283C]">
                             <span class="text-[10px] font-extrabold tracking-tight text-[#D7BC7A] font-display">HH</span>
@@ -201,19 +201,19 @@
                             </div>
 
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div class="border-l-4 border-l-[#16283C] bg-white rounded-2xl p-4 shadow-sm">
+                                <div class="bg-white rounded-2xl p-4 shadow-sm">
                                     <p class="text-[10px] font-bold uppercase tracking-widest text-[#5A6573]">Active Harvests</p>
                                     <p class="text-2xl font-extrabold text-[#16283C] heading-font mt-1">3</p>
                                     <div class="pt-2 mt-2 border-t border-[#0E1620]/8 flex flex-wrap gap-1.5">
-                                        <span class="text-[9px] font-semibold text-[#5A6573] bg-[#F5F6F2] border border-[#0E1620]/8 px-2 py-0.5 rounded">240 kg rice</span>
-                                        <span class="text-[9px] font-semibold text-[#5A6573] bg-[#F5F6F2] border border-[#0E1620]/8 px-2 py-0.5 rounded">310 kg banana</span>
+                                        <span class="text-[10px] font-semibold text-[#5A6573] bg-[#F5F6F2] border border-[#0E1620]/8 px-2 py-0.5 rounded">240 kg rice</span>
+                                        <span class="text-[10px] font-semibold text-[#5A6573] bg-[#F5F6F2] border border-[#0E1620]/8 px-2 py-0.5 rounded">310 kg banana</span>
                                     </div>
                                 </div>
-                                <div class="border-l-4 border-l-white/25 bg-[#16283C] rounded-2xl p-4 text-white shadow-sm">
+                                <div class="bg-[#16283C] rounded-2xl p-4 text-white shadow-sm">
                                     <p class="text-[10px] font-bold uppercase tracking-widest text-white/70">Season Budget</p>
                                     <p class="text-2xl font-extrabold text-white heading-font mt-1">₱38,500 <span class="text-xs font-semibold text-white/70">per kg haul rate</span></p>
                                     <div class="pt-2 mt-2 border-t border-white/15 flex flex-wrap gap-1.5">
-                                        <span class="text-[9px] font-semibold text-white/80 bg-white/10 border border-white/15 px-2 py-0.5 rounded">₱2.50/kg agreed</span>
+                                        <span class="text-[10px] font-semibold text-white/80 bg-white/10 border border-white/15 px-2 py-0.5 rounded">₱2.50/kg agreed</span>
                                     </div>
                                 </div>
                             </div>
@@ -221,17 +221,17 @@
                             <div class="mt-4 bg-white rounded-2xl border border-[#0E1620]/8 overflow-hidden">
                                 <div class="flex items-center justify-between px-4 py-2.5 border-b border-[#0E1620]/8 bg-[#F5F6F2]/60">
                                     <p class="text-[10px] font-extrabold uppercase tracking-widest text-[#16283C]">DA RFO12 — Market Prices</p>
-                                    <span class="text-[9px] font-bold text-[#5A6573]">Today</span>
+                                    <span class="text-[10px] font-bold text-[#5A6573]">Today</span>
                                 </div>
                                 <table class="w-full text-left">
                                     <thead>
                                         <tr class="border-b border-[#0E1620]/8">
-                                            <th class="px-4 py-2 text-[9px] font-extrabold uppercase tracking-widest text-[#5A6573]">Category</th>
-                                            <th class="px-3 py-2 text-[9px] font-extrabold uppercase tracking-widest text-[#5A6573]">Commodity</th>
-                                            <th class="px-3 py-2 text-[9px] font-extrabold uppercase tracking-widest text-[#5A6573] text-right">Low</th>
-                                            <th class="px-3 py-2 text-[9px] font-extrabold uppercase tracking-widest text-[#5A6573] text-right">High</th>
-                                            <th class="px-3 py-2 text-[9px] font-extrabold uppercase tracking-widest text-[#5A6573] text-right">Common</th>
-                                            <th class="px-4 py-2 text-[9px] font-extrabold uppercase tracking-widest text-[#5A6573] text-right">DPI</th>
+                                            <th class="px-4 py-2 text-[10px] font-extrabold uppercase tracking-widest text-[#5A6573]">Category</th>
+                                            <th class="px-3 py-2 text-[10px] font-extrabold uppercase tracking-widest text-[#5A6573]">Commodity</th>
+                                            <th class="px-3 py-2 text-[10px] font-extrabold uppercase tracking-widest text-[#5A6573] text-right">Low</th>
+                                            <th class="px-3 py-2 text-[10px] font-extrabold uppercase tracking-widest text-[#5A6573] text-right">High</th>
+                                            <th class="px-3 py-2 text-[10px] font-extrabold uppercase tracking-widest text-[#5A6573] text-right">Common</th>
+                                            <th class="px-4 py-2 text-[10px] font-extrabold uppercase tracking-widest text-[#5A6573] text-right">DPI</th>
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-[#0E1620]/8">
@@ -256,7 +256,7 @@
                             </div>
 
                             <div class="mt-4 bg-white rounded-2xl border border-[#0E1620]/8 px-4 py-3 flex flex-wrap items-center gap-4">
-                                <span class="text-[9px] font-extrabold uppercase tracking-widest text-[#5A6573]">Route</span>
+                                <span class="text-[10px] font-extrabold uppercase tracking-widest text-[#5A6573]">Route</span>
                                 <div class="flex items-center gap-2">
                                     <span class="w-2.5 h-2.5 rounded-full bg-[#BFA05A]"></span>
                                     <span class="text-[10px] font-semibold text-[#5A6573]">Farm A</span>
@@ -267,8 +267,8 @@
                                     <span class="w-2.5 h-2.5 rounded-full bg-[#16283C]"></span>
                                     <span class="text-[10px] font-bold text-[#17202B]">Hub</span>
                                 </div>
-                                <span class="text-[9px] font-semibold text-[#5A6573] bg-[#F5F6F2] border border-[#0E1620]/8 px-2 py-0.5 rounded">2 stops</span>
-                                <span class="text-[9px] font-semibold text-[#5A6573] bg-[#F5F6F2] border border-[#0E1620]/8 px-2 py-0.5 rounded">38 km</span>
+                                <span class="text-[10px] font-semibold text-[#5A6573] bg-[#F5F6F2] border border-[#0E1620]/8 px-2 py-0.5 rounded">2 stops</span>
+                                <span class="text-[10px] font-semibold text-[#5A6573] bg-[#F5F6F2] border border-[#0E1620]/8 px-2 py-0.5 rounded">38 km</span>
                             </div>
                         </div>
                     </div>
@@ -453,7 +453,7 @@
             </div>
 
             <!-- Farmer Panel -->
-            <div id="role-farmer" role="tabpanel" aria-labelledby="role-btn-farmer" class="role-panel bg-[#F5F6F2] rounded-3xl border border-[#17202B]/5 overflow-hidden">
+            <div id="role-farmer" role="tabpanel" aria-labelledby="role-btn-farmer" class="role-panel bg-[#F5F6F2] rounded-2xl border border-[#17202B]/5 overflow-hidden">
                 <div class="grid grid-cols-1 lg:grid-cols-2">
                     <div class="p-8 sm:p-12 flex flex-col justify-center">
                         <h3 class="text-2xl font-display text-[#17202B] mb-4">Ship full loads without meeting minimums</h3>
@@ -497,7 +497,7 @@
             </div>
 
             <!-- Logistics Panel -->
-            <div id="role-logistics" role="tabpanel" aria-labelledby="role-btn-logistics" class="role-panel hidden bg-[#F5F6F2] rounded-3xl border border-[#17202B]/5 overflow-hidden">
+            <div id="role-logistics" role="tabpanel" aria-labelledby="role-btn-logistics" class="role-panel hidden bg-[#F5F6F2] rounded-2xl border border-[#17202B]/5 overflow-hidden">
                 <div class="grid grid-cols-1 lg:grid-cols-2">
                     <div class="p-8 sm:p-12 flex flex-col justify-center">
                         <h3 class="text-2xl font-display text-[#17202B] mb-4">Build optimized multi-stop routes in one screen</h3>
@@ -553,7 +553,7 @@
             </div>
 
             <!-- Driver Panel -->
-            <div id="role-driver" role="tabpanel" aria-labelledby="role-btn-driver" class="role-panel hidden bg-[#F5F6F2] rounded-3xl border border-[#17202B]/5 overflow-hidden">
+            <div id="role-driver" role="tabpanel" aria-labelledby="role-btn-driver" class="role-panel hidden bg-[#F5F6F2] rounded-2xl border border-[#17202B]/5 overflow-hidden">
                 <div class="grid grid-cols-1 lg:grid-cols-2">
                     <div class="p-8 sm:p-12 flex flex-col justify-center">
                         <h3 class="text-2xl font-display text-[#17202B] mb-4">Mobile-first dispatch with live GPS</h3>
@@ -600,7 +600,7 @@
             </div>
 
             <!-- Buyer Panel -->
-            <div id="role-buyer" role="tabpanel" aria-labelledby="role-btn-buyer" class="role-panel hidden bg-[#F5F6F2] rounded-3xl border border-[#17202B]/5 overflow-hidden">
+            <div id="role-buyer" role="tabpanel" aria-labelledby="role-btn-buyer" class="role-panel hidden bg-[#F5F6F2] rounded-2xl border border-[#17202B]/5 overflow-hidden">
                 <div class="grid grid-cols-1 lg:grid-cols-2">
                     <div class="p-8 sm:p-12 flex flex-col justify-center">
                         <h3 class="text-2xl font-display text-[#17202B] mb-4">Buy crops with price data on your side</h3>
@@ -791,7 +791,7 @@
                 </div>
 
                 <div class="relative">
-                    <div class="bg-[#F5F6F2] rounded-3xl p-8 border border-[#17202B]/5">
+                    <div class="bg-[#F5F6F2] rounded-2xl p-8 border border-[#17202B]/5">
                         <div class="space-y-6">
                             <div class="flex items-start gap-4">
                                 <span class="font-mono text-sm font-bold text-[#7C6527] mt-0.5">01</span>

@@ -1,13 +1,12 @@
-<x-layout title="New Outbound Order">
+<x-layout title="New Customer Order">
 
     <div class="w-full max-w-4xl mx-auto pb-12">
 
         <header class="pt-8 mb-6 border-b border-slate-200/80 dark:border-slate-700/80 pb-5">
             <a href="{{ route('coop.outbound.index') }}" class="text-sm text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 mb-4 inline-block font-semibold transition">
-                ← Back to Outbound Orders
+                ← Back to Customer Orders
             </a>
-            <span class="text-xs font-bold uppercase tracking-wider text-harvest-dark dark:text-harvest-light bg-harvest/10 dark:bg-harvest/20 px-3 py-1.5 rounded-md border border-harvest/10 dark:border-harvest/20 inline-block mb-2">Outbound Distribution</span>
-            <h1 class="text-3xl font-bold text-slate-900 dark:text-white tracking-tight heading-font">New Outbound Order</h1>
+            <h1 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight heading-font">New Customer Order</h1>
             <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Build an order for a customer — the total is rate × kg per line.</p>
         </header>
 
@@ -165,7 +164,9 @@
                         '<input type="number" step="0.01" min="0.01" name="lines[' + index + '][rate_per_kg]" value="' + values.rate_per_kg + '" placeholder="₱/kg" required oninput="recalcTotal()" class="w-full px-3 py-2.5 border border-slate-200 dark:border-slate-600 rounded-xl text-sm text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-900/60 focus:outline-none focus:ring-2 focus:ring-[#16283C]/30 focus:border-[#16283C] transition">' +
                     '</div>' +
                     '<div class="col-span-2 sm:col-span-1">' +
-                        '<button type="button" onclick="removeLine(this)" title="Remove line" class="inline-flex items-center justify-center w-9 h-9 text-red-500 hover:text-red-600 bg-red-50 hover:bg-red-100 dark:bg-red-950/20 dark:hover:bg-red-950/40 rounded-xl transition cursor-pointer"><x-icon name="trash" class="w-4 h-4" /></button>' +
+                        '<button type="button" onclick="removeLine(this)" title="Remove line" class="inline-flex items-center justify-center w-9 h-9 text-red-500 hover:text-red-600 bg-red-50 hover:bg-red-100 dark:bg-red-950/20 dark:hover:bg-red-950/40 rounded-xl transition cursor-pointer">' +
+                            '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>' +
+                        '</button>' +
                     '</div>';
                 container.appendChild(div);
                 recalcTotal();

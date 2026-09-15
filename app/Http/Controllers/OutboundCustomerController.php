@@ -36,13 +36,13 @@ class OutboundCustomerController extends Controller
         self::logAudit(Auth::id(), 'added_customer_card', 'customer_cards', $card->id, "Coop added customer {$card->name}.");
 
         return redirect()->route('coop.customers.index')
-            ->with('success', "Customer {$card->name} added to your list. You can now send them orders from Outbound.")
+            ->with('success', "Customer {$card->name} added to your list. You can now send them orders from Customer Orders.")
             ->with('next_steps', [
                 'title'   => 'Customer saved',
                 'message' => "Customer {$card->name} is on your list.",
                 'steps'   => [
-                    'You can now create an outbound order for this customer.',
-                    'Open Outbound Orders and press New Order.',
+                    'You can now create customer orders for this customer.',
+                    'Open Customer Orders and press New Order.',
                 ],
             ]);
     }
@@ -60,7 +60,7 @@ class OutboundCustomerController extends Controller
         $customerCard->update($request->validated());
 
         return redirect()->route('coop.customers.index')
-            ->with('success', "Customer {$customerCard->name} updated. Your next outbound order will use the new details.");
+            ->with('success', "Customer {$customerCard->name} updated. Your next customer order will use the new details.");
     }
 
     public function destroy(CustomerCard $customerCard)

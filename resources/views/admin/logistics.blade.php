@@ -4,7 +4,7 @@
     <header class="pt-8 mb-8">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-                <h1 class="text-2xl font-extrabold text-slate-800 dark:text-white heading-font tracking-tight">Logistics Verification</h1>
+                <h1 class="text-2xl font-bold text-slate-800 dark:text-white heading-font tracking-tight">Logistics Verification</h1>
             </div>
             <span class="text-[10px] font-bold uppercase tracking-widest text-harvest-dark dark:text-harvest-light bg-harvest/10 dark:bg-harvest/20 px-3 py-1.5 rounded-md border border-harvest/10 dark:border-harvest/20 self-start">{{ $partners->count() }} Partners</span>
         </div>
@@ -34,7 +34,7 @@
         <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-900/40 transition">
             <td class="px-4 py-3">
                 <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-md bg-gradient-to-tr from-harvest/20 to-harvest/10 dark:from-harvest/20 dark:to-harvest/10 border border-harvest/20 dark:border-harvest/20 flex items-center justify-center text-[10px] font-extrabold text-harvest-dark dark:text-harvest-light uppercase">{{ substr($partner->name, 0, 2) }}</div>
+                    <div class="w-8 h-8 rounded-md bg-harvest/10 dark:bg-harvest/10 border border-harvest/20 dark:border-harvest/20 flex items-center justify-center text-[10px] font-extrabold text-harvest-dark dark:text-harvest-light uppercase">{{ substr($partner->name, 0, 2) }}</div>
                     <span class="font-bold text-slate-800 dark:text-slate-200 text-sm">{{ $partner->name }}</span>
                 </div>
             </td>
