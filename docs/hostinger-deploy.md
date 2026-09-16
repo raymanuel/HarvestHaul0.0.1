@@ -38,7 +38,9 @@ powershell -ExecutionPolicy Bypass -File scripts/build-release.ps1
 This:
 - re-builds the design assets (CSS/JS),
 - clears stale caches,
-- packs the app into `dist/harvesthaul-release.zip` — about **75 MB**,
+- packs the app into `dist/harvesthaul-release.zip` — about **36 MB**.
+  `vendor/` (the ready-made code libraries) is included, so the server needs no
+  Composer step on a fresh extract,
 - **verifies** that secrets, `public/hot`, local logs/uploads, and node_modules
   are all excluded (it refuses to build if `.env` or `public/hot` sneak in).
 
@@ -66,6 +68,15 @@ When it finishes it prints a green "Release zip ready" message.
 
 ## Part 3 — Upload and extract the zip (no SSH needed for this part)
 
+> **Heads-up:** File Manager's Extract has been seen to *silently drop files* on
+> big uploads (a 10,000+ file app can lose whole folders — `app/`, `config/`,
+> even `vendor/composer/` — with no error). It happens rarely, but when it does
+> the site looks broken with no obvious cause. **Always verify** after extracting
+> that `laravel_app/` contains `app/`, `config/`, `database/`, `public/`,
+> `routes/`, `resources/`, `storage/`, and `vendor/`. If any is missing, delete
+> and re-extract (the symptoms below in "If the site still fails the check" are
+> what a silent drop looks like).
+
 1. **hPanel → Websites → your subdomain → File Manager** (or a new browser tab to
    the File Manager for that domain).
 2. Inside `~/domains/harvesthaul.yourbrand.com/`, create a folder named
@@ -73,7 +84,8 @@ When it finishes it prints a green "Release zip ready" message.
 3. Upload `harvesthaul-release.zip` into `laravel_app/` (File Manager → Upload →
    doesn't matter where it downloaded to on your PC).
 4. Select the zip in File Manager → **Extract**. When done, `laravel_app/` contains
-   `app/`, `config/`, `vendor/`, `public/`, `artisan`, etc. Delete the zip.
+   `app/`, `config/`, `database/`, `public/`, `routes/`, `resources/`, `storage/`,
+   `artisan`, `composer.json`, etc. Delete the zip.
 
 > If File Manager struggles with the size, use **FileZilla** (free) instead:
 > connect with your hPanel FTP credentials (hPanel → FTP Accounts), navigate the
@@ -147,7 +159,10 @@ php artisan db:seed --class=DemoSeeder --force
 
 What each does, in plain words:
 - `key:generate` — creates the site's secret key (fills the empty APP_KEY).
-- `storage:link` — makes farmers' crop photos publicly viewable.
+- `storage:link` — makes farmers' crop photos publicly viewable. **If this fails
+  with "Call to undefined function ... exec()"**, the server blocks that helper;
+  create the shortcut by hand instead:
+  `ln -s ../storage/app/public public/storage`.
 - `migrate --force` — builds all the database tables (the empty "record book").
 - `optimize` — pre-loads routes/config/views so pages load fast.
 - `db:seed --class=DemoSeeder --force` — loads **labeled DEMO accounts** and a few
@@ -160,6 +175,19 @@ What each does, in plain words:
 
 If `php` isn't found, first run: `alias php=/opt/alt/php82/usr/bin/php` (ask
 hPanel which PHP version you chose; adjust `php82` to `php83` if needed).
+
+**If any command prints nothing and just drops you back to `$`** — the most
+common cause is a silent-extract dropped `vendor/composer/autoload_real.php`.
+Quick fix:
+
+```bash
+cd ~/domains/harvesthaul.yourbrand.com/laravel_app
+php /usr/local/bin/composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
+```
+
+Then re-run the five artisan commands above. (This is also needed if you
+deliberately use the code-only zip build that excludes `vendor/` to keep uploads
+small.)
 
 ---
 
@@ -227,6 +255,13 @@ If you see a white page: 90% of the time it's a typo in `.env` (re-check the DB
 lines) or PHP version not set to 8.2 in hPanel. Check
 `laravel_app/storage/logs/laravel.log` for the actual error.
 
+**If `php artisan anything` silently prints nothing and exits** (you just get
+your `$` prompt back with no "INFO ..." line), it's almost always the File
+Manager silent-drop: `vendor/composer/autoload_real.php` (or whole backend
+folders) went missing during Extract. Re-upload the zip and re-extract, or use
+FileZilla. A quick tell: `ls laravel_app/vendor/composer` must list files like
+`autoload_real.php` and `ClassLoader.php`.
+
 ---
 
 ## Part 11 — Updating HarvestHaul later (the app is still in development)
@@ -241,7 +276,7 @@ on Hostinger**, replacing code is always safe.
 | PHP code / pages / logic | only those files | `cd laravel_app && php artisan optimize:clear` |
 | Design (CSS/JS) | `public/build/` (built fresh on your PC) | `php artisan view:cache` |
 | The record structure (a new thing harvests keep) | the new migration file | `php artisan migrate --force` |
-| A new package you added | `vendor/` again | `php artisan optimize` |
+| A new package you added | nothing extra (it's in the zip's `composer.json`) | `php /usr/local/bin/composer install --no-dev` then `php artisan optimize` |
 
 **Easiest way — let the tool pack it for you.** On your PC:
 

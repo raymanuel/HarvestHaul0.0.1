@@ -71,7 +71,8 @@ $incFiles = @('artisan','composer.json','composer.lock','package.json','package-
 $exDirs = @(
     '.git','.github','.agents','.claude','.opencode','.superpowers','.impeccable',
     'node_modules','tests','test-results','dist',
-    'eval','response','tasks','__verify','Nice-Admin-master','page-ui-main','docs'
+    'eval','response','tasks','__verify','Nice-Admin-master','page-ui-main','docs',
+    'storage'
 )
 
 $exFiles = @(
