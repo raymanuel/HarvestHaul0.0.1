@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use App\Models\AuditLog;
@@ -28,7 +29,7 @@ use App\Traits\HasBuyerRelations;
  *   Each role gets a separate profile model (FarmerProfile, etc.)
  * ═══════════════════════════════════════════════════════════════
  */
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable, HasFarmerRelations, HasDriverRelations, HasLogisticsRelations, HasBuyerRelations;

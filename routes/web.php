@@ -126,7 +126,7 @@ Route::middleware('guest')->group(function () {
 Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
 
     Route::post('logout', [LoginController::class, 'logout'])->middleware('throttle:10,1')->name('logout');
-    Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('dashboard', [DashboardController::class, 'index'])->middleware('verified')->name('dashboard');
 
     // Profile Management
     Route::get('profile', [ProfileController::class, 'show'])->name('profile.show');

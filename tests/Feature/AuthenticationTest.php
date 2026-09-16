@@ -63,6 +63,44 @@ class AuthenticationTest extends TestCase
         $this->assertAuthenticatedAs($user);
     }
 
+    public function test_unverified_user_is_blocked_from_dashboard(): void
+    {
+        $user = User::factory()->unverified()->create([
+            'password' => bcrypt('password'),
+        ]);
+
+        $response = $this->actingAs($user)->get('/dashboard');
+
+        $response->assertRedirect(route('verification.notice'));
+    }
+
+    public function test_unverified_user_is_blocked_from_feature_routes(): void
+    {
+        $user = User::factory()->farmer()->unverified()->create();
+
+        $response = $this->actingAs($user)->get('/harvests/create');
+
+        $response->assertRedirect(route('verification.notice'));
+    }
+
+    public function test_user_can_access_dashboard_after_otp_verification(): void
+    {
+        $user = User::factory()->unverified()->create();
+        $user->forceFill([
+            'email_otp'            => '123456',
+            'email_otp_expires_at' => now()->addMinutes(10),
+        ])->save();
+
+        $response = $this->actingAs($user)->post('/email/verify-otp', [
+            'otp' => '123456',
+        ]);
+
+        $response->assertRedirect();
+        $this->assertNotNull($user->fresh()->email_verified_at);
+
+        $this->actingAs($user)->get('/dashboard')->assertStatus(200);
+    }
+
     public function test_inactive_user_cannot_login(): void
     {
         $user = User::factory()->inactive()->create([
