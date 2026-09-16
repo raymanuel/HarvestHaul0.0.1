@@ -672,7 +672,7 @@
         return '<div class="flex ' + align + ' my-2">' +
             '<div class="max-w-[70%] flex flex-col ' + align + '">' +
             '<span class="text-[10px] text-slate-400 dark:text-slate-500 mb-1 px-1 font-semibold">' + escapeHtml(name) + '</span>' +
-<div class="px-3 py-2 rounded-2xl text-[11px] leading-relaxed shadow-sm font-medium ' + bubble + '">' + escapeHtml(msg.message_text) + '</div>' +
+            '<div class="px-3 py-2 rounded-2xl text-[11px] leading-relaxed shadow-sm font-medium ' + bubble + '">' + escapeHtml(msg.message_text) + '</div>' +
             '<span class="text-[9px] text-slate-500 dark:text-slate-400 mt-1 px-1 font-mono">' + timeAgo(msg.created_at) + '</span>' +
             '</div></div>';
     }
