@@ -14,7 +14,11 @@ class UpdateStopStatusAction
     use GeometryHelper;
 
     /**
-     * Update a harvest stop's status on a pooling route (assigned → arrived → loaded → delivered).
+     * Update a harvest stop's status on a pooling route.
+     *
+     * Pickups (arrived → loaded) may happen in any order across farms so the
+     * driver can load every crop first; deliveries may only start once every
+     * non-rejected stop has been loaded.
      *
      * @throws \RuntimeException on validation failure
      */
@@ -24,7 +28,7 @@ class UpdateStopStatusAction
         $currentStopStatus = $harvest->pivot->status;
 
         $this->validateJobInProgress($poolingJob);
-        $this->validatePickupOrder($poolingJob, $harvest);
+        $this->validateAllLoadedBeforeDeliver($poolingJob, $targetStatus);
         $this->validateSequencing($targetStatus, $currentStopStatus);
         $this->validateGeofenceIfArrived($poolingJob, $harvest, $targetStatus);
         $this->validateLoadedQuantity($harvest, $validated, $targetStatus);
@@ -76,15 +80,18 @@ class UpdateStopStatusAction
         }
     }
 
-    protected function validatePickupOrder(PoolingJob $poolingJob, Harvest $harvest): void
+    protected function validateAllLoadedBeforeDeliver(PoolingJob $poolingJob, string $targetStatus): void
     {
-        $nextStop = $poolingJob->harvests()
-            ->wherePivot('status', '!=', 'delivered')
-            ->orderByPivot('pickup_order')
-            ->first();
+        if ($targetStatus !== 'delivered') {
+            return;
+        }
 
-        if (!$nextStop || $nextStop->id !== $harvest->id) {
-            throw new \RuntimeException('Stops must be completed in order. Finish the previous stop before updating this one.');
+        $notLoaded = $poolingJob->harvests()
+            ->wherePivotIn('status', ['assigned', 'arrived'])
+            ->exists();
+
+        if ($notLoaded) {
+            throw new \RuntimeException('Load all crop stops before starting drop-off.');
         }
     }
 

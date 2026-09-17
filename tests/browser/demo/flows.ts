@@ -20,7 +20,7 @@ import {
   shot as shotHelper,
   swalConfirm,
   swalSubmit,
-  tomorrow,
+  today,
   wireLogging,
 } from "./helpers";
 
@@ -136,7 +136,7 @@ export async function postHarvests(ctx: Ctx, farmers: DemoFarm[], fp: Page) {
 
       await fp.fill("#quantity_kg", f.qty);
       await fp.fill("#suggested_price_per_kg", f.price);
-      await fp.fill("#harvest_date", tomorrow());
+      await fp.fill("#harvest_date", today());
       await fp.fill("#notes", `E2E DEMO ${f.crop} (${f.variety}) from ${f.name}`);
 
       await fp.locator("#post-harvest-btn").click();
@@ -459,6 +459,7 @@ export async function runInboundDriver(ctx: Ctx, browser: Browser, driverEmail: 
     const fixtures = makeFixtures();
     let stopNo = 0;
     const stopPatch = /\/driver\/jobs\/\d+\/harvests\/\d+\/status/;
+    // Pass A — pickups: arrive + load each farm, any order (server allows it).
     for (let attempt = 0; attempt < 6; attempt++) {
       const arrivedBtn = dp.getByRole("button", { name: /Mark Arrived at Pick-up/i }).first();
       let arrivedVisible = false;
@@ -494,18 +495,20 @@ export async function runInboundDriver(ctx: Ctx, browser: Browser, driverEmail: 
         await jsSubmitForm(dp, loadBtn, stopPatch);
         await shot(`stop-${stopNo}-loaded-${shortName}`, `Stop ${stopNo} — cargo loaded with photo proof`);
       }
+    }
+    if (stopNo === 0) throw new Error("No pickup stops were completed by the driver");
 
+    // Pass B — deliveries: allowed only after every stop is loaded (server-enforced).
+    for (let attempt = 0; attempt <= stopNo; attempt++) {
       const receipt = dp.locator("#delivery_receipt").first();
       if (await receipt.isVisible().catch(() => false)) { await receipt.setInputFiles(fixtures.delivery); }
       const deliverBtn = dp.getByRole("button", { name: /Mark Delivered/i }).first();
       let deliverVisible = false;
       try { await deliverBtn.waitFor({ state: "visible", timeout: 3_000 }); deliverVisible = true; } catch { }
-      if (deliverVisible) {
-        await jsSubmitForm(dp, deliverBtn, stopPatch);
-        await shot(`stop-${stopNo}-delivered-${shortName}`, `Stop ${stopNo} — crop delivered to the coop hub`);
-      }
+      if (!deliverVisible) break;
+      await jsSubmitForm(dp, deliverBtn, stopPatch);
+      await shot(`stop-${attempt + 1}-delivered-${shortName}`, `Stop ${attempt + 1} — crop delivered to the coop hub`);
     }
-    if (stopNo === 0) throw new Error("No pickup stops were completed by the driver");
 
     const completeBtn = dp.getByRole("button", { name: /Complete Run|Finalize Job|Complete Job/i }).first();
     let completeVisible = false;

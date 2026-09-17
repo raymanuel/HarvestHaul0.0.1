@@ -1,5 +1,10 @@
 <x-driver-layout title="Job #{{ $job->id }} — HarvestHaul" themeColor="#16283C">
 
+    @push('head')
+        <link rel="stylesheet" href="{{ asset('vendor/leaflet/leaflet.css') }}" />
+        <script src="{{ asset('vendor/leaflet/leaflet.js') }}"></script>
+    @endpush
+
     <!-- Top Header Panel -->
     <header class="bg-[#16283C] text-white px-5 pt-6 pb-5 sticky top-0 z-20 shadow-md">
         <div class="flex items-center gap-4 max-w-lg mx-auto">
@@ -59,6 +64,29 @@
                 </div>
             @endif
         </div>
+
+        <!-- Route Map (collapsible) -->
+        @php
+            $jobMapStops = $job->harvests->filter(fn($h) => !empty($h->latitude) && !empty($h->longitude))->values();
+            $jobHasMap = ($job->start_latitude && $job->start_longitude) || $jobMapStops->isNotEmpty();
+        @endphp
+        @if($jobHasMap)
+            <div class="bg-white rounded-2xl border border-slate-200/80 overflow-hidden shadow-sm">
+                <button type="button" id="routeMapToggleBtn" class="w-full flex items-center justify-between px-5 py-4 hover:bg-slate-50 dark:hover:bg-white/5 transition cursor-pointer">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+                        <x-icon name="map" class="w-3 h-3" /> Route Map
+                    </span>
+                    <span id="routeMapToggleLabel" class="text-[11px] font-bold text-[#16283C] dark:text-[#D7BC7A] flex items-center gap-1">
+                        <span id="routeMapToggleText">Show Map</span>
+                        <svg id="routeMapChevronDown" class="w-3.5 h-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                        <svg id="routeMapChevronUp" class="w-3.5 h-3.5 hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7"/></svg>
+                    </span>
+                </button>
+                <div id="routeMapWrap" class="hidden">
+                    <div id="routeMap" class="w-full h-48 border-t border-slate-100"></div>
+                </div>
+            </div>
+        @endif
 
         <!-- ETA + Weather -->
         @if(in_array($job->status->value, ['in_progress', 'confirmed']))
@@ -343,7 +371,7 @@
                                     @if($harvest->pivot->delivery_receipt_path)
                                         <div class="text-[10px] text-slate-400 font-bold flex items-center gap-1">
                                             <x-icon name="paperclip" class="w-3 h-3 inline" /> Goods Photo Uploaded: 
-                                            <a href="{{ route('files.show', ['type' => 'delivery-receipt', 'id' => $harvest->id]) }}" target="_blank" class="text-[#16283C] hover:underline">View Photo</a>
+                                            <a href="{{ route('files.show', ['type' => 'delivery-receipt', 'id' => $harvest->id]) }}" target="_blank" class="text-[#16283C] dark:text-[#D7BC7A] hover:underline">View Photo</a>
                                         </div>
                                     @endif
                                 </div>
@@ -486,11 +514,11 @@
         }
 
         // ─────────────────────────────────────────
-        // GPS telemetry loop (only when in_progress)
+        // GPS telemetry loop (from acceptance/confirmed until trip ends)
         // Uses real device GPS via watchPosition()
-        // Sends position every 30 seconds to server
+        // Sends position every 2 seconds to server
         // ─────────────────────────────────────────
-        if (jobStatus === 'in_progress') {
+        if (['confirmed', 'in_progress'].includes(jobStatus)) {
             requestWakeLock();
 
             // Re-acquire lock when page is visible again
@@ -501,7 +529,7 @@
             });
 
             let lastSentAt = 0;
-            const SEND_INTERVAL_MS = 30000; // 30 seconds per spec
+            const SEND_INTERVAL_MS = 2000; // 2 seconds per spec
 
             async function sendPosition(latitude, longitude) {
                 const now = Date.now();
@@ -606,6 +634,84 @@
             out.forEach((f) => dt.items.add(f));
             el.files = dt.files;
           });
+        });
+      });
+    </script>
+    @endpush
+
+    @push('scripts')
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        const mapEl = document.getElementById('routeMap');
+        const mapWrap = document.getElementById('routeMapWrap');
+        const mapToggleBtn = document.getElementById('routeMapToggleBtn');
+        const mapToggleText = document.getElementById('routeMapToggleText');
+        const mapChevronDown = document.getElementById('routeMapChevronDown');
+        const mapChevronUp = document.getElementById('routeMapChevronUp');
+
+        if (!mapEl || !mapWrap || !mapToggleBtn || typeof L === 'undefined') return;
+
+        const startLat = {{ $job->start_latitude ?? 6.1164 }};
+        const startLng = {{ $job->start_longitude ?? 125.1716 }};
+        const stops = @json($jobMapStops->map(fn($h) => ['name' => $h->farmer->name ?? 'Farm Stop', 'lat' => (float) $h->latitude, 'lng' => (float) $h->longitude]));
+        const rawRoute = @json($job->route_geometry ?? []);
+
+        let routeMap = null;
+        let mapInitialized = false;
+        let routeBounds = null;
+
+        function initRouteMap() {
+          if (mapInitialized) return;
+          mapInitialized = true;
+
+          routeMap = L.map('routeMap').setView([startLat, startLng], 12);
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: ' OpenStreetMap contributors' }).addTo(routeMap);
+
+          const startIcon = L.divIcon({
+            html: '<div style="width:16px;height:16px;border-radius:50%;background:#16283C;border:3px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.3)"></div>',
+            className: '', iconSize: [16, 16], iconAnchor: [8, 8]
+          });
+          const stopIcon = function (n) {
+            return L.divIcon({
+              html: '<div style="width:20px;height:20px;border-radius:50%;background:#16283C;border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700">' + n + '</div>',
+              className: '', iconSize: [20, 20], iconAnchor: [10, 10]
+            });
+          };
+
+          routeBounds = L.latLngBounds();
+          L.marker([startLat, startLng], { icon: startIcon }).bindPopup('<b>Start (Coop)</b>').addTo(routeMap);
+          routeBounds.extend([startLat, startLng]);
+
+          stops.forEach(function (stop, i) {
+            L.marker([stop.lat, stop.lng], { icon: stopIcon(i + 1) }).bindPopup('<b>' + stop.name + '</b>').addTo(routeMap);
+            routeBounds.extend([stop.lat, stop.lng]);
+          });
+
+          if (Array.isArray(rawRoute) && rawRoute.length > 1) {
+            L.polyline(rawRoute.map(function (p) { return [p[1], p[0]]; }), { color: '#16283C', weight: 4, opacity: 0.7 }).addTo(routeMap);
+          }
+
+          routeMap.fitBounds(routeBounds, { padding: [50, 50] });
+        }
+
+        mapToggleBtn.addEventListener('click', function () {
+          const showing = !mapWrap.classList.contains('hidden');
+
+          if (showing) {
+            mapWrap.classList.add('hidden');
+            mapToggleText.textContent = 'Show Map';
+            mapChevronDown.classList.remove('hidden');
+            mapChevronUp.classList.add('hidden');
+          } else {
+            initRouteMap();
+            mapWrap.classList.remove('hidden');
+            mapToggleText.textContent = 'Minimize Map';
+            mapChevronDown.classList.add('hidden');
+            mapChevronUp.classList.remove('hidden');
+            setTimeout(function () {
+              if (routeMap) routeMap.invalidateSize();
+            }, 0);
+          }
         });
       });
     </script>

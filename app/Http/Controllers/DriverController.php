@@ -3,17 +3,22 @@
 namespace App\Http\Controllers;
 
 use App\Actions\UpdateStopStatusAction;
-use App\Http\Requests\UpdateStopStatusRequest;
 use App\Http\Requests\StoreFuelLogRequest;
+use App\Http\Requests\UpdateStopStatusRequest;
 use App\Http\Requests\UploadIdentityRequest;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
+use App\Models\FuelLog;
+use App\Models\Notification;
 use App\Models\PoolingJob;
 use App\Models\PoolingJobStatus;
+use App\Models\TrackingRecord;
+use App\Models\WeatherLog;
+use App\Services\ETAService;
 use App\Services\WeatherService;
 use App\Traits\GeometryHelper;
 use App\Traits\Notifiable;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class DriverController extends Controller
 {
@@ -29,13 +34,11 @@ class DriverController extends Controller
         $jobs = PoolingJob::where('driver_id', $user->id)
             ->whereIn('status', ['confirmed', 'in_progress'])
             ->with(['truck', 'harvests.crop', 'harvests.farmer', 'harvests.destination'])
-            ->latest()
-            ->take(20)
             ->get();
 
         // Attach each job's latest recorded weather so the dashboard can show
         // a compact condition/severity line on the job cards.
-        $weatherByJob = \App\Models\WeatherLog::query()
+        $weatherByJob = WeatherLog::query()
             ->whereIn('pooling_job_id', $jobs->pluck('id'))
             ->orderByDesc('checked_at')
             ->get()
@@ -45,21 +48,41 @@ class DriverController extends Controller
             $job->setAttribute('weather', $weatherByJob->get($job->id)?->first());
         }
 
-        $completedJobs = PoolingJob::where('driver_id', $user->id)
-            ->where('status', 'completed')
-            ->count();
+        // Order by haul day, then split: runs due today (or slipped past) stay
+        // actionable up top; future runs wait under Upcoming so a 3-7 day
+        // booking doesn't clutter the driver's live list.
+        $jobs = $jobs->sortBy(fn ($job) => $job->scheduledAt()->timestamp)->values();
 
-        $weekStart = now()->startOfWeek();
-        $fuelSummary = \App\Models\FuelLog::where('driver_id', $user->id)
-            ->where('created_at', '>=', $weekStart)
-            ->selectRaw('COALESCE(SUM(fuel_liters), 0) as liters, COALESCE(SUM(cost), 0) as cost')
-            ->first();
+        $isActionable = fn ($job) => $job->status->value === 'in_progress' || $job->isDueToday();
+        $todayJobs = $jobs->filter($isActionable)->values();
+        $upcomingJobs = $jobs->reject($isActionable)->values();
+
+        $driverProfile = $user->driverProfile;
+        $needsUpload = $driverProfile && ! $driverProfile->id_photo_path;
+        $awaitingAcceptance = $jobs->whereNull('accepted_at')->count();
+
+        $attention = collect();
+
+        if ($awaitingAcceptance > 0) {
+            $attention->push([
+                'label' => 'Route awaiting your acceptance',
+                'count' => $awaitingAcceptance,
+                'href' => route('driver.dashboard'),
+            ]);
+        }
+
+        if ($needsUpload) {
+            $attention->push([
+                'label' => 'Upload your ID and selfie to finish verification',
+                'count' => 1,
+                'href' => route('driver.dashboard'),
+            ]);
+        }
 
         return view('driver.driver-view', [
-            'jobs'               => $jobs,
-            'completedToday'     => $completedJobs,
-            'fuelThisWeekLiters' => (float) ($fuelSummary->liters ?? 0),
-            'fuelThisWeekCost'   => (float) ($fuelSummary->cost ?? 0),
+            'todayJobs' => $todayJobs,
+            'upcomingJobs' => $upcomingJobs,
+            'attention' => $attention,
         ]);
     }
 
@@ -80,7 +103,7 @@ class DriverController extends Controller
             // Outbound legs have no farmer stops, so the farmer-stop ETA/delay
             // pipeline must be skipped entirely for this view.
             return view('driver.outbound-job', [
-                'job'   => $poolingJob,
+                'job' => $poolingJob,
                 'order' => $poolingJob->outboundOrder,
             ]);
         }
@@ -89,7 +112,7 @@ class DriverController extends Controller
             'truck',
             'harvests' => function ($query) {
                 $query->orderByPivot('pickup_order')
-                      ->wherePivot('status', '!=', 'rejected');
+                    ->wherePivot('status', '!=', 'rejected');
             },
             'harvests.crop',
             'harvests.farmer.farmerProfile',
@@ -97,18 +120,31 @@ class DriverController extends Controller
             'logisticsProfile',
         ]);
 
+        // Order the farm list by straight-line distance from the run's start
+        // point (nearest first) so the driver knows which pickup comes next.
+        $startLat = (float) ($poolingJob->start_latitude ?? 6.1164);
+        $startLng = (float) ($poolingJob->start_longitude ?? 125.1716);
+        $poolingJob->setRelation('harvests', $poolingJob->harvests
+            ->sortBy(function ($harvest) use ($startLat, $startLng) {
+                if (! $harvest->latitude || ! $harvest->longitude) {
+                    return PHP_FLOAT_MAX;
+                }
+                return $this->haversine($startLat, $startLng, (float) $harvest->latitude, (float) $harvest->longitude);
+            })
+            ->values());
+
         // Latest weather recorded for this route (weather card).
-        $weatherLog = \App\Models\WeatherLog::where('pooling_job_id', $poolingJob->id)
+        $weatherLog = WeatherLog::where('pooling_job_id', $poolingJob->id)
             ->orderByDesc('checked_at')
             ->first();
 
         // Weather-adjusted ETA for the driver.
-        $eta = app(\App\Services\ETAService::class)->getETAForJob($poolingJob);
+        $eta = app(ETAService::class)->getETAForJob($poolingJob);
 
         return view('driver.driver-job-show', [
-            'job'        => $poolingJob,
+            'job' => $poolingJob,
             'weatherLog' => $weatherLog,
-            'eta'        => $eta,
+            'eta' => $eta,
         ]);
     }
 
@@ -127,21 +163,29 @@ class DriverController extends Controller
         $poolingJob->load('harvests.crop');
 
         $allowedTransitions = [
-            PoolingJobStatus::CONFIRMED->value   => PoolingJobStatus::IN_PROGRESS,
+            PoolingJobStatus::CONFIRMED->value => PoolingJobStatus::IN_PROGRESS,
             PoolingJobStatus::IN_PROGRESS->value => PoolingJobStatus::AWAITING_CONFIRMATION,
         ];
 
         $currentStatus = $poolingJob->status->value;
 
-        if (!isset($allowedTransitions[$currentStatus])) {
+        if (! isset($allowedTransitions[$currentStatus])) {
             return back()->with('error', 'This job cannot be updated further.');
         }
 
         $newStatus = $allowedTransitions[$currentStatus];
 
         if ($newStatus === PoolingJobStatus::IN_PROGRESS) {
-            if (!$poolingJob->accepted_at) {
+            if (! $poolingJob->accepted_at) {
                 return back()->with('error', 'Accept the job before starting the trip.');
+            }
+
+            // Haul day is still ahead: the driver can accept early, but the
+            // run itself only starts on the day.
+            if (! $poolingJob->isDueToday()) {
+                return back()->with('error',
+                    'This run is scheduled for '.$poolingJob->scheduledAt()->format('M d, Y')
+                    .'. You can accept it now and start on the day.');
             }
 
             // Reset all non-delivered, non-rejected stop pivots to 'assigned'
@@ -168,7 +212,7 @@ class DriverController extends Controller
                 // Outbound jobs have no harvests to check: the order delivery must
                 // have been finalized by the driver via markOutboundDelivered().
                 $order = $poolingJob->outboundOrder;
-                if (!$order || !$order->delivered_at) {
+                if (! $order || ! $order->delivered_at) {
                     return back()->withErrors(['order' => 'Mark the delivery as Delivered before finalizing the trip.']);
                 }
                 $order->update(['status' => 'awaiting_confirmation']);
@@ -185,7 +229,7 @@ class DriverController extends Controller
                     }
                 }
 
-                if (!$allDelivered) {
+                if (! $allDelivered) {
                     return back()->with('error', 'Cannot finalize job. All crop stops must be marked as Delivered first.');
                 }
             }
@@ -199,7 +243,7 @@ class DriverController extends Controller
             }
 
             // Calculate actual distance from tracking records
-            $trackingRecords = \App\Models\TrackingRecord::where('pooling_job_id', $poolingJob->id)
+            $trackingRecords = TrackingRecord::where('pooling_job_id', $poolingJob->id)
                 ->orderBy('posted_at')
                 ->get();
             $actualDistance = 0.0;
@@ -225,7 +269,7 @@ class DriverController extends Controller
             'updated_dispatch_status',
             'pooling_job',
             $poolingJob->id,
-            "Driver " . Auth::user()->name . " updated route #{$poolingJob->id} status from {$currentStatus} to {$newStatus->value}."
+            'Driver '.Auth::user()->name." updated route #{$poolingJob->id} status from {$currentStatus} to {$newStatus->value}."
         );
 
         // Trigger Notifications
@@ -260,18 +304,18 @@ class DriverController extends Controller
 
         $nextSteps = match ($newStatus) {
             PoolingJobStatus::IN_PROGRESS => [
-                'title'   => 'Trip started',
+                'title' => 'Trip started',
                 'message' => 'Job status updated to In Transit.',
-                'steps'   => [
+                'steps' => [
                     'You are now actively hauling this route.',
                     'Work through each stop in order: Mark Arrived, Confirm Load, then Mark Delivered.',
                     'GPS telemetry streams throughout the trip.',
                 ],
             ],
             PoolingJobStatus::AWAITING_CONFIRMATION => [
-                'title'   => 'Route complete',
+                'title' => 'Route complete',
                 'message' => 'Job status updated to Awaiting Confirmation.',
-                'steps'   => [
+                'steps' => [
                     'Your physical trip is done and the truck has been released.',
                     'The route now awaits the buyer confirming their receipt.',
                     'Once confirmed, the route is completed and drops off your active jobs.',
@@ -280,10 +324,11 @@ class DriverController extends Controller
             default => null,
         };
 
-        $response = back()->with('success', 'Job status updated to ' . $statusLabel . '.');
+        $response = back()->with('success', 'Job status updated to '.$statusLabel.'.');
         if ($nextSteps) {
             $response->with('next_steps', $nextSteps);
         }
+
         return $response;
     }
 
@@ -296,7 +341,7 @@ class DriverController extends Controller
     private function fetchAndPersistStartWeather(PoolingJob $poolingJob): void
     {
         try {
-            if (!$poolingJob->start_latitude || !$poolingJob->start_longitude) {
+            if (! $poolingJob->start_latitude || ! $poolingJob->start_longitude) {
                 return;
             }
 
@@ -306,24 +351,24 @@ class DriverController extends Controller
                 $poolingJob->id
             );
 
-            if (!$weather) {
+            if (! $weather) {
                 return;
             }
 
             $poolingJob->forceFill([
-                'weather_condition'    => $weather['condition'] ?? null,
-                'weather_temperature'  => $weather['temperature'] ?? null,
-                'weather_wind_speed'   => $weather['wind_speed'] ?? null,
-                'weather_icon'         => $weather['icon'] ?? null,
-                'weather_checked_at'   => now(),
-                'weather_advisory'     => $weather['advisory'] ?? null,
+                'weather_condition' => $weather['condition'] ?? null,
+                'weather_temperature' => $weather['temperature'] ?? null,
+                'weather_wind_speed' => $weather['wind_speed'] ?? null,
+                'weather_icon' => $weather['icon'] ?? null,
+                'weather_checked_at' => now(),
+                'weather_advisory' => $weather['advisory'] ?? null,
             ])->save();
 
             $this->notifyDriverSevereWeather($poolingJob, $weather);
         } catch (\Throwable $e) {
             Log::warning('Could not fetch weather at trip start.', [
                 'pooling_job_id' => $poolingJob->id,
-                'error'          => $e->getMessage(),
+                'error' => $e->getMessage(),
             ]);
         }
     }
@@ -338,12 +383,12 @@ class DriverController extends Controller
             return;
         }
 
-        \App\Models\Notification::create([
+        Notification::create([
             'user_id' => $poolingJob->driver_id,
-            'title'   => 'Severe weather on Route #'.$poolingJob->id,
+            'title' => 'Severe weather on Route #'.$poolingJob->id,
             'message' => 'Severe weather was detected at your start point: '.($weather['advisory'] ?? $weather['condition'] ?? 'check conditions').' Drive with extra caution and stay updated via the weather card on this route.',
-            'link'    => route('driver.jobs.show', $poolingJob),
-            'type'    => 'weather_alert',
+            'link' => route('driver.jobs.show', $poolingJob),
+            'type' => 'weather_alert',
         ]);
     }
 
@@ -368,13 +413,13 @@ class DriverController extends Controller
 
         $newStatus = strtoupper($request->validated()['status']);
 
-        $response = back()->with('success', 'Stop status updated to ' . $newStatus . '.');
+        $response = back()->with('success', 'Stop status updated to '.$newStatus.'.');
 
         if ($newStatus === 'DELIVERED') {
             $response->with('next_steps', [
-                'title'   => 'Stop delivered',
+                'title' => 'Stop delivered',
                 'message' => 'Stop status updated to DELIVERED.',
-                'steps'   => [
+                'steps' => [
                     'This harvest has been delivered and the crop is now marked completed.',
                     'Continue to the next stop on the route.',
                     'When all stops are delivered, use Finalize Job to complete the route.',
@@ -399,18 +444,18 @@ class DriverController extends Controller
         $validated = $request->validated();
 
         // Prevent duplicate odometer readings for the same truck
-        $duplicateOdo = \App\Models\FuelLog::where('truck_id', $poolingJob->truck_id)
+        $duplicateOdo = FuelLog::where('truck_id', $poolingJob->truck_id)
             ->where('odometer_reading', $validated['odometer_reading'])
             ->exists();
         if ($duplicateOdo) {
             return back()->with('error', 'A fuel log with this odometer reading already exists for this truck.');
         }
 
-        \App\Models\FuelLog::create([
-            'driver_id'        => $user->id,
-            'truck_id'         => $poolingJob->truck_id,
-            'fuel_liters'      => $validated['fuel_liters'],
-            'cost'             => $validated['cost'],
+        FuelLog::create([
+            'driver_id' => $user->id,
+            'truck_id' => $poolingJob->truck_id,
+            'fuel_liters' => $validated['fuel_liters'],
+            'cost' => $validated['cost'],
             'odometer_reading' => $validated['odometer_reading'],
         ]);
 
@@ -434,12 +479,12 @@ class DriverController extends Controller
 
         $validated = $request->validated();
         $profile = $user->driverProfile;
-        if (!$profile) {
+        if (! $profile) {
             return back()->with('error', 'No driver profile found.');
         }
 
-        $idPath = $request->file('id_photo')->store('driver-ids/' . $user->id, 'local');
-        $selfiePath = $request->file('selfie')->store('driver-selfies/' . $user->id, 'local');
+        $idPath = $request->file('id_photo')->store('driver-ids/'.$user->id, 'local');
+        $selfiePath = $request->file('selfie')->store('driver-selfies/'.$user->id, 'local');
 
         $profile->update([
             'id_photo_path' => $idPath,
@@ -490,9 +535,9 @@ class DriverController extends Controller
         if ($logisticsUserId) {
             $notifications[] = [
                 'user_id' => $logisticsUserId,
-                'title'   => 'Driver Accepted Job',
+                'title' => 'Driver Accepted Job',
                 'message' => "Driver {$user->name} has accepted Route #{$poolingJob->id}. Trip starts soon — monitor progress from your Proposal Inbox.",
-                'link'    => route('pooling.show', $poolingJob),
+                'link' => route('pooling.show', $poolingJob),
                 'category' => 'logistics',
             ];
         }
@@ -501,9 +546,9 @@ class DriverController extends Controller
         if ($poolingJob->buyer_id) {
             $notifications[] = [
                 'user_id' => $poolingJob->buyer_id,
-                'title'   => 'Driver Assigned to Your Order',
+                'title' => 'Driver Assigned to Your Order',
                 'message' => "Driver {$user->name} has accepted Route #{$poolingJob->id}. Trip starts soon — check Deliveries for status updates.",
-                'link'    => route('buyer.tracking'),
+                'link' => route('buyer.tracking'),
                 'category' => 'logistics',
             ];
         }
@@ -512,14 +557,16 @@ class DriverController extends Controller
         $notifiedFarmers = [];
         foreach ($poolingJob->harvests as $harvest) {
             $farmerId = $harvest->user_id;
-            if (isset($notifiedFarmers[$farmerId])) continue;
+            if (isset($notifiedFarmers[$farmerId])) {
+                continue;
+            }
             $notifiedFarmers[$farmerId] = true;
 
             $notifications[] = [
                 'user_id' => $farmerId,
-                'title'   => 'Driver Assigned to Your Route',
+                'title' => 'Driver Assigned to Your Route',
                 'message' => "Driver {$user->name} has accepted Route #{$poolingJob->id} for your crop. Pickup starts soon — check My Logistics for status updates.",
-                'link'    => route('farmer.logistics'),
+                'link' => route('farmer.logistics'),
                 'category' => 'logistics',
             ];
         }
@@ -549,7 +596,7 @@ class DriverController extends Controller
         }
 
         $order = $poolingJob->outboundOrder;
-        if (!$order) {
+        if (! $order) {
             return back()->with('error', 'No customer order for this job.');
         }
 
@@ -563,9 +610,9 @@ class DriverController extends Controller
 
         return back()->with('success', 'Delivery marked Delivered. Finalize the trip to send it to the customer for confirmation.')
             ->with('next_steps', [
-                'title'   => 'Delivered to customer location',
+                'title' => 'Delivered to customer location',
                 'message' => 'Delivery marked Delivered.',
-                'steps'   => [
+                'steps' => [
                     'Press Finalize Trip to complete the run.',
                     'The customer will get the tracking link and confirm receipt.',
                 ],
