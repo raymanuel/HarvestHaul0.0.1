@@ -10,16 +10,33 @@ class CropResolverService
 {
     /**
      * Find or create a crop by name (case-insensitive).
-     * Creates with status='active' and null baseline if not found.
+     *
+     * When no exact match exists, a close typo match against the existing
+     * crop names is reused instead of storing the typo as a new crop. The
+     * original typed name is written to $correctedFrom when that happens.
+     * Creates with status='active' and null baseline if truly new.
      */
-    public function resolveCrop(string $name, int $categoryId): Crop
+    public function resolveCrop(string $name, int $categoryId, ?string &$correctedFrom = null): Crop
     {
         $normalized = $this->normalize($name);
+        $correctedFrom = null;
 
-        return DB::transaction(function () use ($normalized, $categoryId, $name) {
+        return DB::transaction(function () use ($normalized, $categoryId, $name, &$correctedFrom) {
             $crop = Crop::where('crop_category_id', $categoryId)
                 ->whereRaw('LOWER(name) = ?', [$normalized])
                 ->first();
+
+            if (!$crop) {
+                $candidates = Crop::query()->pluck('name')->map(fn ($n) => $this->normalize($n))->all();
+                $match = $this->closeMatch($normalized, $candidates);
+
+                if ($match !== null) {
+                    $crop = Crop::whereRaw('LOWER(name) = ?', [$match])->firstOrFail();
+                    if (levenshtein($normalized, $match) > 0) {
+                        $correctedFrom = $name;
+                    }
+                }
+            }
 
             if (!$crop) {
                 try {
@@ -43,16 +60,37 @@ class CropResolverService
 
     /**
      * Find or create a variety under a crop (case-insensitive).
-     * Creates with status='active' and null price if not found.
+     *
+     * Same typo-correcting behavior as resolveCrop, but only against the
+     * varieties of the given crop. Creates with status='active' and null
+     * price if truly new.
      */
-    public function resolveVariety(Crop $crop, string $name): CropVariety
+    public function resolveVariety(Crop $crop, string $name, ?string &$correctedFrom = null): CropVariety
     {
         $normalized = $this->normalize($name);
+        $correctedFrom = null;
 
-        return DB::transaction(function () use ($crop, $normalized, $name) {
+        return DB::transaction(function () use ($crop, $normalized, $name, &$correctedFrom) {
             $variety = CropVariety::where('crop_id', $crop->id)
                 ->whereRaw('LOWER(name) = ?', [$normalized])
                 ->first();
+
+            if (!$variety) {
+                $candidates = CropVariety::where('crop_id', $crop->id)
+                    ->pluck('name')
+                    ->map(fn ($n) => $this->normalize($n))
+                    ->all();
+                $match = $this->closeMatch($normalized, $candidates);
+
+                if ($match !== null) {
+                    $variety = CropVariety::where('crop_id', $crop->id)
+                        ->whereRaw('LOWER(name) = ?', [$match])
+                        ->firstOrFail();
+                    if (levenshtein($normalized, $match) > 0) {
+                        $correctedFrom = $name;
+                    }
+                }
+            }
 
             if (!$variety) {
                 try {
@@ -71,6 +109,40 @@ class CropResolverService
 
             return $variety;
         });
+    }
+
+    /**
+     * Return the single nearest candidate name within a small edit distance,
+     * or null when none fits (or two candidates tie). Never matches at a
+     * distance of zero; callers treat those as exact and skip correction.
+     */
+    private function closeMatch(string $normalized, array $candidates): ?string
+    {
+        if (strlen($normalized) < 3) {
+            return null;
+        }
+
+        $threshold = strlen($normalized) <= 4 ? 1 : 2;
+        $bestDist = null;
+        $best = null;
+        $ties = false;
+
+        foreach ($candidates as $candidate) {
+            $dist = levenshtein($normalized, $candidate);
+            if ($bestDist === null || $dist < $bestDist) {
+                $bestDist = $dist;
+                $best = $candidate;
+                $ties = false;
+            } elseif ($dist === $bestDist) {
+                $ties = true;
+            }
+        }
+
+        if ($bestDist === null || $bestDist > $threshold || $ties) {
+            return null;
+        }
+
+        return $best;
     }
 
     /**
