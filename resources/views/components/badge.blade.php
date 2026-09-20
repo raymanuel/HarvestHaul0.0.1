@@ -23,6 +23,7 @@
         'pending'        => ['label' => 'Pending',     'classes' => $warningTint],
         'unconfirmed'    => ['label' => 'Unconfirmed', 'classes' => $warningTint],
         'submitted'      => ['label' => 'Submitted',   'classes' => $warningTint],
+        'requires_revision' => ['label' => 'Needs Revision', 'classes' => $warningTint],
         'ready'          => ['label' => 'Ready',       'classes' => $warningTint],
         'partial_sale'   => ['label' => 'Partial Sale','classes' => $warningTint],
         'rejected'       => ['label' => 'Rejected',    'classes' => $errorTint],

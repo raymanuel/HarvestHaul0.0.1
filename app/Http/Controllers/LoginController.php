@@ -22,13 +22,21 @@ class LoginController extends Controller
 
         if (Auth::attempt($credentials)) {
             // Credentials are correct — now check account status
-            if (Auth::user()->status === 'inactive') {
+            $blockedStatuses = [
+                'inactive' => 'Your account has been archived. Contact the administrator.',
+                'suspended' => 'Your account has been suspended. Contact the administrator.',
+                'deactivated' => 'Your account has been deactivated. Contact the administrator.',
+            ];
+
+            if (array_key_exists(Auth::user()->status, $blockedStatuses)) {
+                $message = $blockedStatuses[Auth::user()->status];
+
                 Auth::logout();
                 $request->session()->invalidate();
                 $request->session()->regenerateToken();
 
                 return back()->withErrors([
-                    'email' => 'Your account has been archived. Contact the administrator.',
+                    'email' => $message,
                 ])->onlyInput('email');
             }
 

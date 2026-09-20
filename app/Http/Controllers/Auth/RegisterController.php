@@ -3,13 +3,16 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
 use App\Mail\SendOtpMail;
+use App\Models\AuditLog;
+use App\Models\Cooperative;
+use App\Models\User;
+use App\Models\UserRole;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Storage;
 
 class RegisterController extends Controller
 {
@@ -20,9 +23,9 @@ class RegisterController extends Controller
 
     public function create($role)
     {
-        $validRoles = ['farmer', 'logistics_partner', 'buyer'];
+        $validRoles = ['cooperative', 'buyer'];
 
-        if (!in_array($role, $validRoles)) {
+        if (! in_array($role, $validRoles)) {
             abort(404);
         }
 
@@ -31,86 +34,29 @@ class RegisterController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'name'                => 'required|string|max:255|unique:users',
-            'email'               => 'required|string|email|max:255|unique:users',
-            'phone'               => 'required|string|max:20',
-            'password'            => 'required|string|min:8|confirmed',
-            'role'                => 'required|in:farmer,logistics_partner,buyer',
-            'accepted_terms'      => 'accepted',
+        $role = $request->input('role');
 
-            // Farmer fields (nullable — can be completed later in profile)
-            'farm_location'       => 'nullable|string|max:255',
-            'latitude'            => 'nullable|numeric|between:-90,90',
-            'longitude'           => 'nullable|numeric|between:-180,180',
-
-            // Logistics fields (nullable — can be completed later in profile)
-            'company_name'        => 'nullable|string|max:255',
-            'business_permit_no'  => 'nullable|string|max:255',
-            'logistics_type'      => 'nullable|in:cooperative,company',
-            'cda_registration_no' => 'nullable|string|max:255',
-
-            // Cooperative membership must point at a verified cooperative
-            'cooperative_id'      => [
-                'nullable',
-                'integer',
-                Rule::exists('logistics_profiles', 'id')->where(fn ($q) => $q->where('is_verified', true)),
-            ],
-        ]);
+        $request->validate($this->rules($role));
 
         try {
-            return DB::transaction(function () use ($request) {
-                $user = User::create([
-                    'name'             => $request->name,
-                    'email'            => $request->email,
-                    'password'         => $request->password,
-                    'role'             => $request->role,
-                    'affiliation_type' => match ($request->role) {
-                        'farmer'             => 'independent',
-                        'logistics_partner'  => $request->logistics_type === 'cooperative' ? 'cooperative' : 'independent',
-                        'buyer'              => 'independent',
-                        default              => 'independent',
-                    },
-                    'cooperative_id'   => null,
-                ]);
-
-                if ($request->role === 'farmer') {
-                    $user->farmerProfile()->create([
-                        'phone'            => $request->phone,
-                        'farm_location'    => $request->farm_location ?? 'Set your farm location in profile',
-                        'latitude'         => $request->latitude,
-                        'longitude'        => $request->longitude,
-                        'is_verified'      => false,
-                        'affiliation_type' => 'independent',
-                        'cooperative_id'   => null,
-                    ]);
-                } elseif ($request->role === 'logistics_partner') {
-                    $user->logisticsProfile()->create([
-                        'phone'               => $request->phone,
-                        'company_name'        => $request->company_name ?? $request->name,
-                        'business_permit_no'  => $request->business_permit_no,
-                        'logistics_type'      => $request->logistics_type ?? 'company',
-                        'cda_registration_no' => $request->logistics_type === 'cooperative'
-                                                    ? $request->cda_registration_no
-                                                    : null,
-                    ]);
-                } elseif ($request->role === 'buyer') {
-                    $user->buyerProfile()->create([
-                        'phone'       => $request->phone,
-                        'is_verified' => false,
-                    ]);
+            return DB::transaction(function () use ($request, $role) {
+                if ($role === 'cooperative') {
+                    $user = $this->createCoopAdmin($request);
+                    $cooperative = $this->createCooperative($request, $user->id);
+                    $user->cooperative_id = $cooperative->id;
+                    $user->save();
+                } else {
+                    $user = $this->createBuyer($request);
                 }
-                // Buyer: profile now stored in buyer_profiles table
-                // company_name stored in audit log for reference
 
                 Auth::login($user);
 
-                \App\Models\AuditLog::create([
-                    'admin_id'    => $user->id,
-                    'action'      => 'register',
+                AuditLog::create([
+                    'admin_id' => $user->id,
+                    'action' => 'register',
                     'target_type' => $user->role,
-                    'target_id'   => $user->id,
-                    'notes'       => "User {$user->name} registered as {$user->role} and logged in.",
+                    'target_id' => $user->id,
+                    'notes' => "User {$user->name} registered as {$user->roleLabel()} and logged in.",
                 ]);
 
                 $otp = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
@@ -126,5 +72,121 @@ class RegisterController extends Controller
         } catch (\Exception $e) {
             return back()->withErrors(['error' => $e->getMessage()])->withInput();
         }
+    }
+
+    private function rules(string $role): array
+    {
+        $base = [
+            'email' => 'required|string|email|max:255|unique:users,email',
+            'password' => 'required|string|min:8|confirmed',
+            'accepted_terms' => 'accepted',
+            'role' => 'required|in:cooperative,buyer',
+        ];
+
+        if ($role === 'cooperative') {
+            return array_merge($base, [
+                'name' => 'required|string|max:255',
+                'type' => 'required|in:primary,secondary,other',
+                'province' => 'required|string|max:255',
+                'city' => 'required|string|max:255',
+                'municipality' => 'nullable|string|max:255',
+                'barangay' => 'nullable|string|max:255',
+                'street_address' => 'nullable|string|max:255',
+                'contact_number' => 'required|string|max:20',
+                'official_email' => 'required|string|email|max:255',
+                'year_established' => 'nullable|integer|between:1900,'.now()->year,
+                'business_activities' => 'nullable|string|max:2000',
+                'cda_registration_number' => 'required|string|max:255',
+                'registration_date' => 'nullable|date',
+                'cert_document' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120',
+                'articles_document' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+                'bylaws_document' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+                'rep_name' => 'required|string|max:255',
+                'rep_position' => 'required|string|max:255',
+                'rep_contact' => 'required|string|max:20',
+                'rep_email' => 'required|string|email|max:255',
+                'rep_id_type' => 'required|string|max:255',
+                'rep_id_number' => 'required|string|max:255',
+                'rep_id_document' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120',
+                'rep_authorization_document' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120',
+            ]);
+        }
+
+        // buyer
+        return array_merge($base, [
+            'business_name' => 'required|string|max:255',
+            'contact_person' => 'required|string|max:255',
+            'phone' => 'required|string|max:20',
+            'business_address' => 'required|string|max:1000',
+        ]);
+    }
+
+    private function createCoopAdmin(Request $request): User
+    {
+        return User::create([
+            'name' => $request->rep_name,
+            'email' => strtolower($request->email),
+            'password' => $request->password,
+            'role' => UserRole::COOP_ADMIN->value,
+            'phone' => $request->rep_contact,
+        ]);
+    }
+
+    private function createBuyer(Request $request): User
+    {
+        $user = User::create([
+            'name' => $request->business_name,
+            'email' => strtolower($request->email),
+            'password' => $request->password,
+            'role' => UserRole::BUYER->value,
+            'phone' => $request->phone,
+            'status' => 'pending',
+        ]);
+
+        $user->buyerProfile()->create([
+            'business_name' => $request->business_name,
+            'contact_person' => $request->contact_person,
+            'phone' => $request->phone,
+            'business_address' => $request->business_address,
+            'is_verified' => false,
+        ]);
+
+        return $user;
+    }
+
+    private function createCooperative(Request $request, int $coopAdminUserId): Cooperative
+    {
+        $store = fn ($file) => $file
+            ? Storage::disk('local')->putFile('coop-documents', $file)
+            : null;
+
+        return Cooperative::create([
+            'name' => $request->name,
+            'type' => $request->type,
+            'province' => $request->province,
+            'city' => $request->city,
+            'municipality' => $request->municipality,
+            'barangay' => $request->barangay,
+            'street_address' => $request->street_address,
+            'contact_number' => $request->contact_number,
+            'official_email' => strtolower($request->official_email),
+            'year_established' => $request->year_established,
+            'business_activities' => $request->business_activities,
+            'cda_registration_number' => $request->cda_registration_number,
+            'registration_date' => $request->registration_date,
+            'cert_document_path' => $store($request->file('cert_document')),
+            'articles_document_path' => $store($request->file('articles_document')),
+            'bylaws_document_path' => $store($request->file('bylaws_document')),
+            'rep_name' => $request->rep_name,
+            'rep_position' => $request->rep_position,
+            'rep_contact' => $request->rep_contact,
+            'rep_email' => strtolower($request->rep_email),
+            'rep_id_type' => $request->rep_id_type,
+            'rep_id_number' => $request->rep_id_number,
+            'rep_id_document_path' => $store($request->file('rep_id_document')),
+            'rep_authorization_document_path' => $store($request->file('rep_authorization_document')),
+            'status' => Cooperative::STATUS_PENDING,
+            'coop_admin_user_id' => $coopAdminUserId,
+        ]);
     }
 }
