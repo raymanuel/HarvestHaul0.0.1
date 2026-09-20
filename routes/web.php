@@ -216,6 +216,11 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
             */
             Route::prefix('farmers')->name('farmers.')->group(function () {
                 Route::get('/', [FarmerManagementController::class, 'index'])->name('index');
+                Route::get('/create', [FarmerManagementController::class, 'create'])->name('create');
+                Route::post('/', [FarmerManagementController::class, 'store'])->name('store');
+                Route::get('/{user}', [FarmerManagementController::class, 'show'])->name('show');
+                Route::get('/{user}/edit', [FarmerManagementController::class, 'edit'])->name('edit');
+                Route::put('/{user}', [FarmerManagementController::class, 'update'])->name('update');
                 Route::post('/{user}/approve', [FarmerManagementController::class, 'approve'])->name('approve');
                 Route::post('/{user}/reject', [FarmerManagementController::class, 'reject'])->name('reject');
                 Route::post('/{user}/remove', [FarmerManagementController::class, 'remove'])->name('remove');
