@@ -87,6 +87,8 @@ class BuyerOrderTest extends TestCase
             'quantity_kg' => 2000,
             'preferred_delivery_date' => now()->addDays(3)->toDateString(),
             'delivery_address' => 'Buyer warehouse, Davao City',
+            'delivery_latitude' => 7.0731,
+            'delivery_longitude' => 125.6128,
         ]);
 
         $response->assertRedirect();
@@ -129,6 +131,8 @@ class BuyerOrderTest extends TestCase
             'crop_availability_id' => $listing->id,
             'quantity_kg' => 5000,
             'delivery_address' => 'Somewhere',
+            'delivery_latitude' => 7.0731,
+            'delivery_longitude' => 125.6128,
         ]);
 
         $response->assertSessionHasErrors('quantity_kg');
@@ -145,6 +149,8 @@ class BuyerOrderTest extends TestCase
             'crop_availability_id' => $listing->id,
             'quantity_kg' => 100,
             'delivery_address' => 'Somewhere',
+            'delivery_latitude' => 7.0731,
+            'delivery_longitude' => 125.6128,
         ]);
 
         $response->assertSessionHasErrors('crop_availability_id');
@@ -161,6 +167,8 @@ class BuyerOrderTest extends TestCase
             'crop_availability_id' => $listing->id,
             'quantity_kg' => 100,
             'delivery_address' => 'Somewhere',
+            'delivery_latitude' => 7.0731,
+            'delivery_longitude' => 125.6128,
         ]);
         $order = \App\Models\BuyerOrder::first();
 

@@ -15,17 +15,25 @@
                 @else
                     <div class="space-y-4">
                         @foreach($haulJob->stops as $stop)
+                            @php $isDelivery = $stop->isDeliveryStop(); @endphp
                             <div class="rounded-xl border border-slate-200 dark:border-slate-700 p-4">
                                 <div class="flex items-center justify-between flex-wrap gap-2 mb-2">
                                     <p class="text-sm font-bold text-slate-800 dark:text-slate-100">
-                                        #{{ $stop->sequence_no }} — {{ $stop->haulRequest?->farmer?->name ?? 'Farmer' }}
+                                        #{{ $stop->sequence_no }} —
+                                        {{ $isDelivery ? ($stop->buyerOrder?->buyer?->name ?? 'Buyer') : ($stop->haulRequest?->farmer?->name ?? 'Farmer') }}
                                     </p>
                                     <x-badge :status="$stop->status" />
                                 </div>
                                 <p class="text-xs text-slate-500 dark:text-slate-400">
-                                    {{ $stop->haulRequest?->crop?->name ?? 'Crop' }}
-                                    @if($stop->haulRequest?->estimated_weight_kg) · {{ number_format((float) $stop->haulRequest->estimated_weight_kg, 2) }} kg @endif
-                                    @if($stop->haulRequest?->pickup_location) · {{ $stop->haulRequest->pickup_location }} @endif
+                                    @if($isDelivery)
+                                        {{ $stop->buyerOrder?->reference }}
+                                        @if($stop->buyerOrder?->total_kg) · {{ number_format((float) $stop->buyerOrder->total_kg, 2) }} kg @endif
+                                        @if($stop->buyerOrder?->delivery_address) · {{ $stop->buyerOrder->delivery_address }} @endif
+                                    @else
+                                        {{ $stop->haulRequest?->crop?->name ?? 'Crop' }}
+                                        @if($stop->haulRequest?->estimated_weight_kg) · {{ number_format((float) $stop->haulRequest->estimated_weight_kg, 2) }} kg @endif
+                                        @if($stop->haulRequest?->pickup_location) · {{ $stop->haulRequest->pickup_location }} @endif
+                                    @endif
                                 </p>
                                 @if($stop->planned_arrival_at)
                                     <p class="text-xs text-slate-400 mt-1">Planned arrival: {{ $stop->planned_arrival_at->format('g:i A') }}</p>
@@ -42,21 +50,28 @@
                                                 <button class="px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-900 text-white dark:bg-white dark:text-slate-900 hover:opacity-90">Arrived</button>
                                             </form>
                                         @endif
-                                        <form method="POST" action="{{ route('delivery.trips.stop-status', [$stop, 'picked_up']) }}">
-                                            @csrf
-                                            <button class="px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 text-white hover:bg-emerald-500">Picked Up</button>
-                                        </form>
-                                        <form method="POST" action="{{ route('delivery.trips.stop-status', [$stop, 'skipped']) }}" onsubmit="return confirm('Skip this stop?');">
-                                            @csrf
-                                            <button class="px-3 py-1.5 rounded-lg text-xs font-bold border-2 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200">Skip</button>
-                                        </form>
+                                        @if($isDelivery)
+                                            <form method="POST" action="{{ route('delivery.trips.stop-status', [$stop, 'delivered']) }}">
+                                                @csrf
+                                                <button class="px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 text-white hover:bg-emerald-500">Delivered</button>
+                                            </form>
+                                        @else
+                                            <form method="POST" action="{{ route('delivery.trips.stop-status', [$stop, 'picked_up']) }}">
+                                                @csrf
+                                                <button class="px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 text-white hover:bg-emerald-500">Picked Up</button>
+                                            </form>
+                                            <form method="POST" action="{{ route('delivery.trips.stop-status', [$stop, 'skipped']) }}" onsubmit="return confirm('Skip this stop?');">
+                                                @csrf
+                                                <button class="px-3 py-1.5 rounded-lg text-xs font-bold border-2 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200">Skip</button>
+                                            </form>
+                                        @endif
                                         <x-modal triggerLabel="Report Problem">
                                             <h2 class="text-lg font-bold text-slate-900 dark:text-white mb-4">Report a problem at this stop</h2>
                                             <form method="POST" action="{{ route('delivery.trips.stop-status', [$stop, 'failed']) }}" class="space-y-4">
                                                 @csrf
                                                 <div>
                                                     <label for="reason-{{ $stop->id }}" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">What happened?</label>
-                                                    <textarea name="reason" id="reason-{{ $stop->id }}" rows="3" required maxlength="500" class="block w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 px-3 py-2 text-sm text-slate-900 dark:text-white" placeholder="e.g. Farmer not reachable, road blocked, wrong location..."></textarea>
+                                                    <textarea name="reason" id="reason-{{ $stop->id }}" rows="3" required maxlength="500" class="block w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 px-3 py-2 text-sm text-slate-900 dark:text-white" placeholder="e.g. Buyer not reachable, road blocked, wrong location..."></textarea>
                                                 </div>
                                                 <div class="pt-1 flex justify-end gap-2">
                                                     <button type="button" data-modal-close class="px-4 py-2 rounded-lg text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">Cancel</button>
@@ -104,12 +119,14 @@
     @php
         $tripDepot = ['lat' => (float) ($haulJob->cooperative->latitude ?? 0), 'lng' => (float) ($haulJob->cooperative->longitude ?? 0)];
         $tripStops = $haulJob->stops->map(function ($stop) {
+            $isDelivery = $stop->isDeliveryStop();
+
             return [
-                'lat'   => (float) ($stop->haulRequest?->pickup_location_lat ?? 0),
-                'lng'   => (float) ($stop->haulRequest?->pickup_location_lng ?? 0),
+                'lat'   => $isDelivery ? (float) ($stop->buyerOrder?->delivery_latitude ?? 0) : (float) ($stop->haulRequest?->pickup_location_lat ?? 0),
+                'lng'   => $isDelivery ? (float) ($stop->buyerOrder?->delivery_longitude ?? 0) : (float) ($stop->haulRequest?->pickup_location_lng ?? 0),
                 'seq'   => $stop->sequence_no,
-                'label' => $stop->haulRequest?->farmer?->name ?? 'Farmer',
-                'state' => $stop->status === \App\Models\HaulJobStop::STATUS_PICKED_UP ? 'completed' : 'selected',
+                'label' => $isDelivery ? ($stop->buyerOrder?->buyer?->name ?? 'Buyer') : ($stop->haulRequest?->farmer?->name ?? 'Farmer'),
+                'state' => in_array($stop->status, [\App\Models\HaulJobStop::STATUS_PICKED_UP, \App\Models\HaulJobStop::STATUS_DELIVERED], true) ? 'completed' : 'selected',
             ];
         })->filter(fn ($s) => $s['lat'] && $s['lng'])->values();
         $tripGeometry = $haulJob->route_geometry;

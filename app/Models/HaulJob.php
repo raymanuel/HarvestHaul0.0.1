@@ -14,8 +14,11 @@ class HaulJob extends Model
     public const STATUS_COMPLETED = 'completed';
     public const STATUS_CANCELLED = 'cancelled';
 
+    public const JOB_TYPE_PICKUP = 'pickup';
+    public const JOB_TYPE_DELIVERY = 'delivery';
+
     protected $fillable = [
-        'haul_request_id', 'cooperative_id',
+        'haul_request_id', 'cooperative_id', 'job_type',
         'delivery_personnel_id', 'field_personnel_id', 'truck_id',
         'pickup_date', 'scheduled_at', 'status', 'completed_at',
         'route_distance_km', 'route_duration_min', 'route_geometry',
@@ -68,5 +71,10 @@ class HaulJob extends Model
     public function tracking()
     {
         return $this->morphMany(TrackingRecord::class, 'job');
+    }
+
+    public function isDelivery(): bool
+    {
+        return $this->job_type === self::JOB_TYPE_DELIVERY;
     }
 }

@@ -23,7 +23,7 @@ class BuyerOrder extends Model
     protected $fillable = [
         'buyer_id', 'cooperative_id', 'reference', 'status',
         'total_kg', 'total_amount', 'preferred_delivery_date',
-        'delivery_address', 'notes',
+        'delivery_address', 'delivery_latitude', 'delivery_longitude', 'notes',
         'accepted_at', 'rejected_at', 'rejection_reason', 'confirmed_at', 'cancelled_at',
     ];
 
@@ -55,6 +55,11 @@ class BuyerOrder extends Model
     public function delivery()
     {
         return $this->hasOne(Delivery::class);
+    }
+
+    public function stop()
+    {
+        return $this->hasOne(HaulJobStop::class);
     }
 
     public function scopeForBuyer($query, $buyerId)

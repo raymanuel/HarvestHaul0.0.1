@@ -35,6 +35,12 @@
                             <label for="delivery_address" class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Delivery Location <span class="text-[var(--color-error-text)]">*</span></label>
                             <textarea name="delivery_address" id="delivery_address" rows="2" required maxlength="1000" class="w-full border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm bg-slate-50/50 dark:bg-slate-700/50 text-slate-800 dark:text-white"></textarea>
                         </div>
+
+                        <x-location-picker
+                            latField="delivery_latitude"
+                            lngField="delivery_longitude"
+                            label="Pin Delivery Location on Map"
+                        />
                         <div>
                             <label for="notes" class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Notes (optional)</label>
                             <textarea name="notes" id="notes" rows="2" maxlength="1000" class="w-full border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm bg-slate-50/50 dark:bg-slate-700/50 text-slate-800 dark:text-white"></textarea>

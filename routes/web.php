@@ -39,6 +39,7 @@ use App\Http\Controllers\Coop\DashboardController as CoopDashboardController;
 use App\Http\Controllers\Coop\FacilityReceivingController;
 use App\Http\Controllers\Coop\FarmerManagementController;
 use App\Http\Controllers\Coop\HaulRequestController as CoopHaulRequestController;
+use App\Http\Controllers\Coop\OutboundDeliveryController;
 use App\Http\Controllers\Coop\TruckController;
 use App\Http\Controllers\Coop\PickupTripController;
 use App\Http\Controllers\Coop\ProcurementController;
@@ -328,6 +329,18 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
             });
 
             /*
+            | Outbound delivery planning (14)
+            */
+            Route::prefix('outbound')->name('outbound.')->group(function () {
+                Route::get('/', [OutboundDeliveryController::class, 'index'])->name('index');
+                Route::get('/create', [OutboundDeliveryController::class, 'create'])->name('create');
+                Route::post('/', [OutboundDeliveryController::class, 'store'])
+                    ->middleware('throttle:20,1')
+                    ->name('store');
+                Route::get('/{haulJob}', [OutboundDeliveryController::class, 'show'])->name('show');
+            });
+
+            /*
             | Truck fleet registry (3B)
             */
             Route::prefix('trucks')->name('trucks.')->group(function () {
@@ -364,7 +377,7 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
                 Route::get('/', [DeliveryTripController::class, 'index'])->name('index');
                 Route::get('/{haulJob}', [DeliveryTripController::class, 'show'])->name('show');
                 Route::post('/stops/{stop}/{status}', [DeliveryTripController::class, 'updateStopStatus'])
-                    ->whereIn('status', ['arrived', 'picked_up', 'skipped', 'failed'])
+                    ->whereIn('status', ['arrived', 'picked_up', 'delivered', 'skipped', 'failed'])
                     ->middleware('throttle:60,1')
                     ->name('stop-status');
                 Route::post('/{haulJob}/complete', [DeliveryTripController::class, 'complete'])

@@ -21,7 +21,7 @@ class HaulRequest extends Model
         'crop_id', 'crop_variety_id', 'packaging_type_id',
         'estimated_sacks', 'estimated_weight_kg',
         'harvest_date', 'preferred_pickup_date', 'pickup_window_start', 'pickup_window_end',
-        'pickup_location', 'notes', 'status',
+        'pickup_location', 'pickup_location_lat', 'pickup_location_lng', 'notes', 'status',
     ];
 
     protected $casts = [

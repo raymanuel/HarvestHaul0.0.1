@@ -78,6 +78,11 @@ class Cooperative extends Model
         return $this->hasMany(HaulRequest::class);
     }
 
+    public function buyerOrders()
+    {
+        return $this->hasMany(BuyerOrder::class);
+    }
+
     public function haulJobs()
     {
         return $this->hasMany(HaulJob::class);

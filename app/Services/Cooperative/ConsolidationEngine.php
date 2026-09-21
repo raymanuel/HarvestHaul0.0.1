@@ -2,6 +2,7 @@
 
 namespace App\Services\Cooperative;
 
+use App\Models\BuyerOrder;
 use App\Models\Cooperative;
 use App\Models\HaulJob;
 use App\Models\HaulRequest;
@@ -89,6 +90,146 @@ class ConsolidationEngine
             'unassigned'        => $packed['unassigned'],
             'capacity'          => $this->capacityBreakdown($packed['groups']),
         ];
+    }
+
+    /**
+     * Outbound delivery counterpart to planForDate() (spec 14 — Outbound
+     * Delivery Management). Sources accepted BuyerOrders instead of
+     * approved HaulRequests; reuses every routing/scheduling primitive
+     * below unchanged (fetchRoadMatrix/nearestNeighbor/twoOpt/
+     * buildArrivalSchedule/buildProposedPlan are already stop-shape
+     * generic) — only the two model-typed extraction steps
+     * (buildDeliveryStopPoints, binPackOrdersByCapacity) are duplicated.
+     */
+    public function planDeliveriesForDate(Cooperative $cooperative, string $date): array
+    {
+        $orders = $cooperative->buyerOrders()
+            ->with('buyer')
+            ->where('status', BuyerOrder::STATUS_ACCEPTED)
+            ->whereDoesntHave('stop')
+            ->whereNotNull(['delivery_latitude', 'delivery_longitude'])
+            ->where(function ($q) use ($date) {
+                $q->whereNull('preferred_delivery_date')->orWhereDate('preferred_delivery_date', $date);
+            })
+            ->get();
+
+        $trucks = $cooperative->trucks()->where('status', 'available')->get();
+        $availableDrivers = $this->availableDrivers($cooperative, $date);
+
+        $coopLat = (float) ($cooperative->latitude ?? 0);
+        $coopLng = (float) ($cooperative->longitude ?? 0);
+        $depot = ['lat' => $coopLat, 'lng' => $coopLng];
+
+        $packed = $this->binPackOrdersByCapacity($orders, $trucks);
+
+        $groups = [];
+        foreach ($packed['groups'] as $i => $bin) {
+            $stops = $this->buildDeliveryStopPoints($bin['requests'], $depot);
+            $matrix = $this->fetchRoadMatrix($stops);
+            $proposed = $this->buildProposedPlan($bin, $stops, $matrix, $depot);
+
+            $orderedOrders = collect($proposed['stop_ids'])
+                ->map(fn ($stopId) => $bin['requests']->firstWhere('id', (int) str_replace('ord_', '', $stopId)))
+                ->filter()
+                ->values();
+            $routeGeometry = $orderedOrders->isNotEmpty()
+                ? $this->fetchFinalRouteForOrders($orderedOrders, $cooperative)
+                : null;
+
+            $groups[] = [
+                'label'          => 'TRIP '.str_pad((string) ($i + 1), 2, '0', STR_PAD_LEFT),
+                'truck'          => $bin['truck'],
+                'orders'         => $bin['requests'],
+                'ordered_orders' => $orderedOrders,
+                'stops'          => $stops,
+                'matrix'         => $matrix['source'],
+                'load_kg'        => round($bin['load_kg'], 2),
+                'capacity_kg'    => $bin['truck'] ? (float) $bin['truck']->capacity_kg : 0,
+                'proposed'       => $proposed,
+                'route_geometry' => $routeGeometry,
+            ];
+        }
+
+        return [
+            'date'              => $date,
+            'trucks'            => $trucks,
+            'available_drivers' => $availableDrivers,
+            'groups'            => $groups,
+            'unassigned'        => $packed['unassigned'],
+            'capacity'          => $this->capacityBreakdown($packed['groups']),
+        ];
+    }
+
+    private function buildDeliveryStopPoints(Collection $orders, array $depot): array
+    {
+        $stops = [['id' => 'depot', 'lat' => $depot['lat'], 'lng' => $depot['lng']]];
+        foreach ($orders as $o) {
+            $stops[] = [
+                'id'         => 'ord_'.$o->id,
+                'lat'        => (float) $o->delivery_latitude,
+                'lng'        => (float) $o->delivery_longitude,
+                'weight_kg'  => (float) $o->total_kg,
+                'earliest'   => null,
+                'latest'     => null,
+                'request_id' => $o->id,
+            ];
+        }
+
+        return $stops;
+    }
+
+    private function binPackOrdersByCapacity(Collection $orders, Collection $trucks): array
+    {
+        $bins = $trucks->sortByDesc('capacity_kg')->values()
+            ->map(fn ($truck) => ['truck' => $truck, 'requests' => collect(), 'load_kg' => 0.0])
+            ->all();
+
+        $unassigned = collect();
+
+        foreach ($orders->sortByDesc('total_kg') as $order) {
+            $weight = (float) $order->total_kg;
+            $placed = false;
+
+            foreach ($bins as &$bin) {
+                if ($bin['load_kg'] + $weight <= (float) $bin['truck']->capacity_kg) {
+                    $bin['requests']->push($order);
+                    $bin['load_kg'] += $weight;
+                    $placed = true;
+                    break;
+                }
+            }
+            unset($bin);
+
+            if (! $placed) {
+                $unassigned->push($order);
+            }
+        }
+
+        $bins = array_values(array_filter($bins, fn ($b) => $b['requests']->isNotEmpty()));
+
+        return ['groups' => $bins, 'unassigned' => $unassigned];
+    }
+
+    public function fetchFinalRouteForOrders(Collection $orderedOrders, Cooperative $cooperative): ?array
+    {
+        $depot = ['lat' => (float) ($cooperative->latitude ?? 0), 'lng' => (float) ($cooperative->longitude ?? 0)];
+        $stops = $this->buildDeliveryStopPoints($orderedOrders, $depot);
+
+        $points = collect($stops)->push($stops[0])
+            ->map(fn ($s) => [$s['lat'], $s['lng']])
+            ->all();
+
+        return $this->routing->route($points);
+    }
+
+    public function buildScheduleForOrders(Collection $orderedOrders, Cooperative $cooperative): array
+    {
+        $depot = ['lat' => (float) ($cooperative->latitude ?? 0), 'lng' => (float) ($cooperative->longitude ?? 0)];
+        $stops = $this->buildDeliveryStopPoints($orderedOrders, $depot);
+        $matrix = $this->fetchRoadMatrix($stops);
+        $orderedStopIds = $orderedOrders->map(fn ($o) => 'ord_'.$o->id)->all();
+
+        return $this->buildArrivalSchedule($orderedStopIds, $stops, $matrix)['schedule'];
     }
 
     /**

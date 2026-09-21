@@ -71,6 +71,8 @@ class OrderController extends Controller
             'quantity_kg'          => 'required|numeric|min:0.01',
             'preferred_delivery_date' => 'nullable|date|after_or_equal:today',
             'delivery_address'     => 'required|string|max:1000',
+            'delivery_latitude'    => 'required|numeric|between:-90,90',
+            'delivery_longitude'   => 'required|numeric|between:-180,180',
             'notes'                => 'nullable|string|max:1000',
         ]);
 
@@ -102,6 +104,8 @@ class OrderController extends Controller
                 'total_amount'   => $subtotal,
                 'preferred_delivery_date' => $data['preferred_delivery_date'] ?? null,
                 'delivery_address' => $data['delivery_address'],
+                'delivery_latitude' => $data['delivery_latitude'],
+                'delivery_longitude' => $data['delivery_longitude'],
                 'notes'          => $data['notes'] ?? null,
             ]);
 
