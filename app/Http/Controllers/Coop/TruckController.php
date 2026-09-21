@@ -58,7 +58,7 @@ class TruckController extends Controller
             'vehicle_type'            => 'required|string|max:255',
             'capacity_kg'             => 'required|numeric|min:1',
             'capacity_volume_cubic_m' => 'required|numeric|min:0.01',
-            'status'                  => 'required|in:available,in_use,maintenance',
+            'status'                  => 'required|in:available,in_use,maintenance,inactive',
             'driver_id'               => [
                 'nullable',
                 Rule::exists('users', 'id')
@@ -96,7 +96,7 @@ class TruckController extends Controller
             'vehicle_type'            => 'required|string|max:255',
             'capacity_kg'             => 'required|numeric|min:1',
             'capacity_volume_cubic_m' => 'required|numeric|min:0.01',
-            'status'                  => 'required|in:available,in_use,maintenance',
+            'status'                  => 'required|in:available,in_use,maintenance,inactive',
             'driver_id'               => [
                 'nullable',
                 Rule::exists('users', 'id')
@@ -120,13 +120,13 @@ class TruckController extends Controller
     }
 
     /**
-     * Toggle a truck between available / in_use / maintenance.
+     * Toggle a truck between available / in_use / maintenance / inactive.
      */
     public function toggleStatus(Truck $truck, string $status)
     {
         $this->authorizeCoop($truck);
 
-        if (! in_array($status, ['available', 'in_use', 'maintenance'], true)) {
+        if (! in_array($status, ['available', 'in_use', 'maintenance', 'inactive'], true)) {
             throw ValidationException::withMessages([
                 'status' => 'Unsupported truck status.',
             ]);
@@ -151,6 +151,12 @@ class TruckController extends Controller
     public function destroy(Truck $truck)
     {
         $this->authorizeCoop($truck);
+
+        if ($truck->haulJobs()->whereIn('status', ['scheduled', 'picked_up'])->exists()) {
+            throw ValidationException::withMessages([
+                'truck' => 'This truck has an active pickup trip. Reassign or complete that trip before removing the truck.',
+            ]);
+        }
 
         $plate = $truck->plate_number;
         $truck->delete();

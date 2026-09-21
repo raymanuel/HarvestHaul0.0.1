@@ -10,7 +10,7 @@ class Truck extends Model
     use HasFactory;
 
     protected $fillable = [
-        'logistics_profile_id',
+        'cooperative_id',
         'driver_id',
         'plate_number',
         'truck_name',
@@ -26,47 +26,28 @@ class Truck extends Model
         'capacity_volume_cubic_m' => 'decimal:2',
     ];
 
-    // -------------------------------------------------------
-    // Relationships
-    // -------------------------------------------------------
-
-    public function logisticsProfile()
+    public function cooperative()
     {
-        return $this->belongsTo(LogisticsProfile::class);
+        return $this->belongsTo(Cooperative::class);
     }
 
-    // The default driver assigned to this truck
     public function driver()
     {
         return $this->belongsTo(User::class, 'driver_id');
     }
 
-    public function poolingJobs()
+    public function haulJobs()
     {
-        return $this->hasMany(PoolingJob::class);
+        return $this->hasMany(HaulJob::class);
     }
-
-    // -------------------------------------------------------
-    // Scopes
-    // -------------------------------------------------------
 
     public function scopeAvailable($query)
     {
         return $query->where('status', 'available');
     }
 
-    public function scopeForPartner($query, $logisticsProfileId)
+    public function scopeForCooperative($query, $cooperativeId)
     {
-        return $query->where('logistics_profile_id', $logisticsProfileId);
-    }
-
-    public function scopeWithDriver($query)
-    {
-        return $query->whereNotNull('driver_id');
-    }
-
-    public function scopeUnassigned($query)
-    {
-        return $query->whereNull('driver_id');
+        return $query->where('cooperative_id', $cooperativeId);
     }
 }

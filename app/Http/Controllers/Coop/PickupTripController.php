@@ -111,13 +111,19 @@ class PickupTripController extends Controller
 
         $data = $request->validate([
             'date'                => 'required|date|after_or_equal:today',
-            'truck_id'            => ['required', Rule::exists('trucks', 'id')->where('cooperative_id', $cooperativeId)],
+            'truck_id'            => [
+                'required',
+                Rule::exists('trucks', 'id')
+                    ->where('cooperative_id', $cooperativeId)
+                    ->where('status', 'available'),
+            ],
             'delivery_personnel_id' => [
                 'required',
                 Rule::in($availableDriverIds),
             ],
             'sequences'           => 'array',
         ], [
+            'truck_id.exists' => 'This truck is not available (already in use, in maintenance, or inactive).',
             'delivery_personnel_id.in' => 'This driver is already assigned to another trip on this date.',
         ]);
 
@@ -336,22 +342,35 @@ class PickupTripController extends Controller
             ->push($haulJob->delivery_personnel_id)
             ->unique();
 
+        $availableTruckIds = Truck::where('cooperative_id', $cooperativeId)
+            ->where('status', 'available')
+            ->pluck('id')
+            ->push($haulJob->truck_id)
+            ->unique();
+
         $data = $request->validate([
-            'truck_id' => ['required', Rule::exists('trucks', 'id')->where('cooperative_id', $cooperativeId)],
+            'truck_id' => ['required', Rule::in($availableTruckIds)],
             'delivery_personnel_id' => [
                 'required',
                 Rule::in($availableDriverIds),
             ],
         ], [
+            'truck_id.in' => 'This truck is not available (already in use, in maintenance, or inactive).',
             'delivery_personnel_id.in' => 'This driver is already assigned to another trip on this date.',
         ]);
 
         $previousDriverId = $haulJob->delivery_personnel_id;
+        $previousTruckId = $haulJob->truck_id;
 
         $haulJob->update([
             'truck_id'              => $data['truck_id'],
             'delivery_personnel_id' => $data['delivery_personnel_id'],
         ]);
+
+        if ($previousTruckId !== (int) $data['truck_id']) {
+            Truck::where('id', $previousTruckId)->update(['status' => 'available']);
+            Truck::where('id', $data['truck_id'])->update(['status' => 'in_use']);
+        }
 
         AuditLog::create([
             'admin_id'    => Auth::id(),
