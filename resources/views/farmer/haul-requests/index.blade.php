@@ -50,6 +50,9 @@
                         </div>
                         <div class="flex flex-col items-end gap-2 shrink-0">
                             <x-badge :status="$request->status" dot />
+                            @if($request->haulJob?->isActiveForTracking())
+                                <a href="{{ route('farmer.haul-requests.track', $request) }}" class="text-xs font-bold text-brand-700 dark:text-gold-light hover:underline">Track pickup</a>
+                            @endif
                             @if($request->status === \App\Models\HaulRequest::STATUS_PENDING)
                                 <form method="POST" action="{{ route('farmer.haul-requests.cancel', $request) }}">
                                     @csrf

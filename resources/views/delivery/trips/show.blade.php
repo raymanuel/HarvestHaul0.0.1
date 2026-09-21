@@ -9,6 +9,9 @@
                 <x-section-label title="Stops" width="w-16" />
 
                 <div id="map-trip" class="w-full h-72 rounded-xl mb-5 border border-slate-200 dark:border-slate-700"></div>
+                @if($haulJob->isActiveForTracking())
+                    <p id="geo-status" class="text-xs text-slate-400 mb-4">Sharing your location with your cooperative…</p>
+                @endif
 
                 @if($haulJob->stops->isEmpty())
                     <x-empty-state type="first-use" title="No stops on this trip" />
@@ -174,4 +177,49 @@
             });
         </script>
     @endpush
+
+    @if($haulJob->isActiveForTracking())
+        @push('scripts')
+            <script>
+                (function () {
+                    var postUrl = @json(route('delivery.trips.location', $haulJob));
+                    var csrfToken = @json(csrf_token());
+                    var statusEl = document.getElementById('geo-status');
+
+                    function setStatus(text) {
+                        if (statusEl) statusEl.textContent = text;
+                    }
+
+                    if (!navigator.geolocation) {
+                        setStatus('Location sharing is not supported on this device.');
+                        return;
+                    }
+
+                    function sendPosition(pos) {
+                        fetch(postUrl, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': csrfToken,
+                                'Accept': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                latitude: pos.coords.latitude,
+                                longitude: pos.coords.longitude,
+                                speed_kmh: pos.coords.speed ? pos.coords.speed * 3.6 : null,
+                                bearing: pos.coords.heading || null,
+                                accuracy_meters: pos.coords.accuracy || null,
+                            }),
+                        })
+                            .then(function () { setStatus('Sharing your location with your cooperative…'); })
+                            .catch(function () {});
+                    }
+
+                    navigator.geolocation.watchPosition(sendPosition, function (err) {
+                        setStatus('Location sharing is off — enable location access in your browser to share your position.');
+                    }, { enableHighAccuracy: true, maximumAge: 10000, timeout: 15000 });
+                })();
+            </script>
+        @endpush
+    @endif
 </x-layout>

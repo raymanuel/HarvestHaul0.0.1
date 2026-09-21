@@ -39,6 +39,7 @@ use App\Http\Controllers\Coop\DashboardController as CoopDashboardController;
 use App\Http\Controllers\Coop\FacilityReceivingController;
 use App\Http\Controllers\Coop\FarmerManagementController;
 use App\Http\Controllers\Coop\HaulRequestController as CoopHaulRequestController;
+use App\Http\Controllers\Coop\LocationMonitoringController;
 use App\Http\Controllers\Coop\OutboundDeliveryController;
 use App\Http\Controllers\Coop\TruckController;
 use App\Http\Controllers\Coop\PickupTripController;
@@ -341,6 +342,15 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
             });
 
             /*
+            | Location monitoring (16)
+            */
+            Route::prefix('tracking')->name('tracking.')->group(function () {
+                Route::get('/', [LocationMonitoringController::class, 'index'])->name('index');
+                Route::get('/{haulJob}', [LocationMonitoringController::class, 'show'])->name('show');
+                Route::get('/{haulJob}/location', [LocationMonitoringController::class, 'location'])->name('location');
+            });
+
+            /*
             | Truck fleet registry (3B)
             */
             Route::prefix('trucks')->name('trucks.')->group(function () {
@@ -383,6 +393,9 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
                 Route::post('/{haulJob}/complete', [DeliveryTripController::class, 'complete'])
                     ->middleware('throttle:20,1')
                     ->name('complete');
+                Route::post('/{haulJob}/location', [DeliveryTripController::class, 'postLocation'])
+                    ->middleware('throttle:60,1')
+                    ->name('location');
             });
         });
 
@@ -399,6 +412,8 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
                 Route::post('/{haulRequest}/cancel', [FarmerHaulRequestController::class, 'cancel'])
                     ->middleware('throttle:20,1')
                     ->name('cancel');
+                Route::get('/{haulRequest}/track', [FarmerHaulRequestController::class, 'track'])->name('track');
+                Route::get('/{haulRequest}/track/location', [FarmerHaulRequestController::class, 'trackLocation'])->name('track.location');
             });
         });
 
@@ -419,6 +434,8 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
                 Route::post('/', [BuyerOrderController::class, 'store'])
                     ->middleware('throttle:20,1')
                     ->name('store');
+                Route::get('/{buyerOrder}/track', [BuyerOrderController::class, 'track'])->name('track');
+                Route::get('/{buyerOrder}/track/location', [BuyerOrderController::class, 'trackLocation'])->name('track.location');
             });
         });
 

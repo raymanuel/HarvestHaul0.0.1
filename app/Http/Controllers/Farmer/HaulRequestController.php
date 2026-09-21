@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Farmer;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Coop\LocationMonitoringController;
 use App\Models\Cooperative;
 use App\Models\Crop;
 use App\Models\CropVariety;
@@ -38,7 +39,7 @@ class HaulRequestController extends Controller
         $cooperative = $this->cooperativeMembership();
 
         $requests = HaulRequest::where('farmer_id', $user->id)
-            ->with(['crop', 'cropVariety', 'packagingType'])
+            ->with(['crop', 'cropVariety', 'packagingType', 'haulJob'])
             ->orderByDesc('created_at')
             ->get();
 
@@ -117,11 +118,38 @@ class HaulRequestController extends Controller
         ]);
     }
 
-    public function cancel(HaulRequest $haulRequest)
+    public function track(HaulRequest $haulRequest)
+    {
+        $this->authorizeFarmer($haulRequest);
+        $haulRequest->load('haulJob.cooperative');
+
+        $haulJob = $haulRequest->haulJob;
+
+        return view('farmer.haul-requests.track', compact('haulRequest', 'haulJob'));
+    }
+
+    public function trackLocation(HaulRequest $haulRequest)
+    {
+        $this->authorizeFarmer($haulRequest);
+
+        $haulJob = $haulRequest->haulJob;
+        if (! $haulJob) {
+            return response()->json(['has_position' => false]);
+        }
+
+        return LocationMonitoringController::positionJson($haulJob);
+    }
+
+    private function authorizeFarmer(HaulRequest $haulRequest): void
     {
         if ($haulRequest->farmer_id !== Auth::id()) {
             abort(403, 'This is not your pickup request.');
         }
+    }
+
+    public function cancel(HaulRequest $haulRequest)
+    {
+        $this->authorizeFarmer($haulRequest);
 
         if ($haulRequest->status !== HaulRequest::STATUS_PENDING) {
             throw ValidationException::withMessages([

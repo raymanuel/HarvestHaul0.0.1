@@ -136,6 +136,32 @@ class TripController extends Controller
         });
     }
 
+    public function postLocation(Request $request, HaulJob $haulJob)
+    {
+        $this->authorizeDelivery($haulJob);
+
+        if (! $haulJob->isActiveForTracking()) {
+            throw ValidationException::withMessages([
+                'location' => 'This trip is not active — location updates are not accepted.',
+            ]);
+        }
+
+        $data = $request->validate([
+            'latitude' => 'required|numeric|between:-90,90',
+            'longitude' => 'required|numeric|between:-180,180',
+            'speed_kmh' => 'nullable|numeric|min:0',
+            'bearing' => 'nullable|numeric|between:0,360',
+            'accuracy_meters' => 'nullable|numeric|min:0',
+        ]);
+
+        $haulJob->tracking()->create(array_merge($data, [
+            'driver_id' => Auth::id(),
+            'posted_at' => now(),
+        ]));
+
+        return response()->json(['status' => 'ok']);
+    }
+
     public function complete(Request $request, HaulJob $haulJob)
     {
         $this->authorizeDelivery($haulJob);

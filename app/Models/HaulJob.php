@@ -73,6 +73,16 @@ class HaulJob extends Model
         return $this->morphMany(TrackingRecord::class, 'job');
     }
 
+    public function latestPosition(): ?TrackingRecord
+    {
+        return $this->tracking()->latest('posted_at')->first();
+    }
+
+    public function isActiveForTracking(): bool
+    {
+        return in_array($this->status, [self::STATUS_SCHEDULED, self::STATUS_PICKED_UP], true);
+    }
+
     public function isDelivery(): bool
     {
         return $this->job_type === self::JOB_TYPE_DELIVERY;

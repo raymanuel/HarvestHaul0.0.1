@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Buyer;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Coop\LocationMonitoringController;
 use App\Models\BuyerOrder;
 use App\Models\BuyerOrderItem;
 use App\Models\BuyerProfile;
@@ -52,7 +53,7 @@ class OrderController extends Controller
     public function showOrder(BuyerOrder $buyerOrder)
     {
         $this->authorizeBuyer($buyerOrder);
-        $buyerOrder->load(['cooperative', 'items.crop', 'items.cropGrade']);
+        $buyerOrder->load(['cooperative', 'items.crop', 'items.cropGrade', 'stop']);
 
         return view('buyer.orders.show', compact('buyerOrder'));
     }
@@ -131,6 +132,28 @@ class OrderController extends Controller
 
         return redirect()->route('buyer.orders.show', $order)
             ->with('success', "Order {$order->reference} submitted. The cooperative will review it.");
+    }
+
+    public function track(BuyerOrder $buyerOrder)
+    {
+        $this->authorizeBuyer($buyerOrder);
+        $buyerOrder->load('stop.haulJob.cooperative');
+
+        $haulJob = $buyerOrder->stop?->haulJob;
+
+        return view('buyer.orders.track', compact('buyerOrder', 'haulJob'));
+    }
+
+    public function trackLocation(BuyerOrder $buyerOrder)
+    {
+        $this->authorizeBuyer($buyerOrder);
+
+        $haulJob = $buyerOrder->stop?->haulJob;
+        if (! $haulJob) {
+            return response()->json(['has_position' => false]);
+        }
+
+        return LocationMonitoringController::positionJson($haulJob);
     }
 
     private function authorizeBuyer(BuyerOrder $order): void

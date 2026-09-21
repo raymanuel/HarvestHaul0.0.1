@@ -1,5 +1,8 @@
 <x-layout title="Order {{ $buyerOrder->reference }} — HarvestHaul">
     <x-page-header title="Order {{ $buyerOrder->reference }}" :showDate="true">
+        @if($buyerOrder->stop)
+            <x-button tag="a" variant="secondary" size="sm" href="{{ route('buyer.orders.track', $buyerOrder) }}">Track Delivery</x-button>
+        @endif
         @if($buyerOrder->cooperative?->coopAdminUser)
             <x-button tag="a" variant="secondary" size="sm" href="{{ route('messages.show', $buyerOrder->cooperative->coopAdminUser) }}?context_type=buyer_order&context_id={{ $buyerOrder->id }}">Message Cooperative</x-button>
         @endif
