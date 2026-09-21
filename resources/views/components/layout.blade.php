@@ -30,7 +30,7 @@
         (function() {
             var theme = localStorage.getItem('theme');
             var isDark = theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches);
-            @if(Auth::check() && (Auth::user()->role === 'admin' || Auth::user()->role === 'farmer' || Auth::user()->role === 'logistics_partner' || Auth::user()->role === 'buyer'))
+            @if(Auth::check())
                 if (isDark) {
                     document.documentElement.classList.add('dark');
                 } else {
@@ -322,7 +322,10 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
                         </svg>
                     </button>
-                    <h2 class="text-sm font-bold text-slate-900 leading-none"><span class="{{ Auth::user()->role === 'buyer' ? 'text-harvest-dark dark:text-harvest-light' : 'text-slate-700 dark:text-white' }} uppercase font-black">{{ ['admin' => 'Administrator', 'farmer' => 'Farmer', 'buyer' => 'Buyer', 'logistics_partner' => 'Logistics Partner', 'driver' => 'Driver'][Auth::user()->role] ?? Auth::user()->role }}</span></h2>
+                    @php
+                        $roleLabel = Auth::user()->roleLabel();
+                    @endphp
+                    <h2 class="text-sm font-bold text-slate-900 leading-none"><span class="{{ Auth::user()->role === 'buyer' ? 'text-harvest-dark dark:text-harvest-light' : 'text-slate-700 dark:text-white' }} uppercase font-black">{{ $roleLabel }}</span></h2>
                 </div>
 
                 <!-- User profile and avatar menu -->
@@ -330,8 +333,8 @@
                     <!-- Notifications Dropdown -->
                     <x-notification-dropdown instance="header" />
 
-                    <!-- Dark Mode Toggle (Admin, Farmer, Logistics & Buyer) -->
-                    @if(Auth::check() && (Auth::user()->role === 'admin' || Auth::user()->role === 'farmer' || Auth::user()->role === 'logistics_partner' || Auth::user()->role === 'buyer'))
+                    <!-- Dark Mode Toggle -->
+                    @if(Auth::check())
                         <button onclick="toggleDarkMode()" class="w-8 h-8 rounded-lg bg-slate-900/5 flex items-center justify-center text-slate-600 hover:text-slate-900 hover:bg-slate-900/10 transition cursor-pointer dark:bg-white/10 dark:text-white/80 dark:hover:text-white dark:hover:bg-white/20" title="Toggle dark mode" aria-label="Toggle dark mode">
                             <!-- Moon Icon (shown in light mode) -->
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 block dark:hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -362,7 +365,7 @@
 
                         <!-- Dropdown Menu -->
                         <div id="profile-dropdown" class="hidden absolute right-0 mt-2 w-56 bg-white dark:bg-slate-800 border border-slate-200/85 dark:border-slate-700 rounded-2xl shadow-xl z-50 overflow-hidden py-1.5 px-1.5 space-y-1">
-                            @if(Auth::check() && (Auth::user()->role === 'farmer' || Auth::user()->role === 'logistics_partner' || Auth::user()->role === 'buyer'))
+                            @if(Auth::check())
                                 <a href="{{ route('profile.show') }}" class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/40 hover:text-brand-700 dark:hover:text-brand-light transition-all">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-500 dark:text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -375,22 +378,6 @@
                                     </svg>
                                     Notification Settings
                                 </a>
-                                @if(Auth::user()->role === 'logistics_partner')
-                                    <a href="{{ route('logistics.documents') }}" class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/40 hover:text-brand-700 dark:hover:text-brand-light transition-all">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-500 dark:text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                        </svg>
-                                        Business Docs
-                                    </a>
-                                    @if(Auth::user()->logisticsProfile?->isCooperative())
-                                        <a href="{{ route('logistics.members.index') }}" class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/40 hover:text-brand-700 dark:hover:text-brand-light transition-all">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-500 dark:text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                                            </svg>
-                                            Members
-                                        </a>
-                                    @endif
-                                @endif
                             @endif
                             <form method="POST" action="{{ route('logout') }}" class="w-full" id="logout-form">
                                 @csrf
@@ -407,6 +394,9 @@
             </nav>
             <!-- Main Render Area -->
             <main class="flex-1 px-6 lg:px-10 relative">
+                <x-flash-success />
+                <x-flash-error />
+                <x-flash-warning />
                 {{ $slot }}
             </main>
         </div>
@@ -488,6 +478,13 @@
             var el = document.getElementById(id);
             if (el) el.classList.add('hidden');
         }
+        // Any [data-modal-close] button closes its nearest ancestor modal overlay.
+        document.addEventListener('click', function(e) {
+            var trigger = e.target.closest('[data-modal-close]');
+            if (!trigger) return;
+            var overlay = trigger.closest('.fixed.inset-0');
+            if (overlay) overlay.classList.add('hidden');
+        });
 
         // Apply sidebar collapse/expand state to sidebar, content, and top navbar.
         // Layout is driven entirely by CSS (see app.css @media min-width:1024px),
@@ -696,11 +693,6 @@
 
     {{-- Stack for page-specific JS (Leaflet, Turf, init code) --}}
     @stack('scripts')
-
-    {{-- Floating Negotiations Widget --}}
-    @if(Auth::check() && (Auth::user()->role === 'farmer' || Auth::user()->role === 'buyer' || (Auth::user()->role === 'logistics_partner' && $authUser->logisticsProfile && $authUser->logisticsProfile->isCooperative())))
-        <x-negotiations-widget />
-    @endif
 
 </body>
 </html>
