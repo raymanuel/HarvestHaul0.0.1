@@ -383,10 +383,13 @@ class PickupTripController extends Controller
     }
 
     /**
-     * Remove from planned trip (5.5) — drop one stop; the underlying request
-     * goes back to `approved` so it re-enters the planner queue.
+     * Remove from planned trip (5.5/9.5) — drop one stop; the underlying
+     * request goes back to `approved` so it re-enters the planner queue.
+     * The remaining stops' route/schedule are recalculated (spec 9.5:
+     * "Remove stop → Recalculate route → Validate time windows → Update
+     * trip"). If no stops remain, the trip itself is cancelled.
      */
-    public function removeStop(HaulJobStop $stop)
+    public function removeStop(HaulJobStop $stop, ConsolidationEngine $engine)
     {
         $haulJob = $stop->haulJob;
         $this->authorizeCoop($haulJob);
@@ -399,11 +402,41 @@ class PickupTripController extends Controller
 
         $haulRequest = $stop->haulRequest;
 
-        DB::transaction(function () use ($stop, $haulRequest) {
+        $remainingRequests = HaulRequest::whereIn('id', $haulJob->stops()->where('id', '!=', $stop->id)->pluck('haul_request_id'))
+            ->get();
+
+        $finalRoute = $remainingRequests->isNotEmpty() ? $engine->fetchFinalRoute($remainingRequests, $haulJob->cooperative) : null;
+        $schedule = $remainingRequests->isNotEmpty()
+            ? collect($engine->buildScheduleForRequests($remainingRequests, $haulJob->cooperative))->keyBy('request_id')
+            : collect();
+
+        DB::transaction(function () use ($stop, $haulRequest, $haulJob, $remainingRequests, $finalRoute, $schedule) {
             $stop->delete();
 
             if ($haulRequest) {
                 $haulRequest->update(['status' => HaulRequest::STATUS_APPROVED]);
+            }
+
+            if ($remainingRequests->isEmpty()) {
+                $haulJob->update(['status' => HaulJob::STATUS_CANCELLED]);
+                $haulJob->truck?->update(['status' => 'available']);
+
+                return;
+            }
+
+            $haulJob->update([
+                'route_distance_km'  => $finalRoute['distance_km'] ?? null,
+                'route_duration_min' => $finalRoute['duration_min'] ?? null,
+                'route_geometry'     => $finalRoute['geometry'] ?? null,
+            ]);
+
+            foreach ($haulJob->stops()->get() as $remainingStop) {
+                $stopSchedule = $schedule->get($remainingStop->haul_request_id);
+                $remainingStop->update([
+                    'planned_arrival_at' => $stopSchedule
+                        ? $haulJob->pickup_date->copy()->startOfDay()->addMinutes((int) $stopSchedule['arrival_min'])
+                        : null,
+                ]);
             }
         });
 
@@ -412,7 +445,9 @@ class PickupTripController extends Controller
             'action'      => 'remove_pickup_stop',
             'target_type' => 'haul_job',
             'target_id'   => $haulJob->id,
-            'notes'       => "Stop for request {$stop->haul_request_id} removed from trip {$haulJob->id}.",
+            'notes'       => $remainingRequests->isEmpty()
+                ? "Stop for request {$stop->haul_request_id} removed from trip {$haulJob->id}. No stops remained, so the trip was cancelled."
+                : "Stop for request {$stop->haul_request_id} removed from trip {$haulJob->id}. Route recalculated for {$remainingRequests->count()} remaining stop(s).",
         ]);
 
         if ($haulRequest) {
@@ -425,7 +460,79 @@ class PickupTripController extends Controller
             ]);
         }
 
-        return redirect()->route('coop.pickups.show', $haulJob)->with('success', 'Stop removed from the trip.');
+        if ($remainingRequests->isEmpty() && $haulJob->delivery_personnel_id) {
+            Notification::create([
+                'user_id'  => $haulJob->delivery_personnel_id,
+                'title'    => 'Trip cancelled',
+                'message'  => "Trip {$haulJob->id} was cancelled — its last stop was removed.",
+                'link'     => route('delivery.trips.index'),
+                'category' => 'haul',
+            ]);
+
+            return redirect()->route('coop.pickups.index')->with('success', 'Stop removed. The trip had no stops left, so it was cancelled.');
+        }
+
+        return redirect()->route('coop.pickups.show', $haulJob)->with('success', 'Stop removed from the trip. Route and schedule updated.');
+    }
+
+    /**
+     * Cancel the whole trip (9.5) — every non-terminal stop's request goes
+     * back to `approved` so it can be replanned; the truck is freed.
+     */
+    public function cancel(HaulJob $haulJob)
+    {
+        $this->authorizeCoop($haulJob);
+
+        if ($haulJob->status !== HaulJob::STATUS_SCHEDULED) {
+            throw ValidationException::withMessages([
+                'haul_job' => 'Only trips that are still scheduled (not yet picked up) can be cancelled.',
+            ]);
+        }
+
+        $haulJob->load('stops.haulRequest');
+
+        DB::transaction(function () use ($haulJob) {
+            foreach ($haulJob->stops as $stop) {
+                if ($stop->haulRequest) {
+                    $stop->haulRequest->update(['status' => HaulRequest::STATUS_APPROVED]);
+                }
+            }
+
+            $haulJob->update(['status' => HaulJob::STATUS_CANCELLED]);
+            $haulJob->truck?->update(['status' => 'available']);
+        });
+
+        AuditLog::create([
+            'admin_id'    => Auth::id(),
+            'action'      => 'cancel_pickup_trip',
+            'target_type' => 'haul_job',
+            'target_id'   => $haulJob->id,
+            'notes'       => "Trip {$haulJob->id} cancelled. {$haulJob->stops->count()} stop(s) returned to the approved queue.",
+        ]);
+
+        foreach ($haulJob->stops as $stop) {
+            if ($stop->haulRequest) {
+                Notification::create([
+                    'user_id'  => $stop->haulRequest->farmer_id,
+                    'title'    => 'Pickup trip cancelled',
+                    'message'  => 'Your cooperative cancelled the pickup trip. Your request is back in the queue to be rescheduled.',
+                    'link'     => route('farmer.dashboard'),
+                    'category' => 'haul',
+                ]);
+            }
+        }
+
+        if ($haulJob->delivery_personnel_id) {
+            Notification::create([
+                'user_id'  => $haulJob->delivery_personnel_id,
+                'title'    => 'Trip cancelled',
+                'message'  => "Trip {$haulJob->id} was cancelled by your cooperative.",
+                'link'     => route('delivery.trips.index'),
+                'category' => 'haul',
+            ]);
+        }
+
+        return redirect()->route('coop.pickups.index')->with('success', 'Trip cancelled. Its requests are back in the approved queue.');
     }
 
     private function cooperativeId(): int

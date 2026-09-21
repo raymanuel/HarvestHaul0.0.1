@@ -258,6 +258,9 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
                 Route::delete('/stops/{stop}', [PickupTripController::class, 'removeStop'])
                     ->middleware('throttle:30,1')
                     ->name('stops.remove');
+                Route::post('/{haulJob}/cancel', [PickupTripController::class, 'cancel'])
+                    ->middleware('throttle:30,1')
+                    ->name('cancel');
             });
 
             /*
@@ -308,7 +311,7 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
                 Route::get('/', [DeliveryTripController::class, 'index'])->name('index');
                 Route::get('/{haulJob}', [DeliveryTripController::class, 'show'])->name('show');
                 Route::post('/stops/{stop}/{status}', [DeliveryTripController::class, 'updateStopStatus'])
-                    ->whereIn('status', ['arrived', 'picked_up', 'skipped'])
+                    ->whereIn('status', ['arrived', 'picked_up', 'skipped', 'failed'])
                     ->middleware('throttle:60,1')
                     ->name('stop-status');
                 Route::post('/{haulJob}/complete', [DeliveryTripController::class, 'complete'])

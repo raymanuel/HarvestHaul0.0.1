@@ -73,6 +73,15 @@
                         <x-button variant="primary" size="sm">Reschedule</x-button>
                     </form>
                 </x-card>
+
+                <x-card>
+                    <x-section-label title="Cancel Trip" width="w-20" />
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mb-3">Cancels the whole trip. Every stop's pickup request goes back to the approved queue to be replanned.</p>
+                    <form method="POST" action="{{ route('coop.pickups.cancel', $haulJob) }}" onsubmit="return confirm('Cancel this entire trip? All stops return to the approved queue.');">
+                        @csrf
+                        <button class="px-4 py-2 rounded-xl text-xs font-bold text-white bg-[var(--color-error-text)] hover:opacity-90">Cancel Trip</button>
+                    </form>
+                </x-card>
             @endif
         </div>
 
