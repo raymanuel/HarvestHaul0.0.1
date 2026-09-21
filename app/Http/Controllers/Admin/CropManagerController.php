@@ -7,7 +7,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\CropCategory;
 use App\Models\Crop;
+use App\Models\CropAvailability;
 use App\Models\CropVariety;
+use App\Models\ReceivingRecord;
 use App\Models\AuditLog;
 
 class CropManagerController extends Controller
@@ -322,10 +324,11 @@ class CropManagerController extends Controller
     // -------------------------------------------------------
     public function destroyVariety(CropVariety $variety)
     {
-        $activeHarvests = $variety->harvests()->where('status', 'active')->count();
+        $referenced = ReceivingRecord::where('crop_variety_id', $variety->id)->exists()
+            || CropAvailability::where('crop_variety_id', $variety->id)->exists();
 
-        if ($activeHarvests > 0) {
-            return back()->with('error', 'Cannot delete a variety that has active harvest posts referencing it.');
+        if ($referenced) {
+            return back()->with('error', 'Cannot delete a variety that has receiving records or inventory referencing it.');
         }
 
         $name = $variety->name;
