@@ -235,22 +235,33 @@
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-[#0E1620]/8">
-                                        <tr>
-                                            <td class="px-4 py-2 text-[10px] font-bold text-[#5A6573]">Fruit &amp; Veg</td>
-                                            <td class="px-3 py-2 text-[11px] font-bold text-[#17202B]">Banana (Lakatan)</td>
-                                            <td class="px-3 py-2 text-[11px] text-[#17202B] text-right">25</td>
-                                            <td class="px-3 py-2 text-[11px] text-[#17202B] text-right">35</td>
-                                            <td class="px-3 py-2 text-[11px] text-[#17202B] text-right">32</td>
-                                            <td class="px-4 py-2 text-[11px] font-bold text-[#16283C] text-right">30</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="px-4 py-2 text-[10px] font-bold text-[#5A6573]">Fruit &amp; Veg</td>
-                                            <td class="px-3 py-2 text-[11px] font-bold text-[#17202B]">Banana (Saba)</td>
-                                            <td class="px-3 py-2 text-[11px] text-[#17202B] text-right">20</td>
-                                            <td class="px-3 py-2 text-[11px] text-[#17202B] text-right">28</td>
-                                            <td class="px-3 py-2 text-[11px] text-[#17202B] text-right">25</td>
-                                            <td class="px-4 py-2 text-[11px] font-bold text-[#16283C] text-right">23</td>
-                                        </tr>
+                                        @forelse($marketPrices as $price)
+                                            <tr>
+                                                <td class="px-4 py-2 text-[10px] font-bold text-[#5A6573]">{{ $price->crop?->category?->name ?? '—' }}</td>
+                                                <td class="px-3 py-2 text-[11px] font-bold text-[#17202B]">{{ $price->crop?->name }}@if($price->cropVariety) ({{ $price->cropVariety->name }}) @endif</td>
+                                                <td class="px-3 py-2 text-[11px] text-[#17202B] text-right">{{ number_format($price->low_price_per_kg, 0) }}</td>
+                                                <td class="px-3 py-2 text-[11px] text-[#17202B] text-right">{{ number_format($price->high_price_per_kg, 0) }}</td>
+                                                <td class="px-3 py-2 text-[11px] text-[#17202B] text-right">{{ number_format($price->common_price_per_kg, 0) }}</td>
+                                                <td class="px-4 py-2 text-[11px] font-bold text-[#16283C] text-right">{{ $price->dpi_price_per_kg !== null ? number_format($price->dpi_price_per_kg, 0) : '—' }}</td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td class="px-4 py-2 text-[10px] font-bold text-[#5A6573]">Fruit &amp; Veg</td>
+                                                <td class="px-3 py-2 text-[11px] font-bold text-[#17202B]">Banana (Lakatan)</td>
+                                                <td class="px-3 py-2 text-[11px] text-[#17202B] text-right">25</td>
+                                                <td class="px-3 py-2 text-[11px] text-[#17202B] text-right">35</td>
+                                                <td class="px-3 py-2 text-[11px] text-[#17202B] text-right">32</td>
+                                                <td class="px-4 py-2 text-[11px] font-bold text-[#16283C] text-right">30</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="px-4 py-2 text-[10px] font-bold text-[#5A6573]">Fruit &amp; Veg</td>
+                                                <td class="px-3 py-2 text-[11px] font-bold text-[#17202B]">Banana (Saba)</td>
+                                                <td class="px-3 py-2 text-[11px] text-[#17202B] text-right">20</td>
+                                                <td class="px-3 py-2 text-[11px] text-[#17202B] text-right">28</td>
+                                                <td class="px-3 py-2 text-[11px] text-[#17202B] text-right">25</td>
+                                                <td class="px-4 py-2 text-[11px] font-bold text-[#16283C] text-right">23</td>
+                                            </tr>
+                                        @endforelse
                                     </tbody>
                                 </table>
                             </div>

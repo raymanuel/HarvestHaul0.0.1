@@ -37,6 +37,10 @@
             @if($receivingRecord->status === \App\Models\ReceivingRecord::STATUS_PENDING)
                 <x-card>
                     <x-section-label title="Set Buying Price" width="w-20" />
+                    @php $marketPrice = \App\Models\MarketPrice::latestFor($receivingRecord->crop_id, $receivingRecord->crop_variety_id); @endphp
+                    @if($marketPrice)
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">Market reference: Low ₱{{ number_format($marketPrice->low_price_per_kg, 2) }} / Common ₱{{ number_format($marketPrice->common_price_per_kg, 2) }} / High ₱{{ number_format($marketPrice->high_price_per_kg, 2) }} per kg ({{ $marketPrice->source }}, {{ $marketPrice->price_date->format('M d, Y') }})</p>
+                    @endif
                     <form method="POST" action="{{ route('coop.procurement.price', $receivingRecord) }}" class="space-y-4">
                         @csrf
                         <x-input name="buying_price_per_kg" type="number" step="0.01" label="Buying Price (₱/kg)" required placeholder="e.g. 18.00" />

@@ -39,6 +39,10 @@
                                                class="w-24 border border-slate-200 dark:border-slate-600 rounded-lg px-2 py-1.5 text-sm bg-slate-50/50 dark:bg-slate-700/50 text-slate-800 dark:text-white" />
                                         <button class="text-xs font-bold text-brand-700 dark:text-gold-light hover:underline">Save</button>
                                     </form>
+                                    @php $marketPrice = \App\Models\MarketPrice::latestFor($listing->crop_id, $listing->crop_variety_id); @endphp
+                                    @if($marketPrice)
+                                        <p class="text-[11px] text-slate-400 mt-1">Market common: ₱{{ number_format($marketPrice->common_price_per_kg, 2) }}/kg · {{ $marketPrice->source }}, {{ $marketPrice->price_date->format('M d') }}</p>
+                                    @endif
                                 </td>
                                 <td class="px-4 py-3">
                                     @php

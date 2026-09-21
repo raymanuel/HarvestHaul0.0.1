@@ -67,7 +67,7 @@ use Illuminate\Support\Facades\Route;
 | Public Routes
 |--------------------------------------------------------------------------
 */
-Route::view('/', 'welcome')->name('welcome');
+Route::get('/', [\App\Http\Controllers\WelcomeController::class, 'index'])->name('welcome');
 
 Route::get('/health', [HealthController::class, 'index'])->name('health');
 
@@ -190,6 +190,11 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
             Route::post('/reference-data/packaging', [ReferenceDataController::class, 'storePackaging'])->name('reference.packaging.store');
             Route::put('/reference-data/packaging/{packagingType}', [ReferenceDataController::class, 'updatePackaging'])->name('reference.packaging.update');
             Route::delete('/reference-data/packaging/{packagingType}', [ReferenceDataController::class, 'destroyPackaging'])->name('reference.packaging.destroy');
+
+            // Market price monitoring (18)
+            Route::get('/market-prices', [\App\Http\Controllers\Admin\MarketPriceController::class, 'index'])->name('market-prices.index');
+            Route::post('/market-prices', [\App\Http\Controllers\Admin\MarketPriceController::class, 'store'])->name('market-prices.store');
+            Route::delete('/market-prices/{marketPrice}', [\App\Http\Controllers\Admin\MarketPriceController::class, 'destroy'])->name('market-prices.destroy');
 
             // Crop matrix (categories → crops → varieties)
             Route::prefix('crops')->name('crops.')->group(function () {
