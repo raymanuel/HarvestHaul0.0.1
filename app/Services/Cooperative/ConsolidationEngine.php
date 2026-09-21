@@ -3,8 +3,10 @@
 namespace App\Services\Cooperative;
 
 use App\Models\Cooperative;
+use App\Models\HaulJob;
 use App\Models\HaulRequest;
-use App\Models\Truck;
+use App\Models\User;
+use App\Models\UserRole;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -12,14 +14,16 @@ use Illuminate\Support\Facades\Log;
 /**
  * Cooperative pickup consolidation engine.
  *
- * Picks the pending pickup requests for a cooperative on a given date,
- * filters by geographic proximity, checks they fit a truck's capacity
- * (knapsack), then builds a road-based route using the public OSRM
- * `/table` matrix with a nearest-neighbor seed + 2-opt improvement.
+ * Picks the approved pickup requests for a cooperative on a given date,
+ * bin-packs them into one or more truck-sized candidate trips (first-fit
+ * decrease knapsack), then builds a road-based route per candidate using
+ * the public OSRM `/table` matrix with a nearest-neighbor seed + 2-opt
+ * improvement. Requests that fit no available truck are returned as
+ * "unassigned" rather than forced into an overloaded trip.
  *
  * Road-distance figures are advisory only — they never affect the agreed
- * per-kg billing. If OSRM is unavailable, the engine falls back to the
- * HaulingRateCalculator advisory distance and still returns a plan.
+ * per-kg billing. If OSRM is unavailable, the engine falls back to
+ * haversine distance and still returns a plan.
  */
 class ConsolidationEngine
 {
@@ -35,29 +39,73 @@ class ConsolidationEngine
             ->get();
 
         $trucks = $cooperative->trucks()->where('status', 'available')->get();
+        $availableDrivers = $this->availableDrivers($cooperative, $date);
+
         $coopLat = (float) ($cooperative->latitude ?? 0);
         $coopLng = (float) ($cooperative->longitude ?? 0);
         $depot = ['lat' => $coopLat, 'lng' => $coopLng];
 
-        $stops = $this->buildStopPoints($requests, $depot);
+        $packed = $this->binPackByCapacity($requests, $trucks);
 
-        $matrix = $this->fetchRoadMatrix($stops, $depot);
+        $groups = [];
+        foreach ($packed['groups'] as $i => $bin) {
+            $stops = $this->buildStopPoints($bin['requests'], $depot);
+            $matrix = $this->fetchRoadMatrix($stops, $depot);
+            $proposed = $this->buildProposedPlan($bin, $stops, $matrix, $depot);
 
-        $capacityGroups = $this->groupByCapacity($requests, $trucks);
+            // Spec 7.2: "OSRM Final Route" happens before "Map Display" and
+            // "Human Review" — the real road route must be visible while
+            // reviewing, not only persisted silently at trip creation.
+            $orderedRequests = collect($proposed['stop_ids'])
+                ->map(fn ($stopId) => $bin['requests']->firstWhere('id', (int) str_replace('req_', '', $stopId)))
+                ->filter()
+                ->values();
+            $routeGeometry = $orderedRequests->isNotEmpty()
+                ? $this->fetchFinalRoute($orderedRequests, $cooperative)
+                : null;
 
-        $proposed = $this->buildProposedPlan($capacityGroups, $stops, $matrix, $depot, $date);
+            $groups[] = [
+                'label'          => 'TRIP '.str_pad((string) ($i + 1), 2, '0', STR_PAD_LEFT),
+                'truck'          => $bin['truck'],
+                'requests'       => $bin['requests'],
+                'ordered_requests' => $orderedRequests,
+                'stops'          => $stops,
+                'matrix'         => $matrix['source'],
+                'load_kg'        => round($bin['load_kg'], 2),
+                'capacity_kg'    => $bin['truck'] ? (float) $bin['truck']->capacity_kg : 0,
+                'proposed'       => $proposed,
+                'route_geometry' => $routeGeometry,
+            ];
+        }
 
         return [
-            'date'       => $date,
-            'requests'   => $requests,
-            'trucks'     => $trucks,
-            'stops'      => $stops,
-            'matrix'     => $matrix['source'],
-            'distance_km'=> $matrix['total_km'],
-            'travel_time' => $matrix['total_min'],
-            'capacity'   => $this->capacityBreakdown($capacityGroups),
-            'proposed'   => $proposed,
+            'date'              => $date,
+            'trucks'            => $trucks,
+            'available_drivers' => $availableDrivers,
+            'groups'            => $groups,
+            'unassigned'        => $packed['unassigned'],
+            'capacity'          => $this->capacityBreakdown($packed['groups']),
         ];
+    }
+
+    /**
+     * Delivery personnel not already assigned to another active trip on this
+     * date (spec 6.2/6.3 — "available personnel" is a planning input).
+     */
+    public function availableDrivers(Cooperative $cooperative, string $date, ?int $excludeHaulJobId = null): Collection
+    {
+        $bookedDriverIds = HaulJob::where('cooperative_id', $cooperative->id)
+            ->whereDate('pickup_date', $date)
+            ->where('status', '!=', HaulJob::STATUS_CANCELLED)
+            ->when($excludeHaulJobId, fn ($q) => $q->where('id', '!=', $excludeHaulJobId))
+            ->whereNotNull('delivery_personnel_id')
+            ->pluck('delivery_personnel_id');
+
+        return User::where('role', UserRole::DELIVERY_PERSONNEL->value)
+            ->where('cooperative_id', $cooperative->id)
+            ->whereNotIn('id', $bookedDriverIds)
+            ->orderBy('name')
+            ->get(['id', 'name']);
     }
 
     private function buildStopPoints(Collection $requests, array $depot): array
@@ -150,49 +198,58 @@ class ConsolidationEngine
         return $R * 2 * asin(min(1.0, sqrt($a)));
     }
 
-    private function toMinutes(?string $hhmm): ?float
+    private function toMinutes(\Carbon\Carbon|string|null $time): ?float
     {
-        if (! $hhmm) {
+        if (! $time) {
             return null;
         }
+
+        $hhmm = $time instanceof \Carbon\Carbon ? $time->format('H:i') : $time;
 
         return (float) explode(':', $hhmm)[0] * 60 + ((float) explode(':', $hhmm)[1]);
     }
 
     /**
-     * Knapsack-style grouping: fit compatible requests into trucks by capacity.
-     * (Simple first-fit-decrease heuristic; advisory, not billed.)
+     * Knapsack-style grouping (spec 6.3/6.4): first-fit-decrease — largest
+     * requests first, into the largest trucks first. A request that fits no
+     * available truck is "incompatible" (spec 6.3) and returned unassigned
+     * rather than forced into an overloaded trip.
      */
-    private function groupByCapacity(Collection $requests, Collection $trucks): array
+    private function binPackByCapacity(Collection $requests, Collection $trucks): array
     {
-        $groups = [];
-        $totalWeight = 0.0;
-        foreach ($requests as $r) {
-            $totalWeight += (float) $r->estimated_weight_kg;
+        $bins = $trucks->sortByDesc('capacity_kg')->values()
+            ->map(fn ($truck) => ['truck' => $truck, 'requests' => collect(), 'load_kg' => 0.0])
+            ->all();
+
+        $unassigned = collect();
+
+        foreach ($requests->sortByDesc('estimated_weight_kg') as $req) {
+            $weight = (float) $req->estimated_weight_kg;
+            $placed = false;
+
+            foreach ($bins as &$bin) {
+                if ($bin['load_kg'] + $weight <= (float) $bin['truck']->capacity_kg) {
+                    $bin['requests']->push($req);
+                    $bin['load_kg'] += $weight;
+                    $placed = true;
+                    break;
+                }
+            }
+            unset($bin);
+
+            if (! $placed) {
+                $unassigned->push($req);
+            }
         }
 
-        $bestTruck = $trucks->max('capacity_kg')
-            ? $trucks->filter(fn ($t) => $t->capacity_kg >= $totalWeight)->sortBy('capacity_kg')->first()
-            : null;
+        $bins = array_values(array_filter($bins, fn ($b) => $b['requests']->isNotEmpty()));
 
-        if (! $bestTruck) {
-            $bestTruck = $trucks->sortByDesc('capacity_kg')->first();
-        }
-
-        $groups[] = [
-            'truck'    => $bestTruck,
-            'requests' => $requests,
-            'load_kg'  => $totalWeight,
-            'capacity_kg' => $bestTruck ? (float) $bestTruck->capacity_kg : 0,
-        ];
-
-        return $groups;
+        return ['groups' => $bins, 'unassigned' => $unassigned];
     }
 
-    private function buildProposedPlan(array $groups, array $stops, array $matrix, array $depot, string $date): array
+    private function buildProposedPlan(array $group, array $stops, array $matrix, array $depot): array
     {
-        $group = $groups[0] ?? null;
-        $truck = $group ? $group['truck'] : null;
+        $truck = $group['truck'] ?? null;
 
         // Nearest-neighbor seed from the depot, then a single 2-opt pass.
         $orderedStopIds = $this->nearestNeighbor($stops, $depot, $matrix);
@@ -211,18 +268,23 @@ class ConsolidationEngine
                     $totalKm  += ((float) $matrix['distances'][$i][$next]) / 1000.0;
                 }
             }
+        } else {
+            $totalKm = $matrix['total_km'] ?? 0;
+            $totalMin = $matrix['total_min'] ?? 0;
         }
 
-        $windowsOk = $this->validateTimeWindows($orderedStopIds, $stops);
+        $arrival = $this->buildArrivalSchedule($orderedStopIds, $stops, $matrix);
+        $capacityKg = $truck ? (float) $truck->capacity_kg : 0;
 
         return [
             'truck'        => $truck,
             'stop_ids'     => $orderedStopIds,
             'distance_km'  => round($totalKm, 2),
             'travel_time'  => $this->formatMinutes($totalMin),
-            'windows_ok'   => $windowsOk,
-            'load_kg'      => $group['load_kg'] ?? 0,
-            'utilization'  => $group ? round(($group['load_kg'] / max($group['capacity_kg'], 1)) * 100, 1) : 0,
+            'windows_ok'   => $arrival['windows_ok'],
+            'schedule'     => $arrival['schedule'],
+            'load_kg'      => round($group['load_kg'] ?? 0, 2),
+            'utilization'  => $capacityKg ? round((($group['load_kg'] ?? 0) / $capacityKg) * 100, 1) : 0,
         ];
     }
 
@@ -312,31 +374,135 @@ class ConsolidationEngine
         }
     }
 
-    private function validateTimeWindows(array $orderedStopIds, array $stops): bool
+    /**
+     * Per-stop arrival schedule (spec 7.7) — arrival/wait/departure computed
+     * from actual leg travel time (matrix or haversine fallback), not just an
+     * aggregate ok/not-ok flag. Service duration per stop is configurable and
+     * scales for large loads (spec 7.8) instead of a hardcoded constant.
+     */
+    private function buildArrivalSchedule(array $orderedStopIds, array $stops, array $matrix): array
     {
-        $cumMin = 0.0;
+        $baseService = (float) config('harvesthaul.pickup.base_service_minutes', 15);
+        $largeService = (float) config('harvesthaul.pickup.large_load_service_minutes', 30);
+        $threshold = (float) config('harvesthaul.pickup.large_load_threshold_kg', 2000);
+
+        $schedule = [];
+        $windowsOk = true;
+        $departure = 0.0;
+        $previousId = 'depot';
+
         foreach ($orderedStopIds as $id) {
             $stop = collect($stops)->firstWhere('id', $id);
             if (! $stop) {
                 continue;
             }
-            $arriveAt = $cumMin;
-            if ($stop['earliest'] !== null && $stop['latest'] !== null) {
-                if ($arriveAt > $stop['latest']) {
-                    return false;
-                }
-                $latestDep = max($stop['latest'], $arriveAt);
-                $cumMin = $latestDep + 5; // 5 min service time (advisory)
+
+            $travel = $this->legMinutes($stops, $matrix, $previousId, $id);
+            $arrival = $departure + $travel;
+
+            $waitMin = 0.0;
+            if ($stop['earliest'] !== null) {
+                $waitMin = max(0.0, $stop['earliest'] - $arrival);
             }
+
+            $stopWindowOk = true;
+            if ($stop['latest'] !== null && $arrival > $stop['latest']) {
+                $stopWindowOk = false;
+                $windowsOk = false;
+            }
+
+            $service = ($stop['weight_kg'] ?? 0) >= $threshold ? $largeService : $baseService;
+            $departure = $arrival + $waitMin + $service;
+
+            $schedule[] = [
+                'request_id'    => $stop['request_id'] ?? null,
+                'stop_id'       => $id,
+                'arrival_min'   => round($arrival, 1),
+                'wait_min'      => round($waitMin, 1),
+                'departure_min' => round($departure, 1),
+                'window_ok'     => $stopWindowOk,
+            ];
+
+            $previousId = $id;
         }
 
-        return true;
+        return ['schedule' => $schedule, 'windows_ok' => $windowsOk];
+    }
+
+    private function legMinutes(array $stops, array $matrix, string $fromId, string $toId): float
+    {
+        if ($matrix['source'] === 'osrm' && $matrix['durations']) {
+            $stopIds = array_column($stops, 'id');
+            $i = array_search($fromId, $stopIds);
+            $j = array_search($toId, $stopIds);
+
+            return (float) ($matrix['durations'][$i][$j] ?? 0);
+        }
+
+        $from = collect($stops)->firstWhere('id', $fromId);
+        $to = collect($stops)->firstWhere('id', $toId);
+
+        if (! $from || ! $to) {
+            return 0.0;
+        }
+
+        return $this->haversineKm($from['lat'], $from['lng'], $to['lat'], $to['lng']) / 25.0 * 60.0;
+    }
+
+    /**
+     * Final route geometry (spec 7.10) — called once a stop order is
+     * accepted (trip creation), separate from the `/table` matrix used
+     * during planning. Advisory: a failure here must not block trip
+     * creation, so it returns null rather than throwing.
+     */
+    public function fetchFinalRoute(Collection $orderedRequests, Cooperative $cooperative): ?array
+    {
+        $depot = ['lat' => (float) ($cooperative->latitude ?? 0), 'lng' => (float) ($cooperative->longitude ?? 0)];
+        $stops = $this->buildStopPoints($orderedRequests, $depot);
+
+        $coords = collect($stops)->push($stops[0])
+            ->map(fn ($s) => $s['lng'].','.$s['lat'])
+            ->implode(';');
+
+        $url = self::OSRM_BASE.'/route/v1/driving/'.$coords.'?overview=full&geometries=geojson';
+
+        try {
+            $res = Http::timeout(8)->get($url);
+            if ($res->ok() && $res->json('code') === 'Ok') {
+                $route = $res->json('routes.0');
+
+                return [
+                    'distance_km'  => round(($route['distance'] ?? 0) / 1000, 2),
+                    'duration_min' => round(($route['duration'] ?? 0) / 60, 2),
+                    'geometry'     => $route['geometry']['coordinates'] ?? null,
+                ];
+            }
+        } catch (\Throwable $e) {
+            Log::info('OSRM final route fetch failed.', ['error' => $e->getMessage()]);
+        }
+
+        return null;
+    }
+
+    /**
+     * Arrival schedule for an already-decided stop order (human-reviewed),
+     * used to populate HaulJobStop.planned_arrival_at at trip creation.
+     */
+    public function buildScheduleForRequests(Collection $orderedRequests, Cooperative $cooperative): array
+    {
+        $depot = ['lat' => (float) ($cooperative->latitude ?? 0), 'lng' => (float) ($cooperative->longitude ?? 0)];
+        $stops = $this->buildStopPoints($orderedRequests, $depot);
+        $matrix = $this->fetchRoadMatrix($stops, $depot);
+        $orderedStopIds = $orderedRequests->map(fn ($r) => 'req_'.$r->id)->all();
+
+        return $this->buildArrivalSchedule($orderedStopIds, $stops, $matrix)['schedule'];
     }
 
     private function capacityBreakdown(array $groups): array
     {
         return collect($groups)->map(function ($g) {
-            $cap = $g['capacity_kg'] ?: 1;
+            $cap = $g['truck'] ? (float) $g['truck']->capacity_kg : 1;
+            $cap = $cap ?: 1;
 
             return [
                 'truck'   => $g['truck'] ? $g['truck']->truck_name.' ('.$g['truck']->plate_number.')' : 'No truck available',

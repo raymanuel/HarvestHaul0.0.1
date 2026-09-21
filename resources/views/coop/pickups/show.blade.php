@@ -7,6 +7,9 @@
         <div class="lg:col-span-2 space-y-6">
             <x-card>
                 <x-section-label title="Stops" width="w-16" />
+
+                <div id="map-trip" class="w-full h-72 rounded-xl mb-5 border border-slate-200 dark:border-slate-700"></div>
+
                 @if($stops->isEmpty())
                     <x-empty-state type="first-use" title="No stops on this trip" />
                 @else
@@ -84,4 +87,71 @@
             </x-card>
         </div>
     </div>
+
+    @push('head')
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+        <style>
+            .pickup-marker { display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; color:#fff; border-radius:9999px; box-shadow:0 1px 3px rgba(0,0,0,.4); }
+            .pickup-marker-depot { background:#0f172a; }
+            .pickup-marker-selected { background:#2563eb; }
+            .pickup-marker-completed { background:#16a34a; }
+        </style>
+    @endpush
+
+    @php
+        $tripDepot = ['lat' => (float) ($haulJob->cooperative->latitude ?? 0), 'lng' => (float) ($haulJob->cooperative->longitude ?? 0)];
+        $tripStops = $stops->map(function ($stop) {
+            return [
+                'lat'   => (float) ($stop->haulRequest?->pickup_location_lat ?? 0),
+                'lng'   => (float) ($stop->haulRequest?->pickup_location_lng ?? 0),
+                'seq'   => $stop->sequence_no,
+                'label' => $stop->haulRequest?->farmer?->name ?? 'Farmer',
+                'state' => $stop->status === \App\Models\HaulJobStop::STATUS_PICKED_UP ? 'completed' : 'selected',
+            ];
+        })->filter(fn ($s) => $s['lat'] && $s['lng'])->values();
+        $tripGeometry = $haulJob->route_geometry;
+    @endphp
+
+    @push('scripts')
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                var el = document.getElementById('map-trip');
+                if (!el || !window.L) return;
+
+                var depot = {!! json_encode($tripDepot) !!};
+                var stops = {!! $tripStops->toJson() !!};
+                var geometryCoords = {!! $tripGeometry ? json_encode($tripGeometry) : 'null' !!};
+
+                var map = L.map('map-trip');
+                var tileUrl = 'https://' + '{s}' + '.tile.openstreetmap.org/' + '{z}' + '/' + '{x}' + '/' + '{y}' + '.png';
+                L.tileLayer(tileUrl, {
+                    maxZoom: 18,
+                    attribution: '&copy; OpenStreetMap contributors'
+                }).addTo(map);
+
+                var bounds = [[depot.lat, depot.lng]];
+                L.marker([depot.lat, depot.lng], {
+                    icon: L.divIcon({ className: 'pickup-marker pickup-marker-depot', html: 'C', iconSize: [22, 22] })
+                }).addTo(map).bindPopup('Cooperative');
+
+                stops.forEach(function (s) {
+                    L.marker([s.lat, s.lng], {
+                        icon: L.divIcon({ className: 'pickup-marker pickup-marker-' + s.state, html: String(s.seq), iconSize: [22, 22] })
+                    }).addTo(map).bindPopup(s.label);
+                    bounds.push([s.lat, s.lng]);
+                });
+
+                var isRoad = geometryCoords && geometryCoords.length > 0;
+                var line = isRoad
+                    ? geometryCoords.map(function (c) { return [c[1], c[0]]; })
+                    : (stops.length ? [[depot.lat, depot.lng]].concat(stops.map(function (s) { return [s.lat, s.lng]; })).concat([[depot.lat, depot.lng]]) : null);
+                if (line) {
+                    L.polyline(line, { color: isRoad ? '#2563eb' : '#94a3b8', weight: 3, dashArray: isRoad ? null : '6,6' }).addTo(map);
+                }
+
+                map.fitBounds(bounds, { padding: [30, 30] });
+            });
+        </script>
+    @endpush
 </x-layout>

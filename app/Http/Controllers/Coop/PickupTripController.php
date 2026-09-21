@@ -9,8 +9,6 @@ use App\Models\HaulJobStop;
 use App\Models\HaulRequest;
 use App\Models\Notification;
 use App\Models\Truck;
-use App\Models\User;
-use App\Models\UserRole;
 use App\Services\Cooperative\ConsolidationEngine;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -82,12 +80,7 @@ class PickupTripController extends Controller
         $cooperative = Auth::user()->cooperative;
         $plan = $engine->planForDate($cooperative, $date);
 
-        $drivers = User::where('role', UserRole::DELIVERY_PERSONNEL->value)
-            ->where('cooperative_id', $cooperativeId)
-            ->orderBy('name')
-            ->get(['id', 'name']);
-
-        return view('coop.pickups.create', compact('plan', 'date', 'drivers'));
+        return view('coop.pickups.create', compact('plan', 'date', 'cooperative'));
     }
 
     public function store(Request $request, ConsolidationEngine $engine)
@@ -114,16 +107,18 @@ class PickupTripController extends Controller
             ]);
         }
 
+        $availableDriverIds = $engine->availableDrivers($cooperative, $request->input('date'))->pluck('id');
+
         $data = $request->validate([
             'date'                => 'required|date|after_or_equal:today',
             'truck_id'            => ['required', Rule::exists('trucks', 'id')->where('cooperative_id', $cooperativeId)],
             'delivery_personnel_id' => [
                 'required',
-                Rule::exists('users', 'id')
-                    ->where('cooperative_id', $cooperativeId)
-                    ->where('role', UserRole::DELIVERY_PERSONNEL->value),
+                Rule::in($availableDriverIds),
             ],
             'sequences'           => 'array',
+        ], [
+            'delivery_personnel_id.in' => 'This driver is already assigned to another trip on this date.',
         ]);
 
         $truck = Truck::where('id', $data['truck_id'])->where('cooperative_id', $cooperativeId)->firstOrFail();
@@ -160,7 +155,12 @@ class PickupTripController extends Controller
             ]);
         }
 
-        $job = DB::transaction(function () use ($cooperativeId, $data, $truck, $requests, $seqMap, $totalWeight) {
+        // Stop order is now accepted (spec 7.10) — final route geometry + arrival
+        // schedule computed outside the DB transaction (both are network calls).
+        $finalRoute = $engine->fetchFinalRoute($requests, $cooperative);
+        $schedule = collect($engine->buildScheduleForRequests($requests, $cooperative))->keyBy('request_id');
+
+        $job = DB::transaction(function () use ($cooperativeId, $data, $truck, $requests, $seqMap, $totalWeight, $finalRoute, $schedule) {
             $haulJob = HaulJob::create([
                 'haul_request_id' => null,
                 'cooperative_id'  => $cooperativeId,
@@ -169,6 +169,9 @@ class PickupTripController extends Controller
                 'pickup_date'     => $data['date'],
                 'scheduled_at'    => $data['date'].' 00:00:00',
                 'status'          => HaulJob::STATUS_SCHEDULED,
+                'route_distance_km'  => $finalRoute['distance_km'] ?? null,
+                'route_duration_min' => $finalRoute['duration_min'] ?? null,
+                'route_geometry'     => $finalRoute['geometry'] ?? null,
             ]);
 
             // Capacity advisory flag stored so the UI can flag it.
@@ -180,11 +183,17 @@ class PickupTripController extends Controller
 
             foreach ($requests as $i => $hr) {
                 $seq = $seqMap ? $seqMap[($i + 1)] : ($i + 1);
+                $stopSchedule = $schedule->get($hr->id);
+                $plannedArrival = $stopSchedule
+                    ? $haulJob->pickup_date->copy()->startOfDay()->addMinutes((int) $stopSchedule['arrival_min'])
+                    : null;
+
                 HaulJobStop::create([
                     'haul_job_id'    => $haulJob->id,
                     'haul_request_id'=> $hr->id,
                     'sequence_no'    => $seq,
                     'status'         => HaulJobStop::STATUS_PENDING,
+                    'planned_arrival_at' => $plannedArrival,
                 ]);
                 $hr->update(['status' => HaulRequest::STATUS_SCHEDULED]);
             }
@@ -234,18 +243,18 @@ class PickupTripController extends Controller
             ]);
     }
 
-    public function show(HaulJob $haulJob)
+    public function show(HaulJob $haulJob, ConsolidationEngine $engine)
     {
         $this->authorizeCoop($haulJob);
-        $haulJob->load(['haulRequest.crop', 'truck', 'deliveryPersonnel', 'stops.haulRequest.farmer']);
+        $haulJob->load(['haulRequest.crop', 'truck', 'deliveryPersonnel', 'cooperative', 'stops.haulRequest.farmer']);
 
         $stops = $haulJob->stops()->orderBy('sequence_no')->get();
 
         $trucks = Truck::where('cooperative_id', $haulJob->cooperative_id)->orderBy('truck_name')->get();
-        $drivers = User::where('role', UserRole::DELIVERY_PERSONNEL->value)
-            ->where('cooperative_id', $haulJob->cooperative_id)
-            ->orderBy('name')
-            ->get(['id', 'name']);
+        $drivers = $engine->availableDrivers($haulJob->cooperative, $haulJob->pickup_date->toDateString(), $haulJob->id);
+        if ($haulJob->deliveryPersonnel && ! $drivers->contains('id', $haulJob->delivery_personnel_id)) {
+            $drivers = $drivers->push($haulJob->deliveryPersonnel)->sortBy('name')->values();
+        }
 
         return view('coop.pickups.show', compact('haulJob', 'stops', 'trucks', 'drivers'));
     }
@@ -311,7 +320,7 @@ class PickupTripController extends Controller
     /**
      * Reassign truck/personnel (5.5) — same scoped validation as store().
      */
-    public function reassign(Request $request, HaulJob $haulJob)
+    public function reassign(Request $request, HaulJob $haulJob, ConsolidationEngine $engine)
     {
         $this->authorizeCoop($haulJob);
         $cooperativeId = $haulJob->cooperative_id;
@@ -322,14 +331,19 @@ class PickupTripController extends Controller
             ]);
         }
 
+        $availableDriverIds = $engine->availableDrivers($haulJob->cooperative, $haulJob->pickup_date->toDateString(), $haulJob->id)
+            ->pluck('id')
+            ->push($haulJob->delivery_personnel_id)
+            ->unique();
+
         $data = $request->validate([
             'truck_id' => ['required', Rule::exists('trucks', 'id')->where('cooperative_id', $cooperativeId)],
             'delivery_personnel_id' => [
                 'required',
-                Rule::exists('users', 'id')
-                    ->where('cooperative_id', $cooperativeId)
-                    ->where('role', UserRole::DELIVERY_PERSONNEL->value),
+                Rule::in($availableDriverIds),
             ],
+        ], [
+            'delivery_personnel_id.in' => 'This driver is already assigned to another trip on this date.',
         ]);
 
         $previousDriverId = $haulJob->delivery_personnel_id;

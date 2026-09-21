@@ -78,4 +78,20 @@ return [
         ],
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Pickup Scheduling Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Service duration at each pickup stop (spec 7.8) — configurable rather
+    | than hardcoded so it can be tuned per cooperative's real loading times.
+    |
+    */
+
+    'pickup' => [
+        'base_service_minutes'       => (float) env('PICKUP_BASE_SERVICE_MINUTES', 15),
+        'large_load_service_minutes' => (float) env('PICKUP_LARGE_LOAD_SERVICE_MINUTES', 30),
+        'large_load_threshold_kg'    => (float) env('PICKUP_LARGE_LOAD_THRESHOLD_KG', 2000),
+    ],
+
 ];

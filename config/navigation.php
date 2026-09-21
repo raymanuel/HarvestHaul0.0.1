@@ -1,486 +1,184 @@
 <?php
 
+/*
+|--------------------------------------------------------------------------
+| Role-based sidebar navigation
+|--------------------------------------------------------------------------
+| The sidebar renders the entry for the signed-in user's role. Each item is:
+|   label     => visible text
+|   letter    => single letter shown when the sidebar is collapsed
+|   route     => route name pattern used to detect the active item
+|   route_url => route name used to build the link
+|   tooltip   => text shown when the sidebar is collapsed
+|
+| Only routes that actually exist for the role are listed. Add an item when
+| its module ships so the sidebar never links to a missing page.
+*/
+
 return [
-    'farmer' => [
+
+    'super_admin' => [
+        'section_label' => 'Administration',
         'items' => [
             [
-                'label' => 'My Active Harvests',
-                'route' => 'harvests.*',
-                'route_url' => 'harvests.index',
-                'letter' => 'M',
-                'tooltip' => 'My Active Harvests',
+                'label' => 'Cooperatives',
+                'letter' => 'C',
+                'route' => 'admin.cooperatives.*',
+                'route_url' => 'admin.cooperatives.index',
+                'tooltip' => 'Cooperatives',
             ],
             [
-                'label' => 'Selling',
-                'route' => 'farmer.negotiations|farmer.proposals|farmer.haul-requests|pooling.cost-ledger*',
-                'letter' => 'S',
-                'tooltip' => 'Selling',
-                'children' => [
-                    [
-                        'label' => 'My Negotiations',
-                        'route' => 'farmer.negotiations',
-                        'route_url' => 'farmer.negotiations',
-                        'letter' => 'N',
-                        'tooltip' => 'My Negotiations',
-                    ],
-                    [
-                        'label' => 'Route Offers',
-                        'route' => 'farmer.proposals',
-                        'route_url' => 'farmer.proposals',
-                        'letter' => 'R',
-                        'tooltip' => 'Route Offers',
-                    ],
-                    [
-                        'label' => 'Cost Ledger',
-                        'route' => 'pooling.cost-ledger*',
-                        'route_url' => 'pooling.cost-ledger.farmer-index',
-                        'letter' => 'C',
-                        'tooltip' => 'Cost Ledger',
-                    ],
-                    [
-                        'label' => 'Haul Requests',
-                        'route' => 'farmer.haul-requests',
-                        'route_url' => 'farmer.haul-requests',
-                        'letter' => 'H',
-                        'tooltip' => 'Haul Requests',
-                        'condition' => 'farmer_non_cooperative',
-                    ],
-                ],
-            ],
-            [
-                'label' => 'Shipments',
-                'route' => 'farmer.logistics|tracking.index',
-                'letter' => 'T',
-                'tooltip' => 'Shipments',
-                'children' => [
-                    [
-                        'label' => 'My Logistics',
-                        'route' => 'farmer.logistics',
-                        'route_url' => 'farmer.logistics',
-                        'letter' => 'L',
-                        'tooltip' => 'My Logistics',
-                    ],
-                    [
-                        'label' => 'Track Shipments',
-                        'route' => 'tracking.index',
-                        'route_url' => 'tracking.index',
-                        'letter' => 'T',
-                        'tooltip' => 'Track Shipments',
-                    ],
-                ],
-            ],
-            [
-                'label' => 'Reports',
-                'route' => 'farmer.reports.*',
-                'route_url' => 'farmer.reports.sales',
-                'letter' => 'R',
-                'tooltip' => 'Reports',
-            ],
-            [
-                'label' => 'Reference',
-                'route' => 'prices.full|farmer.documents*',
+                'label' => 'Buyers',
                 'letter' => 'B',
-                'tooltip' => 'Reference',
-                'children' => [
-                    [
-                        'label' => 'Market Prices',
-                        'route' => 'prices.full',
-                        'route_url' => 'prices.full',
-                        'letter' => 'M',
-                        'tooltip' => 'Market Prices',
-                    ],
-                    [
-                        'label' => 'Regulatory Documents',
-                        'route' => 'farmer.documents*',
-                        'route_url' => 'farmer.documents',
-                        'letter' => 'D',
-                        'tooltip' => 'Regulatory Documents',
-                    ],
-                ],
+                'route' => 'admin.buyers.*',
+                'route_url' => 'admin.buyers.index',
+                'tooltip' => 'Buyers',
             ],
             [
-                'label' => 'My Profile',
-                'route' => 'profile.*',
-                'route_url' => 'profile.show',
-                'letter' => 'M',
-                'tooltip' => 'My Profile',
-                'mobile_only' => true,
+                'label' => 'Users',
+                'letter' => 'U',
+                'route' => 'admin.users.*',
+                'route_url' => 'admin.users.index',
+                'tooltip' => 'Users',
             ],
-        ],
-    ],
-
-    'buyer' => [
-        'section_label' => 'Market',
-        'items' => [
             [
-                'label' => 'Crop Board',
-                'route' => 'buyer.crop-board',
-                'route_url' => 'buyer.crop-board',
+                'label' => 'Crops',
                 'letter' => 'C',
-                'tooltip' => 'Crop Board',
-                'active_style' => 'buyer',
+                'route' => 'admin.crops.*',
+                'route_url' => 'admin.crops.index',
+                'tooltip' => 'Crops',
             ],
             [
-                'label' => 'Delivery Tracking',
-                'route' => 'buyer.tracking',
-                'route_url' => 'buyer.tracking',
-                'letter' => 'D',
-                'tooltip' => 'Delivery Tracking',
-                'active_style' => 'buyer',
-            ],
-            [
-                'label' => 'Negotiations',
-                'route' => 'buyer.negotiations',
-                'route_url' => 'buyer.negotiations',
-                'letter' => 'N',
-                'tooltip' => 'Negotiations',
-                'active_style' => 'buyer',
-            ],
-            [
-                'label' => 'Market Prices',
-                'route' => 'prices.full',
-                'route_url' => 'prices.full',
-                'letter' => 'M',
-                'tooltip' => 'Market Prices',
-                'active_style' => 'buyer',
-            ],
-            [
-                'label' => 'My Profile',
-                'route' => 'profile.*',
-                'route_url' => 'profile.show',
-                'letter' => 'M',
-                'tooltip' => 'My Profile',
-                'mobile_only' => true,
-            ],
-        ],
-    ],
-
-    'admin' => [
-        'items' => [
-            [
-                'label' => 'Trust & Verification',
-                'route' => 'admin.users*|admin.farmers*|admin.farmer-documents*|admin.logistics|admin.logistics.*|admin.logistics-documents*|admin.buyers*|admin.drivers*',
-                'letter' => 'T',
-                'tooltip' => 'Trust & Verification',
-                'children' => [
-                    [
-                        'label' => 'User Management',
-                        'route' => 'admin.users*',
-                        'route_url' => 'admin.users',
-                        'letter' => 'U',
-                        'tooltip' => 'User Management',
-                    ],
-                    [
-                        'label' => 'Farmer Verification',
-                        'route' => 'admin.farmers*|admin.farmer-documents*',
-                        'route_url' => 'admin.farmers',
-                        'letter' => 'F',
-                        'tooltip' => 'Farmer Verification',
-                    ],
-                    [
-                        'label' => 'Buyer Verification',
-                        'route' => 'admin.buyers*',
-                        'route_url' => 'admin.buyers',
-                        'letter' => 'B',
-                        'tooltip' => 'Buyer Verification',
-                    ],
-                    [
-                        'label' => 'Logistics Partners',
-                        'route' => 'admin.logistics|admin.logistics.*|admin.logistics-documents*',
-                        'route_url' => 'admin.logistics',
-                        'letter' => 'L',
-                        'tooltip' => 'Logistics Partners',
-                    ],
-                    [
-                        'label' => 'Driver Verification',
-                        'route' => 'admin.drivers*',
-                        'route_url' => 'admin.drivers',
-                        'letter' => 'D',
-                        'tooltip' => 'Driver Verification',
-                    ],
-                ],
-            ],
-            [
-                'label' => 'Crops & Harvests',
-                'route' => 'admin.harvests*|admin.crops*',
-                'letter' => 'C',
-                'tooltip' => 'Crops & Harvests',
-                'children' => [
-                    [
-                        'label' => 'Harvest Oversight',
-                        'route' => 'admin.harvests*',
-                        'route_url' => 'admin.harvests',
-                        'letter' => 'H',
-                        'tooltip' => 'Harvest Oversight',
-                    ],
-                    [
-                        'label' => 'Crop Registry',
-                        'route' => 'admin.crops*',
-                        'route_url' => 'admin.crops.index',
-                        'letter' => 'C',
-                        'tooltip' => 'Crop Registry',
-                    ],
-                ],
-            ],
-            [
-                'label' => 'Governance',
-                'route' => 'admin.audit-logs*|admin.analytics*',
+                'label' => 'Grades & Packaging',
                 'letter' => 'G',
-                'tooltip' => 'Governance',
-                'children' => [
-                    [
-                        'label' => 'Platform Analytics',
-                        'route' => 'admin.analytics*',
-                        'route_url' => 'admin.analytics',
-                        'letter' => 'A',
-                        'tooltip' => 'Platform Analytics',
-                    ],
-                    [
-                        'label' => 'Platform Audit Logs',
-                        'route' => 'admin.audit-logs*',
-                        'route_url' => 'admin.audit-logs',
-                        'letter' => 'L',
-                        'tooltip' => 'Platform Audit Logs',
-                    ],
-                ],
+                'route' => 'admin.reference.*',
+                'route_url' => 'admin.reference.index',
+                'tooltip' => 'Grades & Packaging',
+            ],
+            [
+                'label' => 'Audit Logs',
+                'letter' => 'A',
+                'route' => 'admin.audit-logs',
+                'route_url' => 'admin.audit-logs',
+                'tooltip' => 'Audit Logs',
             ],
         ],
     ],
 
-    'logistics_partner' => [
-        // Cooperative logistics: Dashboard, Crop Board, Proposal Inbox, Operations,
-        // Incoming, Customers, Customer Orders, Transport (user-specified order).
+    'coop_admin' => [
+        'section_label' => 'Cooperative',
         'items' => [
             [
-                'label' => 'Crop Board',
-                'route' => 'buyer.crop-board',
-                'route_url' => 'buyer.crop-board',
-                'letter' => 'C',
-                'tooltip' => 'Crop Board',
-                'condition' => 'cooperative_only',
+                'label' => 'Farmers',
+                'letter' => 'F',
+                'route' => 'coop.farmers.*',
+                'route_url' => 'coop.farmers.index',
+                'tooltip' => 'Farmer Members',
             ],
             [
-                'label' => 'Proposal Inbox',
-                'route' => 'pooling.index',
-                'route_url' => 'pooling.index',
-                'letter' => 'P',
-                'tooltip' => 'Proposal Inbox',
-            ],
-            [
-                'label' => 'Operations',
-                'route' => 'route.optimization|pooling.cost-ledger*|profile.route-pricing|logistics.members*',
-                'letter' => 'O',
-                'tooltip' => 'Operations',
-                'children' => [
-                    [
-                        'label' => 'Route Planning',
-                        'route' => 'route.optimization',
-                        'route_url' => 'route.optimization',
-                        'letter' => 'R',
-                        'tooltip' => 'Route Planning',
-                    ],
-                    [
-                        'label' => 'Cost Ledger',
-                        'route' => 'pooling.cost-ledger*',
-                        'route_url' => 'pooling.cost-ledger.index',
-                        'letter' => 'C',
-                        'tooltip' => 'Cost Ledger',
-                    ],
-                    [
-                        'label' => 'Route Pricing',
-                        'route' => 'profile.route-pricing',
-                        'route_url' => 'profile.route-pricing',
-                        'letter' => 'P',
-                        'tooltip' => 'Route Pricing',
-                    ],
-                    [
-                        'label' => 'Members',
-                        'route' => 'logistics.members*',
-                        'route_url' => 'logistics.members.index',
-                        'letter' => 'M',
-                        'tooltip' => 'Members',
-                        'condition' => 'cooperative_only',
-                    ],
-                ],
-            ],
-            [
-                'label' => 'Incoming',
-                'route' => 'buyer.tracking',
-                'route_url' => 'buyer.tracking',
-                'letter' => 'I',
-                'tooltip' => 'Incoming Deliveries',
-                'condition' => 'cooperative_only',
-            ],
-            [
-                'label' => 'Customers',
-                'route' => 'coop.customers.*',
-                'route_url' => 'coop.customers.index',
-                'letter' => 'C',
-                'tooltip' => 'Customers',
-                'condition' => 'cooperative_only',
-            ],
-            [
-                'label' => 'Customer Orders',
-                'route' => 'coop.outbound.*',
-                'route_url' => 'coop.outbound.index',
-                'letter' => 'O',
-                'tooltip' => 'Customer Orders',
-                'condition' => 'cooperative_only',
-            ],
-            [
-                'label' => 'Transport',
-                'route' => 'logistics.drivers*|logistics.vehicles*|logistics.reports.*|logistics.analytics|logistics.capacity',
+                'label' => 'Trucks',
                 'letter' => 'T',
-                'tooltip' => 'Transport',
-                'children' => [
-                    [
-                        'label' => 'Drivers',
-                        'route' => 'logistics.drivers*',
-                        'route_url' => 'logistics.drivers.index',
-                        'letter' => 'D',
-                        'tooltip' => 'Drivers',
-                    ],
-                    [
-                        'label' => 'Vehicles',
-                        'route' => 'logistics.vehicles*',
-                        'route_url' => 'logistics.vehicles.index',
-                        'letter' => 'V',
-                        'tooltip' => 'Vehicles',
-                    ],
-                    [
-                        'label' => 'Trip Reports',
-                        'route' => 'logistics.reports.*|logistics.analytics',
-                        'route_url' => 'logistics.reports.trips',
-                        'letter' => 'R',
-                        'tooltip' => 'Trip Reports',
-                    ],
-                    [
-                        'label' => 'Capacity',
-                        'route' => 'logistics.capacity',
-                        'route_url' => 'logistics.capacity',
-                        'letter' => 'C',
-                        'tooltip' => 'Capacity',
-                    ],
-                ],
+                'route' => 'coop.trucks.*',
+                'route_url' => 'coop.trucks.index',
+                'tooltip' => 'Truck Fleet',
             ],
             [
-                'label' => 'My Profile',
-                'route' => 'profile.*',
-                'route_url' => 'profile.show',
-                'letter' => 'M',
-                'tooltip' => 'My Profile',
-                'mobile_only' => true,
-            ],
-        ],
-        // Independent logistics: keeps its original order minus Reference.
-        'items_independent' => [
-            [
-                'label' => 'Proposal Inbox',
-                'route' => 'pooling.index',
-                'route_url' => 'pooling.index',
+                'label' => 'Pickup Requests',
                 'letter' => 'P',
-                'tooltip' => 'Proposal Inbox',
+                'route' => 'coop.haul-requests.*',
+                'route_url' => 'coop.haul-requests.index',
+                'tooltip' => 'Pickup Requests',
             ],
             [
-                'label' => 'Operations',
-                'route' => 'route.optimization|pooling.cost-ledger*',
-                'letter' => 'O',
-                'tooltip' => 'Operations',
-                'children' => [
-                    [
-                        'label' => 'Route Planning',
-                        'route' => 'route.optimization',
-                        'route_url' => 'route.optimization',
-                        'letter' => 'R',
-                        'tooltip' => 'Route Planning',
-                    ],
-                    [
-                        'label' => 'Cost Ledger',
-                        'route' => 'pooling.cost-ledger*',
-                        'route_url' => 'pooling.cost-ledger.index',
-                        'letter' => 'C',
-                        'tooltip' => 'Cost Ledger',
-                    ],
-                ],
+                'label' => 'Pickup Trips',
+                'letter' => 'K',
+                'route' => 'coop.pickups.*',
+                'route_url' => 'coop.pickups.index',
+                'tooltip' => 'Pickup Trips & Scheduling',
             ],
             [
-                'label' => 'Transport',
-                'route' => 'logistics.drivers*|logistics.vehicles*|logistics.reports.*|logistics.analytics|logistics.capacity',
-                'letter' => 'T',
-                'tooltip' => 'Transport',
-                'children' => [
-                    [
-                        'label' => 'Drivers',
-                        'route' => 'logistics.drivers*',
-                        'route_url' => 'logistics.drivers.index',
-                        'letter' => 'D',
-                        'tooltip' => 'Drivers',
-                    ],
-                    [
-                        'label' => 'Vehicles',
-                        'route' => 'logistics.vehicles*',
-                        'route_url' => 'logistics.vehicles.index',
-                        'letter' => 'V',
-                        'tooltip' => 'Vehicles',
-                    ],
-                    [
-                        'label' => 'Trip Reports',
-                        'route' => 'logistics.reports.*|logistics.analytics',
-                        'route_url' => 'logistics.reports.trips',
-                        'letter' => 'R',
-                        'tooltip' => 'Trip Reports',
-                    ],
-                    [
-                        'label' => 'Capacity',
-                        'route' => 'logistics.capacity',
-                        'route_url' => 'logistics.capacity',
-                        'letter' => 'C',
-                        'tooltip' => 'Capacity',
-                    ],
-                ],
-            ],
-            [
-                'label' => 'Route Pricing',
-                'route' => 'profile.route-pricing',
-                'route_url' => 'profile.route-pricing',
+                'label' => 'Procurement',
                 'letter' => 'R',
-                'tooltip' => 'Route Pricing',
+                'route' => 'coop.procurement.*',
+                'route_url' => 'coop.procurement.index',
+                'tooltip' => 'Procurement / Receiving Confirmation',
             ],
             [
-                'label' => 'Live Tracking',
-                'route' => 'tracking.index',
-                'route_url' => 'tracking.index',
-                'letter' => 'T',
-                'tooltip' => 'Live Tracking',
-            ],
-            [
-                'label' => 'Haul Negotiations',
-                'route' => 'logistics.haul-negotiations',
-                'route_url' => 'logistics.haul-negotiations',
-                'letter' => 'H',
-                'tooltip' => 'Haul Negotiations',
-            ],
-            [
-                'label' => 'My Profile',
-                'route' => 'profile.*',
-                'route_url' => 'profile.show',
+                'label' => 'Messages',
                 'letter' => 'M',
-                'tooltip' => 'My Profile',
-                'mobile_only' => true,
+                'route' => 'messages.*',
+                'route_url' => 'messages.index',
+                'tooltip' => 'Messages',
             ],
         ],
     ],
 
-    'driver' => [
-        'section_label' => 'On Route',
+    'field_receiving' => [
+        'section_label' => 'Receiving',
         'items' => [
             [
-                'label' => 'Route Navigation',
-                'route' => 'driver.*',
-                'route_url' => 'driver.dashboard',
+                'label' => 'Receiving',
                 'letter' => 'R',
-                'tooltip' => 'Route Navigation',
+                'route' => 'field.receiving.*',
+                'route_url' => 'field.receiving.index',
+                'tooltip' => 'Receiving Queue',
+            ],
+            [
+                'label' => 'Messages',
+                'letter' => 'M',
+                'route' => 'messages.*',
+                'route_url' => 'messages.index',
+                'tooltip' => 'Messages',
             ],
         ],
     ],
+
+    'delivery_personnel' => [
+        'section_label' => 'Delivery',
+        'items' => [
+            [
+                'label' => 'My Trips',
+                'letter' => 'T',
+                'route' => 'delivery.trips.*',
+                'route_url' => 'delivery.trips.index',
+                'tooltip' => 'My Pickup & Delivery Trips',
+            ],
+            [
+                'label' => 'Messages',
+                'letter' => 'M',
+                'route' => 'messages.*',
+                'route_url' => 'messages.index',
+                'tooltip' => 'Messages',
+            ],
+        ],
+    ],
+
+    'farmer' => [
+        'section_label' => 'My Farm',
+        'items' => [
+            [
+                'label' => 'Pickup Requests',
+                'letter' => 'P',
+                'route' => 'farmer.haul-requests.*',
+                'route_url' => 'farmer.haul-requests.index',
+                'tooltip' => 'Pickup Requests',
+            ],
+            [
+                'label' => 'Messages',
+                'letter' => 'M',
+                'route' => 'messages.*',
+                'route_url' => 'messages.index',
+                'tooltip' => 'Messages',
+            ],
+        ],
+    ],
+
+    // Buyer has no routes registered yet (DashboardController redirects to
+    // 'buyer.dashboard', which doesn't exist — every buyer login 500s).
+    // Left empty on purpose until that module is built; not an oversight.
+    'buyer' => [
+        'section_label' => 'Buyer',
+        'items' => [],
+    ],
+
 ];
