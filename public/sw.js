@@ -6,7 +6,7 @@
  */
 
 const SW_VERSION = 'hh-v2';
-const TRACKING_URL_PATTERN = /\/tracking\/store|\/tracking\/stream/;
+const TRACKING_URL_PATTERN = /\/delivery\/trips\/\d+\/location/;
 
 // Install — skip waiting to activate immediately
 self.addEventListener('install', () => {
@@ -28,14 +28,14 @@ self.addEventListener('fetch', event => {
     const url = new URL(event.request.url);
 
     if (event.request.method === 'POST' && TRACKING_URL_PATTERN.test(url.pathname)) {
-        event.respondWith(handleTrackingRequest(event.request.clone()));
+        event.respondWith(handleTrackingRequest(event.request.clone(), url.pathname));
     }
     // Everything else goes straight to the network (no SW interception).
     // Removes the misleading bare "Offline" 503 stub while preserving
     // offline GPS telemetry + PWA installability.
 });
 
-async function handleTrackingRequest(request) {
+async function handleTrackingRequest(request, pathname) {
     try {
         const response = await fetch(request);
         return response;
@@ -43,7 +43,7 @@ async function handleTrackingRequest(request) {
         // Network failed — queue the payload offline
         try {
             const body = await request.json();
-            await queueOfflinePing(body);
+            await queueOfflinePing(pathname, body);
             broadcastToClients({ type: 'telemetry-queued', payload: body });
         } catch (e) {
             console.error('[SW] Failed to queue offline ping:', e);
@@ -87,11 +87,11 @@ function openDB() {
     });
 }
 
-async function queueOfflinePing(payload) {
+async function queueOfflinePing(url, payload) {
     const db    = await openDB();
     const tx    = db.transaction('pings', 'readwrite');
     const store = tx.objectStore('pings');
-    store.add({ ...payload, queued_at: new Date().toISOString() });
+    store.add({ url, payload, queued_at: new Date().toISOString() });
     return new Promise(r => (tx.oncomplete = r));
 }
 
@@ -123,15 +123,14 @@ async function flushOfflineQueue(csrfToken) {
     let synced = 0;
     for (const ping of pings) {
         try {
-            const { id, queued_at, ...payload } = ping;
-            const res = await fetch('/driver/tracking/store', {
+            const res = await fetch(ping.url, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': csrfToken,
                     'Accept': 'application/json',
                 },
-                body: JSON.stringify(payload),
+                body: JSON.stringify(ping.payload),
             });
 
             if (res.ok || res.status === 422) {

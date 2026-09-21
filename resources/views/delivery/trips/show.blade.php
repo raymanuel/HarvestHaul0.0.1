@@ -211,13 +211,41 @@
                                 accuracy_meters: pos.coords.accuracy || null,
                             }),
                         })
-                            .then(function () { setStatus('Sharing your location with your cooperative…'); })
+                            .then(function (res) {
+                                setStatus(res.status === 202
+                                    ? 'Offline — location queued, will sync once you reconnect.'
+                                    : 'Sharing your location with your cooperative…');
+                            })
                             .catch(function () {});
                     }
 
                     navigator.geolocation.watchPosition(sendPosition, function (err) {
                         setStatus('Location sharing is off — enable location access in your browser to share your position.');
                     }, { enableHighAccuracy: true, maximumAge: 10000, timeout: 15000 });
+
+                    function flushQueue() {
+                        if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+                            navigator.serviceWorker.controller.postMessage({ type: 'flush-offline-queue', csrfToken: csrfToken });
+                        }
+                    }
+
+                    if ('serviceWorker' in navigator) {
+                        navigator.serviceWorker.addEventListener('message', function (event) {
+                            var data = event.data || {};
+                            if (data.type === 'telemetry-queued') {
+                                setStatus('Offline — location queued, will sync once you reconnect.');
+                            } else if (data.type === 'sync-started') {
+                                setStatus('Syncing ' + data.count + ' queued location update(s)…');
+                            } else if (data.type === 'sync-complete') {
+                                setStatus(data.remaining > 0
+                                    ? 'Synced ' + data.synced + ' update(s), ' + data.remaining + ' still queued.'
+                                    : 'All queued location updates synced.');
+                            }
+                        });
+
+                        window.addEventListener('online', flushQueue);
+                        navigator.serviceWorker.ready.then(flushQueue);
+                    }
                 })();
             </script>
         @endpush

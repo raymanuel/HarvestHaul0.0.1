@@ -2,7 +2,7 @@
   "name": "HarvestHaul",
   "short_name": "HarvestHaul",
   "description": "B2B Crop Distribution & Logistics — General Santos City",
-  "start_url": "/driver",
+  "start_url": "/dashboard",
   "display": "standalone",
   "display_override": ["window-controls-overlay", "standalone"],
   "background_color": "#1e293b",
