@@ -356,6 +356,19 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
             });
 
             /*
+            | Reporting (19)
+            */
+            Route::prefix('reports')->name('reports.')->group(function () {
+                Route::get('/', [\App\Http\Controllers\Coop\ReportController::class, 'index'])->name('index');
+                Route::get('/procurement', [\App\Http\Controllers\Coop\ReportController::class, 'procurement'])->name('procurement');
+                Route::get('/procurement/csv', [\App\Http\Controllers\Coop\ReportController::class, 'procurementCsv'])->name('procurement.csv');
+                Route::get('/sales', [\App\Http\Controllers\Coop\ReportController::class, 'sales'])->name('sales');
+                Route::get('/sales/csv', [\App\Http\Controllers\Coop\ReportController::class, 'salesCsv'])->name('sales.csv');
+                Route::get('/payouts', [\App\Http\Controllers\Coop\ReportController::class, 'payouts'])->name('payouts');
+                Route::get('/payouts/csv', [\App\Http\Controllers\Coop\ReportController::class, 'payoutsCsv'])->name('payouts.csv');
+            });
+
+            /*
             | Truck fleet registry (3B)
             */
             Route::prefix('trucks')->name('trucks.')->group(function () {
