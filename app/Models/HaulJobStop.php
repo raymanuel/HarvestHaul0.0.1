@@ -35,4 +35,9 @@ class HaulJobStop extends Model
     {
         return $this->belongsTo(HaulRequest::class);
     }
+
+    public function receivingRecords()
+    {
+        return $this->hasMany(ReceivingRecord::class, 'haul_request_id', 'haul_request_id');
+    }
 }
