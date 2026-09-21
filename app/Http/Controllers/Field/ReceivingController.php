@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Field;
 
 use App\Http\Controllers\Controller;
 use App\Models\Crop;
-use App\Models\CropAvailability;
 use App\Models\CropGrade;
 use App\Models\CropVariety;
 use App\Models\HaulJob;
@@ -96,6 +95,13 @@ class ReceivingController extends Controller
         $price = isset($data['buying_price_per_kg']) ? (float) $data['buying_price_per_kg'] : null;
         $total = $price !== null ? $weight * $price : null;
 
+        $confirmer = $price !== null ? $this->fieldCoopConfirmer() : null;
+        $status = match (true) {
+            $price === null => ReceivingRecord::STATUS_PENDING,
+            $confirmer !== null => ReceivingRecord::STATUS_CONFIRMED,
+            default => ReceivingRecord::STATUS_PRICED,
+        };
+
         $record = ReceivingRecord::create(array_merge($data, [
             'haul_job_id'      => $haulJob->id,
             'haul_request_id'  => $stop->haul_request_id,
@@ -109,23 +115,14 @@ class ReceivingController extends Controller
             'remarks'               => $data['remarks'] ?? null,
             'recorded_by'      => Auth::id(),
             'recording_role'   => 'field_receiving',
-            'status'           => $price === null ? ReceivingRecord::STATUS_PENDING : ReceivingRecord::STATUS_CONFIRMED,
-            'confirmed_by'     => $price !== null ? $this->fieldCoopConfirmer() : null,
-            'confirmed_at'     => $price !== null ? now() : null,
+            'status'           => $status,
+            'confirmed_by'     => $confirmer,
+            'confirmed_at'     => $confirmer !== null ? now() : null,
         ]));
 
-        // Auto-create the crop availability now that the actuals are known.
-        CropAvailability::create([
-            'cooperative_id'     => $haulJob->cooperative_id,
-            'receiving_record_id'=> $record->id,
-            'crop_id'            => $requestRecord->crop_id,
-            'crop_variety_id'    => $data['crop_variety_id'] ?? null,
-            'crop_grade_id'      => $data['crop_grade_id'],
-            'quantity_kg'        => $weight,
-            'selling_price_per_kg' => null,
-            'status'             => CropAvailability::STATUS_AVAILABLE,
-        ]);
-
+        // Crop availability (sellable inventory) is created once the
+        // cooperative confirms the procurement, not at raw receiving time —
+        // see Coop\ProcurementController::confirm().
         $this->notifyCoopAdmins($haulJob->cooperative_id, [
             'title'   => 'Receiving recorded',
             'message' => Auth::user()->name." recorded the pickup for {$requestRecord->farmer?->name}: {$weight} kg. Review and confirm the procurement in your procurement queue.",

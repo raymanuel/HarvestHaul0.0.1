@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use App\Models\Cooperative;
 use App\Models\Crop;
-use App\Models\CropAvailability;
 use App\Models\CropCategory;
 use App\Models\CropGrade;
 use App\Models\HaulJob;
@@ -106,12 +105,12 @@ class ReceivingTest extends TestCase
         // Actual weight is authoritative — differs from the farmer's estimate (spec 11.5).
         $this->assertEquals(3920.00, (float) $record->actual_weight_kg);
 
-        $availability = CropAvailability::first();
-        $this->assertNotNull($availability);
-        $this->assertNull($availability->selling_price_per_kg);
+        // Crop availability isn't created until the cooperative confirms the
+        // procurement (Module 14) — not at raw receiving time.
+        $this->assertDatabaseCount('crop_availabilities', 0);
     }
 
-    public function test_store_with_price_confirms_immediately(): void
+    public function test_store_with_price_awaits_coop_confirmation(): void
     {
         $coop = $this->cooperative();
         [$fieldUser, $job, $stop, $grade] = $this->pickedUpStop($coop);
@@ -127,7 +126,10 @@ class ReceivingTest extends TestCase
 
         $record = ReceivingRecord::first();
         $this->assertEquals(70560.00, (float) $record->total_amount);
-        $this->assertEquals(ReceivingRecord::STATUS_CONFIRMED, $record->status);
+        // Field receiving staff can price it, but only a coop admin can
+        // confirm (in the procurement queue) — status waits at "priced".
+        $this->assertEquals(ReceivingRecord::STATUS_PRICED, $record->status);
+        $this->assertNull($record->confirmed_by);
     }
 
     public function test_duplicate_receiving_for_same_stop_rejected(): void

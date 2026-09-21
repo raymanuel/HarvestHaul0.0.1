@@ -32,7 +32,9 @@ use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Auth\VerifyOtpController;
 use App\Http\Controllers\Buyer\DashboardController as BuyerDashboardController;
 use App\Http\Controllers\Coop\CoopStatusController;
+use App\Http\Controllers\Coop\CropAvailabilityController;
 use App\Http\Controllers\Coop\DashboardController as CoopDashboardController;
+use App\Http\Controllers\Coop\FacilityReceivingController;
 use App\Http\Controllers\Coop\FarmerManagementController;
 use App\Http\Controllers\Coop\HaulRequestController as CoopHaulRequestController;
 use App\Http\Controllers\Coop\TruckController;
@@ -269,9 +271,42 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
             Route::prefix('procurement')->name('procurement.')->group(function () {
                 Route::get('/', [ProcurementController::class, 'index'])->name('index');
                 Route::get('/{receivingRecord}', [ProcurementController::class, 'show'])->name('show');
+                Route::post('/{receivingRecord}/price', [ProcurementController::class, 'setPrice'])
+                    ->middleware('throttle:30,1')
+                    ->name('price');
                 Route::post('/{receivingRecord}/confirm', [ProcurementController::class, 'confirm'])
                     ->middleware('throttle:30,1')
                     ->name('confirm');
+                Route::post('/{receivingRecord}/cancel', [ProcurementController::class, 'cancel'])
+                    ->middleware('throttle:30,1')
+                    ->name('cancel');
+                Route::post('/{receivingRecord}/payments', [ProcurementController::class, 'recordPayment'])
+                    ->middleware('throttle:30,1')
+                    ->name('payments.store');
+            });
+
+            /*
+            | Facility receiving verification (10)
+            */
+            Route::prefix('facility-receiving')->name('facility-receiving.')->group(function () {
+                Route::get('/', [FacilityReceivingController::class, 'index'])->name('index');
+                Route::get('/{receivingRecord}', [FacilityReceivingController::class, 'show'])->name('show');
+                Route::post('/{receivingRecord}/verify', [FacilityReceivingController::class, 'verify'])
+                    ->middleware('throttle:30,1')
+                    ->name('verify');
+                Route::post('/{receivingRecord}/resolve', [FacilityReceivingController::class, 'resolve'])
+                    ->middleware('throttle:30,1')
+                    ->name('resolve');
+            });
+
+            /*
+            | Crop availability / B2B inventory (14)
+            */
+            Route::prefix('availability')->name('availability.')->group(function () {
+                Route::get('/', [CropAvailabilityController::class, 'index'])->name('index');
+                Route::post('/{cropAvailability}/price', [CropAvailabilityController::class, 'updatePrice'])->name('price');
+                Route::post('/{cropAvailability}/archive', [CropAvailabilityController::class, 'archive'])->name('archive');
+                Route::post('/{cropAvailability}/restore', [CropAvailabilityController::class, 'restore'])->name('restore');
             });
 
             /*
