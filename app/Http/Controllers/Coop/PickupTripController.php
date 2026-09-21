@@ -38,6 +38,42 @@ class PickupTripController extends Controller
         return view('coop.pickups.index', compact('trips'));
     }
 
+    /**
+     * Scheduling Calendar (5.3) — day/week/list views over upcoming demand:
+     * approved requests waiting to be planned, and trips already scheduled.
+     * Each date links into the single-date planner (create()).
+     */
+    public function calendar(Request $request)
+    {
+        $cooperativeId = $this->cooperativeId();
+
+        $view = in_array($request->query('view'), ['day', 'week', 'list'], true) ? $request->query('view') : 'list';
+        $anchor = $request->query('date') ? \Carbon\Carbon::parse($request->query('date')) : today();
+
+        [$rangeStart, $rangeEnd] = match ($view) {
+            'day'  => [$anchor->copy()->startOfDay(), $anchor->copy()->endOfDay()],
+            'week' => [$anchor->copy()->startOfWeek(), $anchor->copy()->endOfWeek()],
+            default => [today(), today()->addDays(30)],
+        };
+
+        $requests = HaulRequest::where('cooperative_id', $cooperativeId)
+            ->where('status', HaulRequest::STATUS_APPROVED)
+            ->whereBetween('preferred_pickup_date', [$rangeStart->toDateString(), $rangeEnd->toDateString()])
+            ->with(['farmer', 'crop'])
+            ->orderBy('preferred_pickup_date')
+            ->get()
+            ->groupBy(fn ($r) => $r->preferred_pickup_date->toDateString());
+
+        $trips = HaulJob::where('cooperative_id', $cooperativeId)
+            ->whereBetween('pickup_date', [$rangeStart->toDateString(), $rangeEnd->toDateString()])
+            ->with(['truck', 'deliveryPersonnel'])
+            ->orderBy('pickup_date')
+            ->get()
+            ->groupBy(fn ($j) => $j->pickup_date->toDateString());
+
+        return view('coop.pickups.calendar', compact('view', 'anchor', 'rangeStart', 'rangeEnd', 'requests', 'trips'));
+    }
+
     public function create(Request $request, ConsolidationEngine $engine)
     {
         $cooperativeId = $this->cooperativeId();
@@ -46,7 +82,12 @@ class PickupTripController extends Controller
         $cooperative = Auth::user()->cooperative;
         $plan = $engine->planForDate($cooperative, $date);
 
-        return view('coop.pickups.create', compact('plan', 'date'));
+        $drivers = User::where('role', UserRole::DELIVERY_PERSONNEL->value)
+            ->where('cooperative_id', $cooperativeId)
+            ->orderBy('name')
+            ->get(['id', 'name']);
+
+        return view('coop.pickups.create', compact('plan', 'date', 'drivers'));
     }
 
     public function store(Request $request, ConsolidationEngine $engine)
@@ -60,10 +101,10 @@ class PickupTripController extends Controller
             throw ValidationException::withMessages(['requests' => 'Select at least one pickup request for the trip.']);
         }
 
-        // Only this cooperative's own pending requests on the chosen date.
+        // Only this cooperative's own approved requests on the chosen date.
         $requests = HaulRequest::whereIn('id', $requestIds)
             ->where('cooperative_id', $cooperativeId)
-            ->where('status', HaulRequest::STATUS_PENDING)
+            ->where('status', HaulRequest::STATUS_APPROVED)
             ->whereDate('preferred_pickup_date', $request->input('date'))
             ->get();
 
@@ -200,7 +241,177 @@ class PickupTripController extends Controller
 
         $stops = $haulJob->stops()->orderBy('sequence_no')->get();
 
-        return view('coop.pickups.show', compact('haulJob', 'stops'));
+        $trucks = Truck::where('cooperative_id', $haulJob->cooperative_id)->orderBy('truck_name')->get();
+        $drivers = User::where('role', UserRole::DELIVERY_PERSONNEL->value)
+            ->where('cooperative_id', $haulJob->cooperative_id)
+            ->orderBy('name')
+            ->get(['id', 'name']);
+
+        return view('coop.pickups.show', compact('haulJob', 'stops', 'trucks', 'drivers'));
+    }
+
+    /**
+     * Reschedule (5.5) — move a trip to a different date, before it's picked up.
+     */
+    public function reschedule(Request $request, HaulJob $haulJob)
+    {
+        $this->authorizeCoop($haulJob);
+
+        if ($haulJob->status !== HaulJob::STATUS_SCHEDULED) {
+            throw ValidationException::withMessages([
+                'haul_job' => 'Only trips that are still scheduled (not yet picked up) can be rescheduled.',
+            ]);
+        }
+
+        $data = $request->validate([
+            'date' => 'required|date|after_or_equal:today',
+        ]);
+
+        $haulJob->update([
+            'pickup_date'  => $data['date'],
+            'scheduled_at' => $data['date'].' 00:00:00',
+        ]);
+
+        HaulRequest::whereIn('id', $haulJob->stops()->pluck('haul_request_id'))
+            ->update(['preferred_pickup_date' => $data['date']]);
+
+        AuditLog::create([
+            'admin_id'    => Auth::id(),
+            'action'      => 'reschedule_pickup_trip',
+            'target_type' => 'haul_job',
+            'target_id'   => $haulJob->id,
+            'notes'       => "Trip {$haulJob->id} rescheduled to {$data['date']}.",
+        ]);
+
+        foreach ($haulJob->stops as $stop) {
+            if ($stop->haulRequest) {
+                Notification::create([
+                    'user_id'  => $stop->haulRequest->farmer_id,
+                    'title'    => 'Pickup rescheduled',
+                    'message'  => "Your pickup has been moved to {$data['date']}.",
+                    'link'     => route('farmer.dashboard'),
+                    'category' => 'haul',
+                ]);
+            }
+        }
+
+        if ($haulJob->delivery_personnel_id) {
+            Notification::create([
+                'user_id'  => $haulJob->delivery_personnel_id,
+                'title'    => 'Trip rescheduled',
+                'message'  => "Trip {$haulJob->id} was moved to {$data['date']}.",
+                'link'     => route('delivery.trips.show', $haulJob),
+                'category' => 'haul',
+            ]);
+        }
+
+        return redirect()->route('coop.pickups.show', $haulJob)->with('success', 'Trip rescheduled.');
+    }
+
+    /**
+     * Reassign truck/personnel (5.5) — same scoped validation as store().
+     */
+    public function reassign(Request $request, HaulJob $haulJob)
+    {
+        $this->authorizeCoop($haulJob);
+        $cooperativeId = $haulJob->cooperative_id;
+
+        if ($haulJob->status !== HaulJob::STATUS_SCHEDULED) {
+            throw ValidationException::withMessages([
+                'haul_job' => 'Only trips that are still scheduled (not yet picked up) can be reassigned.',
+            ]);
+        }
+
+        $data = $request->validate([
+            'truck_id' => ['required', Rule::exists('trucks', 'id')->where('cooperative_id', $cooperativeId)],
+            'delivery_personnel_id' => [
+                'required',
+                Rule::exists('users', 'id')
+                    ->where('cooperative_id', $cooperativeId)
+                    ->where('role', UserRole::DELIVERY_PERSONNEL->value),
+            ],
+        ]);
+
+        $previousDriverId = $haulJob->delivery_personnel_id;
+
+        $haulJob->update([
+            'truck_id'              => $data['truck_id'],
+            'delivery_personnel_id' => $data['delivery_personnel_id'],
+        ]);
+
+        AuditLog::create([
+            'admin_id'    => Auth::id(),
+            'action'      => 'reassign_pickup_trip',
+            'target_type' => 'haul_job',
+            'target_id'   => $haulJob->id,
+            'notes'       => "Trip {$haulJob->id} reassigned to truck {$data['truck_id']}, driver {$data['delivery_personnel_id']}.",
+        ]);
+
+        if ($previousDriverId && $previousDriverId !== (int) $data['delivery_personnel_id']) {
+            Notification::create([
+                'user_id'  => $previousDriverId,
+                'title'    => 'Trip reassigned',
+                'message'  => "Trip {$haulJob->id} was reassigned to another driver.",
+                'link'     => route('delivery.trips.index'),
+                'category' => 'haul',
+            ]);
+        }
+
+        Notification::create([
+            'user_id'  => $data['delivery_personnel_id'],
+            'title'    => 'Trip assigned to you',
+            'message'  => "Trip {$haulJob->id} was assigned to you.",
+            'link'     => route('delivery.trips.show', $haulJob),
+            'category' => 'haul',
+        ]);
+
+        return redirect()->route('coop.pickups.show', $haulJob)->with('success', 'Trip reassigned.');
+    }
+
+    /**
+     * Remove from planned trip (5.5) — drop one stop; the underlying request
+     * goes back to `approved` so it re-enters the planner queue.
+     */
+    public function removeStop(HaulJobStop $stop)
+    {
+        $haulJob = $stop->haulJob;
+        $this->authorizeCoop($haulJob);
+
+        if (in_array($haulJob->status, [HaulJob::STATUS_COMPLETED, HaulJob::STATUS_CANCELLED], true)) {
+            throw ValidationException::withMessages([
+                'stop' => 'Cannot remove a stop from a trip that is already completed or cancelled.',
+            ]);
+        }
+
+        $haulRequest = $stop->haulRequest;
+
+        DB::transaction(function () use ($stop, $haulRequest) {
+            $stop->delete();
+
+            if ($haulRequest) {
+                $haulRequest->update(['status' => HaulRequest::STATUS_APPROVED]);
+            }
+        });
+
+        AuditLog::create([
+            'admin_id'    => Auth::id(),
+            'action'      => 'remove_pickup_stop',
+            'target_type' => 'haul_job',
+            'target_id'   => $haulJob->id,
+            'notes'       => "Stop for request {$stop->haul_request_id} removed from trip {$haulJob->id}.",
+        ]);
+
+        if ($haulRequest) {
+            Notification::create([
+                'user_id'  => $haulRequest->farmer_id,
+                'title'    => 'Pickup removed from trip',
+                'message'  => 'Your pickup was removed from its scheduled trip and is back in the queue to be rescheduled.',
+                'link'     => route('farmer.dashboard'),
+                'category' => 'haul',
+            ]);
+        }
+
+        return redirect()->route('coop.pickups.show', $haulJob)->with('success', 'Stop removed from the trip.');
     }
 
     private function cooperativeId(): int

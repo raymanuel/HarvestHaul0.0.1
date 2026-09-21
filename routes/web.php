@@ -232,6 +232,9 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
             Route::prefix('haul-requests')->name('haul-requests.')->group(function () {
                 Route::get('/', [CoopHaulRequestController::class, 'index'])->name('index');
                 Route::get('/{haulRequest}', [CoopHaulRequestController::class, 'show'])->name('show');
+                Route::post('/{haulRequest}/approve', [CoopHaulRequestController::class, 'approve'])
+                    ->middleware('throttle:30,1')
+                    ->name('approve');
                 Route::post('/{haulRequest}/reject', [CoopHaulRequestController::class, 'reject'])
                     ->middleware('throttle:30,1')
                     ->name('reject');
@@ -242,9 +245,19 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
             */
             Route::prefix('pickups')->name('pickups.')->group(function () {
                 Route::get('/', [PickupTripController::class, 'index'])->name('index');
+                Route::get('/calendar', [PickupTripController::class, 'calendar'])->name('calendar');
                 Route::get('/new', [PickupTripController::class, 'create'])->name('create');
                 Route::post('/', [PickupTripController::class, 'store'])->name('store');
                 Route::get('/{haulJob}', [PickupTripController::class, 'show'])->name('show');
+                Route::put('/{haulJob}/reschedule', [PickupTripController::class, 'reschedule'])
+                    ->middleware('throttle:30,1')
+                    ->name('reschedule');
+                Route::put('/{haulJob}/reassign', [PickupTripController::class, 'reassign'])
+                    ->middleware('throttle:30,1')
+                    ->name('reassign');
+                Route::delete('/stops/{stop}', [PickupTripController::class, 'removeStop'])
+                    ->middleware('throttle:30,1')
+                    ->name('stops.remove');
             });
 
             /*
@@ -269,16 +282,6 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
                 Route::delete('/{truck}', [TruckController::class, 'destroy'])->name('destroy');
             });
 
-            /*
-            | Haul requests from affiliated farmers (3C)
-            */
-            Route::prefix('haul-requests')->name('haul-requests.')->group(function () {
-                Route::get('/', [CoopHaulRequestController::class, 'index'])->name('index');
-                Route::get('/{haulRequest}', [CoopHaulRequestController::class, 'show'])->name('show');
-                Route::post('/{haulRequest}/reject', [CoopHaulRequestController::class, 'reject'])
-                    ->middleware('throttle:30,1')
-                    ->name('reject');
-            });
         });
 
         /*

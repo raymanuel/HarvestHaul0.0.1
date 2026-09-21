@@ -46,7 +46,7 @@ class PickupTripAssignmentTest extends TestCase
 
         $haulRequest = HaulRequest::factory()->create([
             'cooperative_id'        => $coopA->cooperative_id,
-            'status'                => HaulRequest::STATUS_PENDING,
+            'status'                => HaulRequest::STATUS_APPROVED,
             'preferred_pickup_date' => today()->addDay(),
         ]);
 
@@ -74,7 +74,7 @@ class PickupTripAssignmentTest extends TestCase
 
         $haulRequest = HaulRequest::factory()->create([
             'cooperative_id'        => $coopA->cooperative_id,
-            'status'                => HaulRequest::STATUS_PENDING,
+            'status'                => HaulRequest::STATUS_APPROVED,
             'preferred_pickup_date' => today()->addDay(),
         ]);
 
