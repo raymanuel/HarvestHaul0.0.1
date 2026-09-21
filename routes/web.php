@@ -31,6 +31,8 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Auth\VerifyOtpController;
 use App\Http\Controllers\Buyer\DashboardController as BuyerDashboardController;
+use App\Http\Controllers\Buyer\OrderController as BuyerOrderController;
+use App\Http\Controllers\Coop\BuyerOrderController as CoopBuyerOrderController;
 use App\Http\Controllers\Coop\CoopStatusController;
 use App\Http\Controllers\Coop\CropAvailabilityController;
 use App\Http\Controllers\Coop\DashboardController as CoopDashboardController;
@@ -169,6 +171,8 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
             Route::get('/buyers', [BuyerVerificationController::class, 'index'])->name('buyers.index');
             Route::post('/buyers/{user}/approve', [BuyerVerificationController::class, 'approve'])->name('buyers.approve')->middleware('throttle:30,1');
             Route::post('/buyers/{user}/reject', [BuyerVerificationController::class, 'reject'])->name('buyers.reject')->middleware('throttle:30,1');
+            Route::post('/buyers/{user}/suspend', [BuyerVerificationController::class, 'suspend'])->name('buyers.suspend')->middleware('throttle:30,1');
+            Route::post('/buyers/{user}/reactivate', [BuyerVerificationController::class, 'reactivate'])->name('buyers.reactivate')->middleware('throttle:30,1');
 
             // Platform user accounts
             Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
@@ -310,6 +314,20 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
             });
 
             /*
+            | B2B buyer order review (13)
+            */
+            Route::prefix('buyer-orders')->name('buyer-orders.')->group(function () {
+                Route::get('/', [CoopBuyerOrderController::class, 'index'])->name('index');
+                Route::get('/{buyerOrder}', [CoopBuyerOrderController::class, 'show'])->name('show');
+                Route::post('/{buyerOrder}/accept', [CoopBuyerOrderController::class, 'accept'])
+                    ->middleware('throttle:30,1')
+                    ->name('accept');
+                Route::post('/{buyerOrder}/reject', [CoopBuyerOrderController::class, 'reject'])
+                    ->middleware('throttle:30,1')
+                    ->name('reject');
+            });
+
+            /*
             | Truck fleet registry (3B)
             */
             Route::prefix('trucks')->name('trucks.')->group(function () {
@@ -373,8 +391,25 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
 
         /*
         | 6.0 Buyer
-        | ...existing...
-        |
+        */
+        Route::prefix('buyer')->name('buyer.')->middleware('buyer')->group(function () {
+            Route::get('/', [BuyerDashboardController::class, 'index'])->name('dashboard');
+
+            Route::prefix('listings')->name('listings.')->group(function () {
+                Route::get('/', [BuyerOrderController::class, 'browse'])->name('index');
+                Route::get('/{cropAvailability}', [BuyerOrderController::class, 'show'])->name('show');
+            });
+
+            Route::prefix('orders')->name('orders.')->group(function () {
+                Route::get('/', [BuyerOrderController::class, 'index'])->name('index');
+                Route::get('/{buyerOrder}', [BuyerOrderController::class, 'showOrder'])->name('show');
+                Route::post('/', [BuyerOrderController::class, 'store'])
+                    ->middleware('throttle:20,1')
+                    ->name('store');
+            });
+        });
+
+        /*
         | 7.0 In-app messaging (farmer ↔ coop, delivery ↔ coop; coop-scoped)
         */
         Route::prefix('messages')->name('messages.')->middleware('auth')->group(function () {

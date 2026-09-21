@@ -118,7 +118,9 @@ class AccountStatusLoginTest extends TestCase
         $buyer->update(['status' => 'active']);
         $buyer->buyerProfile()->update(['is_verified' => true]);
 
-        $response = $this->actingAs($admin)->post(route('admin.buyers.reject', $buyer));
+        $response = $this->actingAs($admin)->post(route('admin.buyers.reject', $buyer), [
+            'rejection_reason' => 'Business documents did not match records.',
+        ]);
 
         $response->assertRedirect();
         $this->assertDatabaseHas('users', ['id' => $buyer->id, 'status' => 'pending']);

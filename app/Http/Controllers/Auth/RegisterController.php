@@ -118,6 +118,7 @@ class RegisterController extends Controller
             'contact_person' => 'required|string|max:255',
             'phone' => 'required|string|max:20',
             'business_address' => 'required|string|max:1000',
+            'business_information' => 'nullable|string|max:2000',
         ]);
     }
 
@@ -148,6 +149,8 @@ class RegisterController extends Controller
             'contact_person' => $request->contact_person,
             'phone' => $request->phone,
             'business_address' => $request->business_address,
+            'business_information' => $request->business_information,
+            'status' => \App\Models\BuyerProfile::STATUS_PENDING,
             'is_verified' => false,
         ]);
 

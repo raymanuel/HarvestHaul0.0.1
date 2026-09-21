@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\BuyerProfile;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use App\Models\User;
 
@@ -14,8 +15,12 @@ class BuyerProfileFactory extends Factory
     {
         return [
             'user_id' => User::factory()->buyer(),
+            'business_name' => fake()->company(),
+            'contact_person' => fake()->name(),
             'phone' => fake()->phoneNumber(),
+            'business_address' => fake()->address(),
             'is_verified' => false,
+            'status' => BuyerProfile::STATUS_PENDING,
         ];
     }
 
@@ -23,6 +28,12 @@ class BuyerProfileFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'is_verified' => true,
+            'status' => BuyerProfile::STATUS_APPROVED,
         ]);
+    }
+
+    public function approved(): static
+    {
+        return $this->verified();
     }
 }

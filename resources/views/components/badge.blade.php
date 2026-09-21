@@ -36,6 +36,12 @@
         'scheduled'      => ['label' => 'Scheduled',   'classes' => $infoTint],
         'archived'       => ['label' => 'Archived',    'classes' => $slateTint],
         'in_transit'     => ['label' => 'In Transit',  'classes' => $infoTint],
+        'under_review'   => ['label' => 'Under Review','classes' => $infoTint],
+        'accepted'       => ['label' => 'Accepted',    'classes' => $successTint],
+        'preparing'      => ['label' => 'Preparing',   'classes' => $infoTint],
+        'ready_for_delivery' => ['label' => 'Ready for Delivery', 'classes' => $infoTint],
+        'out_for_delivery' => ['label' => 'Out for Delivery', 'classes' => $infoTint],
+        'delivered'      => ['label' => 'Delivered',   'classes' => $brandTint],
         'default'        => ['label' => 'Unknown',     'classes' => $slateTint],
     ];
 
@@ -55,6 +61,8 @@
         'ready' => '#D97706', 'partial_sale' => '#D97706',
         'rejected' => '#DC2626', 'inactive' => '#DC2626', 'cancelled' => '#DC2626',
         'archived' => '#94A3B8', 'in_transit' => '#2563EB',
+        'under_review' => '#2563EB', 'accepted' => '#16A34A', 'preparing' => '#2563EB',
+        'ready_for_delivery' => '#2563EB', 'out_for_delivery' => '#2563EB', 'delivered' => '#16283C',
     ];
 
     $statusKey = $status instanceof \BackedEnum ? $status->value : $status;

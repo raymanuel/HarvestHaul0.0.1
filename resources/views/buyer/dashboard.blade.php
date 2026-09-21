@@ -1,102 +1,74 @@
-<x-layout>
-@push('head')
-    <style>
-        @media (prefers-reduced-motion: reduce) {
-            *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
-        }
-    </style>
-@endpush
-<div class="w-full max-w-7xl mx-auto pb-12">
-    <h1 class="sr-only">Buyer Dashboard</h1>
+<x-layout title="Buyer Dashboard — HarvestHaul">
+    <x-page-header title="Buyer Workspace" :showDate="true" />
 
-    <div class="relative z-10">
-        <x-flash-success />
-        <x-flash-error />
+    @if($profile?->status === 'rejected')
+        <x-status-banner variant="unverified" title="Account Not Approved"
+            message="Your buyer account application was not approved. Contact platform support for details." />
+    @elseif($profile?->status === 'suspended')
+        <x-status-banner variant="unverified" title="Account Suspended"
+            message="Your buyer account is suspended and cannot place orders. Contact platform support for details." />
+    @elseif($profile?->status !== 'approved')
+        <x-status-banner variant="unverified" title="Account Pending Approval"
+            message="A platform admin is reviewing your business details. You can browse listings now, but placing orders opens once you are approved." />
+    @endif
 
-        <x-welcome-bar :name="Auth::user()->name">
-            @if($unreadMessagesCount > 0)
-                <p class="text-xs font-bold text-amber-600 dark:text-amber-400 mt-1">{{ $unreadMessagesCount }} unread message{{ $unreadMessagesCount > 1 ? 's' : '' }} from farmers</p>
-            @endif
-        </x-welcome-bar>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-            <x-stat-card
-                title="Pending Confirmations"
-                :value="$pendingConfirmations->count()"
-                unit="deliveries"
-                href="{{ route('buyer.tracking') }}"
-                linkText="View Deliveries"
-            />
-
-            <x-stat-card
-                title="Open Negotiations"
-                :value="$activeNegotiations->count()"
-                unit="active deals"
-                href="{{ route('buyer.negotiations') }}"
-                linkText="View Negotiations"
-            />
-
-            <x-stat-card
-                title="Purchases This Month"
-                value="{{ number_format($monthlySpent, 2) }}"
-                unit="PHP"
-                href="{{ route('buyer.negotiations') }}"
-                linkText="View Negotiations"
-            >
-                <span class="text-[10px] font-semibold text-slate-500 dark:text-slate-400">{{ number_format($monthlyKg, 0) }} kg purchased</span>
-            </x-stat-card>
-        </div>
-
-        <x-market-prices-card class="mb-6" />
-
-        @if($pendingConfirmations->isNotEmpty())
-        <div class="mb-10">
-            <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-2xl shadow-sm">
-                <div class="px-6 pt-6 pb-4">
-                    <h2 class="text-[10px] font-bold uppercase tracking-widest text-gold-600 dark:text-gold-light">Pending Confirmations</h2>
-                </div>                <div class="overflow-x-auto">
-                    <table class="w-full text-sm text-left" aria-label="Pending confirmations">
-                        <thead>
-                            <tr class="border-b border-slate-100 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-900/30">
-                                <th class="p-5 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Delivery</th>
-                                <th class="p-5 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Truck</th>
-                                <th class="p-5 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Driver</th>
-                                <th class="p-5 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest text-center">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-100/50 dark:divide-slate-700/30">
-                            @foreach($pendingConfirmations as $job)
-                            <tr class="group hover:bg-slate-50/30 dark:hover:bg-slate-900/20 transition duration-150">
-                                <td class="p-5 whitespace-nowrap">
-                                    <div class="font-bold text-slate-800 dark:text-slate-200 text-xs">Delivery #{{ $job->id }}</div>
-                                    <div class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">
-                                        {{ $job->harvests->count() }} stop(s) • {{ number_format($job->total_kg) }} kg
-                                    </div>
-                                </td>
-                                <td class="p-5 text-xs font-bold text-slate-700 dark:text-slate-300">
-                                    {{ $job->truck->truck_name ?? 'N/A' }}
-                                </td>
-                                <td class="p-5 text-xs font-bold text-slate-700 dark:text-slate-300">
-                                    {{ $job->driver->name ?? 'N/A' }}
-                                </td>
-                                <td class="p-5 text-center">
-                                    <form method="POST" action="{{ route('buyer.confirm-receipt', $job) }}">
-                                        @csrf
-                                        <button type="button"
-                                            onclick="swalConfirm(this.closest('form'), {title:'Confirm Receipt?', text:'Mark delivery #{{ $job->id }} as received?', confirmText:'Yes, confirm', icon:'question', confirmColor:'#16283C'})"
-                                            class="inline-flex items-center gap-1.5 px-4 py-2 bg-harvest hover:bg-harvest-dark text-text text-[10px] font-bold rounded-xl transition cursor-pointer">
-                                            Confirm Receipt
-                                        </button>
-                                    </form>
-                                </td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-        @endif
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5 mb-10">
+        <x-stat-card badge="Orders" title="Open Orders" :value="$openOrders" unit="in progress" />
+        <x-stat-card badge="Market" title="Available Listings" :value="$availableListings->count()" unit="shown below" />
+        <x-stat-card badge="Account" title="Verification" :value="$profile?->is_verified ? 'Verified' : 'Pending'" />
     </div>
-</div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <x-card>
+            <div class="flex items-center justify-between mb-1">
+                <x-section-label title="Crop Listings Available" width="w-24" />
+                <a href="{{ route('buyer.listings.index') }}" class="text-xs font-bold text-brand-700 dark:text-gold-light hover:underline">Browse all</a>
+            </div>
+
+            @if($availableListings->isEmpty())
+                <x-empty-state type="first-use" title="No listings yet" description="When cooperatives list crops for sale, they appear here." />
+            @else
+                <ul class="divide-y divide-slate-100 dark:divide-slate-700/60">
+                    @foreach($availableListings as $listing)
+                        <li class="py-3 flex items-center justify-between gap-3">
+                            <a href="{{ route('buyer.listings.show', $listing) }}" class="hover:underline">
+                                <p class="text-sm font-bold text-slate-800 dark:text-slate-100">
+                                    {{ $listing->crop?->name ?? 'Crop' }}@if($listing->cropGrade) · {{ $listing->cropGrade->name }}@endif
+                                </p>
+                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                                    {{ $listing->cooperative?->name ?? 'Cooperative' }} · {{ number_format((float) $listing->remaining_kg, 2) }} kg available
+                                </p>
+                            </a>
+                            <span class="text-sm font-extrabold text-brand-700 dark:text-gold-light">₱{{ number_format((float) $listing->selling_price_per_kg, 2) }}/kg</span>
+                        </li>
+                    @endforeach
+                </ul>
+            @endif
+        </x-card>
+
+        <x-card>
+            <div class="flex items-center justify-between mb-1">
+                <x-section-label title="My Recent Orders" width="w-16" />
+                <a href="{{ route('buyer.orders.index') }}" class="text-xs font-bold text-brand-700 dark:text-gold-light hover:underline">View all</a>
+            </div>
+
+            @if($recentOrders->isEmpty())
+                <x-empty-state type="first-use" title="No orders yet" description="Orders you place with cooperatives appear here with their status." />
+            @else
+                <ul class="divide-y divide-slate-100 dark:divide-slate-700/60">
+                    @foreach($recentOrders as $order)
+                        <li class="py-3 flex items-center justify-between gap-3">
+                            <a href="{{ route('buyer.orders.show', $order) }}" class="hover:underline">
+                                <p class="text-sm font-bold text-slate-800 dark:text-slate-100">{{ $order->reference ?? 'Order #'.$order->id }}</p>
+                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                                    {{ $order->cooperative?->name ?? 'Cooperative' }} · {{ number_format((float) $order->total_kg, 2) }} kg
+                                </p>
+                            </a>
+                            <x-badge :status="$order->status" dot />
+                        </li>
+                    @endforeach
+                </ul>
+            @endif
+        </x-card>
+    </div>
 </x-layout>
