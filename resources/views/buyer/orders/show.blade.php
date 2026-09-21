@@ -1,5 +1,9 @@
 <x-layout title="Order {{ $buyerOrder->reference }} — HarvestHaul">
-    <x-page-header title="Order {{ $buyerOrder->reference }}" :showDate="true" />
+    <x-page-header title="Order {{ $buyerOrder->reference }}" :showDate="true">
+        @if($buyerOrder->cooperative?->coopAdminUser)
+            <x-button tag="a" variant="secondary" size="sm" href="{{ route('messages.show', $buyerOrder->cooperative->coopAdminUser) }}?context_type=buyer_order&context_id={{ $buyerOrder->id }}">Message Cooperative</x-button>
+        @endif
+    </x-page-header>
 
     <div class="max-w-2xl space-y-6">
         <x-card>

@@ -1,5 +1,7 @@
 <x-layout title="Buyer Dashboard — HarvestHaul">
-    <x-page-header title="Buyer Workspace" :showDate="true" />
+    <x-page-header title="Buyer Workspace" :showDate="true">
+        <x-button tag="a" variant="secondary" size="sm" href="{{ route('messages.index') }}">Messages</x-button>
+    </x-page-header>
 
     @if($profile?->status === 'rejected')
         <x-status-banner variant="unverified" title="Account Not Approved"
