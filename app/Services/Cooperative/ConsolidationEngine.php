@@ -7,9 +7,9 @@ use App\Models\HaulJob;
 use App\Models\HaulRequest;
 use App\Models\User;
 use App\Models\UserRole;
+use App\Services\Routing\HaversineService;
+use App\Services\Routing\RoutingServiceContract;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 
 /**
  * Cooperative pickup consolidation engine.
@@ -27,7 +27,10 @@ use Illuminate\Support\Facades\Log;
  */
 class ConsolidationEngine
 {
-    public const OSRM_BASE = 'https://router.project-osrm.org';
+    public function __construct(
+        private RoutingServiceContract $routing,
+        private HaversineService $haversine,
+    ) {}
 
     public function planForDate(Cooperative $cooperative, string $date): array
     {
@@ -50,7 +53,7 @@ class ConsolidationEngine
         $groups = [];
         foreach ($packed['groups'] as $i => $bin) {
             $stops = $this->buildStopPoints($bin['requests'], $depot);
-            $matrix = $this->fetchRoadMatrix($stops, $depot);
+            $matrix = $this->fetchRoadMatrix($stops);
             $proposed = $this->buildProposedPlan($bin, $stops, $matrix, $depot);
 
             // Spec 7.2: "OSRM Final Route" happens before "Map Display" and
@@ -126,76 +129,11 @@ class ConsolidationEngine
         return $stops;
     }
 
-    private function fetchRoadMatrix(array $stops, array $depot): array
+    private function fetchRoadMatrix(array $stops): array
     {
-        $coords = collect($stops)->map(fn ($s) => $s['lng'].','.$s['lat'])->implode(';');
+        $points = collect($stops)->map(fn ($s) => [$s['lat'], $s['lng']])->all();
 
-        $url = self::OSRM_BASE.'/table/v1/driving/'.$coords.'?annotations=distance,duration';
-
-        $fallback = $this->advisoryDistance($stops, $depot);
-
-        try {
-            $res = Http::timeout(6)->get($url);
-            if ($res->ok() && $res->json('code') === 'Ok') {
-                $durations = collect($res->json('durations'));
-                $distances = collect($res->json('distances'));
-
-                // Depot → each stop and back (closed loop).
-                $totalMin = (float) optional($durations[0])->sum();
-                $totalKm  = ((float) optional($distances[0])->sum()) / 1000.0;
-
-                return [
-                    'source'     => 'osrm',
-                    'durations'  => $durations,
-                    'distances'  => $distances,
-                    'total_min'  => $totalMin,
-                    'total_km'   => round($totalKm, 2),
-                ];
-            }
-        } catch (\Throwable $e) {
-            Log::info('OSRM matrix fetch failed; using advisory distance.', ['error' => $e->getMessage()]);
-        }
-
-        return [
-            'source'     => 'advisory',
-            'durations'  => null,
-            'distances'  => null,
-            'total_min'  => $this->advisoryTravelMinutes($stops, $depot),
-            'total_km'   => $fallback['total_km'],
-        ];
-    }
-
-    private function advisoryDistance(array $stops, array $depot): array
-    {
-        $totalKm = 0.0;
-        $prev = $depot;
-        foreach ($stops as $s) {
-            if ($s['id'] === 'depot') {
-                continue;
-            }
-            $totalKm += $this->haversineKm($prev['lat'], $prev['lng'], $s['lat'], $s['lng']);
-            $prev = ['lat' => $s['lat'], 'lng' => $s['lng']];
-        }
-        $totalKm += $this->haversineKm($prev['lat'], $prev['lng'], $depot['lat'], $depot['lng']);
-
-        return ['total_km' => round($totalKm, 2)];
-    }
-
-    private function advisoryTravelMinutes(array $stops, array $depot): float
-    {
-        // ~25 km/h average for narrow farm roads (advisory only).
-        return round($this->advisoryDistance($stops, $depot)['total_km'] / 25.0 * 60.0, 0);
-    }
-
-    private function haversineKm(float $la1, float $lo1, float $la2, float $lo2): float
-    {
-        $R = 6371.0;
-        $p1 = deg2rad($la1);
-        $p2 = deg2rad($la2);
-        $d = deg2rad($lo2 - $lo1);
-        $a = sin(($p2 - $p1) / 2) ** 2 + cos($p1) * cos($p2) * sin($d / 2) ** 2;
-
-        return $R * 2 * asin(min(1.0, sqrt($a)));
+        return $this->routing->table($points);
     }
 
     private function toMinutes(\Carbon\Carbon|string|null $time): ?float
@@ -325,7 +263,7 @@ class ConsolidationEngine
     {
         $stop = collect($stops)->firstWhere('id', $id);
 
-        return $this->haversineKm($depot['lat'], $depot['lng'], $stop['lat'], $stop['lng']);
+        return $this->haversine->distanceKm($depot['lat'], $depot['lng'], $stop['lat'], $stop['lng']);
     }
 
     private function twoOpt(array $order, array $stops, array $matrix): array
@@ -446,7 +384,7 @@ class ConsolidationEngine
             return 0.0;
         }
 
-        return $this->haversineKm($from['lat'], $from['lng'], $to['lat'], $to['lng']) / 25.0 * 60.0;
+        return $this->haversine->distanceKm($from['lat'], $from['lng'], $to['lat'], $to['lng']) / 25.0 * 60.0;
     }
 
     /**
@@ -460,28 +398,11 @@ class ConsolidationEngine
         $depot = ['lat' => (float) ($cooperative->latitude ?? 0), 'lng' => (float) ($cooperative->longitude ?? 0)];
         $stops = $this->buildStopPoints($orderedRequests, $depot);
 
-        $coords = collect($stops)->push($stops[0])
-            ->map(fn ($s) => $s['lng'].','.$s['lat'])
-            ->implode(';');
+        $points = collect($stops)->push($stops[0])
+            ->map(fn ($s) => [$s['lat'], $s['lng']])
+            ->all();
 
-        $url = self::OSRM_BASE.'/route/v1/driving/'.$coords.'?overview=full&geometries=geojson';
-
-        try {
-            $res = Http::timeout(8)->get($url);
-            if ($res->ok() && $res->json('code') === 'Ok') {
-                $route = $res->json('routes.0');
-
-                return [
-                    'distance_km'  => round(($route['distance'] ?? 0) / 1000, 2),
-                    'duration_min' => round(($route['duration'] ?? 0) / 60, 2),
-                    'geometry'     => $route['geometry']['coordinates'] ?? null,
-                ];
-            }
-        } catch (\Throwable $e) {
-            Log::info('OSRM final route fetch failed.', ['error' => $e->getMessage()]);
-        }
-
-        return null;
+        return $this->routing->route($points);
     }
 
     /**
@@ -492,7 +413,7 @@ class ConsolidationEngine
     {
         $depot = ['lat' => (float) ($cooperative->latitude ?? 0), 'lng' => (float) ($cooperative->longitude ?? 0)];
         $stops = $this->buildStopPoints($orderedRequests, $depot);
-        $matrix = $this->fetchRoadMatrix($stops, $depot);
+        $matrix = $this->fetchRoadMatrix($stops);
         $orderedStopIds = $orderedRequests->map(fn ($r) => 'req_'.$r->id)->all();
 
         return $this->buildArrivalSchedule($orderedStopIds, $stops, $matrix)['schedule'];
