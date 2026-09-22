@@ -159,4 +159,35 @@ class CooperativeMembershipTest extends TestCase
         $this->assertSame(8.111111, (float) $farmer->farmerProfile->latitude);
         $this->assertSame(126.222222, (float) $farmer->farmerProfile->longitude);
     }
+
+    public function test_create_page_prefills_contact_and_farm_location(): void
+    {
+        $farmer = $this->farmer();
+        $farmer->update(['phone' => '09171234567']);
+        $farmer->farmerProfile->update(['farm_location' => 'Purok 3, Brgy. San Isidro']);
+        Cooperative::factory()->approved()->create();
+
+        $response = $this->actingAs($farmer)->get(route('farmer.join-cooperative.create'));
+
+        $response->assertOk();
+        $response->assertSee('value="09171234567"', false);
+        $response->assertSee('value="Purok 3, Brgy. San Isidro"', false);
+    }
+
+    public function test_store_saves_phone_to_both_user_and_farmer_profile(): void
+    {
+        $farmer = $this->farmer();
+        $coop = Cooperative::factory()->approved()->create();
+
+        $this->actingAs($farmer)->post(route('farmer.join-cooperative.store'), [
+            'cooperative_id' => $coop->id,
+            'phone' => '09189998888',
+        ]);
+
+        $farmer->refresh();
+        $farmer->farmerProfile->refresh();
+
+        $this->assertSame('09189998888', $farmer->phone);
+        $this->assertSame('09189998888', $farmer->farmerProfile->phone);
+    }
 }

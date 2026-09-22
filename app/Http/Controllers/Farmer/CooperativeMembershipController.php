@@ -24,7 +24,8 @@ class CooperativeMembershipController extends Controller
      */
     public function create()
     {
-        $profile = Auth::user()->farmerProfile;
+        $user = Auth::user();
+        $profile = $user->farmerProfile;
 
         if ($profile && in_array($profile->membership_status, ['pending', 'approved'], true)) {
             return redirect()->route('farmer.dashboard')
@@ -49,12 +50,15 @@ class CooperativeMembershipController extends Controller
             'cooperatives' => $cooperatives,
             'lat'          => $profile?->latitude,
             'lng'          => $profile?->longitude,
+            'phone'        => $user->phone,
+            'farmLocation' => $profile?->farm_location,
         ]);
     }
 
     public function store(Request $request)
     {
-        $profile = Auth::user()->farmerProfile;
+        $user = Auth::user();
+        $profile = $user->farmerProfile;
 
         if ($profile && in_array($profile->membership_status, ['pending', 'approved'], true)) {
             throw ValidationException::withMessages([
@@ -77,6 +81,10 @@ class CooperativeMembershipController extends Controller
         // affiliation_type stays 'independent' until the coop admin approves —
         // a pending request must not grant membership yet. Coop\FarmerManagementController::approve()
         // is what flips it to 'cooperative'.
+        // Phone is saved to both users.phone and farmer_profiles.phone, same
+        // as Coop\FarmerManagementController's own add/edit-farmer paths — the
+        // coop admin's farmer list/detail pages read users.phone, so this
+        // field previously saved to a column no one ever looked at.
         $farmer = FarmerProfile::updateOrCreate(
             ['user_id' => Auth::id()],
             [
@@ -91,9 +99,15 @@ class CooperativeMembershipController extends Controller
             ]
         );
 
+        // Never blank out an existing phone via this optional field — only
+        // sync when the farmer actually provided one.
+        if (! empty($data['phone'])) {
+            $user->update(['phone' => $data['phone']]);
+        }
+
         $this->notifyCoopAdmins($cooperative->id, [
             'title'   => 'New farmer membership request',
-            'message' => Auth::user()->name." requested to join {$cooperative->name}. Review it in your farmer membership queue.",
+            'message' => $user->name." requested to join {$cooperative->name}. Review it in your farmer membership queue.",
             'link'    => route('coop.farmers.index'),
         ]);
 

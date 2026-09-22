@@ -57,8 +57,8 @@
 
                 <x-card>
                     <div class="space-y-4">
-                        <x-input name="phone" label="Contact Number (optional)" :value="old('phone')" />
-                        <x-input name="farm_location" label="Farm Location (optional)" :value="old('farm_location')" />
+                        <x-input name="phone" label="Contact Number (optional)" :value="old('phone', $phone)" />
+                        <x-input name="farm_location" label="Farm Location (optional)" :value="old('farm_location', $farmLocation)" />
 
                         @if($lat && $lng)
                             <p class="text-xs text-slate-500 dark:text-slate-400 -mt-1">Pre-filled from your farm location. Drag the pin if this pickup spot is different.</p>
