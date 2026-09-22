@@ -148,7 +148,7 @@ class ProcurementController extends Controller
         Notification::create([
             'user_id'  => $receivingRecord->farmer_id,
             'title'    => 'Procurement confirmed',
-            'message'  => "Your cooperative confirmed the pickup: {$weight} kg at ₱".number_format($price, 2)."/kg (₱".number_format($total, 2)."). See the payout details in your farmer dashboard, where your records are updated and the amount is reflected.",
+            'message'  => "Your cooperative confirmed the pickup: {$weight} kg at ₱".number_format($price, 2)."/kg (₱".number_format($total, 2)."). See the payout details in your farmer dashboard.",
             'link'     => route('farmer.dashboard'),
             'category' => 'procurement',
         ]);

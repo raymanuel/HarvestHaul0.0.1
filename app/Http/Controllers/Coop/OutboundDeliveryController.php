@@ -177,7 +177,7 @@ class OutboundDeliveryController extends Controller
         foreach ($orders as $order) {
             Notification::create([
                 'user_id'  => $order->buyer_id,
-                'title'    => 'Order out for delivery scheduling',
+                'title'    => 'Delivery scheduled',
                 'message'  => "Your order {$order->reference} has been scheduled for delivery on {$data['date']}.",
                 'link'     => route('buyer.orders.show', $order),
                 'category' => 'buyer_order',

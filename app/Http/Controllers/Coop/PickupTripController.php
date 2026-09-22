@@ -230,7 +230,7 @@ class PickupTripController extends Controller
         Notification::create([
             'user_id'  => $data['delivery_personnel_id'],
             'title'    => 'New pickup trip assigned',
-            'message'  => "{$job->id} is scheduled for {$data['date']} with {$requests->count()} stops. See your pickup trips to start the run.",
+            'message'  => "Trip {$job->id} is scheduled for {$data['date']} with {$requests->count()} stops. See your pickup trips to start the run.",
             'link'     => route('delivery.trips.show', $job),
             'category' => 'haul',
         ]);
@@ -483,7 +483,7 @@ class PickupTripController extends Controller
             Notification::create([
                 'user_id'  => $haulJob->delivery_personnel_id,
                 'title'    => 'Trip cancelled',
-                'message'  => "Trip {$haulJob->id} was cancelled — its last stop was removed.",
+                'message'  => "Trip {$haulJob->id} was cancelled because its last stop was removed.",
                 'link'     => route('delivery.trips.index'),
                 'category' => 'haul',
             ]);
