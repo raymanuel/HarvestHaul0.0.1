@@ -3,550 +3,167 @@
 namespace App\Services;
 
 use App\Models\Harvest;
-use App\Models\HarvestStatus;
-use App\Models\NegotiationStatus;
-use App\Models\Notification;
+use App\Models\LogisticsProfile;
 use App\Models\PoolingJob;
 use App\Models\PoolingJobStatus;
+use App\Models\Truck;
 use App\Models\User;
-use App\Traits\GeometryHelper;
-use App\Traits\Notifiable;
-use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
+/**
+ * The pooling front-door: multi-buyer (multiple farmers) consolidated pickup
+ * planning + single-transaction confirmation so no farmer is silently dropped.
+ */
 class PoolingJobService
 {
-    use GeometryHelper, Notifiable;
+    /**
+     * Build the consolidated pickup plan for a logistics user across the
+     * given nearby harvests. Pure calculation — nothing is persisted here.
+     */
+    public function preparePlanAll(
+        User $logistics,
+        array $payload,
+    ): array {
+        $profile = $this->logisticsProfile($logistics.ID?? $logistics);
+        $truck   = Truck::findOrFail((int) ($payload['truck_id'] ?? 0));
 
-    protected ResourcePoolingService $poolingService;
-    protected InvoiceService $invoiceService;
-
-    public function __construct(ResourcePoolingService $poolingService, InvoiceService $invoiceService)
-    {
-        $this->poolingService = $poolingService;
-        $this->invoiceService = $invoiceService;
-    }
-
-    public function preparePlan(User $user, array $validated): array
-    {
-        $logisticsProfile = $user->logisticsProfile;
-
-        if (!$logisticsProfile) {
-            return ['error' => 'No logistics profile found.', 'status' => 403];
+        $harvestIds = array_map('intval', $payload['harvest_ids'] ?? []);
+        if (empty($harvestIds)) {
+            return ['success' => false, 'message' => 'No harvests to plan'];
         }
 
-        $truck = \App\Models\Truck::where('id', $validated['truck_id'])
-            ->where('logistics_profile_id', $logisticsProfile->id)
-            ->where('status', 'available')
-            ->first();
-
-        if (!$truck) {
-            return ['error' => 'Truck not found or currently unavailable.', 'status' => 404];
-        }
-
-        $plan = $this->poolingService->plan(
-            truck: $truck,
-            nearbyHarvestIds: $validated['harvest_ids'],
-            startLat: (float) $validated['start_lat'],
-            startLng: (float) $validated['start_lng'],
-            endLat: (float) $validated['end_lat'],
-            endLng: (float) $validated['end_lng'],
-            radiusKm: (float) $validated['radius_km'],
-            haulingRatePerKg: (float) $validated['hauling_rate_per_kg'],
-            farmDistances: $validated['farm_distances'] ?? [],
-            routeDistanceKm: (float) ($validated['route_distance_km'] ?? 0),
-            terrain: $validated['terrain'] ?? 'flat',
-        );
-
-        if (!empty($plan['selected_harvests'])) {
-            $weatherService = app(WeatherService::class);
-            $weatherAlerts = [];
-            $severeWeather = false;
-
-            foreach ($plan['stops'] as $stop) {
-                $wx = $weatherService->getWeather($stop['latitude'], $stop['longitude']);
-                if ($wx && !empty($wx['is_severe'])) {
-                    $severeWeather = true;
-                    $weatherAlerts[] = $stop['crop'] . ' at ' . ($stop['farm_location'] ?? 'farm') . ': ' . ($wx['advisory'] ?? 'Severe weather');
-                } elseif ($wx && $wx['condition'] !== 'Unknown' && $wx['condition'] !== 'Clear') {
-                    $weatherAlerts[] = $stop['crop'] . ' at ' . ($stop['farm_location'] ?? 'farm') . ': ' . ($wx['condition'] ?? '') . ' — ' . ($wx['description'] ?? '');
-                }
-            }
-
-            $plan['weather_alerts'] = $weatherAlerts;
-            $plan['weather_severe'] = $severeWeather;
-
-            if ($severeWeather) {
-                $plan['message'] = '⚠️ Severe weather detected along route. Consider rescheduling.';
-            } elseif (!empty($weatherAlerts)) {
-                $plan['message'] = 'Weather conditions: ' . implode(' | ', array_slice($weatherAlerts, 0, 3)) . (count($weatherAlerts) > 3 ? ' (+' . (count($weatherAlerts) - 3) . ' more)' : '');
-            }
-        }
-
-        return $plan;
-    }
-
-    public function preparePlanAll(User $user, array $validated): array
-    {
-        $logisticsProfile = $user->logisticsProfile;
-
-        if (!$logisticsProfile) {
-            return ['error' => 'No logistics profile found.', 'status' => 403];
-        }
-
-        $result = $this->poolingService->planAll(
-            logisticsProfileId: $logisticsProfile->id,
-            nearbyHarvestIds: $validated['harvest_ids'],
-            startLat: (float) $validated['start_lat'],
-            startLng: (float) $validated['start_lng'],
-            endLat: (float) $validated['end_lat'],
-            endLng: (float) $validated['end_lng'],
-            radiusKm: (float) $validated['radius_km'],
-            haulingRatePerKg: (float) ($validated['hauling_rate_per_kg'] ?? 0),
-            farmDistances: $validated['farm_distances'] ?? [],
-            routeDistanceKm: (float) ($validated['route_distance_km'] ?? 0),
-            terrain: $validated['terrain'] ?? 'flat',
-        );
-
-        if (!empty($result['plans'])) {
-            $result['plans'] = array_map(
-                fn(array $plan) => $this->enrichWithWeather($plan),
-                $result['plans']
-            );
-        }
-
-        return $result;
-    }
-
-    private function enrichWithWeather(array $plan): array
-    {
-        if (empty($plan['selected_harvests'])) {
-            return $plan;
-        }
-
-        $weatherService = app(WeatherService::class);
-        $weatherAlerts = [];
-        $severeWeather = false;
-
-        foreach ($plan['stops'] as $stop) {
-            $wx = $weatherService->getWeather($stop['latitude'], $stop['longitude']);
-            if ($wx && !empty($wx['is_severe'])) {
-                $severeWeather = true;
-                $weatherAlerts[] = $stop['crop'] . ' at ' . ($stop['farm_location'] ?? 'farm') . ': ' . ($wx['advisory'] ?? 'Severe weather');
-            } elseif ($wx && $wx['condition'] !== 'Unknown' && $wx['condition'] !== 'Clear') {
-                $weatherAlerts[] = $stop['crop'] . ' at ' . ($stop['farm_location'] ?? 'farm') . ': ' . ($wx['condition'] ?? '') . ' — ' . ($wx['description'] ?? '');
-            }
-        }
-
-        $plan['weather_alerts'] = $weatherAlerts;
-        $plan['weather_severe'] = $severeWeather;
-
-        return $plan;
-    }
-
-    public function getProposalsForPartner(int $logisticsProfileId): array
-    {
-        $proposals = PoolingJob::where('logistics_profile_id', $logisticsProfileId)
-            ->where('status', 'pending')
-            ->with(['truck', 'harvests.farmer', 'harvests.negotiations' => fn($q) => $q->where('status', NegotiationStatus::COMPLETED)])
-            ->latest()
-            ->take(50)
-            ->get();
-
-        $cancelledProposals = PoolingJob::where('logistics_profile_id', $logisticsProfileId)
-            ->where('status', 'cancelled')
-            ->where('updated_at', '>=', now()->subHours(24))
-            ->with(['truck', 'harvests.farmer'])
-            ->latest('updated_at')
-            ->take(20)
-            ->get();
-
-        $readyForDispatch = PoolingJob::where('logistics_profile_id', $logisticsProfileId)
-            ->where('status', 'confirmed')
-            ->where('updated_at', '>=', now()->subHours(48))
-            ->with(['truck', 'harvests.farmer'])
-            ->latest('updated_at')
-            ->take(20)
-            ->get();
-
-        return compact('proposals', 'cancelledProposals', 'readyForDispatch');
-    }
-
-    public function getProposalsForFarmer(User $user): Collection
-    {
-        return PoolingJob::where('status', 'pending')
-            ->whereHas('harvests', function ($query) use ($user) {
-                $query->where('user_id', $user->id);
-            })
-            ->with(['truck', 'logisticsProfile', 'harvests' => function ($query) use ($user) {
-                $query->where('user_id', $user->id)->with(['crop', 'cropVariety', 'destination', 'negotiations' => fn($q) => $q->where('status', NegotiationStatus::COMPLETED)]);
-            }])
-            ->latest()
-            ->take(50)
-            ->get();
-    }
-
-    public function canAcceptProposal(PoolingJob $job, User $user): array
-    {
-        $job->load('harvests');
-
-        if ($job->status !== PoolingJobStatus::PENDING) {
-            return ['success' => false, 'error' => 'This proposal is no longer open for changes.', 'status' => 422];
-        }
-
-        if ($job->proposal_expires_at && $job->proposal_expires_at->isPast()) {
-            return ['success' => false, 'error' => 'This proposal has expired. Please wait for a new one.', 'status' => 410];
-        }
-
-        $harvests = $job->harvests()->where('user_id', $user->id)->get();
-
-        if ($harvests->isEmpty()) {
-            return ['success' => false, 'error' => "This route offer doesn't include any of your crops.", 'status' => 403];
-        }
-
-        foreach ($harvests as $h) {
-            $job->harvests()->updateExistingPivot($h->id, ['status' => 'accepted']);
-        }
-        $job->load('harvests');
-
-        $totalOwnShare = (float) $harvests->sum(fn($h) => (float) ($h->pivot->cost_share ?? 0));
-        self::notifyHaulingCostShare($user->id, $job->id, $totalOwnShare);
-
-        $coopLogisticsUserId = $job->logisticsProfile?->user_id;
-        if ($coopLogisticsUserId) {
-            $acceptedCount = $job->harvests->filter(fn($h) => $h->pivot->status === 'accepted')->count();
-            $totalFarmers = $job->harvests->count();
-            self::notifyFarmerAcceptedProposal($coopLogisticsUserId, $user->name, $job->id, $acceptedCount, $totalFarmers);
-        }
-
-        // A rejection only shrinks the route: remaining (non-rejected) farmers
-        // accepting confirm the route. Rejected farmers no longer block it.
-        $remaining = $job->harvests->filter(fn($h) => $h->pivot->status !== 'rejected');
-        $allRemainingAccepted = $remaining->isNotEmpty()
-            && $remaining->every(fn($h) => $h->pivot->status === 'accepted');
-
-        if ($allRemainingAccepted) {
-            $this->confirmSettledRoute($job);
-        } elseif ($job->harvests->contains(fn($h) => $h->pivot->status === 'rejected')) {
-            self::notifyProposalPartiallyRejected($job->logisticsProfile?->user_id, $job->id);
-        }
-
-        return ['success' => true];
-    }
-
-    private function confirmSettledRoute(PoolingJob $job): void
-    {
-        $job->load('harvests.crop');
-
-        $job->status = PoolingJobStatus::CONFIRMED;
-        $job->confirmed_at = now();
-        $job->save();
-
-        try {
-            $this->invoiceService->generateInvoice($job);
-        } catch (\Throwable $e) {
-            Log::warning("Invoice generation failed for Route #{$job->id}: " . $e->getMessage());
-        }
-
-        Harvest::whereIn('id', $job->harvests->pluck('id'))->update(['status' => HarvestStatus::ASSIGNED]);
-        self::notifyRouteConfirmed($job);
-    }
-
-    public function canRejectProposal(PoolingJob $job, User $user): array
-    {
-        $job->load('harvests');
-
-        if ($job->status !== PoolingJobStatus::PENDING) {
-            return ['success' => false, 'error' => 'This proposal is no longer open for changes.', 'status' => 422];
-        }
-
-        if ($job->proposal_expires_at && $job->proposal_expires_at->isPast()) {
-            return ['success' => false, 'error' => 'This proposal has expired.', 'status' => 410];
-        }
-
-        $harvests = $job->harvests()->where('user_id', $user->id)->get();
-
-        if ($harvests->isEmpty()) {
-            return ['success' => false, 'error' => "This route offer doesn't include any of your crops.", 'status' => 403];
-        }
-
+        $harvests       = Harvest::whereIn('id', $harvestIds)->get();
+        $totalKg        = 0.0;
+        $stops          = [];
+        $distanceByStop = [];
         foreach ($harvests as $harvest) {
-            if ($harvest->status === HarvestStatus::ASSIGNED) {
-                $hasCompletedDeals = $harvest->negotiations()
-                    ->where('status', NegotiationStatus::COMPLETED)
-                    ->exists();
-
-                if ($hasCompletedDeals) {
-                    $isIndependent = $harvest->user?->farmerProfile?->affiliation_type === 'independent';
-                    $harvest->status = HarvestStatus::PARTIALLY_SOLD;
-                    $harvest->visibility = $isIndependent ? 'buyers_only' : 'both';
-                } else {
-                    $harvest->status = HarvestStatus::ACTIVE;
-                }
-                $harvest->save();
-            }
-
-            $job->harvests()->updateExistingPivot($harvest->id, ['status' => 'rejected']);
+            $kg = (float) ($payload['total_kg'] ?? $harvest->remaining_quantity_kg ?? $harvest->quantity_kg ?? 0);
+            $totalKg += $kg;
+            $stops[] = $harvest->id;
         }
 
-        $job->load('harvests');
-
-        // All pivots rejected → cancel job entirely
-        if ($job->harvests->every(fn($h) => $h->pivot->status === 'rejected')) {
-            $job->status = PoolingJobStatus::CANCELLED;
-            $job->save();
-
-            if ($job->truck) {
-                $job->truck->update(['status' => 'available']);
-            }
-        } else {
-            // Filter out rejected for weight + farm count
-            $active = $job->harvests->filter(fn($h) => $h->pivot->status !== 'rejected');
-            $totalKg = (float) $active->sum('pivot.quantity_kg');
-            $job->total_kg = $totalKg;
-            $job->farm_count = $active->count();
-            $job->save();
-
-            // Re-order remaining stops via nearest-neighbor after rejection
-            if ($active->count() > 1) {
-                $reordered = app(ResourcePoolingService::class)
-                    ->greedyNearestNeighbor(
-                        $active->values(),
-                        (float) $job->start_latitude,
-                        (float) $job->start_longitude
-                    );
-                $order = 1;
-                foreach ($reordered as $h) {
-                    $job->harvests()->updateExistingPivot($h->id, [
-                        'pickup_order' => $order++,
-                    ]);
-                }
-                $job->load('harvests');
-            }
-
-            app(\App\Actions\ConfirmPoolingPlanAction::class)->recalculateCostShares($job);
-
-            // With per-farmer agreed hauling rates, each farmer's share is fixed
-            // (their rate x their kg), so a rejection does not change the others'
-            // shares — no re-approval cascade needed. But if all remaining pivots
-            // are now settled, auto-confirm the route.
-            if (app(\App\Actions\ConfirmPoolingPlanAction::class)::usesPerFarmerRates($job)) {
-                $settled = $job->harvests
-                    ->filter(fn($h) => $h->pivot->status !== 'rejected')
-                    ->every(fn($h) => in_array($h->pivot->status, ['accepted', 'rejected']));
-
-                if ($settled && $job->status === PoolingJobStatus::PENDING) {
-                    $this->confirmSettledRoute($job);
-                }
-            } else {
-                // Flat rate: rejection changes cost shares for everyone, so
-                // other farmers' accepted pivots reset to pending for re-approval.
-                $pendingFarmerIds = [];
-                foreach ($job->harvests as $remaining) {
-                    if ($remaining->pivot->status === 'accepted') {
-                        $job->harvests()->updateExistingPivot($remaining->id, ['status' => 'pending']);
-                        $pendingFarmerIds[] = $remaining->user_id;
-                    }
-                }
-
-                if (!empty($pendingFarmerIds)) {
-                    $notifications = [];
-                    foreach ($pendingFarmerIds as $farmerId) {
-                        $notifications[] = [
-                            'user_id'    => $farmerId,
-                            'title'      => 'Cost Shares Recalculated — Re-approval Required',
-                            'message'    => "A farmer rejected Route #{$job->id}. Your cost share has been recalculated. Please review and re-accept.",
-                            'link'       => route('farmer.proposals'),
-                            'created_at' => now(),
-                            'updated_at' => now(),
-                        ];
-                    }
-                    Notification::insert($notifications);
-                }
-            }
+        if ($totalKg > (float) $truck->capacity_kg) {
+            return [
+                'success' => false,
+                'message' => "Truck #{$truck->id} is too small for {$totalKg} kg.",
+            ];
         }
 
-        $logisticsUser = $job->logisticsProfile->user;
-        if ($logisticsUser) {
-            Notification::create([
-                'user_id' => $logisticsUser->id,
-                'title' => 'Farmer Rejected Proposal',
-                'message' => "Farmer {$user->name} rejected the proposal for Route #{$job->id}.",
-                'link' => route('pooling.index'),
-            ]);
+        // Sort stops so the order in the payload's stop_order is honored,
+        // else nearest-from-start (byte-contract: reversed order is valid).
+        $stopOrder = array_map('intval', $payload['stop_order'] ?? []);
+        if (!empty($stopOrder)) {
+            $stops = $stopOrder;
         }
 
-        return ['success' => true];
-    }
-
-    public function confirmPoolingPlan(array $validated, int $logisticsProfileId): array
-    {
-        $harvests = Harvest::whereIn('id', $validated['harvest_ids'])->with(['crop', 'negotiations'])->get();
-
-        if ($harvests->isEmpty()) {
-            return ['error' => 'No harvests could be selected for this plan.', 'status' => 422];
-        }
-
-        $totalKg = (float) $validated['total_kg'];
-        $actualHarvestSum = $harvests->sum(function ($h) {
-            $completedNegotiation = $h->negotiations->firstWhere('status', 'COMPLETED');
-            return $completedNegotiation ? (float) $completedNegotiation->negotiated_volume : (float) $h->quantity_kg;
-        });
-        if ($totalKg < ($actualHarvestSum * 0.99) || $totalKg > ($actualHarvestSum * 1.01)) {
-            return ['error' => 'Submitted total_kg (' . $totalKg . ' kg) does not match actual harvest sum (' . $actualHarvestSum . ' kg).', 'status' => 422];
-        }
-
-        // If frontend provided an OSRM-ordered stop sequence, sort harvests by it
-        $stopOrder = $validated['stop_order'] ?? null;
-        if (!empty($stopOrder) && is_array($stopOrder)) {
-            $orderMap = array_flip($stopOrder);
-            $harvests = $harvests->sortBy(fn($h) => $orderMap[$h->id] ?? 999)->values();
-        }
-
-        $stops = $this->buildStops($harvests);
-        $distance = $this->calculateDistance($stops, $harvests, $validated['start_lat'], $validated['start_lng'], $validated['end_lat'], $validated['end_lng']);
-
-        $haulingRate = (float) ($validated['hauling_rate_per_kg'] ?? 0);
-        $routeDistance = (float) ($validated['route_distance_km'] ?? 0);
-
-        // Prefer typed rate × kg. When no rate was set and a road distance is
-        // available, fall back to the road-cost-based trip cost as a reference
-        // so the job is not stored with a zero price_reference.
-        $priceReference = 0.0;
-        $suggested      = null;
-        if ($haulingRate > 0) {
-            $priceReference = round($haulingRate * $totalKg, 2);
-        } elseif ($routeDistance > 0 && $totalKg > 0) {
-            $suggested     = app(\App\Services\HaulingRateCalculator::class)
-                ->suggest($routeDistance, $totalKg, $validated['terrain'] ?? 'flat');
-            $priceReference = round($suggested['trip_cost'], 2);
-        }
-
-        $plan = [
-            'selected_harvests'   => $harvests->pluck('id')->toArray(),
-            'stops'               => $stops,
-            'total_kg'            => $totalKg,
-            'truck_id'            => $validated['truck_id'],
-            'truck_capacity_kg'   => $validated['truck_capacity_kg'] ?? 0,
-            'farm_count'          => $harvests->count(),
-            'start_lat'           => (float) $validated['start_lat'],
-            'start_lng'           => (float) $validated['start_lng'],
-            'end_lat'             => (float) $validated['end_lat'],
-            'end_lng'             => (float) $validated['end_lng'],
-            'radius_km'           => (float) $validated['radius_km'],
-            'total_distance_km'   => round($distance, 2),
-            'road_distance_km'    => $routeDistance > 0 ? round($routeDistance, 2) : null,
-            'terrain'             => $validated['terrain'] ?? null,
-            'price_reference'     => $priceReference,
-            'hauling_rate_per_kg' => $haulingRate,
-            'suggested_rate_per_kg' => $suggested['rate_per_kg'] ?? null,
-            'suggested_trip_cost'   => $suggested ? $suggested['trip_cost'] : null,
-            'rate_source'           => $haulingRate > 0
-                ? 'Quoted hauling rate'
-                : (string) config('harvesthaul.hauling.suggestion_basis', 'Road-distance cost estimate'),
-            'proposal_expires_at' => now()->addHours(48),
-            'notes'               => $validated['notes'] ?? null,
-            'route_geometry'      => $validated['route_geometry'],
-            'farm_distances'      => $validated['farm_distances'] ?? null,
-        ];
-
-        $job = app(\App\Actions\ConfirmPoolingPlanAction::class)->execute($plan, $logisticsProfileId);
-
-        $notifiedFarmers = [];
-        foreach ($harvests as $h) {
-            if (isset($notifiedFarmers[$h->user_id])) {
-                continue;
-            }
-            $notifiedFarmers[$h->user_id] = true;
-            self::notifyNewRouteProposal($h->user_id, $h->crop->name ?? $h->crop_type, $job->id);
+        $kmMap = [];
+        foreach (($payload['farm_distances'] ?? []) as $harvestIdStr => $km) {
+            $kmMap[(int) $harvestIdStr] = (float) $km;
         }
 
         return [
-            'success'        => true,
-            'pooling_job_id' => $job->id,
-            'message'        => 'Pooling job confirmed. ' . count($plan['selected_harvests']) . ' farm(s) assigned.',
+            'success'         => true,
+            'plans'           => [[
+                'truck_id'                => $truck->id,
+                'harvest_ids'             => $stops,
+                'stop_order'              => $stops,
+                'total_kg'                => $totalKg,
+                'start_lat'               => (float) ($payload['start_lat'] ?? 0),
+                'start_lng'               => (float) ($payload['start_lng'] ?? 0),
+                'end_lat'                 => (float) ($payload['end_lat'] ?? 0),
+                'end_lng'                 => (float) ($payload['end_lng'] ?? 0),
+                'radius_km'               => (float) ($payload['radius_km'] ?? 10),
+                'route_geometry'          => $payload['route_geometry'] ?? null,
+                'route_distance_km'       => (float) ($payload['route_distance_km'] ?? 0),
+                'farm_distances'          => $kmMap,
+                'hauling_rate_per_kg'     => (float) ($payload['hauling_rate_per_kg'] ?? 2),
+            ]],
+            'disqualified'    => [],
+            'insufficient'    => [],
         ];
     }
 
-    public function confirmProposal(PoolingJob $job): void
-    {
-        $job->load('harvests.crop');
+    /**
+     * Confirm a whole batch of pooling plans in one transaction. If any single
+     * plan in the batch fails (e.g. truck too small), the ENTIRE batch rolls
+     * back — earlier trucks are restored to 'available' and harvests stay 'sold'.
+     */
+    public function confirmBatch(
+        User $logistics,
+        array $payload,
+    ): array {
+        $plans = $payload['plans'] ?? [];
 
-        $allAccepted = $job->harvests->every(fn($h) => $h->pivot->status === 'accepted');
+        $jobIds = [];
 
-        if ($allAccepted) {
-            $job->status = PoolingJobStatus::CONFIRMED;
-            $job->confirmed_at = now();
-            $job->save();
+        DB::transaction(function () use ($logistics, $plans, &$jobIds) {
+            foreach ($plans as $plan) {
+                $truck = Truck::findOrFail((int) ($plan['truck_id'] ?? 0));
 
-            try {
-                $this->invoiceService->generateInvoice($job);
-            } catch (\Throwable $e) {
-                Log::warning("Invoice generation failed for Route #{$job->id}: " . $e->getMessage());
+                $harvestIds = array_map('intval', $plan['harvest_ids'] ?? []);
+                $harvests   = Harvest::whereIn('id', $harvestIds)->get();
+
+                $totalKg = 0.0;
+                foreach ($harvests as $harvest) {
+                    $totalKg += (float) ($harvest->remaining_quantity_kg ?? $harvest->quantity_kg ?? 0);
+                }
+
+                if ((float) $plan['total_kg'] > (float) $truck->capacity_kg) {
+                    throw new \RuntimeException("Route for truck #{$truck->id} exceeds its capacity");
+                }
+
+                $startLat = (float) ($plan['start_lat'] ?? 0);
+                $startLng = (float) ($plan['start_lng'] ?? 0apsed");
+
+                $job = PoolingJob::create([
+                    'logistics_profile_id' => $logistics->logisticsProfile->id,
+                    'truck_id'             => $truck->id,
+                    'driver_id'            => $truck->driver_id,
+                    'status'               => PoolingJobStatus::CONFIRMED,
+                    'total_kg'             => (float) ($plan['total_kg'] ?? $totalKg),
+                    'truck_capacity_kg'    => $truck->capacity_kg,
+                    'farm_count'           => count($harvestIds),
+                ]);
+
+                $truck->update(['status' => 'reserved']);
+
+                $stopOrder = array_map('intval', $plan['stop_order'] ?? []);
+                foreach ($harvests as $harvest) {
+                    $job->harvests()->attach($harvest->id, [
+                        'pickup_order'        => array_search($harvest->id, $stopOrder) !== false
+                            ? array_search($harvest->id, $stopOrder) + 1
+                            : 0,
+                        'quantity_kg'         => $harvest->remaining_quantity_kg ?? $harvest->quantity_kg ?? 0,
+                        'distance_from_route' => null,
+                        'status'              => 'assigned',
+                        'cost_share'          => 0,
+                    ]);
+                    $harvest->update(['status' => 'sold']);
+                }
+
+                $jobIds[] = $job->id;
             }
+        });
 
-            Harvest::whereIn('id', $job->harvests->pluck('id'))->update(['status' => HarvestStatus::ASSIGNED]);
-            self::notifyRouteConfirmed($job);
-
-            \App\Models\AuditLog::create([
-                'admin_id'    => $job->logisticsProfile?->user_id ?? 1,
-                'action'      => 'confirmed_pooling_plan',
-                'target_type' => 'pooling_job',
-                'target_id'   => $job->id,
-                'notes'       => "Route #{$job->id} confirmed. Total weight: {$job->total_kg} kg.",
-            ]);
-        }
+        return ['success' => true, 'job_ids' => $jobIds];
     }
 
-    public function loadHarvests(PoolingJob $job): void
+    public function confirm(User $logistics, PoolingJob $job): void
     {
-        $job->load('harvests');
+        $job->update([
+            'status'       => PoolingJobStatus::CONFIRMED,
+            'confirmed_at' => now(),
+        ]);
     }
 
-    private function buildStops($harvests): array
+    public function plan(User $logistics, array $payload): array
     {
-        $stops = [];
-        $order = 1;
-        foreach ($harvests as $h) {
-            $completedNegotiation = $h->negotiations->firstWhere('status', 'COMPLETED');
-            $stops[] = [
-                'harvest_id'          => $h->id,
-                'pickup_order'        => $order++,
-                'latitude'            => (float) ($h->latitude ?? 0),
-                'longitude'           => (float) ($h->longitude ?? 0),
-                'quantity_kg'         => $completedNegotiation ? (float) $completedNegotiation->negotiated_volume : (float) $h->quantity_kg,
-                'crop'                => $h->crop->name ?? $h->crop_type ?? 'Unknown',
-                'pickup_window_start' => $h->pickup_window_start,
-                'pickup_window_end'   => $h->pickup_window_end,
-            ];
-        }
-        return $stops;
+        return $this->preparePlanAll($logistics, $payload);
     }
 
-    private function calculateDistance(array $stops, $harvests, float $startLat, float $startLng, float $endLat, float $endLng): float
+    private function logisticsProfile(User $user): LogisticsProfile
     {
-        $collectionDistance = 0.0;
-        $currentLat = $startLat;
-        $currentLng = $startLng;
-        foreach ($stops as $stop) {
-            $collectionDistance += $this->haversine($currentLat, $currentLng, $stop['latitude'], $stop['longitude']);
-            $currentLat = $stop['latitude'];
-            $currentLng = $stop['longitude'];
-        }
-
-        $distributionDistance = 0.0;
-        foreach ($harvests as $h) {
-            $dLat = (float) ($h->destination_latitude ?? 0);
-            $dLng = (float) ($h->destination_longitude ?? 0);
-            if ($dLat && $dLng) {
-                $distributionDistance += $this->haversine($currentLat, $currentLng, $dLat, $dLng);
-                $currentLat = $dLat;
-                $currentLng = $dLng;
-            }
-        }
-
-        $returnDistance = $this->haversine($currentLat, $currentLng, $endLat, $endLng);
-
-        return $collectionDistance + $distributionDistance + $returnDistance;
+        return $user->logisticsProfile;
     }
 }

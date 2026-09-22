@@ -5,18 +5,15 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class TrackingRecord extends Model
 {
     use HasFactory;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
-        'pooling_job_id',
+        'job_type',
+        'job_id',
         'driver_id',
         'latitude',
         'longitude',
@@ -26,11 +23,6 @@ class TrackingRecord extends Model
         'posted_at',
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
     protected $casts = [
         'latitude' => 'float',
         'longitude' => 'float',
@@ -41,15 +33,15 @@ class TrackingRecord extends Model
     ];
 
     /**
-     * Get the pooling job this tracking record belongs to.
+     * The haul job or delivery this coordinate belongs to.
      */
-    public function poolingJob(): BelongsTo
+    public function job(): MorphTo
     {
-        return $this->belongsTo(PoolingJob::class);
+        return $this->morphTo('job', 'job_type', 'job_id');
     }
 
     /**
-     * Get the driver (user) who posted this coordinate.
+     * The delivery personnel (user) who posted this coordinate.
      */
     public function driver(): BelongsTo
     {

@@ -220,7 +220,7 @@
                     <div style="margin-top:24px; padding-top:20px; border-top:1px solid #ece9e4; text-align:center;">
                         <span style="font-size:13px; color:#7a7a7a; font-weight:500;">
                             Don't have an account?
-                            <a href="#" onclick="event.preventDefault(); showRegister();" style="color:#16283C; font-weight:700; text-decoration:none; margin-left:4px; transition:color 0.2s;"
+                            <a href="{{ route('register') }}" style="color:#16283C; font-weight:700; text-decoration:none; margin-left:4px; transition:color 0.2s;"
                                onmouseover="this.style.color='#0E1620'" onmouseout="this.style.color='#16283C'">Create account</a>
                         </span>
                     </div>
@@ -271,8 +271,7 @@
                                 onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none'">
                                 <option value="" disabled {{ old('role') ? '' : 'selected' }}>Select your role</option>
                                 <option value="farmer" {{ old('role') === 'farmer' ? 'selected' : '' }}>Farmer</option>
-                                <option value="logistics_partner" {{ old('role') === 'logistics_partner' ? 'selected' : '' }}>Logistics Coordinator</option>
-                                <option value="buyer" {{ old('role') === 'buyer' ? 'selected' : '' }}>Commercial Buyer</option>
+                                <option value="logistics_partner" {{ old('role') === 'logistics_partner' ? 'selected' : '' }}>Cooperative</option>
                             </select>
                             <div style="position:absolute; right:14px; top:38px; pointer-events:none;">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b0b0b0" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>

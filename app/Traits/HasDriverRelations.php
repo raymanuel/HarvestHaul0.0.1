@@ -3,7 +3,6 @@
 namespace App\Traits;
 
 use App\Models\DriverProfile;
-use App\Models\FuelLog;
 
 trait HasDriverRelations
 {
@@ -12,8 +11,13 @@ trait HasDriverRelations
         return $this->hasOne(DriverProfile::class);
     }
 
-    public function fuelLogs()
+    public function assignedHaulJobs()
     {
-        return $this->hasMany(FuelLog::class, 'driver_id');
+        return $this->hasMany(\App\Models\HaulJob::class, 'delivery_personnel_id');
+    }
+
+    public function assignedDeliveries()
+    {
+        return $this->hasMany(\App\Models\Delivery::class, 'delivery_personnel_id');
     }
 }

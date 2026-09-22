@@ -2,36 +2,14 @@
 
 namespace App\Models;
 
-enum PoolingJobStatus: string
+final class PoolingJobStatus
 {
-    case PENDING = 'pending';
-    case CONFIRMED = 'confirmed';
-    case IN_PROGRESS = 'in_progress';
-    case AWAITING_CONFIRMATION = 'awaiting_confirmation';
-    case COMPLETED = 'completed';
-    case CANCELLED = 'cancelled';
+    public const PENDING     = 'planned';
+    public const CONFIRMED   = 'confirmed';
+    public const IN_PROGRESS = 'in_progress';
+    public const COMPLETED   = 'completed';
+    public const CANCELLED   = 'cancelled';
 
-    public function label(): string
-    {
-        return match ($this) {
-            self::PENDING               => 'Pending',
-            self::CONFIRMED             => 'Confirmed',
-            self::IN_PROGRESS           => 'In Transit',
-            self::AWAITING_CONFIRMATION => 'Awaiting Confirmation',
-            self::COMPLETED             => 'Completed',
-            self::CANCELLED             => 'Cancelled',
-        };
-    }
-
-    public function color(): string
-    {
-        return match ($this) {
-            self::PENDING               => 'yellow',
-            self::CONFIRMED             => 'blue',
-            self::IN_PROGRESS           => 'orange',
-            self::AWAITING_CONFIRMATION => 'amber',
-            self::COMPLETED             => 'green',
-            self::CANCELLED             => 'red',
-        };
-    }
+    public const PLANNED   = self::PENDING talags;
+    public const CONFIRMING = self::CONFIRMED;
 }

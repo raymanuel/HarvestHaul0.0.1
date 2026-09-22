@@ -21,10 +21,11 @@ class NegotiationTest extends TestCase
     {
         $user = User::factory()->buyer()->create(['email_verified_at' => now()]);
         BuyerProfile::create([
-            'user_id'     => $user->id,
-            'phone'       => '09123456789',
+            'user_id' => $user->id,
+            'phone' => '09123456789',
             'is_verified' => true,
         ]);
+
         return $user;
     }
 
@@ -32,13 +33,14 @@ class NegotiationTest extends TestCase
     {
         $user = User::factory()->farmer()->create(['email_verified_at' => now()]);
         $user->farmerProfile()->create([
-            'phone'             => '09123456789',
-            'farm_location'     => 'Test Farm',
-            'is_verified'       => true,
-            'latitude'          => 7.0,
-            'longitude'         => 125.5,
-            'affiliation_type'  => 'independent',
+            'phone' => '09123456789',
+            'farm_location' => 'Test Farm',
+            'is_verified' => true,
+            'latitude' => 7.0,
+            'longitude' => 125.5,
+            'affiliation_type' => 'independent',
         ]);
+
         return $user;
     }
 
@@ -49,21 +51,21 @@ class NegotiationTest extends TestCase
         $variety = CropVariety::create(['crop_id' => $crop->id, 'name' => 'IR64', 'status' => 'active']);
 
         return Harvest::create([
-            'user_id'               => $farmer->id,
-            'crop_id'               => $crop->id,
-            'crop_variety_id'       => $variety->id,
-            'crop_category_id'      => $category->id,
-            'crop_type'             => $crop->name,
-            'variety'               => $variety->name,
-            'quantity_kg'           => 500,
+            'user_id' => $farmer->id,
+            'crop_id' => $crop->id,
+            'crop_variety_id' => $variety->id,
+            'crop_category_id' => $category->id,
+            'crop_type' => $crop->name,
+            'variety' => $variety->name,
+            'quantity_kg' => 500,
             'remaining_quantity_kg' => 500,
-            'unit'                  => 'kg',
-            'status'                => 'active',
-            'visibility'            => 'both',
-            'latitude'              => 7.1,
-            'longitude'             => 125.5,
-            'destination_address'   => 'Davao Market',
-            'destination_latitude'  => 7.07,
+            'unit' => 'kg',
+            'status' => 'active',
+            'visibility' => 'both',
+            'latitude' => 7.1,
+            'longitude' => 125.5,
+            'destination_address' => 'Davao Market',
+            'destination_latitude' => 7.07,
             'destination_longitude' => 125.61,
         ]);
     }
@@ -71,15 +73,15 @@ class NegotiationTest extends TestCase
     private function createOpenNegotiation(User $buyer, User $farmer, Harvest $harvest): Negotiation
     {
         return Negotiation::create([
-            'buyer_id'   => $buyer->id,
-            'farmer_id'  => $farmer->id,
+            'buyer_id' => $buyer->id,
+            'farmer_id' => $farmer->id,
             'harvest_id' => $harvest->id,
-            'status'     => 'OPEN',
-            'negotiated_price'  => null,
+            'status' => 'OPEN',
+            'negotiated_price' => null,
             'negotiated_volume' => null,
-            'destination_latitude'  => $harvest->destination_latitude ?? 7.07,
+            'destination_latitude' => $harvest->destination_latitude ?? 7.07,
             'destination_longitude' => $harvest->destination_longitude ?? 125.61,
-            'last_activity_at'  => now(),
+            'last_activity_at' => now(),
         ]);
     }
 
@@ -134,8 +136,8 @@ class NegotiationTest extends TestCase
 
         $this->assertDatabaseHas('negotiation_messages', [
             'negotiation_id' => $negotiation->id,
-            'sender_id'      => $buyer->id,
-            'message_text'   => 'Hello, interested in your rice.',
+            'sender_id' => $buyer->id,
+            'message_text' => 'Hello, interested in your rice.',
         ]);
     }
 
@@ -171,10 +173,10 @@ class NegotiationTest extends TestCase
         $harvest = $this->createActiveHarvest($farmer);
 
         $negotiation = Negotiation::create([
-            'buyer_id'   => $buyer->id,
-            'farmer_id'  => $farmer->id,
+            'buyer_id' => $buyer->id,
+            'farmer_id' => $farmer->id,
             'harvest_id' => $harvest->id,
-            'status'     => 'COMPLETED',
+            'status' => 'COMPLETED',
         ]);
 
         $this->actingAs($buyer)->post("/negotiations/{$negotiation->id}/message", [
@@ -189,10 +191,10 @@ class NegotiationTest extends TestCase
         $harvest = $this->createActiveHarvest($farmer);
 
         $negotiation = Negotiation::create([
-            'buyer_id'   => $buyer->id,
-            'farmer_id'  => $farmer->id,
+            'buyer_id' => $buyer->id,
+            'farmer_id' => $farmer->id,
             'harvest_id' => $harvest->id,
-            'status'     => 'CANCELLED',
+            'status' => 'CANCELLED',
         ]);
 
         $this->actingAs($buyer)->post("/negotiations/{$negotiation->id}/message", [
@@ -286,8 +288,8 @@ class NegotiationTest extends TestCase
 
         NegotiationMessage::create([
             'negotiation_id' => $negotiation->id,
-            'sender_id'      => $buyer->id,
-            'message_text'   => 'Hello!',
+            'sender_id' => $buyer->id,
+            'message_text' => 'Hello!',
         ]);
 
         $this->actingAs($buyer)->get("/negotiations/{$negotiation->id}/messages")
@@ -317,13 +319,13 @@ class NegotiationTest extends TestCase
         $negotiation = $this->createOpenNegotiation($buyer, $farmer, $harvest);
 
         $this->actingAs($buyer)->post("/negotiations/{$negotiation->id}/propose", [
-            'negotiated_price'  => 25.50,
+            'negotiated_price' => 25.50,
             'negotiated_volume' => 300,
         ])->assertStatus(302);
 
         $this->assertDatabaseHas('negotiations', [
-            'id'                => $negotiation->id,
-            'negotiated_price'  => 25.50,
+            'id' => $negotiation->id,
+            'negotiated_price' => 25.50,
             'negotiated_volume' => 300,
         ]);
     }
@@ -337,9 +339,58 @@ class NegotiationTest extends TestCase
         $negotiation = $this->createOpenNegotiation($buyer, $farmer, $harvest);
 
         $this->actingAs($outsider)->post("/negotiations/{$negotiation->id}/propose", [
-            'negotiated_price'  => 25.50,
+            'negotiated_price' => 25.50,
             'negotiated_volume' => 300,
         ])->assertStatus(403);
+    }
+
+    public function test_sack_harvest_propose_converts_per_sack_terms_to_per_kg(): void
+    {
+        $buyer = $this->createVerifiedBuyer();
+        $farmer = $this->createVerifiedFarmer();
+        $harvest = $this->createActiveHarvest($farmer);
+        $harvest->update(['unit' => 'sacks', 'quantity_kg' => 6000, 'remaining_quantity_kg' => 6000]);
+
+        $negotiation = Negotiation::create([
+            'buyer_id' => $buyer->id,
+            'farmer_id' => $farmer->id,
+            'harvest_id' => $harvest->id,
+            'status' => 'OPEN',
+            'negotiated_price' => null,
+            'negotiated_volume' => null,
+            'destination_latitude' => 7.07,
+            'destination_longitude' => 125.61,
+            'last_activity_at' => now(),
+        ]);
+
+        $this->actingAs($buyer)->post("/negotiations/{$negotiation->id}/propose", [
+            'negotiated_price' => 1250.00,
+            'negotiated_volume' => 100,
+            'hauling_rate_per_kg' => 5.00,
+        ])->assertStatus(302);
+
+        $this->assertDatabaseHas('negotiations', [
+            'id' => $negotiation->id,
+            'negotiated_price' => 25.00,
+            'negotiated_volume' => 5000,
+            'hauling_rate_per_kg' => 0.10,
+        ]);
+    }
+
+    public function test_sack_harvest_json_feed_reports_volume_in_sacks(): void
+    {
+        $buyer = $this->createVerifiedBuyer();
+        $farmer = $this->createVerifiedFarmer();
+        $harvest = $this->createActiveHarvest($farmer);
+        $harvest->update(['unit' => 'sacks']);
+
+        $this->createOpenNegotiation($buyer, $farmer, $harvest)->update(['negotiated_volume' => 500]);
+
+        $response = $this->actingAs($buyer)->get('/negotiations/list')->assertOk();
+
+        $item = collect($response->json('negotiations'))->firstWhere('type', 'crop');
+        $this->assertSame('sacks', $item['volume_unit']);
+        $this->assertSame(10.0, (float) $item['volume']);
     }
 
     // ─── AGREE TERMS ─────────────────────────────────────────
@@ -353,7 +404,7 @@ class NegotiationTest extends TestCase
 
         // Set proposed terms (as buyer)
         $negotiation->update([
-            'negotiated_price'  => 25.50,
+            'negotiated_price' => 25.50,
             'negotiated_volume' => 300,
         ]);
 
@@ -361,7 +412,7 @@ class NegotiationTest extends TestCase
             ->assertStatus(302);
 
         $this->assertDatabaseHas('negotiations', [
-            'id'     => $negotiation->id,
+            'id' => $negotiation->id,
             'status' => 'AGREED',
         ]);
     }
@@ -375,7 +426,7 @@ class NegotiationTest extends TestCase
         $negotiation = $this->createOpenNegotiation($buyer, $farmer, $harvest);
 
         $negotiation->update([
-            'negotiated_price'  => 25.50,
+            'negotiated_price' => 25.50,
             'negotiated_volume' => 300,
         ]);
 

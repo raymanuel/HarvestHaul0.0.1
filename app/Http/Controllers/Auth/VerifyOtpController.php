@@ -39,15 +39,11 @@ class VerifyOtpController extends Controller
             'email_otp_expires_at' => null,
         ])->save();
 
-        $needsProfileCompletion = false;
         if ($user->role === 'farmer') {
             $profile = $user->farmerProfile;
-            $needsProfileCompletion = !$profile || !$profile->farm_location
-                || $profile->farm_location === 'Set your farm location in profile';
-        } elseif ($user->role === 'logistics_partner') {
-            $profile = $user->logisticsProfile;
-            $needsProfileCompletion = !$profile || !$profile->company_name
-                || $profile->company_name === $user->name;
+            $needsProfileCompletion = ! $profile || ! $profile->farm_location;
+        } else {
+            $needsProfileCompletion = false;
         }
 
         if ($needsProfileCompletion) {

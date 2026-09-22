@@ -14,6 +14,8 @@ use App\Models\PoolingJobStatus;
 use App\Models\Truck;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class PoolingNotificationDedupeTest extends TestCase
@@ -24,12 +26,13 @@ class PoolingNotificationDedupeTest extends TestCase
     {
         $user = User::factory()->logisticsPartner()->create(['email_verified_at' => now()]);
         $user->logisticsProfile()->create([
-            'company_name'       => 'Test Logistics',
+            'company_name' => 'Test Logistics',
             'business_permit_no' => 'BL-12345',
-            'phone'              => '09123456789',
-            'is_verified'        => true,
-            'logistics_type'     => 'company',
+            'phone' => '09123456789',
+            'is_verified' => true,
+            'logistics_type' => 'company',
         ]);
+
         return $user;
     }
 
@@ -37,13 +40,14 @@ class PoolingNotificationDedupeTest extends TestCase
     {
         $user = User::factory()->farmer()->create(['email_verified_at' => now()]);
         $user->farmerProfile()->create([
-            'phone'            => '09123456789',
-            'farm_location'    => 'Test Farm',
-            'is_verified'      => true,
-            'latitude'         => 7.0,
-            'longitude'        => 125.5,
+            'phone' => '09123456789',
+            'farm_location' => 'Test Farm',
+            'is_verified' => true,
+            'latitude' => 7.0,
+            'longitude' => 125.5,
             'affiliation_type' => 'independent',
         ]);
+
         return $user;
     }
 
@@ -55,12 +59,13 @@ class PoolingNotificationDedupeTest extends TestCase
     private function createTruck(User $logisticsUser): Truck
     {
         return Truck::create([
+            'cooperative_id' => \App\Models\Cooperative::factory(),
             'logistics_profile_id' => $logisticsUser->logisticsProfile->id,
-            'truck_name'           => 'Test Truck',
-            'plate_number'         => 'ABC-1234',
-            'capacity_kg'          => 5000,
-            'status'               => 'available',
-            'vehicle_type'         => 'truck',
+            'truck_name' => 'Test Truck',
+            'plate_number' => 'ABC-1234',
+            'capacity_kg' => 5000,
+            'status' => 'available',
+            'vehicle_type' => 'truck',
         ]);
     }
 
@@ -71,18 +76,18 @@ class PoolingNotificationDedupeTest extends TestCase
         $variety = CropVariety::firstOrCreate(['crop_id' => $crop->id, 'name' => 'Standard'], ['status' => 'active']);
 
         return Harvest::create([
-            'user_id'               => $farmer->id,
-            'crop_id'               => $crop->id,
-            'crop_variety_id'       => $variety->id,
-            'crop_category_id'      => $category->id,
-            'crop_type'             => $crop->name,
-            'variety'               => $variety->name,
-            'quantity_kg'           => $quantityKg,
+            'user_id' => $farmer->id,
+            'crop_id' => $crop->id,
+            'crop_variety_id' => $variety->id,
+            'crop_category_id' => $category->id,
+            'crop_type' => $crop->name,
+            'variety' => $variety->name,
+            'quantity_kg' => $quantityKg,
             'remaining_quantity_kg' => $quantityKg,
-            'unit'                  => 'kg',
-            'status'                => 'active',
-            'destination_address'   => 'Test',
-            'destination_latitude'  => 7.0,
+            'unit' => 'kg',
+            'status' => 'active',
+            'destination_address' => 'Test',
+            'destination_latitude' => 7.0,
             'destination_longitude' => 125.0,
         ]);
     }
@@ -103,12 +108,12 @@ class PoolingNotificationDedupeTest extends TestCase
 
         $job = PoolingJob::create([
             'logistics_profile_id' => $logisticsUser->logisticsProfile->id,
-            'truck_id'             => $truck->id,
-            'driver_id'            => $driver->id,
-            'status'               => PoolingJobStatus::PENDING,
-            'total_kg'             => 500,
-            'truck_capacity_kg'    => 5000,
-            'farm_count'           => 2,
+            'truck_id' => $truck->id,
+            'driver_id' => $driver->id,
+            'status' => PoolingJobStatus::PENDING,
+            'total_kg' => 500,
+            'truck_capacity_kg' => 5000,
+            'farm_count' => 2,
         ]);
 
         $harvestF = $this->createHarvestForFarmer($farmerF, 'Rice');
@@ -133,8 +138,8 @@ class PoolingNotificationDedupeTest extends TestCase
         $job->refresh();
         $this->assertEquals(PoolingJobStatus::CONFIRMED, $job->status);
 
-        // Exactly 1 notification for driver
-        $driverNotifs = Notification::where('user_id', $driver->id)->where('title', 'New Route Confirmed')->count();
+        // Exactly 1 notification for driver (title is date-stamped: "Route Booked for …")
+        $driverNotifs = Notification::where('user_id', $driver->id)->where('title', 'like', 'Route Booked for%')->count();
         $this->assertEquals(1, $driverNotifs, 'Driver should receive exactly 1 confirm notification');
 
         // Exactly 1 notification for logistics
@@ -162,12 +167,12 @@ class PoolingNotificationDedupeTest extends TestCase
 
         $job = PoolingJob::create([
             'logistics_profile_id' => $logisticsUser->logisticsProfile->id,
-            'truck_id'             => $truck->id,
-            'status'               => PoolingJobStatus::PENDING,
-            'total_kg'             => 100,
-            'truck_capacity_kg'    => 5000,
-            'farm_count'           => 1,
-            'proposal_expires_at'  => now()->subHours(49),
+            'truck_id' => $truck->id,
+            'status' => PoolingJobStatus::PENDING,
+            'total_kg' => 100,
+            'truck_capacity_kg' => 5000,
+            'farm_count' => 1,
+            'proposal_expires_at' => now()->subHours(49),
         ]);
 
         $harvest = $this->createHarvestForFarmer($farmer, 'Rice', 100.0);
@@ -175,8 +180,8 @@ class PoolingNotificationDedupeTest extends TestCase
 
         // Completed negotiation for 40 of 100 kg (partially sold)
         Negotiation::factory()->completed()->create([
-            'harvest_id'        => $harvest->id,
-            'farmer_id'         => $farmer->id,
+            'harvest_id' => $harvest->id,
+            'farmer_id' => $farmer->id,
             'negotiated_volume' => 40.0,
         ]);
 
@@ -188,7 +193,7 @@ class PoolingNotificationDedupeTest extends TestCase
         Notification::query()->delete();
 
         // Run the auto-reject command
-        $exitCode = \Illuminate\Support\Facades\Artisan::call('proposals:auto-reject-expired');
+        $exitCode = Artisan::call('proposals:auto-reject-expired');
         $this->assertEquals(0, $exitCode);
 
         // Harvest should be partially_sold, NOT sold
@@ -203,7 +208,7 @@ class PoolingNotificationDedupeTest extends TestCase
         // Farmer should receive a notification
         $this->assertDatabaseHas('notifications', [
             'user_id' => $farmer->id,
-            'type'    => 'proposal_expired',
+            'type' => 'proposal_expired',
         ]);
     }
 
@@ -216,12 +221,12 @@ class PoolingNotificationDedupeTest extends TestCase
 
         $job = PoolingJob::create([
             'logistics_profile_id' => $logisticsUser->logisticsProfile->id,
-            'truck_id'             => $truck->id,
-            'status'               => PoolingJobStatus::PENDING,
-            'total_kg'             => 100,
-            'truck_capacity_kg'    => 5000,
-            'farm_count'           => 1,
-            'proposal_expires_at'  => now()->subHours(49),
+            'truck_id' => $truck->id,
+            'status' => PoolingJobStatus::PENDING,
+            'total_kg' => 100,
+            'truck_capacity_kg' => 5000,
+            'farm_count' => 1,
+            'proposal_expires_at' => now()->subHours(49),
         ]);
 
         $harvest = $this->createHarvestForFarmer($farmer, 'Rice', 100.0);
@@ -229,8 +234,8 @@ class PoolingNotificationDedupeTest extends TestCase
 
         // Completed negotiation for ALL 100 kg
         Negotiation::factory()->completed()->create([
-            'harvest_id'        => $harvest->id,
-            'farmer_id'         => $farmer->id,
+            'harvest_id' => $harvest->id,
+            'farmer_id' => $farmer->id,
             'negotiated_volume' => 100.0,
         ]);
 
@@ -239,7 +244,7 @@ class PoolingNotificationDedupeTest extends TestCase
             'status' => 'pending', 'cost_share' => 500,
         ]);
 
-        \Illuminate\Support\Facades\Artisan::call('proposals:auto-reject-expired');
+        Artisan::call('proposals:auto-reject-expired');
 
         $harvest->refresh();
         $this->assertEquals(HarvestStatus::SOLD, $harvest->status,
@@ -255,12 +260,12 @@ class PoolingNotificationDedupeTest extends TestCase
 
         $job = PoolingJob::create([
             'logistics_profile_id' => $logisticsUser->logisticsProfile->id,
-            'truck_id'             => $truck->id,
-            'status'               => PoolingJobStatus::PENDING,
-            'total_kg'             => 100,
-            'truck_capacity_kg'    => 5000,
-            'farm_count'           => 1,
-            'proposal_expires_at'  => now()->subHours(49),
+            'truck_id' => $truck->id,
+            'status' => PoolingJobStatus::PENDING,
+            'total_kg' => 100,
+            'truck_capacity_kg' => 5000,
+            'farm_count' => 1,
+            'proposal_expires_at' => now()->subHours(49),
         ]);
 
         $harvest = $this->createHarvestForFarmer($farmer, 'Rice', 100.0);
@@ -272,7 +277,7 @@ class PoolingNotificationDedupeTest extends TestCase
             'status' => 'pending', 'cost_share' => 500,
         ]);
 
-        \Illuminate\Support\Facades\Artisan::call('proposals:auto-reject-expired');
+        Artisan::call('proposals:auto-reject-expired');
 
         $harvest->refresh();
         $this->assertEquals(HarvestStatus::ACTIVE, $harvest->status,
@@ -288,12 +293,12 @@ class PoolingNotificationDedupeTest extends TestCase
 
         $job = PoolingJob::create([
             'logistics_profile_id' => $logisticsUser->logisticsProfile->id,
-            'truck_id'             => $truck->id,
-            'status'               => PoolingJobStatus::PENDING,
-            'total_kg'             => 100,
-            'truck_capacity_kg'    => 5000,
-            'farm_count'           => 1,
-            'proposal_expires_at'  => now()->subHours(49),
+            'truck_id' => $truck->id,
+            'status' => PoolingJobStatus::PENDING,
+            'total_kg' => 100,
+            'truck_capacity_kg' => 5000,
+            'farm_count' => 1,
+            'proposal_expires_at' => now()->subHours(49),
         ]);
 
         $harvest = $this->createHarvestForFarmer($farmer, 'Rice', 100.0);
@@ -304,7 +309,7 @@ class PoolingNotificationDedupeTest extends TestCase
             'status' => 'pending', 'cost_share' => 500,
         ]);
 
-        \Illuminate\Support\Facades\Artisan::call('proposals:auto-reject-expired');
+        Artisan::call('proposals:auto-reject-expired');
 
         $job->refresh();
         $pivot = $job->harvests()->where('harvest_id', $harvest->id)->first()->pivot;
@@ -325,11 +330,11 @@ class PoolingNotificationDedupeTest extends TestCase
 
         $job = PoolingJob::create([
             'logistics_profile_id' => $logisticsUser->logisticsProfile->id,
-            'truck_id'             => $truck->id,
-            'status'               => PoolingJobStatus::IN_PROGRESS,
-            'total_kg'             => 100,
-            'truck_capacity_kg'    => 5000,
-            'farm_count'           => 1,
+            'truck_id' => $truck->id,
+            'status' => PoolingJobStatus::IN_PROGRESS,
+            'total_kg' => 100,
+            'truck_capacity_kg' => 5000,
+            'farm_count' => 1,
         ]);
 
         $harvest = $this->createHarvestForFarmer($farmer, 'Rice', 100.0);
@@ -341,16 +346,16 @@ class PoolingNotificationDedupeTest extends TestCase
         ]);
 
         // Force updated_at to 49 hours ago so the stale check finds it
-        \Illuminate\Support\Facades\DB::table('pooling_jobs')
+        DB::table('pooling_jobs')
             ->where('id', $job->id)
             ->update(['updated_at' => now()->subHours(49)]);
 
         // Force updated_at to 49 hours ago so the stale check finds it
-        \Illuminate\Support\Facades\DB::table('pooling_jobs')
+        DB::table('pooling_jobs')
             ->where('id', $job->id)
             ->update(['updated_at' => now()->subHours(49)]);
 
-        $exitCode = \Illuminate\Support\Facades\Artisan::call('deliveries:auto-complete-stale');
+        $exitCode = Artisan::call('deliveries:auto-complete-stale');
         $this->assertEquals(0, $exitCode);
 
         $job->refresh();

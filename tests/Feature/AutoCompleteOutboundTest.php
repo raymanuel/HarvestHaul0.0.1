@@ -30,6 +30,7 @@ class AutoCompleteOutboundTest extends TestCase
             'delivered_at' => now()->subHours(50), 'completed_at' => now()->subHours(50), 'confirmed_at' => null,
         ]);
         $truck = Truck::create([
+            'cooperative_id' => \App\Models\Cooperative::factory(),
             'logistics_profile_id' => $coop->logisticsProfile->id, 'truck_name' => 'T1',
             'plate_number' => 'AAA-111', 'capacity_kg' => 2000, 'status' => 'available',
         ]);
@@ -77,6 +78,7 @@ class AutoCompleteOutboundTest extends TestCase
             'delivered_at' => now(), 'completed_at' => now(), 'confirmed_at' => null,
         ]);
         $truck = Truck::create([
+            'cooperative_id' => \App\Models\Cooperative::factory(),
             'logistics_profile_id' => $coop->logisticsProfile->id, 'truck_name' => 'T2',
             'plate_number' => 'BBB-222', 'capacity_kg' => 2000, 'status' => 'available',
         ]);
@@ -101,6 +103,7 @@ class AutoCompleteOutboundTest extends TestCase
             'phone' => '09171234567', 'is_verified' => true, 'logistics_type' => 'cooperative',
         ]);
         $truck = Truck::create([
+            'cooperative_id' => \App\Models\Cooperative::factory(),
             'logistics_profile_id' => $coop->logisticsProfile->id, 'truck_name' => 'T3',
             'plate_number' => 'CCC-333', 'capacity_kg' => 2000, 'status' => 'available',
         ]);

@@ -1,19 +1,8 @@
 @php
     $role = Auth::user()->role;
     $nav = config('navigation');
-    $items = [];
-    $sectionLabel = null;
-
-    if ($role === 'buyer') {
-        $items = $nav['buyer']['items'] ?? [];
-        $sectionLabel = $nav['buyer']['section_label'] ?? null;
-    } elseif (isset($nav[$role])) {
-        $items = $nav[$role]['items'] ?? [];
-        if ($role === 'logistics_partner' && Auth::user()->logisticsProfile && !Auth::user()->logisticsProfile->isCooperative()) {
-            $items = $nav[$role]['items_independent'] ?? $items;
-        }
-        $sectionLabel = $nav[$role]['section_label'] ?? null;
-    }
+    $items = $nav[$role]['items'] ?? [];
+    $sectionLabel = $nav[$role]['section_label'] ?? null;
 @endphp
 
 <nav class="flex-1 px-2.5 py-4 overflow-y-auto custom-scroll space-y-1.5" aria-label="Sidebar navigation">
@@ -40,15 +29,7 @@
 
             $childRoutes = $hasChildren ? collect($item['children'])->pluck('route')->implode('|') : null;
             $isSubmenuActive = $hasChildren ? request()->routeIs($childRoutes) : false;
-
-            $itemCondition = $item['condition'] ?? null;
             $showItem = true;
-
-            if ($itemCondition === 'cooperative_only') {
-                $showItem = Auth::user()->role === 'logistics_partner' && Auth::user()->logisticsProfile?->isCooperative();
-            } elseif ($itemCondition === 'independent_logistics_only') {
-                $showItem = Auth::user()->role === 'logistics_partner' && (!Auth::user()->logisticsProfile?->isCooperative());
-            }
         @endphp
 
         @if($hasChildren)

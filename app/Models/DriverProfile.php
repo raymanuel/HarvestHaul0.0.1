@@ -11,7 +11,7 @@ class DriverProfile extends Model
 
     protected $fillable = [
         'user_id',
-        'partner_id',
+        'cooperative_id',
         'license_no',
         'vehicle_type',
         'phone',
@@ -24,26 +24,16 @@ class DriverProfile extends Model
         'selfie_path',
     ];
 
-    /**
-     * Relationship: A Driver profile BELONGS TO a User account.
-     */
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    /**
-     * Relationship: A Driver BELONGS TO a Logistics Partner.
-     * This allows us to do: $driver->partner->company_name
-     */
-    public function partner()
+    public function cooperative()
     {
-        return $this->belongsTo(LogisticsProfile::class, 'partner_id');
+        return $this->belongsTo(Cooperative::class, 'cooperative_id');
     }
 
-    /**
-     * Accessor & Mutator for status mapped to employment_status
-     */
     public function getStatusAttribute()
     {
         return $this->attributes['employment_status'] ?? null;

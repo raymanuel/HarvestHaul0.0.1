@@ -2,69 +2,43 @@
 
 namespace App\Models;
 
-use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Relations\Pivot;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class PoolingJobHarvest extends Pivot
+class PoolingJobHarvest extends Model
 {
     protected $table = 'pooling_job_harvests';
 
-    protected $casts = [
-        'arrived_at'          => 'datetime',
-        'loaded_at'           => 'datetime',
-        'delivered_at'        => 'datetime',
-        'buyer_confirmed_at'  => 'datetime',
+    protected $fillable = [
+        'pooling_job_id',
+        'harvest_id',
+        'pickup_order',
+        'quantity_kg',
+        'distance_from_route',
+        'cost_share',
+        'status',
+        'payment_status',
+        'receipt_path',
+        'delivery_receipt_path',
+        'loaded_quantity_kg',
+        'loaded_volume_cubic_meters',
     ];
 
-    private function parseAttr(string $key): ?Carbon
+    protected $casts = [
+        'pickup_order'        => 'integer',
+        'quantity_kg'         => 'decimal:2',
+        'distance_from_route' => 'decimal:4',
+        'cost_share'          => 'decimal:2',
+        'loaded_quantity_kg'  => 'decimal:2',
+    ];
+
+    public function poolingJob(): BelongsTo
     {
-        $val = $this->attributes[$key] ?? null;
-        if (!$val) return null;
-        if ($val instanceof Carbon) return $val;
-        return Carbon::parse($val);
+        return $this->belongsTo(PoolingJob::class);
     }
 
-    public function getStopDurationAttribute(): ?array
+    public function harvest(): BelongsTo
     {
-        $arrived   = $this->parseAttr('arrived_at');
-        $loaded    = $this->parseAttr('loaded_at');
-        $delivered = $this->parseAttr('delivered_at');
-        $created   = $this->parseAttr('created_at');
-
-        return [
-            'travel_to_farm' => $arrived && $created
-                ? (int) abs($arrived->diffInMinutes($created)) : null,
-            'loading_dock' => $loaded && $arrived
-                ? (int) abs($loaded->diffInMinutes($arrived)) : null,
-            'delivery_run' => $delivered && $loaded
-                ? (int) abs($delivered->diffInMinutes($loaded)) : null,
-            'total_stop' => $delivered && $arrived
-                ? (int) abs($delivered->diffInMinutes($arrived)) : null,
-        ];
-    }
-
-    /**
-     * Presentation logic — formats durations as human-readable strings.
-     */
-    public function getStopDurationHumanAttribute(): ?array
-    {
-        $durations = $this->getStopDurationAttribute();
-        if (!$durations) return null;
-
-        $humanized = [];
-        foreach ($durations as $key => $minutes) {
-            if ($minutes === null) {
-                $humanized[$key] = null;
-            } elseif ($minutes < 1) {
-                $humanized[$key] = '<1 min';
-            } elseif ($minutes < 60) {
-                $humanized[$key] = $minutes . ' min';
-            } else {
-                $h = intdiv($minutes, 60);
-                $m = $minutes % 60;
-                $humanized[$key] = $m > 0 ? "{$h}h {$m}m" : "{$h}h";
-            }
-        }
-        return $humanized;
+        return $this->belongsTo(Harvest::class);
     }
 }

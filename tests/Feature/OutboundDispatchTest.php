@@ -43,6 +43,7 @@ class OutboundDispatchTest extends TestCase
     private function truckFor(User $coop): Truck
     {
         return Truck::create([
+            'cooperative_id' => \App\Models\Cooperative::factory(),
             'logistics_profile_id' => $coop->logisticsProfile->id,
             'truck_name'           => 'Delivery Truck',
             'plate_number'         => 'OUT-1234',

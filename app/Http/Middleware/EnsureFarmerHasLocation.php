@@ -22,12 +22,12 @@ class EnsureFarmerHasLocation
 
             if (!$hasLocation) {
                 // Allow profile pages and logout so farmer can actually set location
-                $allowedRoutes = ['profile.show', 'profile.update', 'profile.password', 'logout', 'harvests.create', 'harvests.store'];
+                $allowedRoutes = ['profile.show', 'profile.update', 'profile.password', 'profile.save-location', 'logout'];
                 $routeName = $request->route()?->getName();
 
                 if (!in_array($routeName, $allowedRoutes)) {
                     return redirect()->route('profile.show')
-                        ->with('warning', 'Please set your farm location before continuing. This is required to post harvests and receive negotiation proposals.');
+                        ->with('warning', 'Set your farm location first so your cooperative can plan pickups. Open your profile and save your location.');
                 }
             }
         }

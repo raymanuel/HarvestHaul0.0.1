@@ -43,7 +43,7 @@ test.describe("Logistics sidebar reorganization", () => {
     const labels = await allNavLabels(page);
     expectOrderedSubsequence(labels, [
       "Dashboard",
-      "Crop Board",
+      "Harvests",
       "Proposal Inbox",
       "Operations",
       "Incoming",
@@ -79,7 +79,7 @@ test.describe("Logistics sidebar reorganization", () => {
 
     expect(labels).not.toContain("Reference");
     expect(labels).not.toContain("Market Prices");
-    expect(labels).not.toContain("Crop Board");
+    expect(labels).not.toContain("Harvests");
     expect(labels).not.toContain("Deliveries");
     expect(labels).not.toContain("Members");
 

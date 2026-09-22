@@ -78,6 +78,7 @@ class PoolingRejectFlowTest extends TestCase
     private function createJob(User $logisticsUser, array $extra = []): PoolingJob
     {
         $truck = Truck::create([
+            'cooperative_id' => \App\Models\Cooperative::factory(),
             'logistics_profile_id' => $logisticsUser->logisticsProfile->id,
             'truck_name'           => 'Test Truck',
             'plate_number'         => 'ABC-1234',
@@ -138,6 +139,7 @@ class PoolingRejectFlowTest extends TestCase
         $farmer    = $this->createCoopFarmer();
 
         $truck = Truck::create([
+            'cooperative_id' => \App\Models\Cooperative::factory(),
             'logistics_profile_id' => $logistics->logisticsProfile->id,
             'truck_name'           => 'Solo Truck',
             'plate_number'         => 'XYZ-9999',
@@ -269,6 +271,7 @@ class PoolingRejectFlowTest extends TestCase
         $driver    = User::factory()->driver()->create(['email_verified_at' => now()]);
 
         $truck = Truck::create([
+            'cooperative_id' => \App\Models\Cooperative::factory(),
             'logistics_profile_id' => $logistics->logisticsProfile->id,
             'truck_name'           => 'Driver Truck',
             'plate_number'         => 'DRV-1234',
@@ -320,6 +323,7 @@ class PoolingRejectFlowTest extends TestCase
         $driver    = User::factory()->driver()->create(['email_verified_at' => now()]);
 
         $truck = Truck::create([
+            'cooperative_id' => \App\Models\Cooperative::factory(),
             'logistics_profile_id' => $logistics->logisticsProfile->id,
             'truck_name'           => 'Driver Truck',
             'plate_number'         => 'DRV-1234',

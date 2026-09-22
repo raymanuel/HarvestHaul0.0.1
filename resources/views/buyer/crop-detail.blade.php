@@ -4,7 +4,7 @@
     <header class="mb-8 pt-8">
         <div class="flex items-center gap-2 mb-4">
             <a href="{{ route('buyer.crop-board') }}" class="text-xs font-bold text-harvest-dark dark:text-harvest-light hover:underline flex items-center gap-1">
-                ← Back to Crop Board
+                ← Back to Harvests
             </a>
         </div>
     </header>
@@ -38,7 +38,7 @@
                         <h1 class="text-2xl font-bold text-slate-900 dark:text-white heading-font">{{ $harvest->crop->name ?? $harvest->crop_type }}</h1>
                         <p class="text-sm text-slate-500 dark:text-slate-400 mt-1 font-semibold">{{ $harvest->cropVariety->name ?? $harvest->variety ?? 'Standard Variety' }}</p>
                     </div>
-                    <span class="text-2xl font-extrabold text-[#16283C] dark:text-[#D7BC7A] font-mono shrink-0">{{ number_format($harvest->quantity_kg) }} <span class="text-sm font-bold text-[#16283C]/70">kg</span></span>
+                    <span class="text-2xl font-extrabold text-[#16283C] dark:text-[#D7BC7A] font-mono shrink-0">{{ $harvest->quantityLabel }}</span>
                 </div>
 
                 <div class="flex flex-wrap items-center gap-2 mb-6">
@@ -65,17 +65,10 @@
                     </div>
                 @endif
 
-                @if($harvest->cropVariety && $harvest->cropVariety->price_per_kg)
-                    <div class="mt-4 p-4 bg-[#16283C]/10 dark:bg-[#16283C]/10 border border-[#16283C]/20 dark:border-[#16283C]/20 rounded-2xl">
-                        <span class="text-xs font-semibold text-[#16283C] dark:text-[#D7BC7A]">Reference Price</span>
-                        <p class="text-lg font-extrabold text-[#16283C] dark:text-[#D7BC7A]/60 font-mono">₱{{ number_format($harvest->cropVariety->price_per_kg, 2) }} <span class="text-sm font-bold text-[#16283C]/70">/ kg</span></p>
-                    </div>
-                @endif
-
                 @if($harvest->suggested_price_per_kg)
                     <div class="mt-4 p-4 bg-[var(--color-success-bg)] border border-[var(--color-success-border)] rounded-2xl">
                         <span class="text-xs font-semibold text-[var(--color-success-text)]">Farmer's Suggested Price</span>
-                        <p class="text-lg font-extrabold text-[var(--color-success-text)] font-mono">₱{{ number_format($harvest->suggested_price_per_kg, 2) }} <span class="text-sm font-bold text-[var(--color-success-text)]">/ kg</span></p>
+                        <p class="text-lg font-extrabold text-[var(--color-success-text)] font-mono">₱{{ number_format($harvest->perUnit((float) $harvest->suggested_price_per_kg), 2) }} <span class="text-sm font-bold text-[var(--color-success-text)]">/ {{ $harvest->unitLabel }}</span></p>
                     </div>
                 @else
                     <div class="mt-4 p-4 bg-slate-50 dark:bg-slate-700/50 border border-slate-200/50 dark:border-slate-600/30 rounded-2xl">

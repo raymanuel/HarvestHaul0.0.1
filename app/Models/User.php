@@ -7,38 +7,31 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use App\Models\AuditLog;
-use App\Models\LogisticsProfile;
+use App\Models\Message;
 use App\Traits\HasFarmerRelations;
 use App\Traits\HasDriverRelations;
-use App\Traits\HasLogisticsRelations;
 use App\Traits\HasBuyerRelations;
+use App\Traits\HasLogisticsRelations;
 
 /**
- * ═══════════════════════════════════════════════════════════════
+ * ═══════════════════════════════════════════════════════════
  * MODEL: User
- * ═══════════════════════════════════════════════════════════════
+ * ═══════════════════════════════════════════════════════════
  * Central auth entity for the entire platform.
  * ROLES (stored in `role` column):
- *   - 'admin'            → full platform access
- *   - 'farmer'           → posts harvests, receives pooling proposals
- *   - 'logistics_partner'→ owns trucks/drivers, creates pooling jobs
- *   - 'driver'           → assigned to pooling jobs, streams GPS
- *
- * FLOW:
- *   User registers → admin verifies → role-specific dashboard loads
- *   Each role gets a separate profile model (FarmerProfile, etc.)
- * ═══════════════════════════════════════════════════════════════
+ *   - 'super_admin'        → platform access, verifies coops & buyers
+ *   - 'coop_admin'         → manages the cooperative's people & operations
+ *   - 'field_receiving'    → records receiving (weight/grade/price) at pickup
+ *   - 'delivery_personnel' → drives haul pickups and buyer deliveries
+ *   - 'farmer'             → submits haul requests, sees procurement
+ *   - 'buyer'              → orders crops from cooperatives
+ * ═══════════════════════════════════════════════════════════
  */
 class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, HasFarmerRelations, HasDriverRelations, HasLogisticsRelations, HasBuyerRelations;
+    use HasFactory, Notifiable, HasFarmerRelations, HasDriverRelations, HasBuyerRelations, HasLogisticsRelations;
 
-    /**
-     * Mass-assignable fields.
-     * `role` determines which dashboard/middleware applies.
-     * `status` = 'active' | 'inactive' — inactive users are force-logged out by EnsureAccountIsActive middleware.
-     */
     protected $fillable = [
         'name',
         'email',
@@ -50,9 +43,6 @@ class User extends Authenticatable implements MustVerifyEmail
         'cooperative_id',
     ];
 
-    /**
-     * Hidden from JSON serialization — never expose password, remember token, or OTP to API responses.
-     */
     protected $hidden = [
         'password',
         'remember_token',
@@ -60,11 +50,6 @@ class User extends Authenticatable implements MustVerifyEmail
         'email_otp_expires_at',
     ];
 
-    /**
-     * Automatic type casting.
-     * `password` → bcrypt hashed on write.
-     * `email_verified_at` → Carbon datetime object.
-     */
     protected function casts(): array
     {
         return [
@@ -74,15 +59,14 @@ class User extends Authenticatable implements MustVerifyEmail
         ];
     }
 
-    // ─────────────────────────────────────────────────────────
-    // RELATIONSHIPS
-    // Role-specific relations are provided by traits: HasFarmerRelations,
-    // HasDriverRelations, HasLogisticsRelations, HasBuyerRelations.
-    // ─────────────────────────────────────────────────────────
-
     public function cooperative()
     {
-        return $this->belongsTo(LogisticsProfile::class, 'cooperative_id');
+        return $this->belongsTo(Cooperative::class, 'cooperative_id');
+    }
+
+    public function coopAdminOf()
+    {
+        return $this->hasOne(Cooperative::class, 'coop_admin_user_id');
     }
 
     public function auditLogs()
@@ -90,13 +74,68 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(AuditLog::class, 'target_id');
     }
 
-    public function negotiations()
+    public function haulRequests()
     {
-        return $this->hasMany(\App\Models\Negotiation::class);
+        return $this->hasMany(HaulRequest::class, 'farmer_id');
     }
 
-    public function isBuyer()
+    public function receivingRecords()
     {
-        return $this->role === 'buyer';
+        return $this->hasMany(ReceivingRecord::class, 'farmer_id');
+    }
+
+    public function orders()
+    {
+        return $this->hasMany(BuyerOrder::class, 'buyer_id');
+    }
+
+    public function receivedMessages()
+    {
+        return $this->hasMany(Message::class, 'recipient_id');
+    }
+
+    public function sentMessages()
+    {
+        return $this->hasMany(Message::class, 'sender_id');
+    }
+
+    public function receivedUnreadMessages()
+    {
+        return $this->hasMany(Message::class, 'recipient_id')->whereNull('read_at');
+    }
+
+    public function isSuperAdmin(): bool
+    {
+        return $this->role === UserRole::SUPER_ADMIN->value;
+    }
+
+    public function isCoopAdmin(): bool
+    {
+        return $this->role === UserRole::COOP_ADMIN->value;
+    }
+
+    public function isFieldPersonnel(): bool
+    {
+        return $this->role === UserRole::FIELD_RECEIVING->value;
+    }
+
+    public function isDeliveryPersonnel(): bool
+    {
+        return $this->role === UserRole::DELIVERY_PERSONNEL->value;
+    }
+
+    public function isFarmer(): bool
+    {
+        return $this->role === UserRole::FARMER->value;
+    }
+
+    public function isBuyer(): bool
+    {
+        return $this->role === UserRole::BUYER->value;
+    }
+
+    public function roleLabel(): string
+    {
+        return UserRole::tryFrom($this->role)?->label() ?? ucfirst($this->role);
     }
 }

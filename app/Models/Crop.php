@@ -33,12 +33,6 @@ class Crop extends Model
         return $this->hasMany(CropVariety::class);
     }
 
-    // A crop has many harvest posts
-    public function harvests()
-    {
-        return $this->hasMany(Harvest::class);
-    }
-
     public function scopeActive($query)
     {
         return $query->where('status', 'active');

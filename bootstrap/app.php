@@ -18,16 +18,15 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->append(\App\Http\Middleware\EnsureSchedulerAlive::class);
 
         $middleware->alias([
-            'driver' => \App\Http\Middleware\EnsureUserIsDriver::class,
             'admin' => \App\Http\Middleware\EnsureUserIsAdmin::class,
+            'coop_admin' => \App\Http\Middleware\EnsureUserIsCoopAdmin::class,
+            'coop_admin.approved' => \App\Http\Middleware\EnsureUserIsApprovedCoopAdmin::class,
+            'field_personnel' => \App\Http\Middleware\EnsureUserIsFieldPersonnel::class,
+            'delivery' => \App\Http\Middleware\EnsureUserIsDeliveryPersonnel::class,
             'farmer' => \App\Http\Middleware\EnsureUserIsFarmer::class,
-            'logistics' => \App\Http\Middleware\EnsureUserIsLogistics::class,
-            'logistics.independent' => \App\Http\Middleware\EnsureIndependentLogistics::class,
             'buyer' => \App\Http\Middleware\EnsureUserIsBuyer::class,
             'role' => \App\Http\Middleware\CheckRole::class,
             'farmer.location' => \App\Http\Middleware\EnsureFarmerHasLocation::class,
-            'coop' => \App\Http\Middleware\EnsureCoopOperations::class,
-            'coop.buying' => \App\Http\Middleware\EnsureCoopBuyingAccess::class,
         ]);
     })->create();
 

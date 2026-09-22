@@ -47,6 +47,7 @@ class DriverWeatherTest extends TestCase
     private function createJob(User $logistics, User $driver, array $overrides = []): PoolingJob
     {
         $truck = Truck::create([
+            'cooperative_id' => \App\Models\Cooperative::factory(),
             'logistics_profile_id' => $logistics->logisticsProfile->id,
             'truck_name'           => 'Test Truck',
             'plate_number'         => 'ABC-1234',

@@ -32,6 +32,23 @@ $Snapshot = Join-Path $Root (Join-Path $OutDir 'release-snapshot.json')
 
 function Fail($msg) { Write-Host "ERROR: $msg" -ForegroundColor Red; exit 1 }
 
+# Packs a folder into a standard ZIP with forward-slash paths (no "./" prefixes, no
+# backslashes) so Hostinger's File Manager Extract always reads it correctly. The
+# Windows bsdtar "tar -a" zip format is NOT used - some panel extractors silently
+# drop those archives, producing an "empty" result.
+function Pack-StageToZip($SourceDir, $ZipPath) {
+    Add-Type -AssemblyName System.IO.Compression
+    Add-Type -AssemblyName System.IO.Compression.FileSystem
+    if (Test-Path $ZipPath) { Remove-Item $ZipPath -Force }
+    $zip = [System.IO.Compression.ZipFile]::Open($ZipPath, 'Create')
+    try {
+        Get-ChildItem $SourceDir -Recurse -File | ForEach-Object {
+            $rel = $_.FullName.Substring($SourceDir.Length + 1).Replace('\', '/')
+            [System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile($zip, $_.FullName, $rel, 'Optimal') | Out-Null
+        }
+    } finally { $zip.Dispose() }
+}
+
 if (-not (Test-Path (Join-Path $Root '.env'))) {
     Fail "No .env found at the project root - the build script must run from the project folder."
 }
@@ -81,7 +98,8 @@ $exFiles = @(
     '.gitignore','.gitattributes','.editorconfig',
     'vite.log','open-db.bat','scheduler.bat','start-dev.ps1',
     'opencode.json','skills-lock.json','.phpunit.result.cache',
-    'playwright.config.ts','phpunit.xml'
+    'playwright.config.ts','playwright.demo.config.ts','phpunit.xml',
+    '.rat.last.json'
 )
 
 Write-Host "==> Copying files (robocopy, multithreaded)..." -ForegroundColor Cyan
@@ -188,8 +206,7 @@ if ($Update) {
     $stamp = Get-Date -Format 'yyyyMMdd-HHmm'
     $upName = "harvesthaul-update-$stamp.zip"
     $upOut = Join-Path $Root (Join-Path $OutDir $upName)
-    & tar -a -c -f $upOut -C $upStage .
-    if ($LASTEXITCODE -ne 0) { Fail "tar failed packing the update." }
+    Pack-StageToZip $upStage $upOut
     Remove-Item $upStage -Recurse -Force
 
     $hasMigration = $changed | Where-Object { $_ -like 'database/migrations/*' }
@@ -206,8 +223,7 @@ if ($Update) {
     Write-Host "Remember: your database and the farmers' uploads are never touched by a code upload." -ForegroundColor DarkGray
 } else {
     Write-Host "==> Packing $ZipName ..." -ForegroundColor Cyan
-    & tar -a -c -f $OutFull -C $Stage .
-    if ($LASTEXITCODE -ne 0) { Fail "tar failed packing the release." }
+    Pack-StageToZip $Stage $OutFull
 
     $zipMB = [math]::Round(((Get-Item $OutFull).Length / 1MB), 1)
     Write-Host "" -ForegroundColor Cyan

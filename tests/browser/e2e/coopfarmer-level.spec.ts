@@ -51,7 +51,6 @@ const fixture = (name: string) => {
   if (!fs.existsSync(p)) fs.writeFileSync(p, PNG_1PX);
   return p;
 };
-const F_RECEIPT = fixture("receipt.png");
 const F_LOAD = fixture("load-photo.png");
 const F_DELIVERY = fixture("delivery-photo.png");
 
@@ -1017,8 +1016,15 @@ await finalizeDealWithRetry(lp, negId, f.rate);
       console.log("  [info] tracking ping:", JSON.stringify(ping));
 
       // Complete every available stop
+      //
+      // NOTE: pick-ups may be done in ANY order across farms, but deliveries are
+      // only allowed once EVERY stop is loaded (server-enforced gate). The driver
+      // therefore runs the route in two passes — first arrive+load every farm,
+      // then deliver each stop.
       let stopNo = 0;
       const stopPatch = /\/driver\/jobs\/\d+\/harvests\/\d+\/status/;
+
+      // Pass A — pickups: arrive + load each farm, any order.
       for (let attempt = 0; attempt < 6; attempt++) {
         const arrivedBtn = dp.getByRole("button", { name: /Mark Arrived at Pick-up/i }).first();
         let arrivedVisible = false;
@@ -1097,7 +1103,7 @@ await finalizeDealWithRetry(lp, negId, f.rate);
       }
     }, lp);
 
-    // ══════════════════════ STAGE 8 — COST LEDGER (UPLOAD → VERIFY → PAID) ══════════════════════
+    // ══════════════════════ STAGE 8 — SETTLEMENT (VIEW PAYOUT → COOP RECORDS NET) ══════════════════════
     let ledgerUrl = "";
     await tryStep("cost-ledger-index", async () => {
       await lp.goto("/pooling/cost-ledger/jobs");
@@ -1113,64 +1119,30 @@ await finalizeDealWithRetry(lp, negId, f.rate);
 
     for (const f of A.farmers) {
       const tag = f.crop.toLowerCase();
-      await tryStep(`farmer-upload-${tag}`, async () => {
+      await tryStep(`farmer-views-payout-${tag}`, async () => {
         await login(fp, f.email, f.password);
         await fp.goto(ledgerUrl);
         await fp.waitForLoadState("networkidle").catch(() => {});
-        const rowSelectors = [
-          `tr:has-text("${f.crop}")`,
-          `li:has-text("${f.crop}")`,
-        ];
-        let receiptInput: any = null;
-        for (const sel of rowSelectors) {
-          const candidate = fp.locator(`${sel} input[name='payment_receipt']`).first();
-          if (await candidate.count().catch(() => 0) > 0) { receiptInput = candidate; break; }
-        }
-        if (!receiptInput) {
-          const all = fp.locator(`input[name='payment_receipt']`);
-          const n = await all.count();
-          if (n === 0) throw new Error("No payment_receipt input found on ledger page");
-          const idx = A.farmers.indexOf(f) < n ? A.farmers.indexOf(f) : 0;
-          receiptInput = all.nth(idx);
-        }
-        await receiptInput.waitFor({ state: "attached", timeout: 20_000 });
-        await receiptInput.setInputFiles(F_RECEIPT);
-        await swalSubmit(fp, /\/upload-receipt/).catch(() => {});
-        await fp.waitForTimeout(1200);
-        await shot(fp, step(`receipt-uploaded-${tag}`), `${f.name} uploaded hauling payment receipt (${f.crop})`);
+        await fp.locator("text=/Net Payout|Crop Value|Hauling Fee/i").first().waitFor({ state: "visible", timeout: 20_000 });
+        await shot(fp, step(`farmer-payout-view-${tag}`), `${f.name} views net crop payout (${f.crop})`);
       }, fp);
     }
 
-    await tryStep("logistics-verify-paid", async () => {
+    await tryStep("logistics-record-payouts", async () => {
+      await login(lp, A.logistics.email, A.logistics.password);
       await lp.goto(ledgerUrl);
       await lp.waitForLoadState("networkidle").catch(() => {});
-      await shot(lp, step("cost-ledger-receipts-submitted"), "Stage 7 – Coop logistics reviews submitted receipts");
+      await shot(lp, step("cost-ledger-payout-rows"), "Stage 7 – Coop logistics sees net payout rows");
 
       for (const f of A.farmers) {
         const tag = f.crop.toLowerCase();
-        const amount = String(Math.round(parseFloat(f.qty) * parseFloat(f.rate)));
-        await lp.goto(ledgerUrl);
-        await lp.waitForLoadState("networkidle").catch(() => {});
-        const rowSelectors = [`tr:has-text("${f.crop}")`];
-        let amountInput: any = null;
-        for (const sel of rowSelectors) {
-          const candidate = lp.locator(`${sel} input[name='amount_paid']`).first();
-          if (await candidate.count().catch(() => 0) > 0) { amountInput = candidate; break; }
-        }
-        if (!amountInput) {
-          amountInput = lp.locator(`input[name='amount_paid']`).nth(A.farmers.indexOf(f));
-        }
-        await amountInput.waitFor({ state: "visible", timeout: 20_000 });
-        await amountInput.fill(amount);
-        const verifyBtn = amountInput
-          ? lp.locator(`tr:has-text("${f.crop}")`).getByRole("button", { name: /Verify Paid/i }).first()
-          : lp.getByRole("button", { name: /Verify Paid/i })
-              .filter({ hasText: f.crop }).first();
-        await verifyBtn.waitFor({ state: "visible", timeout: 20_000 });
-        await verifyBtn.click({ noWaitAfter: true });
-        await swalSubmit(lp, /\/mark-paid/);
-        await lp.waitForTimeout(1500);
-        await shot(lp, step(`payment-paid-${tag}`), `${f.crop} hauling payment marked PAID (₱${amount})`);
+        const row = lp.locator(`tr:has-text("${f.crop}")`).first();
+        const recordBtn = row.getByRole("button", { name: /Record Payout/i }).first();
+        await recordBtn.waitFor({ state: "visible", timeout: 20_000 });
+        await recordBtn.click({ noWaitAfter: true });
+        await swalSubmit(lp, /\/record-payout/);
+        await lp.waitForTimeout(1200);
+        await shot(lp, step(`payout-recorded-${tag}`), `${f.crop} net payout recorded (hauling deducted)`);
       }
     }, lp);
 

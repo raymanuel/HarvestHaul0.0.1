@@ -63,6 +63,13 @@ export const tomorrow = () => {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 };
 
+// The demo haul happens live, so posts carry today's date and the driver's
+// "start on the haul day" gate is satisfied.
+export const today = () => {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+};
+
 export async function login(page: Page, email: string, password: string) {
   await page.context().clearCookies();
   await page.goto("/login", { waitUntil: "domcontentloaded" });

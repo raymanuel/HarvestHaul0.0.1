@@ -36,6 +36,20 @@
         .font-display { font-family: 'Schibsted Grotesk', sans-serif; }
         .font-mono { font-family: 'JetBrains Mono', monospace; }
 
+        .hero-slide {
+            opacity: 0;
+            transform: scale(1);
+            transition: opacity 1.5s ease-in-out, transform 7s ease;
+        }
+        .hero-slide.is-active {
+            opacity: 1;
+            transform: scale(1.08);
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .hero-slide { opacity: 0; transition: none; transform: none; }
+            .hero-slide.is-active { opacity: 1; }
+        }
+
         .faq-content {
             display: grid;
             grid-template-rows: 0fr;
@@ -139,11 +153,28 @@
         </div>
     </header>
 
+    @php
+        $heroSlides = [
+            ['url' => asset('images/hero-bg.webp'), 'w' => 1024, 'h' => 1024, 'alt' => 'Lush farmlands of Mindanao'],
+            ['url' => asset('images/login-bg.webp'), 'alt' => 'Harvest farmlands in Mindanao'],
+            ['url' => asset('images/hero/slide-rice.jpg'), 'alt' => 'Farmers harvesting rice in lush paddy fields'],
+            ['url' => asset('images/hero/slide-produce.jpg'), 'alt' => 'Freshly harvested fruits and vegetables in a basket'],
+            ['url' => asset('images/hero/slide-truck.jpg'), 'alt' => 'Delivery truck on a rural highway'],
+            ['url' => asset('images/hero/slide-fields.jpg'), 'alt' => 'Aerial view of green agricultural fields'],
+        ];
+    @endphp
+
     <main>
         <!-- Hero -->
-        <section class="relative min-h-[90vh] flex items-center overflow-hidden">
+        <section id="hero" data-hero class="relative min-h-[90vh] flex items-center overflow-hidden">
         <div class="absolute inset-0">
-            <img src="{{ asset('images/hero-bg.webp') }}" alt="Lush farmlands of Mindanao" width="1024" height="1024" fetchpriority="high" decoding="async" class="w-full h-full object-cover">
+            @foreach ($heroSlides as $i => $slide)
+                <img src="{{ $slide['url'] }}" alt="{{ $slide['alt'] }}"
+                    @if (!empty($slide['w'])) width="{{ $slide['w'] }}" height="{{ $slide['h'] }}" @endif
+                    loading="{{ $i === 0 ? 'eager' : 'lazy' }}" fetchpriority="{{ $i === 0 ? 'high' : 'auto' }}" decoding="async"
+                    aria-hidden="{{ $i === 0 ? 'false' : 'true' }}"
+                    class="hero-slide absolute inset-0 w-full h-full object-cover @if($i === 0) is-active @endif">
+            @endforeach
             <div class="absolute inset-0 bg-gradient-to-r from-[#0E1620]/85 via-[#0E1620]/60 to-[#0E1620]/40"></div>
         </div>
 
@@ -173,6 +204,40 @@
                 </div>
             </div>
         </div>
+
+        <script>
+            (function () {
+                var hero = document.getElementById('hero');
+                if (!hero) return;
+                var slides = Array.prototype.slice.call(hero.querySelectorAll('.hero-slide'));
+                if (slides.length < 2) return;
+                if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+                var current = 0;
+                var interval = 2800;
+                var timer = null;
+
+                function show(i) {
+                    slides[current].classList.remove('is-active');
+                    current = i;
+                    slides[current].classList.add('is-active');
+                }
+
+                function next() {
+                    show((current + 1) % slides.length);
+                }
+
+                function start() {
+                    stop();
+                    timer = setInterval(next, interval);
+                }
+                function stop() {
+                    if (timer) { clearInterval(timer); timer = null; }
+                }
+
+                start();
+            })();
+        </script>
     </section>
 
     <!-- Sneak Peek -->
@@ -458,9 +523,6 @@
                 <button onclick="setRole('driver')" id="role-btn-driver" role="tab" aria-selected="false" aria-controls="role-driver" class="role-tab px-5 py-2.5 rounded-xl text-sm font-semibold bg-white text-[#17202B] border border-[#17202B]/10 hover:border-[#16283C]/30 transition">
                     Drivers
                 </button>
-                <button onclick="setRole('buyer')" id="role-btn-buyer" role="tab" aria-selected="false" aria-controls="role-buyer" class="role-tab px-5 py-2.5 rounded-xl text-sm font-semibold bg-white text-[#17202B] border border-[#17202B]/10 hover:border-[#16283C]/30 transition">
-                    Buyers
-                </button>
             </div>
 
             <!-- Farmer Panel -->
@@ -609,55 +671,6 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Buyer Panel -->
-            <div id="role-buyer" role="tabpanel" aria-labelledby="role-btn-buyer" class="role-panel hidden bg-[#F5F6F2] rounded-2xl border border-[#17202B]/5 overflow-hidden">
-                <div class="grid grid-cols-1 lg:grid-cols-2">
-                    <div class="p-8 sm:p-12 flex flex-col justify-center">
-                        <h3 class="text-2xl font-display text-[#17202B] mb-4">Buy crops with price data on your side</h3>
-                        <p class="text-[#5A6573] leading-relaxed mb-6">
-                            Browse farmer postings on the crop board, compare them against DA RFO12 government price benchmarks, and negotiate deals in a structured negotiation room. Track every purchase from farm to delivery.
-                        </p>
-                        <div class="flex flex-wrap gap-3">
-                            <span class="px-3 py-1.5 rounded-md bg-[#BFA05A]/15 text-[#7C6527] text-xs font-semibold">Crop Board</span>
-                            <span class="px-3 py-1.5 rounded-md bg-[#16283C]/10 text-[#16283C] text-xs font-semibold">DA RFO12 Benchmarks</span>
-                            <span class="px-3 py-1.5 rounded-md bg-[#16283C]/10 text-[#16283C] text-xs font-semibold">Live Delivery Tracking</span>
-                        </div>
-                    </div>
-                    <div class="bg-[#0E1620] flex items-center justify-center p-8 sm:p-12">
-                        <div class="text-center">
-                            <svg class="w-16 h-16 mx-auto mb-4" viewBox="0 0 64 64" fill="none" stroke-linecap="round" stroke-linejoin="round" style="filter: drop-shadow(1px 3px 3px rgba(0,0,0,0.35));">
-                                <defs>
-                                    <linearGradient id="rb-board" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="0%" stop-color="#D7BC7A"/>
-                                        <stop offset="100%" stop-color="#0E1620"/>
-                                    </linearGradient>
-                                    <radialGradient id="rb-bar" cx="35%" cy="30%" r="80%">
-                                        <stop offset="0%" stop-color="#FFFFFF"/>
-                                        <stop offset="100%" stop-color="#16283C"/>
-                                    </radialGradient>
-                                    <radialGradient id="rb-tag" cx="35%" cy="30%" r="80%">
-                                        <stop offset="0%" stop-color="#FFFFFF"/>
-                                        <stop offset="100%" stop-color="#BFA05A"/>
-                                    </radialGradient>
-                                </defs>
-                                <g stroke="#0E1620" stroke-width="1.5">
-                                    <rect x="8" y="14" width="34" height="36" rx="5" fill="url(#rb-board)"/>
-                                </g>
-                                <rect x="9.5" y="15.5" width="31" height="33" rx="3.5" fill="none" stroke="#FFFFFF" stroke-opacity="0.25" stroke-width="1.2"/>
-                                <rect x="14" y="34" width="5" height="10" rx="1.5" fill="url(#rb-bar)" opacity="0.85"/>
-                                <rect x="22" y="28" width="5" height="16" rx="1.5" fill="url(#rb-bar)" opacity="0.92"/>
-                                <rect x="30" y="22" width="5" height="22" rx="1.5" fill="url(#rb-bar)"/>
-                                <circle cx="16.5" cy="21.5" r="2.2" fill="#FFFFFF" opacity="0.55"/>
-                                <path d="M40 40 L54 26 L58 30 L44 44 L38 46 Z" fill="url(#rb-tag)"/>
-                                <path d="M42.5 41.5 L52 32" stroke="#FFFFFF" stroke-opacity="0.45" stroke-width="1.4"/>
-                                <circle cx="53" cy="27" r="1.6" fill="#FFFFFF" opacity="0.75"/>
-                            </svg>
-                            <p class="text-white/60 text-sm">Compare prices, negotiate, receive</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
     </section>
 <!-- FAQ -->
@@ -694,7 +707,7 @@
                         <span id="faq-icon-2" class="text-[#7C6527] font-bold text-lg transition-transform duration-300">+</span>
                     </button>
                     <div id="faq-2" class="faq-content px-6 pb-5">
-                        <p class="text-sm text-[#5A6573] leading-relaxed">No — registering is free. Accounts are open to farmers, buyers, and freight operators in General Santos City, Polomolok, and nearby areas, subject to admin verification.</p>
+                        <p class="text-sm text-[#5A6573] leading-relaxed">No — registering is free. Accounts are open to farmers, cooperatives, and freight operators in General Santos City, Polomolok, and nearby areas, subject to admin verification.</p>
                     </div>
                 </div>
 
@@ -752,9 +765,9 @@
                 <div class="bg-white rounded-2xl p-6 sm:p-8 border border-[#17202B]/5 flex items-start gap-5 scroll-reveal">
                     <div class="w-1.5 h-14 rounded-full bg-[#16283C] flex-shrink-0 mt-0.5"></div>
                     <div>
-                        <h3 class="text-lg font-bold text-[#17202B]">Buyers</h3>
+                        <h3 class="text-lg font-bold text-[#17202B]">Cooperatives</h3>
                         <p class="text-sm text-[#5A6573] mt-1 leading-relaxed max-w-2xl">
-                            Buy smarter with real market data. Browse DA RFO12 government price benchmarks alongside farmer listings. Track deals and deliveries with live GPS. Every purchase backed by market intelligence.
+                            Buy your members' crops using real market data. Browse DA RFO12 government price benchmarks alongside farmer listings. Track deals and deliveries with live GPS. Every purchase backed by market intelligence.
                         </p>
                     </div>
                 </div>
@@ -808,7 +821,7 @@
                                 <span class="font-mono text-sm font-bold text-[#7C6527] mt-0.5">01</span>
                                 <div>
                                     <p class="text-sm font-bold text-[#17202B]">Register your organization</p>
-                                    <p class="text-xs text-[#5A6573] mt-0.5 leading-relaxed">Create a farmer, buyer, or freight operator account with your details.</p>
+                                    <p class="text-xs text-[#5A6573] mt-0.5 leading-relaxed">Create a farmer, cooperative, or freight operator account with your details.</p>
                                 </div>
                             </div>
                             <div class="flex items-start gap-4">
@@ -877,7 +890,7 @@
 
         // Role tabs
         function setRole(role) {
-            const roles = ['farmer', 'logistics', 'driver', 'buyer'];
+            const roles = ['farmer', 'logistics', 'driver'];
             roles.forEach(r => {
                 const btn = document.getElementById(`role-btn-${r}`);
                 const panel = document.getElementById(`role-${r}`);

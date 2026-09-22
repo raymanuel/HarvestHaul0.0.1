@@ -13,7 +13,7 @@
     </button>
 
     {{-- Dropdown Menu --}}
-    <div id="notifications-dropdown-{{ $instance }}" class="hidden absolute right-0 mt-1 w-80 bg-white dark:bg-slate-800 border border-slate-200/85 dark:border-slate-700 rounded-2xl shadow-xl z-50 overflow-hidden">
+    <div id="notifications-dropdown-{{ $instance }}" class="hidden absolute right-0 mt-1 w-80 max-w-[calc(100vw-1.5rem)] bg-white dark:bg-slate-800 border border-slate-200/85 dark:border-slate-700 rounded-2xl shadow-xl z-50 overflow-hidden">
         <div class="px-4 py-3 bg-slate-50 dark:bg-slate-900/40 border-b border-slate-150 dark:border-slate-700/60 flex items-center justify-between">
             <span class="text-[10px] font-bold text-slate-700 dark:text-slate-400 uppercase tracking-wider">Notifications</span>
             <button onclick="markAllNotificationsAsRead()" class="text-[10px] text-[#16283C] dark:text-[#D7BC7A] font-bold hover:underline">Mark all read</button>
@@ -28,7 +28,17 @@
 <script>
     function toggleNotificationsDropdown(instance) {
         var dropdown = document.getElementById('notifications-dropdown-' + instance);
-        if (dropdown) dropdown.classList.toggle('hidden');
+        if (!dropdown) return;
+        var wasHidden = dropdown.classList.contains('hidden');
+        dropdown.style.right = '';
+        dropdown.classList.toggle('hidden');
+        if (wasHidden) {
+            var rect = dropdown.getBoundingClientRect();
+            if (rect.left < 8) {
+                dropdown.style.right = (8 - rect.left) + 'px';
+            }
+            dropdown.classList.remove('hidden');
+        }
     }
 
     // Close every notification dropdown when clicking outside all of them

@@ -35,6 +35,7 @@ class OutboundEtaDelayGateTest extends TestCase
             'status' => 'confirmed',
         ]);
         $truck = Truck::create([
+            'cooperative_id' => \App\Models\Cooperative::factory(),
             'logistics_profile_id' => $coop->logisticsProfile->id, 'truck_name' => 'T1',
             'plate_number' => 'AAA-111', 'capacity_kg' => 2000, 'status' => 'available',
         ]);
@@ -66,6 +67,7 @@ class OutboundEtaDelayGateTest extends TestCase
             'phone' => '09170000003',
         ]);
         $truck = Truck::create([
+            'cooperative_id' => \App\Models\Cooperative::factory(),
             'logistics_profile_id' => $coop->logisticsProfile->id, 'truck_name' => 'T1',
             'plate_number' => 'AAA-111', 'capacity_kg' => 2000, 'status' => 'available',
         ]);

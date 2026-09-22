@@ -166,6 +166,7 @@ class PoolingPlanAllRoutesTest extends TestCase
         $driver = User::factory()->driver()->create();
         DriverProfile::create([
             'user_id'           => $driver->id,
+            'cooperative_id'    => \App\Models\Cooperative::factory(),
             'partner_id'        => $fp->id,
             'license_no'        => 'DL-' . strtoupper(Str::random(8)),
             'employment_status' => 'active',

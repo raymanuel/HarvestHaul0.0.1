@@ -140,7 +140,6 @@ test("Full cooperative-farmer transaction (E2E walkthrough)", async ({ browser }
     if (!fs.existsSync(p)) fs.writeFileSync(p, PNG_1PX);
     return p;
   };
-  const F_RECEIPT = fixture("receipt.png");
   const F_LOAD = fixture("load-photo.png");
   const F_DELIVERY = fixture("delivery-photo.png");
 
@@ -667,33 +666,29 @@ test("Full cooperative-farmer transaction (E2E walkthrough)", async ({ browser }
       await shot(lp, step("cost-ledger-detail"), "Stage 7 – Cost ledger detail (unpaid)");
     }, lp);
 
-    await tryStep("24-farmer-uploads-receipt", async () => {
+    await tryStep("24-farmer-views-payout", async () => {
       const ledgerUrl = lp.url();
       await fp.goto(ledgerUrl);
       await fp.waitForLoadState("networkidle").catch(() => {});
-      const receiptInput = fp.locator("input[name='payment_receipt']").first();
-      await receiptInput.waitFor({ state: "attached", timeout: 20_000 });
-      await receiptInput.setInputFiles(F_RECEIPT);
-      await fp.waitForLoadState("networkidle").catch(() => {});
-      await shot(fp, step("receipt-uploaded"), "Stage 7 – Farmer uploads payment receipt");
+      await fp.locator("text=/Net Payout|Crop Value|Hauling Fee/i").first().waitFor({ state: "visible", timeout: 20_000 });
+      await shot(fp, step("farmer-payout-view"), "Stage 7 – Farmer views net payout (hauling deducted)");
     }, fp);
 
-    await tryStep("25-logistics-verify-paid", async () => {
+    await tryStep("25-logistics-record-payout", async () => {
       await lp.reload();
       await lp.waitForLoadState("networkidle").catch(() => {});
-      await shot(lp, step("cost-ledger-receipt"), "Stage 7 – Cooperative logistics reviews submitted receipt");
-      const amountInput = lp.locator("input[name='amount_paid']").first();
-      await amountInput.waitFor({ state: "visible", timeout: 20_000 });
-      await amountInput.fill("250");
-      await lp.getByRole("button", { name: /Verify Paid/i }).first().click({ noWaitAfter: true });
-      // POST-back re-renders the row as Completed/Paid; wait on DOM state, not navigation events
+      const recordBtn = lp.getByRole("button", { name: /Record Payout/i }).first();
+      await recordBtn.waitFor({ state: "visible", timeout: 20_000 });
+      await recordBtn.click({ noWaitAfter: true });
+      await lp.locator(".swal2-confirm").click({ noWaitAfter: true }).catch(() => {});
+      // POST-back re-renders the row as Settled; wait on DOM state, not navigation events
       await lp.waitForFunction(
-        () => !!document.body && !document.body.innerText.includes("Verify Paid"),
+        () => !!document.body && !document.body.innerText.includes("Record Payout"),
         undefined, { timeout: 45_000 }
       );
-      const paidBadge = await lp.locator("text=/Paid|Completed/i").count();
-      if (paidBadge === 0) throw new Error("Ledger does not show Paid/Completed after Verify Paid");
-      await shot(lp, step("payment-paid"), "Stage 7 – Payment verified (Paid)");
+      const settledBadge = await lp.locator("text=/Settled|Paid/i").count();
+      if (settledBadge === 0) throw new Error("Ledger does not show Settled after recording payout");
+      await shot(lp, step("payout-recorded"), "Stage 7 – Net payout recorded (hauling deducted)");
     }, lp);
 
     runLog.completedAt = new Date().toISOString();

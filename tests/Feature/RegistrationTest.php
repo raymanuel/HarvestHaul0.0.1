@@ -2,8 +2,8 @@
 
 namespace Tests\Feature;
 
-use App\Models\User;
 use App\Models\LogisticsProfile;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -37,7 +37,7 @@ class RegistrationTest extends TestCase
         ]);
     }
 
-    public function test_user_can_register_as_buyer(): void
+    public function test_user_cannot_register_as_buyer(): void
     {
         $response = $this->post('/register', [
             'name' => 'Test Buyer',
@@ -49,10 +49,10 @@ class RegistrationTest extends TestCase
             'accepted_terms' => '1',
         ]);
 
-        $response->assertRedirect();
-        $this->assertDatabaseHas('users', [
+        $response->assertStatus(302);
+        $response->assertSessionHasErrors('role');
+        $this->assertDatabaseMissing('users', [
             'email' => 'buyer@example.com',
-            'role' => 'buyer',
         ]);
     }
 

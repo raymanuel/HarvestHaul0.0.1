@@ -53,6 +53,7 @@ class OutboundTrackTest extends TestCase
         ]);
         $driver = User::factory()->driver()->create(['email_verified_at' => now()]);
         $truck = Truck::create([
+            'cooperative_id' => \App\Models\Cooperative::factory(),
             'logistics_profile_id' => $coop->logisticsProfile->id,
             'truck_name'           => 'T1',
             'plate_number'         => 'AAA-111',

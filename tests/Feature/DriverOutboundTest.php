@@ -52,6 +52,7 @@ class DriverOutboundTest extends TestCase
             'quantity_kg' => 150, 'rate_per_kg' => 20, 'subtotal' => 3000,
         ]);
         $truck = Truck::create([
+            'cooperative_id' => \App\Models\Cooperative::factory(),
             'logistics_profile_id' => $coop->logisticsProfile->id, 'truck_name' => 'T1',
             'plate_number' => 'AAA-111', 'capacity_kg' => 2000, 'status' => 'available',
         ]);

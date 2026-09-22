@@ -56,6 +56,7 @@ class TrackingControllerTest extends TestCase
         ]);
 
         $truck = \App\Models\Truck::create([
+            'cooperative_id' => \App\Models\Cooperative::factory(),
             'logistics_profile_id' => $logistics->logisticsProfile->id,
             'truck_name'           => 'Test Truck',
             'plate_number'         => 'ABC-1234',

@@ -74,6 +74,7 @@ class MultiBuyerPoolingTest extends TestCase
     private function createTruck(User $logisticsUser): Truck
     {
         return Truck::create([
+            'cooperative_id' => \App\Models\Cooperative::factory(),
             'logistics_profile_id' => $logisticsUser->logisticsProfile->id,
             'truck_name'           => 'Test Truck',
             'plate_number'         => 'ABC-1234',

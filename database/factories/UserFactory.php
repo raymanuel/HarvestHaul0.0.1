@@ -69,6 +69,27 @@ class UserFactory extends Factory
         ]);
     }
 
+    public function coopAdmin(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => \App\Models\UserRole::COOP_ADMIN->value,
+        ]);
+    }
+
+    public function deliveryPersonnel(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => \App\Models\UserRole::DELIVERY_PERSONNEL->value,
+        ]);
+    }
+
+    public function fieldReceiving(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => \App\Models\UserRole::FIELD_RECEIVING->value,
+        ]);
+    }
+
     public function inactive(): static
     {
         return $this->state(fn (array $attributes) => [

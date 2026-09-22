@@ -13,59 +13,26 @@ class LogisticsProfile extends Model
         'user_id',
         'company_name',
         'business_permit_no',
-        'cda_registration_no',
+        'contact_number',
+        'office_address',
         'phone',
         'is_verified',
+        'business_permit_verified',
         'logistics_type',
-        'office_address',
+        'cda_registration_no',
+        'default_hauling_rate',
         'latitude',
         'longitude',
-        'default_hauling_rate',
     ];
 
     protected $casts = [
-        'is_verified'    => 'boolean',
-        'logistics_type' => 'string',
-        'default_hauling_rate' => 'decimal:2',
+        'is_verified'             => 'boolean',
+        'business_permit_verified' => 'boolean',
+        'default_hauling_rate'    => 'decimal:2',
     ];
 
     public function user()
     {
         return $this->belongsTo(User::class);
-    }
-
-    public function drivers()
-    {
-        return $this->hasMany(DriverProfile::class, 'partner_id');
-    }
-
-    public function trucks()
-    {
-        return $this->hasMany(Truck::class);
-    }
-
-    public function haulIntents()
-    {
-        return $this->hasMany(HaulIntent::class);
-    }
-
-    public function availableTrucks()
-    {
-        return $this->hasMany(Truck::class)->where('status', 'available');
-    }
-
-    public function memberFarmers()
-    {
-        return $this->hasMany(FarmerProfile::class, 'cooperative_id');
-    }
-
-    public function isCooperative(): bool
-    {
-        return $this->logistics_type === 'cooperative';
-    }
-
-    public function isCompany(): bool
-    {
-        return $this->logistics_type === 'company';
     }
 }
