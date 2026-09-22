@@ -47,7 +47,9 @@ class CooperativeVerificationController extends Controller
 
         $this->log($request, $cooperative, 'approved', 'Cooperative approved and can now operate on the platform.');
 
-        Mail::to($cooperative->coopAdminUser->email)->send(new CooperativeStatusMail($cooperative, 'approved', null, $request->user()->name));
+        if ($cooperative->coopAdminUser) {
+            Mail::to($cooperative->coopAdminUser->email)->send(new CooperativeStatusMail($cooperative, 'approved', null, $request->user()->name));
+        }
 
         return back()->with('success', "{$cooperative->name} was approved. The cooperative admin can open their workspace and add people.");
     }
@@ -67,7 +69,9 @@ class CooperativeVerificationController extends Controller
 
         $this->log($request, $cooperative, 'rejected', 'Cooperative rejected. Reason: '.$data['rejection_reason']);
 
-        Mail::to($cooperative->coopAdminUser->email)->send(new CooperativeStatusMail($cooperative, 'rejected', $data['rejection_reason'], $request->user()->name));
+        if ($cooperative->coopAdminUser) {
+            Mail::to($cooperative->coopAdminUser->email)->send(new CooperativeStatusMail($cooperative, 'rejected', $data['rejection_reason'], $request->user()->name));
+        }
 
         return back()->with('success', "{$cooperative->name} was rejected. The applicant sees the reason and can register again with corrected documents.");
     }
@@ -87,7 +91,9 @@ class CooperativeVerificationController extends Controller
 
         $this->log($request, $cooperative, 'request_info', 'Requested more information: '.$data['admin_notes']);
 
-        Mail::to($cooperative->coopAdminUser->email)->send(new CooperativeStatusMail($cooperative, 'request_info', $data['admin_notes'], $request->user()->name));
+        if ($cooperative->coopAdminUser) {
+            Mail::to($cooperative->coopAdminUser->email)->send(new CooperativeStatusMail($cooperative, 'request_info', $data['admin_notes'], $request->user()->name));
+        }
 
         return back()->with('success', "More information was requested from {$cooperative->name}. It now shows as needing revision until they respond.");
     }
@@ -104,7 +110,9 @@ class CooperativeVerificationController extends Controller
 
         $this->log($request, $cooperative, 'reactivated', 'Cooperative reactivated after suspension.');
 
-        Mail::to($cooperative->coopAdminUser->email)->send(new CooperativeStatusMail($cooperative, 'reactivated', null, $request->user()->name));
+        if ($cooperative->coopAdminUser) {
+            Mail::to($cooperative->coopAdminUser->email)->send(new CooperativeStatusMail($cooperative, 'reactivated', null, $request->user()->name));
+        }
 
         return back()->with('success', "{$cooperative->name} was reactivated. Its admin and staff can operate again.");
     }
@@ -119,7 +127,9 @@ class CooperativeVerificationController extends Controller
 
         $this->log($request, $cooperative, 'suspended', 'Cooperative suspended from platform operations.');
 
-        Mail::to($cooperative->coopAdminUser->email)->send(new CooperativeStatusMail($cooperative, 'suspended', null, $request->user()->name));
+        if ($cooperative->coopAdminUser) {
+            Mail::to($cooperative->coopAdminUser->email)->send(new CooperativeStatusMail($cooperative, 'suspended', null, $request->user()->name));
+        }
 
         return back()->with('success', "{$cooperative->name} was suspended. Its admin and staff can no longer operate until you approve it again.");
     }

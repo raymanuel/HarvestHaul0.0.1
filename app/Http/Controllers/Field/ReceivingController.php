@@ -48,6 +48,7 @@ class ReceivingController extends Controller
     public function create(HaulJob $haulJob, HaulJobStop $stop)
     {
         $this->authorizeCoop($haulJob);
+        $this->authorizeStopBelongsToJob($stop, $haulJob);
 
         // A stop is receivable once it has been picked up.
         if ($stop->status !== HaulJobStop::STATUS_PICKED_UP) {
@@ -66,6 +67,7 @@ class ReceivingController extends Controller
     public function store(Request $request, HaulJob $haulJob, HaulJobStop $stop)
     {
         $this->authorizeCoop($haulJob);
+        $this->authorizeStopBelongsToJob($stop, $haulJob);
 
         if ($stop->status !== HaulJobStop::STATUS_PICKED_UP) {
             throw \Illuminate\Validation\ValidationException::withMessages([
@@ -143,6 +145,20 @@ class ReceivingController extends Controller
     {
         if ($haulJob->cooperative_id !== Auth::user()?->cooperative_id) {
             abort(403, 'This trip does not belong to your cooperative.');
+        }
+    }
+
+    /**
+     * {stop} is bound independently of {haulJob} by Laravel's route-model
+     * binding — nothing stops a request from pairing a stop ID that belongs
+     * to a different job (and thus potentially a different cooperative) with
+     * a {haulJob} the caller does legitimately own. authorizeCoop() alone
+     * only checks the job; this closes that gap.
+     */
+    private function authorizeStopBelongsToJob(HaulJobStop $stop, HaulJob $haulJob): void
+    {
+        if ($stop->haul_job_id !== $haulJob->id) {
+            abort(404);
         }
     }
 

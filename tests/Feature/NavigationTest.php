@@ -85,6 +85,19 @@ class NavigationTest extends TestCase
         $response->assertSee(route('admin.market-prices.index'), false);
     }
 
+    public function test_super_admin_sidebar_shows_messages(): void
+    {
+        // The messaging feature works for super_admin (messages.* sits under
+        // the plain 'auth' group, not any role-specific one) but had no
+        // sidebar entry — reachable only by typing the URL directly.
+        $admin = User::factory()->create(['role' => UserRole::SUPER_ADMIN->value, 'email_verified_at' => now()]);
+
+        $response = $this->actingAs($admin)->get(route('admin.dashboard'));
+
+        $response->assertOk();
+        $response->assertSee(route('messages.index'), false);
+    }
+
     public function test_coop_admin_without_cooperative_is_redirected_not_crashed(): void
     {
         // The coop_admin.approved middleware already redirects this case to

@@ -8,7 +8,7 @@
                     </div>
                     <h1 class="mt-4 text-lg font-bold text-slate-900">No cooperative application found</h1>
                     <p class="mt-2 text-sm text-slate-500">Your account isn't linked to a cooperative application yet. If you just registered as a cooperative, make sure you completed the cooperative details step.</p>
-                    <a href="{{ route('home') }}" class="mt-6 inline-flex items-center rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-700">Go to home</a>
+                    <a href="{{ route('welcome') }}" class="mt-6 inline-flex items-center rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-700">Go to home</a>
                 </div>
             @elseif($cooperative->isApproved())
                 <div class="px-6 py-12 text-center">

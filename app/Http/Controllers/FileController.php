@@ -34,8 +34,12 @@ class FileController extends Controller
         $user = Auth::user();
         $cooperative = Cooperative::findOrFail($id);
 
+        // Registration/KYC documents (rep ID, authorization letter, cert,
+        // bylaws) are admin-only — any coop-linked user (farmer, driver,
+        // field staff) previously passed this check just by sharing the
+        // same cooperative_id.
         $allowed = $user->isSuperAdmin()
-            || $user->cooperative_id === $cooperative->id;
+            || ($user->isCoopAdmin() && $user->cooperative_id === $cooperative->id);
 
         abort_unless($allowed, 403);
 

@@ -53,8 +53,12 @@ class MessageController extends Controller
             ->get();
 
         // Mark incoming messages from the conversation partner as read.
+        // Scoped to this thread's cooperative_id, same as $messages above —
+        // keeps this query consistent with the rest of the class rather than
+        // relying solely on the (sender_id, recipient_id) pair.
         Message::where('sender_id', $conversation->id)
             ->where('recipient_id', $user->id)
+            ->where('cooperative_id', $cooperativeId)
             ->where('read_at', null)
             ->update(['read_at' => now()]);
 
@@ -104,6 +108,7 @@ class MessageController extends Controller
 
         $unread = Message::where('sender_id', $conversation->id)
             ->where('recipient_id', $user->id)
+            ->where('cooperative_id', $cooperativeId)
             ->where('read_at', null)
             ->count();
 

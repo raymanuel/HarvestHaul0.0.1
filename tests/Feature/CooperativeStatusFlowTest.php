@@ -113,4 +113,60 @@ class CooperativeStatusFlowTest extends TestCase
 
         $response->assertStatus(422);
     }
+
+    /**
+     * coop_admin_user_id is nullable, and the demo seeder creates exactly
+     * this state (a cooperative with no linked admin). Every status-change
+     * action used to fatal on Mail::to($cooperative->coopAdminUser->email)
+     * after already committing the status change + audit log — a
+     * partially-applied crash, not a clean failure.
+     */
+    public function test_status_actions_do_not_crash_when_the_cooperative_has_no_linked_admin(): void
+    {
+        \Illuminate\Support\Facades\Mail::fake();
+        $admin = User::factory()->create(['role' => UserRole::SUPER_ADMIN->value]);
+
+        $cooperative = Cooperative::create([
+            'name' => 'No Admin Coop', 'type' => 'primary',
+            'contact_number' => '09171234567', 'official_email' => 'noadmin@example.com',
+            'status' => Cooperative::STATUS_PENDING,
+        ]);
+
+        $this->actingAs($admin)->post(route('admin.cooperatives.approve', $cooperative))->assertRedirect();
+        $this->assertDatabaseHas('cooperatives', ['id' => $cooperative->id, 'status' => Cooperative::STATUS_APPROVED]);
+
+        $cooperative->update(['status' => Cooperative::STATUS_SUSPENDED]);
+        $this->actingAs($admin)->post(route('admin.cooperatives.reactivate', $cooperative))->assertRedirect();
+
+        $this->actingAs($admin)->post(route('admin.cooperatives.suspend', $cooperative))->assertRedirect();
+
+        $cooperative->update(['status' => Cooperative::STATUS_PENDING]);
+        $this->actingAs($admin)->post(route('admin.cooperatives.reject', $cooperative), [
+            'rejection_reason' => 'Incomplete documents.',
+        ])->assertRedirect();
+
+        $cooperative->update(['status' => Cooperative::STATUS_PENDING]);
+        $this->actingAs($admin)->post(route('admin.cooperatives.request-info', $cooperative), [
+            'admin_notes' => 'Missing rep ID.',
+        ])->assertRedirect();
+
+        \Illuminate\Support\Facades\Mail::assertNothingSent();
+    }
+
+    /**
+     * The status page's empty-state link used to call route('home'), which
+     * doesn't exist (the landing page route is named 'welcome') — a
+     * guaranteed RouteNotFoundException for any coop_admin whose account
+     * isn't linked to a cooperative yet.
+     */
+    public function test_status_page_renders_when_admin_has_no_cooperative_at_all(): void
+    {
+        $coopAdmin = User::factory()->create(['role' => UserRole::COOP_ADMIN->value, 'cooperative_id' => null]);
+
+        $response = $this->actingAs($coopAdmin)->get(route('coop.status'));
+
+        $response->assertOk();
+        $response->assertSee('No cooperative application found');
+        $response->assertSee(route('welcome'), false);
+    }
 }

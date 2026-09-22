@@ -77,6 +77,13 @@ return [
                 'route_url' => 'admin.market-prices.index',
                 'tooltip' => 'Market Prices',
             ],
+            [
+                'label' => 'Messages',
+                'letter' => 'Ms',
+                'route' => 'messages.*',
+                'route_url' => 'messages.index',
+                'tooltip' => 'Messages',
+            ],
         ],
     ],
 

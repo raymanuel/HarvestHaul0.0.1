@@ -41,14 +41,34 @@
                             <td class="px-5 py-3"><x-badge :status="$user->status" dot /></td>
                             <td class="px-5 py-3 text-right">
                                 @unless($user->isSuperAdmin())
-                                    <form method="POST" action="{{ route('admin.users.status', $user) }}" id="user-status-{{ $user->id }}">
-                                        @csrf
-                                        <button type="button"
-                                            onclick="swalConfirm(document.getElementById('user-status-{{ $user->id }}'), {title:'{{ $user->status === 'active' ? 'Suspend Account' : 'Reactivate Account' }}', text:'{{ $user->status === 'active' ? 'Suspend '.$user->name.'? They can no longer sign in.' : 'Reactivate '.$user->name.'? They can sign in again.' }}', icon:'warning', confirmText:'{{ $user->status === 'active' ? 'Yes, suspend' : 'Yes, reactivate' }}', cancelText:'Cancel', confirmColor:'#ef4444'})"
-                                            class="px-3.5 py-2 rounded-xl text-[11px] font-bold border transition cursor-pointer {{ $user->status === 'active' ? 'bg-[var(--color-error-bg)] text-[var(--color-error-text)] border-[var(--color-error-border)]' : 'bg-[var(--color-success-bg)] text-[var(--color-success-text)] border-[var(--color-success-border)]' }}">
-                                            {{ $user->status === 'active' ? 'Suspend' : 'Reactivate' }}
-                                        </button>
-                                    </form>
+                                    <div class="flex justify-end gap-2">
+                                        <x-modal triggerLabel="Edit" triggerClass="px-3.5 py-2 rounded-xl text-[11px] font-bold border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition">
+                                            <h2 class="text-lg font-bold text-slate-900 dark:text-white mb-4">Edit {{ $user->name }}</h2>
+                                            <form method="POST" action="{{ route('admin.users.update', $user) }}" class="space-y-4">
+                                                @csrf
+                                                @method('PUT')
+                                                <x-input name="name" label="Full Name" :value="$user->name" required />
+                                                <x-input name="email" label="Email" type="email" :value="$user->email" required />
+                                                <x-input name="phone" label="Phone" :value="$user->phone" />
+                                                <x-select name="cooperative_id" label="Cooperative" placeholder="— None —"
+                                                    :options="$cooperatives->mapWithKeys(fn ($c) => [$c->id => $c->name])->all()"
+                                                    :value="$user->cooperative_id" />
+                                                <div class="flex justify-end gap-3 pt-1">
+                                                    <button type="button" data-modal-close class="px-4 py-2 rounded-lg text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">Cancel</button>
+                                                    <x-button variant="primary" size="sm">Save Changes</x-button>
+                                                </div>
+                                            </form>
+                                        </x-modal>
+
+                                        <form method="POST" action="{{ route('admin.users.status', $user) }}" id="user-status-{{ $user->id }}">
+                                            @csrf
+                                            <button type="button"
+                                                onclick="swalConfirm(document.getElementById('user-status-{{ $user->id }}'), {title:'{{ $user->status === 'active' ? 'Suspend Account' : 'Reactivate Account' }}', text:'{{ $user->status === 'active' ? 'Suspend '.$user->name.'? They can no longer sign in.' : 'Reactivate '.$user->name.'? They can sign in again.' }}', icon:'warning', confirmText:'{{ $user->status === 'active' ? 'Yes, suspend' : 'Yes, reactivate' }}', cancelText:'Cancel', confirmColor:'#ef4444'})"
+                                                class="px-3.5 py-2 rounded-xl text-[11px] font-bold border transition cursor-pointer {{ $user->status === 'active' ? 'bg-[var(--color-error-bg)] text-[var(--color-error-text)] border-[var(--color-error-border)]' : 'bg-[var(--color-success-bg)] text-[var(--color-success-text)] border-[var(--color-success-border)]' }}">
+                                                {{ $user->status === 'active' ? 'Suspend' : 'Reactivate' }}
+                                            </button>
+                                        </form>
+                                    </div>
                                 @endunless
                             </td>
                         </tr>
