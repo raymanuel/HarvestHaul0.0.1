@@ -66,6 +66,70 @@
                     <p class="text-sm text-slate-600 dark:text-slate-300">{{ $buyerOrder->rejection_reason }}</p>
                 </x-card>
             @endif
+
+            @if(! in_array($buyerOrder->status, ['submitted', 'under_review', 'rejected', 'cancelled'], true))
+                @php
+                    $paymentStatus = $buyerOrder->paymentStatus();
+                    $paymentBadge = ['pending' => ['pending', 'Payment Pending'], 'partial' => ['ready', 'Partially Paid'], 'paid' => ['active', 'Paid']][$paymentStatus];
+                    $balanceDue = $buyerOrder->balanceDue();
+                @endphp
+                <x-card class="mt-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <x-section-label title="Buyer Payment" width="w-20" />
+                        <x-badge :status="$paymentBadge[0]" :label="$paymentBadge[1]" dot />
+                    </div>
+
+                    @if($buyerOrder->payments->isEmpty())
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">No payments recorded yet.</p>
+                    @else
+                        <div class="overflow-x-auto mb-4">
+                            <table class="w-full text-left text-sm">
+                                <thead>
+                                    <tr class="border-b border-slate-200 dark:border-slate-700/70 text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                                        <th class="px-4 py-2">Date</th>
+                                        <th class="px-4 py-2">Method</th>
+                                        <th class="px-4 py-2">Reference</th>
+                                        <th class="px-4 py-2">Amount</th>
+                                        <th class="px-4 py-2">Recorded By</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                                    @foreach($buyerOrder->payments as $payment)
+                                        <tr>
+                                            <td class="px-4 py-2 text-slate-600 dark:text-slate-300">{{ $payment->paid_at?->format('M d, Y g:i A') }}</td>
+                                            <td class="px-4 py-2 text-slate-600 dark:text-slate-300">{{ ucwords(str_replace('_', ' ', $payment->method)) }}</td>
+                                            <td class="px-4 py-2 text-slate-600 dark:text-slate-300">{{ $payment->reference ?? '—' }}</td>
+                                            <td class="px-4 py-2 font-semibold text-slate-800 dark:text-slate-100">₱{{ number_format($payment->amount, 2) }}</td>
+                                            <td class="px-4 py-2 text-slate-600 dark:text-slate-300">{{ $payment->recorder?->name ?? '—' }}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @endif
+
+                    @if($balanceDue > 0)
+                        <form method="POST" action="{{ route('coop.buyer-orders.payments.store', $buyerOrder) }}" class="space-y-4 pt-4 border-t border-slate-100 dark:border-slate-700/60">
+                            @csrf
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <x-input name="amount" type="number" step="0.01" label="Amount (₱)" required placeholder="up to {{ number_format($balanceDue, 2) }}" />
+                                <div>
+                                    <label for="method" class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Method</label>
+                                    <select name="method" id="method" required class="w-full border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm bg-slate-50/50 dark:bg-slate-700/50 text-slate-800 dark:text-white">
+                                        <option value="cash">Cash</option>
+                                        <option value="bank_transfer">Bank Transfer</option>
+                                        <option value="e_wallet">E-Wallet</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <x-input name="reference" label="Reference (optional)" placeholder="e.g. BT-928381" />
+                            <div class="flex justify-end">
+                                <x-button variant="primary" size="sm">Record Payment</x-button>
+                            </div>
+                        </form>
+                    @endif
+                </x-card>
+            @endif
         </div>
     </div>
 </x-layout>

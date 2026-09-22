@@ -19,6 +19,18 @@
                 <div><dt class="text-xs font-bold uppercase tracking-wider text-slate-400">Total</dt><dd class="mt-0.5 font-bold text-slate-800 dark:text-slate-200">₱{{ number_format($buyerOrder->total_amount, 2) }}</dd></div>
                 <div><dt class="text-xs font-bold uppercase tracking-wider text-slate-400">Quantity</dt><dd class="mt-0.5 text-slate-800 dark:text-slate-200">{{ number_format($buyerOrder->total_kg, 2) }} kg</dd></div>
                 <div><dt class="text-xs font-bold uppercase tracking-wider text-slate-400">Preferred Delivery</dt><dd class="mt-0.5 text-slate-800 dark:text-slate-200">{{ $buyerOrder->preferred_delivery_date?->format('M d, Y') ?? 'No preference' }}</dd></div>
+                @if(! in_array($buyerOrder->status, ['submitted', 'under_review', 'rejected', 'cancelled'], true))
+                    @php $paymentStatus = $buyerOrder->paymentStatus(); @endphp
+                    <div>
+                        <dt class="text-xs font-bold uppercase tracking-wider text-slate-400">Payment</dt>
+                        <dd class="mt-0.5 text-slate-800 dark:text-slate-200">
+                            {{ ['pending' => 'Pending', 'partial' => 'Partially Paid', 'paid' => 'Paid'][$paymentStatus] }}
+                            @if($paymentStatus !== 'paid')
+                                · Balance ₱{{ number_format($buyerOrder->balanceDue(), 2) }}
+                            @endif
+                        </dd>
+                    </div>
+                @endif
                 <div class="col-span-2"><dt class="text-xs font-bold uppercase tracking-wider text-slate-400">Delivery Location</dt><dd class="mt-0.5 text-slate-800 dark:text-slate-200">{{ $buyerOrder->delivery_address }}</dd></div>
             </dl>
             @if($buyerOrder->notes)

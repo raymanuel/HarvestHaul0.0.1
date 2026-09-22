@@ -53,7 +53,7 @@ class OrderController extends Controller
     public function showOrder(BuyerOrder $buyerOrder)
     {
         $this->authorizeBuyer($buyerOrder);
-        $buyerOrder->load(['cooperative', 'items.crop', 'items.cropGrade', 'stop']);
+        $buyerOrder->load(['cooperative', 'items.crop', 'items.cropGrade', 'stop', 'payments']);
 
         return view('buyer.orders.show', compact('buyerOrder'));
     }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Coop;
 use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
 use App\Models\BuyerOrder;
+use App\Models\BuyerPayment;
 use App\Models\CropAvailability;
 use App\Models\Notification;
 use Illuminate\Http\Request;
@@ -42,7 +43,7 @@ class BuyerOrderController extends Controller
             $buyerOrder->update(['status' => BuyerOrder::STATUS_UNDER_REVIEW]);
         }
 
-        $buyerOrder->load(['buyer', 'items.crop', 'items.cropGrade', 'items.availability']);
+        $buyerOrder->load(['buyer', 'items.crop', 'items.cropGrade', 'items.availability', 'payments.recorder']);
 
         return view('coop.buyer-orders.show', compact('buyerOrder'));
     }
@@ -135,6 +136,62 @@ class BuyerOrderController extends Controller
 
         return redirect()->route('coop.buyer-orders.index')
             ->with('success', "Order {$buyerOrder->reference} rejected.");
+    }
+
+    public function recordPayment(Request $request, BuyerOrder $buyerOrder)
+    {
+        $this->authorizeCoop($buyerOrder);
+
+        if (in_array($buyerOrder->status, [BuyerOrder::STATUS_SUBMITTED, BuyerOrder::STATUS_UNDER_REVIEW, BuyerOrder::STATUS_REJECTED, BuyerOrder::STATUS_CANCELLED], true)) {
+            throw ValidationException::withMessages([
+                'order' => 'Accept the order before recording a payment.',
+            ]);
+        }
+
+        $balanceDue = $buyerOrder->balanceDue();
+        if ($balanceDue <= 0) {
+            throw ValidationException::withMessages([
+                'order' => 'This order is already fully paid.',
+            ]);
+        }
+
+        $data = $request->validate([
+            'amount'    => ['required', 'numeric', 'min:0.01', 'max:'.$balanceDue],
+            'method'    => ['required', 'in:'.implode(',', [BuyerPayment::METHOD_CASH, BuyerPayment::METHOD_BANK_TRANSFER, BuyerPayment::METHOD_E_WALLET])],
+            'reference' => 'nullable|string|max:100',
+            'remarks'   => 'nullable|string|max:500',
+        ]);
+
+        $payment = BuyerPayment::create([
+            'buyer_order_id' => $buyerOrder->id,
+            'cooperative_id' => $buyerOrder->cooperative_id,
+            'amount'         => $data['amount'],
+            'method'         => $data['method'],
+            'reference'      => $data['reference'] ?? null,
+            'paid_at'        => now(),
+            'recorded_by'    => Auth::id(),
+            'remarks'        => $data['remarks'] ?? null,
+        ]);
+
+        AuditLog::create([
+            'admin_id'    => Auth::id(),
+            'action'      => 'record_buyer_payment',
+            'target_type' => 'buyer_order',
+            'target_id'   => $buyerOrder->id,
+            'notes'       => "Payment of ₱".number_format($payment->amount, 2)." ({$data['method']}) recorded for order {$buyerOrder->reference}.",
+        ]);
+
+        $newBalance = $buyerOrder->fresh()->balanceDue();
+        Notification::create([
+            'user_id'  => $buyerOrder->buyer_id,
+            'title'    => 'Payment received',
+            'message'  => "Your cooperative recorded a payment of ₱".number_format($payment->amount, 2)." for order {$buyerOrder->reference}. Remaining balance: ₱".number_format($newBalance, 2).'.',
+            'link'     => route('buyer.orders.show', $buyerOrder),
+            'category' => 'buyer_order',
+        ]);
+
+        return redirect()->route('coop.buyer-orders.show', $buyerOrder)
+            ->with('success', 'Payment recorded.');
     }
 
     private function cooperativeId(): int

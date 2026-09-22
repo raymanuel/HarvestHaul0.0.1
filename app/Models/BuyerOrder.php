@@ -62,6 +62,32 @@ class BuyerOrder extends Model
         return $this->hasOne(HaulJobStop::class);
     }
 
+    public function payments()
+    {
+        return $this->hasMany(BuyerPayment::class);
+    }
+
+    public function totalPaid(): float
+    {
+        return (float) $this->payments()->sum('amount');
+    }
+
+    public function balanceDue(): float
+    {
+        return round((float) $this->total_amount - $this->totalPaid(), 2);
+    }
+
+    /** 'pending'|'partial'|'paid' — a payment status separate from the order's fulfillment status. */
+    public function paymentStatus(): string
+    {
+        $paid = $this->totalPaid();
+        if ($paid <= 0) {
+            return 'pending';
+        }
+
+        return $paid >= (float) $this->total_amount ? 'paid' : 'partial';
+    }
+
     public function scopeForBuyer($query, $buyerId)
     {
         return $query->where('buyer_id', $buyerId);

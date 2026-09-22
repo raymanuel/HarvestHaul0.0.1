@@ -329,6 +329,9 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
                 Route::post('/{buyerOrder}/accept', [CoopBuyerOrderController::class, 'accept'])
                     ->middleware('throttle:30,1')
                     ->name('accept');
+                Route::post('/{buyerOrder}/payments', [CoopBuyerOrderController::class, 'recordPayment'])
+                    ->middleware('throttle:30,1')
+                    ->name('payments.store');
                 Route::post('/{buyerOrder}/reject', [CoopBuyerOrderController::class, 'reject'])
                     ->middleware('throttle:30,1')
                     ->name('reject');
