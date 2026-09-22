@@ -1,5 +1,6 @@
 <x-layout title="Farmer Membership — Cooperative">
     <x-page-header title="Farmer Membership" :showDate="true">
+        <a href="{{ route('coop.farmers.import') }}" class="px-4 py-2 rounded-xl text-xs font-bold border-2 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:border-brand-700/40 transition">Import Farmers</a>
         <a href="{{ route('coop.farmers.create') }}" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-900 text-white dark:bg-white dark:text-slate-900 hover:opacity-90 transition">Add Farmer</a>
     </x-page-header>
 

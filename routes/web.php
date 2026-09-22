@@ -231,6 +231,11 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
                 Route::get('/', [FarmerManagementController::class, 'index'])->name('index');
                 Route::get('/create', [FarmerManagementController::class, 'create'])->name('create');
                 Route::post('/', [FarmerManagementController::class, 'store'])->name('store');
+                Route::get('/import', [FarmerManagementController::class, 'importForm'])->name('import');
+                Route::post('/import', [FarmerManagementController::class, 'import'])
+                    ->middleware('throttle:10,1')
+                    ->name('import.store');
+                Route::get('/import/template', [FarmerManagementController::class, 'template'])->name('import.template');
                 Route::get('/{user}', [FarmerManagementController::class, 'show'])->name('show');
                 Route::get('/{user}/edit', [FarmerManagementController::class, 'edit'])->name('edit');
                 Route::put('/{user}', [FarmerManagementController::class, 'update'])->name('update');

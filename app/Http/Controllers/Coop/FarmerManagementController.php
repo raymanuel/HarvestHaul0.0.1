@@ -14,6 +14,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
@@ -75,7 +77,7 @@ class FarmerManagementController extends Controller
         Notification::create([
             'user_id'  => $user->id,
             'title'    => 'Cooperative membership approved',
-            'message'  => 'Welcome aboard. Your cooperative has approved your membership — you can now submit harvest pickup requests from your farmer dashboard.',
+            'message'  => 'Welcome aboard. Your cooperative has approved your membership, so you can now submit harvest pickup requests from your farmer dashboard.',
             'link'     => route('farmer.dashboard'),
             'category' => 'membership',
         ]);
@@ -224,6 +226,141 @@ class FarmerManagementController extends Controller
         ]);
 
         return redirect()->route('coop.farmers.show', $user)->with('success', "{$user->name} was added to your cooperative.");
+    }
+
+    /**
+     * Bulk Farmer Import (3.4) — onboard many existing farmers at once from
+     * a CSV, instead of the coop admin filling in one form per farmer.
+     */
+    public function importForm()
+    {
+        return view('coop.farmers.import');
+    }
+
+    public function template()
+    {
+        $csv = "name,email,phone,farm_location,latitude,longitude\n"
+            ."Juan Dela Cruz,juan.delacruz@example.com,09171234567,Barangay Fatima,6.1164,125.1716\n";
+
+        return response($csv, 200, [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="farmer-import-template.csv"',
+        ]);
+    }
+
+    public function import(Request $request)
+    {
+        $cooperativeId = Auth::user()?->cooperative_id;
+        if (! $cooperativeId) {
+            abort(403, 'You are not an active cooperative admin.');
+        }
+
+        $request->validate([
+            'file' => 'required|file|mimes:csv,txt|max:2048',
+        ]);
+
+        $handle = fopen($request->file('file')->getRealPath(), 'r');
+        $header = fgetcsv($handle);
+
+        if (! $header) {
+            fclose($handle);
+
+            return back()->with('error', 'The uploaded file is empty or not a valid CSV.');
+        }
+
+        $header = array_map(fn ($h) => strtolower(trim((string) $h)), $header);
+
+        $created = 0;
+        $skipped = [];
+        $seenEmails = [];
+        $rowNumber = 1;
+
+        while (($row = fgetcsv($handle)) !== false) {
+            $rowNumber++;
+
+            if (count(array_filter($row, fn ($v) => trim((string) $v) !== '')) === 0) {
+                continue;
+            }
+
+            $row = array_slice(array_pad($row, count($header), null), 0, count($header));
+            $data = array_combine($header, $row);
+
+            $name = trim((string) ($data['name'] ?? ''));
+            $email = strtolower(trim((string) ($data['email'] ?? '')));
+            $phone = trim((string) ($data['phone'] ?? '')) ?: null;
+            $farmLocation = trim((string) ($data['farm_location'] ?? '')) ?: null;
+            $latitude = is_numeric($data['latitude'] ?? null) ? (float) $data['latitude'] : null;
+            $longitude = is_numeric($data['longitude'] ?? null) ? (float) $data['longitude'] : null;
+
+            $error = match (true) {
+                $name === '' => 'Missing name.',
+                $email === '' || ! filter_var($email, FILTER_VALIDATE_EMAIL) => 'Missing or invalid email.',
+                isset($seenEmails[$email]) => 'Duplicate email within this file.',
+                User::where('email', $email)->exists() => 'Email already registered.',
+                $latitude !== null && ($latitude < -90 || $latitude > 90) => 'Latitude out of range.',
+                $longitude !== null && ($longitude < -180 || $longitude > 180) => 'Longitude out of range.',
+                default => null,
+            };
+
+            if ($error) {
+                $skipped[] = ['row' => $rowNumber, 'email' => $email ?: '(none)', 'reason' => $error];
+
+                continue;
+            }
+
+            $seenEmails[$email] = true;
+
+            DB::transaction(function () use ($name, $email, $phone, $farmLocation, $latitude, $longitude, $cooperativeId) {
+                $user = User::create([
+                    'name'              => $name,
+                    'email'             => $email,
+                    'password'          => Hash::make(Str::random(32)),
+                    'role'              => UserRole::FARMER->value,
+                    'status'            => 'active',
+                    'phone'             => $phone,
+                    'affiliation_type'  => 'cooperative',
+                    'cooperative_id'    => $cooperativeId,
+                    'email_verified_at' => now(),
+                ]);
+
+                FarmerProfile::create([
+                    'user_id'                 => $user->id,
+                    'phone'                   => $phone,
+                    'farm_location'           => $farmLocation,
+                    'latitude'                => $latitude,
+                    'longitude'               => $longitude,
+                    'affiliation_type'        => 'cooperative',
+                    'cooperative_id'          => $cooperativeId,
+                    'membership_status'       => 'approved',
+                    'membership_requested_at' => now(),
+                    'membership_decided_at'   => now(),
+                    'is_verified'             => true,
+                ]);
+
+                try {
+                    Password::sendResetLink(['email' => $user->email]);
+                } catch (\Throwable $e) {
+                    // Non-fatal — the farmer record is still created; the coop
+                    // admin can trigger "forgot password" for them manually.
+                }
+            });
+
+            $created++;
+        }
+
+        fclose($handle);
+
+        AuditLog::create([
+            'admin_id'    => Auth::id(),
+            'action'      => 'bulk_import_farmers',
+            'target_type' => 'cooperative',
+            'target_id'   => $cooperativeId,
+            'notes'       => "Bulk-imported {$created} farmer(s)".(count($skipped) ? ', '.count($skipped).' row(s) skipped.' : '.'),
+        ]);
+
+        return redirect()->route('coop.farmers.import')
+            ->with('success', "{$created} farmer(s) imported.".(count($skipped) ? ' '.count($skipped).' row(s) skipped, see details below.' : ''))
+            ->with('importSkipped', $skipped);
     }
 
     /**
