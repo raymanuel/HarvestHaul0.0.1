@@ -8,12 +8,15 @@ use App\Models\FarmerProfile;
 use App\Models\Notification;
 use App\Models\User;
 use App\Models\UserRole;
+use App\Traits\GeometryHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 
 class CooperativeMembershipController extends Controller
 {
+    use GeometryHelper;
+
     /**
      * A self-registered farmer has no cooperative yet. This is the request
      * side of the membership queue Coop\FarmerManagementController::index()
@@ -31,8 +34,16 @@ class CooperativeMembershipController extends Controller
         }
 
         $cooperatives = Cooperative::where('status', Cooperative::STATUS_APPROVED)
-            ->orderBy('name')
-            ->get();
+            ->withCount('memberFarmers')
+            ->get()
+            ->each(function (Cooperative $coop) use ($profile) {
+                $coop->distance_km = ($profile?->latitude !== null && $profile?->longitude !== null
+                        && $coop->latitude !== null && $coop->longitude !== null)
+                    ? $this->haversine((float) $profile->latitude, (float) $profile->longitude, (float) $coop->latitude, (float) $coop->longitude)
+                    : null;
+            })
+            ->sortBy(fn (Cooperative $coop) => sprintf('%020.6f', $coop->distance_km ?? PHP_FLOAT_MAX))
+            ->values();
 
         return view('farmer.cooperative-membership.create', compact('cooperatives'));
     }

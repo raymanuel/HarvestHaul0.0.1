@@ -89,4 +89,43 @@ class CooperativeMembershipTest extends TestCase
         $this->assertSame('independent', $farmer->farmerProfile->affiliation_type);
         $this->assertFalse($farmer->farmerProfile->isCooperativeMember());
     }
+
+    public function test_create_page_lists_cooperatives_nearest_first_with_member_count(): void
+    {
+        $farmer = $this->farmer();
+        $farmer->farmerProfile->update(['latitude' => 7.0, 'longitude' => 125.0]);
+
+        $near = Cooperative::factory()->approved()->create(['latitude' => 7.01, 'longitude' => 125.01]);
+        $far = Cooperative::factory()->approved()->create(['latitude' => 8.5, 'longitude' => 126.5]);
+
+        $member = $this->farmer();
+        $member->farmerProfile->update([
+            'cooperative_id' => $near->id,
+            'membership_status' => 'approved',
+            'affiliation_type' => 'cooperative',
+        ]);
+
+        $response = $this->actingAs($farmer)->get(route('farmer.join-cooperative.create'));
+
+        $response->assertOk();
+        $coops = $response->viewData('cooperatives');
+
+        $this->assertSame($near->id, $coops->first()->id);
+        $this->assertSame(1, $coops->firstWhere('id', $near->id)->member_farmers_count);
+        $this->assertSame(0, $coops->firstWhere('id', $far->id)->member_farmers_count);
+        $response->assertSee($near->name);
+        $response->assertSee($far->name);
+        $response->assertSee('Members');
+        $response->assertSee('Distance');
+    }
+
+    public function test_create_page_shows_empty_state_when_no_cooperatives(): void
+    {
+        $farmer = $this->farmer();
+
+        $response = $this->actingAs($farmer)->get(route('farmer.join-cooperative.create'));
+
+        $response->assertOk();
+        $response->assertSee('No cooperatives available yet');
+    }
 }
