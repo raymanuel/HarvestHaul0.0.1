@@ -21,13 +21,29 @@ class ProfileController extends Controller
         return view('profile.show', compact('user'));
     }
 
+    /**
+     * Name/phone save without a password, same as always. If the email in the
+     * same submit differs from the current one (case-insensitive — changing
+     * only case isn't really "changing your email"), that's sensitive enough
+     * to need the password too, and — same as at registration — the new
+     * address must be re-verified via OTP before the rest of the app unlocks
+     * again. The user keeps access to their own profile page in the
+     * meantime; profile.* routes sit outside the 'verified' middleware group.
+     * The frontend only shows the password field (as a popup) when it
+     * detects the email actually changed — this validates that server-side
+     * regardless of what the client sent.
+     */
     public function update(Request $request)
     {
         $user = $request->user();
+        $emailChanging = $request->filled('email')
+            && strtolower($request->input('email')) !== strtolower($user->email);
 
         $data = $request->validate([
             'name' => 'required|string|max:255',
             'phone' => 'nullable|string|max:20',
+            'email' => 'nullable|email|max:255|unique:users,email,'.$user->id,
+            'password' => ['nullable', Rule::requiredIf($emailChanging), 'current_password'],
         ]);
 
         $user->update([
@@ -35,24 +51,9 @@ class ProfileController extends Controller
             'phone' => $data['phone'] ?? null,
         ]);
 
-        return back()->with('success', 'Your profile details were saved.');
-    }
-
-    /**
-     * Changing the email is sensitive (it's also the login identifier), so it
-     * gets its own password-gated form and — same as at registration — the
-     * new address must be re-verified via OTP before the rest of the app
-     * unlocks again. The user keeps access to their own profile page in the
-     * meantime; profile.* routes sit outside the 'verified' middleware group.
-     */
-    public function updateEmail(Request $request)
-    {
-        $user = $request->user();
-
-        $data = $request->validate([
-            'email' => 'required|email|max:255|unique:users,email,'.$user->id,
-            'password' => 'required|current_password',
-        ]);
+        if (! $emailChanging) {
+            return back()->with('success', 'Your profile details were saved.');
+        }
 
         $otp = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
 

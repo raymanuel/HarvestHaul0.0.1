@@ -31,8 +31,8 @@ class SecurityHeaders
         $response->headers->set(
             'Content-Security-Policy',
             "default-src 'self'; " .
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com https://cdn.jsdelivr.net{$devAsset}; " .
-            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com{$devAsset}; " .
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com{$devAsset}; " .
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com https://cdnjs.cloudflare.com{$devAsset}; " .
             "img-src 'self' data: https:; " .
             "font-src 'self' data: https://fonts.gstatic.com; " .
             "connect-src 'self' ws: wss: https:{$devAsset}; " .

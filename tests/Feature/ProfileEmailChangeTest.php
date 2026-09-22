@@ -16,7 +16,9 @@ class ProfileEmailChangeTest extends TestCase
         Mail::fake();
         $user = User::factory()->create(['email' => 'old@example.com']);
 
-        $response = $this->actingAs($user)->put(route('profile.email'), [
+        $response = $this->actingAs($user)->put(route('profile.update'), [
+            'name' => $user->name,
+            'phone' => $user->phone,
             'email' => 'new@example.com',
         ]);
 
@@ -29,7 +31,9 @@ class ProfileEmailChangeTest extends TestCase
         Mail::fake();
         $user = User::factory()->create(['email' => 'old@example.com']);
 
-        $response = $this->actingAs($user)->put(route('profile.email'), [
+        $response = $this->actingAs($user)->put(route('profile.update'), [
+            'name' => $user->name,
+            'phone' => $user->phone,
             'email' => 'new@example.com',
             'password' => 'wrong-password',
         ]);
@@ -43,7 +47,9 @@ class ProfileEmailChangeTest extends TestCase
         Mail::fake();
         $user = User::factory()->create(['email' => 'old@example.com', 'email_verified_at' => now()]);
 
-        $response = $this->actingAs($user)->put(route('profile.email'), [
+        $response = $this->actingAs($user)->put(route('profile.update'), [
+            'name' => $user->name,
+            'phone' => $user->phone,
             'email' => 'new@example.com',
             'password' => 'password',
         ]);
@@ -61,7 +67,9 @@ class ProfileEmailChangeTest extends TestCase
         Mail::fake();
         $user = User::factory()->create(['email' => 'old@example.com', 'email_verified_at' => now()]);
 
-        $this->actingAs($user)->put(route('profile.email'), [
+        $this->actingAs($user)->put(route('profile.update'), [
+            'name' => $user->name,
+            'phone' => $user->phone,
             'email' => 'new@example.com',
             'password' => 'password',
         ]);
@@ -77,7 +85,9 @@ class ProfileEmailChangeTest extends TestCase
         Mail::fake();
         $user = User::factory()->create(['email' => 'old@example.com', 'email_verified_at' => now()]);
 
-        $this->actingAs($user)->put(route('profile.email'), [
+        $this->actingAs($user)->put(route('profile.update'), [
+            'name' => $user->name,
+            'phone' => $user->phone,
             'email' => 'new@example.com',
             'password' => 'password',
         ]);
@@ -94,7 +104,9 @@ class ProfileEmailChangeTest extends TestCase
         User::factory()->create(['email' => 'taken@example.com']);
         $user = User::factory()->create(['email' => 'old@example.com']);
 
-        $response = $this->actingAs($user)->put(route('profile.email'), [
+        $response = $this->actingAs($user)->put(route('profile.update'), [
+            'name' => $user->name,
+            'phone' => $user->phone,
             'email' => 'taken@example.com',
             'password' => 'password',
         ]);
@@ -103,17 +115,34 @@ class ProfileEmailChangeTest extends TestCase
         $this->assertDatabaseHas('users', ['id' => $user->id, 'email' => 'old@example.com']);
     }
 
-    public function test_name_and_phone_update_still_needs_no_password(): void
+    public function test_name_and_phone_update_with_the_same_email_still_needs_no_password(): void
     {
-        $user = User::factory()->create(['name' => 'Old Name']);
+        $user = User::factory()->create(['name' => 'Old Name', 'email' => 'keep@example.com']);
 
         $response = $this->actingAs($user)->put(route('profile.update'), [
             'name' => 'New Name',
             'phone' => '09171234567',
+            'email' => 'keep@example.com',
         ]);
 
         $response->assertRedirect();
         $response->assertSessionDoesntHaveErrors();
-        $this->assertDatabaseHas('users', ['id' => $user->id, 'name' => 'New Name']);
+        $this->assertDatabaseHas('users', ['id' => $user->id, 'name' => 'New Name', 'email' => 'keep@example.com']);
+    }
+
+    public function test_changing_email_is_not_triggered_by_a_case_only_difference(): void
+    {
+        $user = User::factory()->create(['email' => 'same@example.com', 'email_verified_at' => now()]);
+
+        $response = $this->actingAs($user)->put(route('profile.update'), [
+            'name' => $user->name,
+            'phone' => $user->phone,
+            'email' => 'SAME@example.com',
+        ]);
+
+        $response->assertRedirect();
+        $response->assertSessionDoesntHaveErrors();
+        $user->refresh();
+        $this->assertNotNull($user->email_verified_at);
     }
 }

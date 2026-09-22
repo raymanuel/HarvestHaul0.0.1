@@ -9,11 +9,13 @@
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <x-card>
             <x-section-label title="My Details" width="w-16" />
-            <form method="POST" action="{{ route('profile.update') }}" class="space-y-4">
+            <form method="POST" action="{{ route('profile.update') }}" class="space-y-4" id="my-details-form">
                 @csrf
                 @method('PUT')
                 <x-input name="name" label="Full Name" :value="$user->name" required />
+                <x-input name="email" label="Email" type="email" :value="$user->email" required :error="$errors->first('email')" />
                 <x-input name="phone" label="Phone" :value="$user->phone" />
+                <input type="hidden" name="password" id="my-details-password">
                 <x-button variant="primary" size="sm" full>Save Details</x-button>
             </form>
         </x-card>
@@ -30,21 +32,50 @@
             </form>
         </x-card>
 
-        <x-card class="lg:col-span-2">
-            <x-section-label title="Change Email" width="w-16" />
+        <x-modal id="email-password-modal" title="Confirm Your Password">
             <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">
-                Your email is also your login. Changing it needs your password, and you'll need to verify the new address with a fresh code before you can use the rest of the app again.
+                You're changing your email. Enter your password to continue — you'll need to verify the new address with a fresh code before you can use the rest of the app again.
             </p>
-            <form method="POST" action="{{ route('profile.email') }}" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                @csrf
-                @method('PUT')
-                <x-input name="email" label="New Email" type="email" :value="$user->email" required :error="$errors->first('email')" />
-                <x-input name="password" label="Current Password" type="password" show-toggle required autocomplete="current-password" :error="$errors->first('password')" />
-                <div class="sm:col-span-2">
-                    <x-button variant="primary" size="sm" full>Update Email</x-button>
-                </div>
-            </form>
-        </x-card>
+            <x-input name="email_password_confirm" label="Current Password" type="password" show-toggle autocomplete="current-password" :error="$errors->first('password')" />
+            <x-slot:footer>
+                <x-button type="button" variant="secondary" size="sm" onclick="closeModal('email-password-modal')">Cancel</x-button>
+                <x-button type="button" variant="primary" size="sm" id="email-password-confirm-btn">Confirm</x-button>
+            </x-slot:footer>
+        </x-modal>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                var form = document.getElementById('my-details-form');
+                var emailInput = document.getElementById('email');
+                var passwordField = document.getElementById('my-details-password');
+                var modalInput = document.getElementById('email_password_confirm');
+                var originalEmail = emailInput.value.trim().toLowerCase();
+                var passwordConfirmed = false;
+
+                form.addEventListener('submit', function (e) {
+                    var changed = emailInput.value.trim().toLowerCase() !== originalEmail;
+                    if (changed && !passwordConfirmed) {
+                        e.preventDefault();
+                        openModal('email-password-modal');
+                    }
+                });
+
+                document.getElementById('email-password-confirm-btn').addEventListener('click', function () {
+                    if (!modalInput.value) {
+                        modalInput.focus();
+                        return;
+                    }
+                    passwordField.value = modalInput.value;
+                    passwordConfirmed = true;
+                    closeModal('email-password-modal');
+                    form.requestSubmit();
+                });
+
+                @if($errors->has('password'))
+                    openModal('email-password-modal');
+                @endif
+            });
+        </script>
 
         @if($user->isFarmer() || $user->isCoopAdmin() || $user->isBuyer())
             <x-card class="lg:col-span-2">
