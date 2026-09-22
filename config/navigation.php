@@ -62,6 +62,13 @@ return [
                 'route_url' => 'admin.audit-logs',
                 'tooltip' => 'Audit Logs',
             ],
+            [
+                'label' => 'Market Prices',
+                'letter' => 'M',
+                'route' => 'admin.market-prices.*',
+                'route_url' => 'admin.market-prices.index',
+                'tooltip' => 'Market Prices',
+            ],
         ],
     ],
 
@@ -102,6 +109,48 @@ return [
                 'route' => 'coop.procurement.*',
                 'route_url' => 'coop.procurement.index',
                 'tooltip' => 'Procurement / Receiving Confirmation',
+            ],
+            [
+                'label' => 'Facility Receiving',
+                'letter' => 'V',
+                'route' => 'coop.facility-receiving.*',
+                'route_url' => 'coop.facility-receiving.index',
+                'tooltip' => 'Facility Receiving Verification',
+            ],
+            [
+                'label' => 'Crop Availability',
+                'letter' => 'A',
+                'route' => 'coop.availability.*',
+                'route_url' => 'coop.availability.index',
+                'tooltip' => 'Crop Availability / B2B Inventory',
+            ],
+            [
+                'label' => 'Buyer Orders',
+                'letter' => 'B',
+                'route' => 'coop.buyer-orders.*',
+                'route_url' => 'coop.buyer-orders.index',
+                'tooltip' => 'Buyer Order Review',
+            ],
+            [
+                'label' => 'Outbound Delivery',
+                'letter' => 'O',
+                'route' => 'coop.outbound.*',
+                'route_url' => 'coop.outbound.index',
+                'tooltip' => 'Outbound Delivery Planning',
+            ],
+            [
+                'label' => 'Location Monitoring',
+                'letter' => 'L',
+                'route' => 'coop.tracking.*',
+                'route_url' => 'coop.tracking.index',
+                'tooltip' => 'Location Monitoring',
+            ],
+            [
+                'label' => 'Reports',
+                'letter' => 'D',
+                'route' => 'coop.reports.*',
+                'route_url' => 'coop.reports.index',
+                'tooltip' => 'Reports',
             ],
             [
                 'label' => 'Messages',
@@ -173,12 +222,31 @@ return [
         ],
     ],
 
-    // Buyer has no routes registered yet (DashboardController redirects to
-    // 'buyer.dashboard', which doesn't exist — every buyer login 500s).
-    // Left empty on purpose until that module is built; not an oversight.
     'buyer' => [
         'section_label' => 'Buyer',
-        'items' => [],
+        'items' => [
+            [
+                'label' => 'Listings',
+                'letter' => 'L',
+                'route' => 'buyer.listings.*',
+                'route_url' => 'buyer.listings.index',
+                'tooltip' => 'Browse Crop Listings',
+            ],
+            [
+                'label' => 'My Orders',
+                'letter' => 'O',
+                'route' => 'buyer.orders.*',
+                'route_url' => 'buyer.orders.index',
+                'tooltip' => 'My Orders',
+            ],
+            [
+                'label' => 'Messages',
+                'letter' => 'M',
+                'route' => 'messages.*',
+                'route_url' => 'messages.index',
+                'tooltip' => 'Messages',
+            ],
+        ],
     ],
 
 ];

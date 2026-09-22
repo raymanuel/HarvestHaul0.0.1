@@ -14,6 +14,9 @@ class DashboardController extends Controller
     public function index()
     {
         $cooperative = Auth::user()->cooperative;
+        if (! $cooperative) {
+            abort(403, 'You are not an active cooperative admin.');
+        }
 
         $pendingMembers = FarmerProfile::where('cooperative_id', $cooperative->id)
             ->where('membership_status', 'pending')
