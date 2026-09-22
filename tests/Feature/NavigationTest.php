@@ -44,6 +44,37 @@ class NavigationTest extends TestCase
         $response->assertSee(route('coop.reports.index'), false);
     }
 
+    public function test_coop_admin_sidebar_groups_packed_items_into_dropdowns(): void
+    {
+        $coop = Cooperative::create([
+            'name' => 'GenSan AgCoop', 'type' => 'primary',
+            'contact_number' => '09171234567', 'official_email' => 'coop-grouped@example.com',
+            'status' => Cooperative::STATUS_APPROVED,
+        ]);
+        $admin = User::factory()->create(['role' => UserRole::COOP_ADMIN->value, 'cooperative_id' => $coop->id]);
+
+        $response = $this->actingAs($admin)->get(route('coop.dashboard'));
+
+        $response->assertOk();
+        $response->assertSee('Harvest & Pickups');
+        $response->assertSee('Logistics & Trips');
+        $response->assertSee('Receiving & Procurement');
+        // Pickup Schedule (the calendar view) had no sidebar entry at all before this change.
+        $response->assertSee(route('coop.pickups.calendar'), false);
+    }
+
+    public function test_super_admin_sidebar_groups_reference_data_into_dropdown(): void
+    {
+        $admin = User::factory()->create(['role' => UserRole::SUPER_ADMIN->value, 'email_verified_at' => now()]);
+
+        $response = $this->actingAs($admin)->get(route('admin.dashboard'));
+
+        $response->assertOk();
+        $response->assertSee('Reference Data');
+        $response->assertSee(route('admin.crops.index'), false);
+        $response->assertSee(route('admin.reference.index'), false);
+    }
+
     public function test_super_admin_sidebar_shows_market_prices(): void
     {
         $admin = User::factory()->create(['role' => UserRole::SUPER_ADMIN->value, 'email_verified_at' => now()]);
