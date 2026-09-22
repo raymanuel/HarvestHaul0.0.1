@@ -5,7 +5,7 @@
         Historical summaries over a date range. Defaults to the current month — adjust the dates on each report page.
     </p>
 
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <x-card>
             <x-section-label title="Procurement" width="w-20" />
             <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">Confirmed purchases from farmers — volume and spend.</p>
@@ -20,6 +20,11 @@
             <x-section-label title="Farmer Payouts" width="w-24" />
             <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">Payments recorded to farmers.</p>
             <x-button tag="a" href="{{ route('coop.reports.payouts', ['from' => $from->toDateString(), 'to' => $to->toDateString()]) }}">View Report</x-button>
+        </x-card>
+        <x-card>
+            <x-section-label title="Fleet & Deliveries" width="w-28" />
+            <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">Trip status, route distance, vehicle activity.</p>
+            <x-button tag="a" href="{{ route('coop.reports.deliveries', ['from' => $from->toDateString(), 'to' => $to->toDateString()]) }}">View Report</x-button>
         </x-card>
     </div>
 </x-layout>

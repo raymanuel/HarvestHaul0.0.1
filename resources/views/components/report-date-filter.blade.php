@@ -1,4 +1,4 @@
-@props(['from', 'to', 'action', 'csvAction'])
+@props(['from', 'to', 'action', 'csvAction', 'pdfAction' => null])
 
 <form method="GET" action="{{ $action }}" class="flex flex-wrap items-end gap-3 mb-6">
     <div>
@@ -13,4 +13,7 @@
     </div>
     <x-button variant="secondary" size="sm">Filter</x-button>
     <a href="{{ $csvAction }}?from={{ $from->toDateString() }}&to={{ $to->toDateString() }}" class="text-xs font-bold text-brand-700 dark:text-gold-light hover:underline pb-2.5">Download CSV</a>
+    @if($pdfAction)
+        <a href="{{ $pdfAction }}?from={{ $from->toDateString() }}&to={{ $to->toDateString() }}" class="text-xs font-bold text-brand-700 dark:text-gold-light hover:underline pb-2.5">Download PDF</a>
+    @endif
 </form>

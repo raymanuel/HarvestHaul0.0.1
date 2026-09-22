@@ -365,10 +365,16 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
                 Route::get('/', [\App\Http\Controllers\Coop\ReportController::class, 'index'])->name('index');
                 Route::get('/procurement', [\App\Http\Controllers\Coop\ReportController::class, 'procurement'])->name('procurement');
                 Route::get('/procurement/csv', [\App\Http\Controllers\Coop\ReportController::class, 'procurementCsv'])->name('procurement.csv');
+                Route::get('/procurement/pdf', [\App\Http\Controllers\Coop\ReportController::class, 'procurementPdf'])->name('procurement.pdf');
                 Route::get('/sales', [\App\Http\Controllers\Coop\ReportController::class, 'sales'])->name('sales');
                 Route::get('/sales/csv', [\App\Http\Controllers\Coop\ReportController::class, 'salesCsv'])->name('sales.csv');
+                Route::get('/sales/pdf', [\App\Http\Controllers\Coop\ReportController::class, 'salesPdf'])->name('sales.pdf');
                 Route::get('/payouts', [\App\Http\Controllers\Coop\ReportController::class, 'payouts'])->name('payouts');
                 Route::get('/payouts/csv', [\App\Http\Controllers\Coop\ReportController::class, 'payoutsCsv'])->name('payouts.csv');
+                Route::get('/payouts/pdf', [\App\Http\Controllers\Coop\ReportController::class, 'payoutsPdf'])->name('payouts.pdf');
+                Route::get('/deliveries', [\App\Http\Controllers\Coop\ReportController::class, 'deliveries'])->name('deliveries');
+                Route::get('/deliveries/csv', [\App\Http\Controllers\Coop\ReportController::class, 'deliveriesCsv'])->name('deliveries.csv');
+                Route::get('/deliveries/pdf', [\App\Http\Controllers\Coop\ReportController::class, 'deliveriesPdf'])->name('deliveries.pdf');
             });
 
             /*

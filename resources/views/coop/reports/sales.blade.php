@@ -1,7 +1,7 @@
 <x-layout title="Sales Report — HarvestHaul">
     <x-page-header variant="back-link" title="Sales Report" :back-href="route('coop.reports.index')" back-label="← Back to Reports" />
 
-    <x-report-date-filter :from="$from" :to="$to" :action="route('coop.reports.sales')" :csv-action="route('coop.reports.sales.csv')" />
+    <x-report-date-filter :from="$from" :to="$to" :action="route('coop.reports.sales')" :csv-action="route('coop.reports.sales.csv')" :pdf-action="route('coop.reports.sales.pdf')" />
 
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-8">
         <x-stat-card badge="Volume" title="Total Weight" :value="number_format($totalKg, 2)" unit="kg" />

@@ -1,7 +1,7 @@
 <x-layout title="Farmer Payouts Report — HarvestHaul">
     <x-page-header variant="back-link" title="Farmer Payouts Report" :back-href="route('coop.reports.index')" back-label="← Back to Reports" />
 
-    <x-report-date-filter :from="$from" :to="$to" :action="route('coop.reports.payouts')" :csv-action="route('coop.reports.payouts.csv')" />
+    <x-report-date-filter :from="$from" :to="$to" :action="route('coop.reports.payouts')" :csv-action="route('coop.reports.payouts.csv')" :pdf-action="route('coop.reports.payouts.pdf')" />
 
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-8">
         <x-stat-card badge="Payouts" title="Total Paid" :value="'₱'.number_format($totalPaid, 2)" />
