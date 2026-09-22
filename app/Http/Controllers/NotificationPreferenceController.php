@@ -13,10 +13,6 @@ class NotificationPreferenceController extends Controller
     {
         $preferences = app(NotificationPreferenceService::class)->getAllForUser(Auth::id());
 
-        if (Auth::user()->role === 'farmer') {
-            unset($preferences['weather']);
-        }
-
         return view('settings.notifications', compact('preferences'));
     }
 

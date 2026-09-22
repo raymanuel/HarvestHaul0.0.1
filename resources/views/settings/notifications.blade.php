@@ -18,7 +18,6 @@
             @endphp
 
             @foreach($labels as $key => $label)
-                @unless($key === 'weather' && auth()->user()->role === 'farmer')
                 <div class="bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-xl p-4 flex items-center justify-between">
                     <div>
                         <p class="text-sm font-bold text-slate-800 dark:text-slate-200">{{ $label[0] }}</p>
@@ -31,7 +30,6 @@
                         <div class="w-9 h-5 bg-slate-200 peer-focus:ring-2 peer-focus:ring-[#16283C]/20 dark:peer-focus:ring-[#16283C]/40 rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#16283C]"></div>
                     </label>
                 </div>
-                @endunless
             @endforeach
 
             <div class="pt-2">

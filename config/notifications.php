@@ -2,37 +2,29 @@
 
 return [
     'categories' => [
-        'logistics' => [
-            'label' => 'Logistics & Delivery',
-            'description' => 'Driver arrivals, deliveries, route updates, route offers',
+        'account' => [
+            'label' => 'Account & Verification',
+            'description' => 'Approval, rejection, suspension, and other account status changes',
         ],
-        'negotiation' => [
-            'label' => 'Negotiations & Deals',
-            'description' => 'New B2B negotiations, counter-offers, deal finalization',
+        'message' => [
+            'label' => 'Messages',
+            'description' => 'New messages from your cooperative, farmers, or buyers',
         ],
         'haul' => [
-            'label' => 'Haul Requests',
-            'description' => 'Haul intent expressions, rate offers, counter-offers',
+            'label' => 'Haul Requests & Trips',
+            'description' => 'Pickup requests, trip scheduling, and delivery updates',
         ],
-        'hauling' => [
-            'label' => 'Hauling & Cost Shares',
-            'description' => 'Cost share breakdowns, payment receipts, quantity confirmations',
+        'buyer_order' => [
+            'label' => 'Buyer Orders',
+            'description' => 'New orders, acceptance, rejection, and delivery status',
         ],
-        'payments' => [
-            'label' => 'Payments & Invoices',
-            'description' => 'Payment receipts, invoice ready',
+        'membership' => [
+            'label' => 'Cooperative Membership',
+            'description' => 'Membership applications, approvals, and status changes',
         ],
-        'weather' => [
-            'label' => 'Weather Alerts',
-            'description' => 'Severe weather warnings for your area',
-        ],
-        'system' => [
-            'label' => 'System Notifications',
-            'description' => 'Auto-expired proposals, auto-completed deliveries',
-        ],
-        'delays' => [
-            'label' => 'Delay Alerts',
-            'description' => 'Delivery delay warnings and ETA updates',
+        'procurement' => [
+            'label' => 'Procurement & Payments',
+            'description' => 'Pricing, confirmation, and farmer payout updates',
         ],
     ],
 ];
