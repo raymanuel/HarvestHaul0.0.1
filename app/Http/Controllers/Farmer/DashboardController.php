@@ -12,6 +12,7 @@ class DashboardController extends Controller
     public function index()
     {
         $user = Auth::user();
+        $farmerProfile = $user->farmerProfile;
 
         $haulRequests = HaulRequest::where('farmer_id', $user->id)
             ->with(['crop', 'cropVariety', 'packagingType'])
@@ -39,6 +40,7 @@ class DashboardController extends Controller
 
         return view('farmer.dashboard', compact(
             'user',
+            'farmerProfile',
             'haulRequests',
             'openHaulRequests',
             'confirmedRecords',

@@ -14,6 +14,9 @@
                 title="Join a cooperative first"
                 description="Farmers request pickups through their cooperative. Once your cooperative approves your membership, you can submit pickup requests here."
             />
+            <div class="mt-4">
+                <x-button tag="a" href="{{ route('farmer.join-cooperative.create') }}">Join a Cooperative</x-button>
+            </div>
         </x-card>
     @elseif($requests->isEmpty())
         <x-card>

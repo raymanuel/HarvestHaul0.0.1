@@ -1,6 +1,28 @@
 <x-layout title="Farmer Dashboard — HarvestHaul">
     <x-page-header title="My Farm" :showDate="true" />
 
+    @if(! $farmerProfile || $farmerProfile->membership_status !== 'approved')
+        <x-card class="mb-6">
+            <x-section-label title="Cooperative Membership" />
+            @if($farmerProfile?->membership_status === 'pending')
+                <x-empty-state
+                    type="first-use"
+                    title="Membership request pending"
+                    description="Your request to join {{ $farmerProfile->cooperative?->name ?? 'the cooperative' }} is awaiting a decision."
+                />
+            @else
+                <x-empty-state
+                    type="first-use"
+                    title="Join a cooperative to get started"
+                    description="Request to join a cooperative so you can file pickup requests and sell your harvests."
+                />
+                <div class="mt-4">
+                    <x-button tag="a" href="{{ route('farmer.join-cooperative.create') }}">Join a Cooperative</x-button>
+                </div>
+            @endif
+        </x-card>
+    @endif
+
     <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5 mb-10">
         <x-stat-card badge="Requests" title="Open Haul Requests" :value="$openHaulRequests" unit="waiting" />
         <x-stat-card badge="Payout" title="Confirmed Earnings" value="₱{{ number_format($totalPayout, 2) }}" />

@@ -1,17 +1,15 @@
 <x-register-layout maxWidth="480px">
 
-    @push('head')
-        <link rel="stylesheet" href="{{ asset('vendor/leaflet/leaflet.css') }}" />
-    @endpush
-
     <div class="mb-8 text-center">
         <div class="w-14 h-14 bg-brand-700 text-white rounded-2xl flex items-center justify-center mx-auto mb-3.5">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.271.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.271.477-4.5 1.253" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 10a4 4 0 00-4-4H4v4a4 4 0 004 4h4z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 10a4 4 0 014-4h4v4a4 4 0 01-4 4h-4z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 14v7" />
             </svg>
         </div>
         <h2 class="text-xl font-bold text-slate-800 heading-font tracking-tight">Farmer Registration</h2>
-        <p class="text-xs text-slate-500 mt-1.5 font-semibold">Join the marketplace, pool logistics, and coordinate dispatch</p>
+        <p class="text-xs text-slate-500 mt-1.5 font-semibold">Create your account, then request to join your cooperative once you're signed in.</p>
     </div>
 
     @if ($errors->any())
@@ -33,34 +31,28 @@
         @csrf
         <input type="hidden" name="role" value="farmer">
 
-        {{-- NAME --}}
         <div class="form-group">
-            <div class="relative">
-                <input type="text" name="name" placeholder="Full Name" required value="{{ old('name') }}" autocomplete="name"
-                    class="px-4 py-3 w-full bg-white/80 border border-[#16283C]/15 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#16283C]/10 focus:border-[#16283C] transition">
-            </div>
+            <label class="text-xs font-bold text-slate-700 block mb-1.5">Full Name *</label>
+            <input type="text" name="name" required value="{{ old('name') }}" autocomplete="name"
+                class="px-4 py-3 w-full bg-white/80 border border-[#16283C]/15 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#16283C]/10 focus:border-[#16283C] transition">
         </div>
 
-        {{-- EMAIL --}}
         <div class="form-group">
-            <div class="relative">
-                <input type="email" name="email" placeholder="Email Address" required value="{{ old('email') }}" autocomplete="email"
-                    class="px-4 py-3 w-full bg-white/80 border border-[#16283C]/15 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#16283C]/10 focus:border-[#16283C] transition">
-            </div>
+            <label class="text-xs font-bold text-slate-700 block mb-1.5">Email Address *</label>
+            <input type="email" name="email" required value="{{ old('email') }}" autocomplete="email"
+                class="px-4 py-3 w-full bg-white/80 border border-[#16283C]/15 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#16283C]/10 focus:border-[#16283C] transition">
         </div>
 
-        {{-- PHONE --}}
         <div class="form-group">
-            <div class="relative">
-                <input type="tel" inputmode="tel" name="phone" placeholder="Phone Number" required value="{{ old('phone') }}" autocomplete="tel"
-                    class="px-4 py-3 w-full bg-white/80 border border-[#16283C]/15 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#16283C]/10 focus:border-[#16283C] transition">
-            </div>
+            <label class="text-xs font-bold text-slate-700 block mb-1.5">Contact Number (optional)</label>
+            <input type="tel" inputmode="tel" name="phone" value="{{ old('phone') }}" autocomplete="tel"
+                class="px-4 py-3 w-full bg-white/80 border border-[#16283C]/15 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#16283C]/10 focus:border-[#16283C] transition">
         </div>
 
-        {{-- PASSWORD --}}
         <div class="form-group">
+            <label class="text-xs font-bold text-slate-700 block mb-1.5">Password *</label>
             <div class="relative">
-                <input type="password" id="password" name="password" placeholder="Password" required autocomplete="new-password"
+                <input type="password" id="password" name="password" required autocomplete="new-password" minlength="8"
                     class="pl-4 pr-12 py-3 w-full bg-white/80 border border-[#16283C]/15 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#16283C]/10 focus:border-[#16283C] transition">
                 <button type="button" onclick="togglePassword('password', 'eye-password')"
                     class="absolute right-1 top-1/2 -translate-y-1/2 w-12 h-12 flex items-center justify-center text-slate-400 hover:text-[#16283C] transition focus:outline-none">
@@ -72,21 +64,12 @@
                     </svg>
                 </button>
             </div>
-            <div id="pw-strength" style="display:none; margin-top:8px;">
-                <div style="display:flex; gap:4px; margin-bottom:4px;">
-                    <div id="pw-bar-1" style="flex:1; height:3px; border-radius:2px; background:#e5e7eb; transition:background 0.3s;"></div>
-                    <div id="pw-bar-2" style="flex:1; height:3px; border-radius:2px; background:#e5e7eb; transition:background 0.3s;"></div>
-                    <div id="pw-bar-3" style="flex:1; height:3px; border-radius:2px; background:#e5e7eb; transition:background 0.3s;"></div>
-                    <div id="pw-bar-4" style="flex:1; height:3px; border-radius:2px; background:#e5e7eb; transition:background 0.3s;"></div>
-                </div>
-                <p id="pw-label" style="font-size:11px; font-weight:600; color:#9ca3af; margin:0;"></p>
-            </div>
         </div>
 
-        {{-- CONFIRM PASSWORD --}}
         <div class="form-group">
+            <label class="text-xs font-bold text-slate-700 block mb-1.5">Confirm Password *</label>
             <div class="relative">
-                <input type="password" id="password_confirmation" name="password_confirmation" placeholder="Confirm Password" required autocomplete="new-password"
+                <input type="password" id="password_confirmation" name="password_confirmation" required autocomplete="new-password"
                     class="pl-4 pr-12 py-3 w-full bg-white/80 border border-[#16283C]/15 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#16283C]/10 focus:border-[#16283C] transition">
                 <button type="button" onclick="togglePassword('password_confirmation', 'eye-confirm')"
                     class="absolute right-1 top-1/2 -translate-y-1/2 w-12 h-12 flex items-center justify-center text-slate-400 hover:text-[#16283C] transition focus:outline-none">
@@ -100,54 +83,15 @@
             </div>
         </div>
 
-        {{-- FARM LOCATION — MAP PIN --}}
-        <div class="form-group space-y-2">
-            <label class="text-xs font-bold text-slate-700 block">
-                Farm Location <span class="text-[var(--color-error-text)]">*</span>
-            </label>
-
-            <div class="relative">
-                <input type="text" id="farm_location_display" name="farm_location" placeholder="Pin your farm on the map below" required readonly value="{{ old('farm_location') }}"
-                    class="px-4 py-3 w-full bg-slate-50 border border-[#16283C]/15 rounded-xl focus:outline-none cursor-default text-slate-600 font-medium">
-            </div>
-
-            {{-- Hidden coordinate inputs --}}
-            <input type="hidden" id="latitude" name="latitude" value="{{ old('latitude') }}">
-            <input type="hidden" id="longitude" name="longitude" value="{{ old('longitude') }}">
-
-            {{-- GPS button --}}
-            <button type="button" id="use-my-location" class="w-full flex items-center justify-center gap-2 py-2.5 bg-[#EEF0EB] hover:bg-[#EEF0EB]/80 text-[#16283C] border border-[#16283C]/20 rounded-xl text-xs font-bold transition shadow-sm">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-                Use My GPS Location
-            </button>
-
-            {{-- Map container --}}
-            <div id="farm-map-wrapper" class="w-full h-[200px] rounded-xl border border-[#16283C]/15 shadow-sm overflow-hidden z-0" style="position:relative;">
-                <div id="map-skeleton" style="position:absolute;inset:0;z-index:400;background:linear-gradient(135deg,#F5F6F2,#E7EAE4);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;transition:opacity 0.3s;">
-                    <div style="width:28px;height:28px;border:3px solid #e5e7eb;border-top-color:#16283C;border-radius:50%;animation:spin 0.8s linear infinite;"></div>
-                    <p style="font-size:11px;color:#9ca3af;font-weight:500;margin:0;">Loading map...</p>
-                </div>
-                <div id="farm-map" class="w-full h-full"></div>
-            </div>
-
-            <p class="text-[10px] text-slate-400 font-medium text-center mt-1">
-                Drag the pin to your exact farm location.
-            </p>
-        </div>
-
-        {{-- TERMS & CONDITIONS --}}
         <div class="form-group pt-1">
             <label class="flex items-start gap-3 cursor-pointer p-3 rounded-xl bg-[#EEF0EB]/40 border border-[#16283C]/10">
                 <input type="checkbox" name="accepted_terms" value="1" {{ old('accepted_terms') ? 'checked' : '' }}
                     class="mt-0.5 w-4 h-4 rounded border-slate-300 text-[#16283C] focus:ring-[#16283C] cursor-pointer shrink-0">
                 <span class="text-xs text-slate-500 leading-relaxed">
                     I agree to the
-                    <a href="{{ route('legal.terms') }}" onclick="event.preventDefault(); openLegalModal('{{ route('legal.terms') }}')" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-[#16283C]/10 text-[#16283C] font-semibold hover:bg-[#16283C]/20 hover:text-[#0E1620] transition-all text-[11px]">Terms & Conditions <span style="font-size:10px;">←—</span></a>
+                    <a href="{{ route('legal.terms') }}" class="text-[#16283C] font-semibold hover:underline">Terms & Conditions</a>
                     and
-                    <a href="{{ route('legal.privacy') }}" onclick="event.preventDefault(); openLegalModal('{{ route('legal.privacy') }}')" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-[#16283C]/10 text-[#16283C] font-semibold hover:bg-[#16283C]/20 hover:text-[#0E1620] transition-all text-[11px]">Privacy Policy <span style="font-size:10px;">←—</span></a>.
+                    <a href="{{ route('legal.privacy') }}" class="text-[#16283C] font-semibold hover:underline">Privacy Policy</a>.
                 </span>
             </label>
             @error('accepted_terms')
@@ -157,15 +101,15 @@
 
         <div class="pt-1">
             <x-button type="submit" size="lg" full>
-                Register as Farmer
+                Create Farmer Account
             </x-button>
         </div>
 
         <div class="mt-6 pt-5 border-t border-slate-100/80 text-center text-xs font-semibold text-slate-500">
             Not a farmer?
-            <a href="{{ route('register.role', 'logistics_partner') }}"
+            <a href="{{ route('register.role', 'cooperative') }}"
                 class="text-[#16283C] hover:text-[#16283C]/80 transition ml-1 hover:underline">
-                Sign up as Logistics Coordinator
+                Sign up as a Cooperative
             </a>
         </div>
         <div class="mt-3 text-center">
@@ -173,88 +117,10 @@
                 ← Return to Homepage
             </a>
         </div>
-        {{-- LEGAL MODAL --}}
-        <div id="legal-modal-overlay" style="position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);" onclick="if(event.target===this)closeLegalModal()">
-            <div onclick="event.stopPropagation()" style="background:#fff;border-radius:1.5rem;max-width:640px;width:100%;max-height:80vh;overflow-y:auto;position:relative;box-shadow:0 25px 50px -12px rgba(0,0,0,0.3);scrollbar-width:thin;scrollbar-color:#d1d5db transparent;">
-                <div style="position:sticky;top:0;z-index:10;background:linear-gradient(135deg,#16283C,#0E1620);border-radius:1.5rem 1.5rem 0 0;padding:1.25rem 2rem 1rem;margin:0;">
-                    <div style="display:flex;align-items:center;justify-content:space-between;">
-                        <div>
-                            <span style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.7);">HarvestHaul</span>
-                            <div id="legal-modal-title" style="font-size:1.1rem;font-weight:700;color:#fff;font-family:'Schibsted Grotesk',sans-serif;margin-top:0.15rem;">Loading...</div>
-                        </div>
-                        <button onclick="closeLegalModal()" style="width:30px;height:30px;display:flex;align-items:center;justify-content:center;border-radius:50%;border:none;background:rgba(255,255,255,0.2);color:#fff;cursor:pointer;font-size:1.1rem;transition:all 0.15s;font-family:inherit;backdrop-filter:blur(4px);" onmouseover="this.style.background='rgba(255,255,255,0.35)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'">&times;</button>
-                    </div>
-                </div>
-                <div style="padding:1.5rem 2rem 2rem;">
-                    <div id="legal-modal-body" style="font-family:'DM Sans',sans-serif;font-size:0.9rem;line-height:1.7;color:#374151;text-align:justify;"></div>
-                </div>
-            </div>
-        </div>
     </form>
 
     @push('scripts')
     <script>
-        // PASSWORD STRENGTH
-        function checkPasswordStrength(pw) {
-            let score = 0;
-            if (pw.length >= 8) score++;
-            if (/[a-z]/.test(pw) && /[A-Z]/.test(pw)) score++;
-            if (/\d/.test(pw)) score++;
-            if (/[^a-zA-Z0-9]/.test(pw)) score++;
-            return score;
-        }
-        function updateStrengthUI(score) {
-            const container = document.getElementById('pw-strength');
-            const bars = [1,2,3,4].map(i => document.getElementById('pw-bar-'+i));
-            const label = document.getElementById('pw-label');
-            const colors = ['#ef4444','#f59e0b','#eab308','#16283C'];
-            const labels = ['Weak','Fair','Good','Strong'];
-            const pw = document.getElementById('password').value;
-            if (!pw) { container.style.display='none'; return; }
-            container.style.display='block';
-            bars.forEach((bar,i) => { bar.style.background = i < score ? colors[score-1] : '#e5e7eb'; });
-            label.textContent = score > 0 ? labels[score-1] : 'Too short';
-            label.style.color = score > 0 ? colors[score-1] : '#9ca3af';
-        }
-        document.getElementById('password').addEventListener('input', function() {
-            updateStrengthUI(checkPasswordStrength(this.value));
-        });
-
-        const legalCache = {};
-        function openLegalModal(url) {
-            const overlay = document.getElementById('legal-modal-overlay');
-            const body = document.getElementById('legal-modal-body');
-            const title = document.getElementById('legal-modal-title');
-            title.textContent = 'HarvestHaul';
-            overlay.style.display = 'flex';
-            if (legalCache[url]) {
-                body.innerHTML = legalCache[url];
-                const h1 = body.querySelector('h1');
-                if (h1) title.textContent = h1.textContent;
-                return;
-            }
-            body.innerHTML = '<div style="text-align:center;padding:3rem 1rem;"><div style="width:32px;height:32px;border:3px solid #e5e7eb;border-top-color:#16283C;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 1rem;"></div><p style="color:#9ca3af;font-size:0.85rem;">Loading...</p></div>';
-            fetch(url).then(r => r.text()).then(html => {
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(html, 'text/html');
-                body.innerHTML = doc.querySelector('.container').innerHTML;
-                const h1 = body.querySelector('h1');
-                if (h1) title.textContent = h1.textContent;
-                legalCache[url] = body.innerHTML;
-            }).catch(() => {
-                body.innerHTML = '<p style="color:#dc2626;padding:2rem;text-align:center;">Failed to load. Please try again.</p>';
-            });
-        }
-        function closeLegalModal() {
-            document.getElementById('legal-modal-overlay').style.display = 'none';
-        }
-        document.addEventListener('click', function(e) {
-            if (e.target.id === 'legal-modal-overlay') closeLegalModal();
-        });
-    </script>
-    <script src="{{ asset('vendor/leaflet/leaflet.js') }}"></script>
-    <script>
-        // PASSWORD TOGGLE
         function togglePassword(fieldId, iconId) {
             const field = document.getElementById(fieldId);
             const icon  = document.getElementById(iconId);
@@ -269,113 +135,6 @@
                 : `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
                    <circle cx="12" cy="12" r="3"/>`;
         }
-
-        // LEAFLET MAP — General Santos City default center
-        const GENSAN = [6.1164, 125.1716];
-
-        const map = L.map('farm-map', { zoomControl: true }).setView(GENSAN, 13);
-
-        map.whenReady(function() {
-            const skeleton = document.getElementById('map-skeleton');
-            if (skeleton) { skeleton.style.opacity = '0'; setTimeout(() => skeleton.style.display = 'none', 300); }
-        });
-
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: ' OpenStreetMap contributors' }).addTo(map);
-
-        // Custom green marker matching #16283C
-        const greenIcon = L.divIcon({
-            html: `<div style="
-                width: 18px; height: 18px; border-radius: 50%;
-                background: #16283C; border: 3px solid white;
-                box-shadow: 0 3px 8px rgba(45, 106, 47, 0.4);
-            "></div>`,
-            className: '',
-            iconAnchor: [9, 9],
-        });
-
-        // Restore old pin position if validation failed and page reloaded
-        const oldLat = {{ old('latitude', 'null') }};
-        const oldLng = {{ old('longitude', 'null') }};
-        const initPos = (oldLat && oldLng) ? [oldLat, oldLng] : GENSAN;
-
-        const marker = L.marker(initPos, {
-            draggable: true,
-            icon: greenIcon,
-        }).addTo(map);
-
-        if (oldLat && oldLng) {
-            map.setView(initPos, 15);
-        }
-
-        // REVERSE GEOCODE via Nominatim
-        function reverseGeocode(lat, lng) {
-            fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`)
-                .then(res => res.json())
-                .then(data => {
-                    if (data && data.display_name) {
-                        const addr = data.address;
-                        const parts = [
-                            addr.village || addr.suburb || addr.neighbourhood || addr.hamlet,
-                            addr.city || addr.town || addr.municipality,
-                            addr.province || addr.state,
-                        ].filter(Boolean);
-
-                        document.getElementById('farm_location_display').value =
-                            parts.length ? parts.join(', ') : data.display_name;
-                    }
-                })
-                .catch(() => {});
-        }
-
-        // UPDATE HIDDEN INPUTS ON MARKER MOVE
-        function updateCoords(latlng) {
-            document.getElementById('latitude').value  = latlng.lat.toFixed(8);
-            document.getElementById('longitude').value = latlng.lng.toFixed(8);
-            reverseGeocode(latlng.lat, latlng.lng);
-        }
-
-        marker.on('dragend', function (e) {
-            updateCoords(e.target.getLatLng());
-        });
-
-        map.on('click', function (e) {
-            marker.setLatLng(e.latlng);
-            updateCoords(e.latlng);
-        });
-
-        // GPS BUTTON
-        document.getElementById('use-my-location').addEventListener('click', function () {
-            if (!navigator.geolocation) {
-                Swal.fire({ icon: 'error', title: 'Geolocation not supported', text: 'Your browser does not support location services. Pin your location manually.', confirmButtonColor: '#16283C', background: document.documentElement.classList.contains('dark') ? '#1e293b' : '#fff', color: document.documentElement.classList.contains('dark') ? '#e2e8f0' : '#1e293b', customClass: { popup: 'rounded-xl' } });
-                return;
-            }
-
-            this.textContent = 'Locating...';
-            const btn = this;
-
-            navigator.geolocation.getCurrentPosition(
-                function (pos) {
-                    const latlng = L.latLng(pos.coords.latitude, pos.coords.longitude);
-                    marker.setLatLng(latlng);
-                    map.setView(latlng, 16);
-                    updateCoords(latlng);
-                    btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
-                        Use My GPS Location`;
-                },
-                function () {
-                    Swal.fire({ icon: 'error', title: 'Could not get location', text: 'Unable to retrieve your location. Pin it manually on the map.', confirmButtonColor: '#16283C', background: document.documentElement.classList.contains('dark') ? '#1e293b' : '#fff', color: document.documentElement.classList.contains('dark') ? '#e2e8f0' : '#1e293b', customClass: { popup: 'rounded-xl' } });
-                    btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
-                        Use My GPS Location`;
-                }
-            );
-        });
-
     </script>
     @endpush
 

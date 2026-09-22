@@ -447,6 +447,13 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
                 Route::get('/{haulRequest}/track', [FarmerHaulRequestController::class, 'track'])->name('track');
                 Route::get('/{haulRequest}/track/location', [FarmerHaulRequestController::class, 'trackLocation'])->name('track.location');
             });
+
+            Route::prefix('join-cooperative')->name('join-cooperative.')->group(function () {
+                Route::get('/', [\App\Http\Controllers\Farmer\CooperativeMembershipController::class, 'create'])->name('create');
+                Route::post('/', [\App\Http\Controllers\Farmer\CooperativeMembershipController::class, 'store'])
+                    ->middleware('throttle:10,1')
+                    ->name('store');
+            });
         });
 
         /*

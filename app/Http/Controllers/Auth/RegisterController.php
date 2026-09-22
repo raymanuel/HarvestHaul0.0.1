@@ -23,7 +23,7 @@ class RegisterController extends Controller
 
     public function create($role)
     {
-        $validRoles = ['cooperative', 'buyer'];
+        $validRoles = ['cooperative', 'buyer', 'farmer'];
 
         if (! in_array($role, $validRoles)) {
             abort(404);
@@ -45,6 +45,8 @@ class RegisterController extends Controller
                     $cooperative = $this->createCooperative($request, $user->id);
                     $user->cooperative_id = $cooperative->id;
                     $user->save();
+                } elseif ($role === 'farmer') {
+                    $user = $this->createFarmer($request);
                 } else {
                     $user = $this->createBuyer($request);
                 }
@@ -80,8 +82,15 @@ class RegisterController extends Controller
             'email' => 'required|string|email|max:255|unique:users,email',
             'password' => 'required|string|min:8|confirmed',
             'accepted_terms' => 'accepted',
-            'role' => 'required|in:cooperative,buyer',
+            'role' => 'required|in:cooperative,buyer,farmer',
         ];
+
+        if ($role === 'farmer') {
+            return array_merge($base, [
+                'name' => 'required|string|max:255',
+                'phone' => 'nullable|string|max:20',
+            ]);
+        }
 
         if ($role === 'cooperative') {
             return array_merge($base, [
@@ -130,6 +139,17 @@ class RegisterController extends Controller
             'password' => $request->password,
             'role' => UserRole::COOP_ADMIN->value,
             'phone' => $request->rep_contact,
+        ]);
+    }
+
+    private function createFarmer(Request $request): User
+    {
+        return User::create([
+            'name' => $request->name,
+            'email' => strtolower($request->email),
+            'password' => $request->password,
+            'role' => UserRole::FARMER->value,
+            'phone' => $request->phone,
         ]);
     }
 
