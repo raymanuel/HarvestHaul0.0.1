@@ -63,6 +63,7 @@ class FarmerManagementController extends Controller
 
         $farmer->update([
             'membership_status'     => 'approved',
+            'affiliation_type'      => 'cooperative',
             'membership_decided_at' => now(),
         ]);
 
@@ -138,6 +139,7 @@ class FarmerManagementController extends Controller
 
         $farmer->update([
             'membership_status'     => 'removed',
+            'affiliation_type'      => 'independent',
             'membership_decided_at' => now(),
         ]);
 

@@ -41,7 +41,7 @@ class FarmerProfile extends Model
 
     public function isCooperativeMember(): bool
     {
-        return $this->affiliation_type === 'cooperative'
+        return $this->membership_status === 'approved'
             && $this->cooperative_id !== null;
     }
 }

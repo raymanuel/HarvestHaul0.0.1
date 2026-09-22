@@ -59,6 +59,9 @@ class CooperativeMembershipController extends Controller
             ->where('status', Cooperative::STATUS_APPROVED)
             ->firstOrFail();
 
+        // affiliation_type stays 'independent' until the coop admin approves —
+        // a pending request must not grant membership yet. Coop\FarmerManagementController::approve()
+        // is what flips it to 'cooperative'.
         $farmer = FarmerProfile::updateOrCreate(
             ['user_id' => Auth::id()],
             [
@@ -66,7 +69,6 @@ class CooperativeMembershipController extends Controller
                 'farm_location'           => $data['farm_location'] ?? null,
                 'latitude'                => $data['latitude'] ?? null,
                 'longitude'               => $data['longitude'] ?? null,
-                'affiliation_type'        => 'cooperative',
                 'cooperative_id'          => $cooperative->id,
                 'membership_status'       => 'pending',
                 'membership_requested_at' => now(),
