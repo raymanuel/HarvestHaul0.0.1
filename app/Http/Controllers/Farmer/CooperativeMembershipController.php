@@ -45,7 +45,11 @@ class CooperativeMembershipController extends Controller
             ->sortBy(fn (Cooperative $coop) => sprintf('%020.6f', $coop->distance_km ?? PHP_FLOAT_MAX))
             ->values();
 
-        return view('farmer.cooperative-membership.create', compact('cooperatives'));
+        return view('farmer.cooperative-membership.create', [
+            'cooperatives' => $cooperatives,
+            'lat'          => $profile?->latitude,
+            'lng'          => $profile?->longitude,
+        ]);
     }
 
     public function store(Request $request)

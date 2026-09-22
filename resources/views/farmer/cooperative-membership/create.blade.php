@@ -60,7 +60,10 @@
                         <x-input name="phone" label="Contact Number (optional)" :value="old('phone')" />
                         <x-input name="farm_location" label="Farm Location (optional)" :value="old('farm_location')" />
 
-                        <x-location-picker latField="latitude" lngField="longitude" label="Pickup Location" />
+                        @if($lat && $lng)
+                            <p class="text-xs text-slate-500 dark:text-slate-400 -mt-1">Pre-filled from your farm location. Drag the pin if this pickup spot is different.</p>
+                        @endif
+                        <x-location-picker latField="latitude" lngField="longitude" label="Pickup Location" :lat="$lat" :lng="$lng" />
 
                         <div class="flex justify-end pt-2">
                             <x-button variant="primary" size="sm">Send Membership Request</x-button>

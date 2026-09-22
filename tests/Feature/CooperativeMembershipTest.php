@@ -128,4 +128,35 @@ class CooperativeMembershipTest extends TestCase
         $response->assertOk();
         $response->assertSee('No cooperatives available yet');
     }
+
+    public function test_create_page_prefills_pickup_pin_from_saved_farm_location(): void
+    {
+        $farmer = $this->farmer();
+        $farmer->farmerProfile->update(['latitude' => 7.123456, 'longitude' => 125.654321]);
+        Cooperative::factory()->approved()->create();
+
+        $response = $this->actingAs($farmer)->get(route('farmer.join-cooperative.create'));
+
+        $response->assertOk();
+        $response->assertSee('value="7.123456"', false);
+        $response->assertSee('value="125.654321"', false);
+    }
+
+    public function test_store_uses_submitted_coordinates_not_saved_profile_ones(): void
+    {
+        $farmer = $this->farmer();
+        $farmer->farmerProfile->update(['latitude' => 7.0, 'longitude' => 125.0]);
+        $coop = Cooperative::factory()->approved()->create();
+
+        $this->actingAs($farmer)->post(route('farmer.join-cooperative.store'), [
+            'cooperative_id' => $coop->id,
+            'latitude' => 8.111111,
+            'longitude' => 126.222222,
+        ]);
+
+        $farmer->farmerProfile->refresh();
+
+        $this->assertSame(8.111111, (float) $farmer->farmerProfile->latitude);
+        $this->assertSame(126.222222, (float) $farmer->farmerProfile->longitude);
+    }
 }
