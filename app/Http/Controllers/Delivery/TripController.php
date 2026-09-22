@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Delivery;
 
 use App\Http\Controllers\Controller;
+use App\Models\AuditLog;
 use App\Models\BuyerOrder;
 use App\Models\HaulJob;
 use App\Models\HaulJobStop;
@@ -108,6 +109,14 @@ class TripController extends Controller
             }
         }
 
+        AuditLog::create([
+            'admin_id'    => Auth::id(),
+            'action'      => 'update_stop_status',
+            'target_type' => 'haul_job_stop',
+            'target_id'   => $stop->id,
+            'notes'       => "Stop {$stop->sequence_no} on trip {$job->id} marked {$status}.".($status === 'failed' ? " Reason: {$failureReason}" : ''),
+        ]);
+
         if ($status === 'failed') {
             $this->notifyCoopStaff(
                 $job,
@@ -192,6 +201,14 @@ class TripController extends Controller
 
         $job->update(['status' => HaulJob::STATUS_COMPLETED, 'completed_at' => now()]);
         $job->truck?->update(['status' => 'available']);
+
+        AuditLog::create([
+            'admin_id'    => Auth::id(),
+            'action'      => 'complete_haul_job',
+            'target_type' => 'haul_job',
+            'target_id'   => $job->id,
+            'notes'       => ($job->isDelivery() ? 'Delivery' : 'Pickup')." trip {$job->id} completed.",
+        ]);
 
         foreach ($job->stops as $s) {
             if ($s->isDeliveryStop()) {

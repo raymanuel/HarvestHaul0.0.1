@@ -9,6 +9,39 @@
         </div>
     </header>
 
+    <form method="GET" action="{{ route('admin.audit-logs') }}" class="flex flex-wrap items-end gap-3 mb-6">
+        <div>
+            <label for="action" class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Action</label>
+            <select name="action" id="action" class="border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2 text-sm bg-slate-50/50 dark:bg-slate-700/50 text-slate-800 dark:text-white">
+                <option value="">All Actions</option>
+                @foreach($actions as $action)
+                    <option value="{{ $action }}" @selected(request('action') === $action)>{{ str_replace('_', ' ', $action) }}</option>
+                @endforeach
+            </select>
+        </div>
+        <div>
+            <label for="target_type" class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Target Type</label>
+            <select name="target_type" id="target_type" class="border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2 text-sm bg-slate-50/50 dark:bg-slate-700/50 text-slate-800 dark:text-white">
+                <option value="">All Targets</option>
+                @foreach($targetTypes as $targetType)
+                    <option value="{{ $targetType }}" @selected(request('target_type') === $targetType)>{{ str_replace('_', ' ', $targetType) }}</option>
+                @endforeach
+            </select>
+        </div>
+        <div>
+            <label for="from" class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">From</label>
+            <input type="date" name="from" id="from" value="{{ request('from') }}" class="border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2 text-sm bg-slate-50/50 dark:bg-slate-700/50 text-slate-800 dark:text-white" />
+        </div>
+        <div>
+            <label for="to" class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">To</label>
+            <input type="date" name="to" id="to" value="{{ request('to') }}" class="border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2 text-sm bg-slate-50/50 dark:bg-slate-700/50 text-slate-800 dark:text-white" />
+        </div>
+        <x-button variant="secondary" size="sm">Filter</x-button>
+        @if(request()->hasAny(['action', 'target_type', 'from', 'to']))
+            <a href="{{ route('admin.audit-logs') }}" class="text-xs font-bold text-slate-500 dark:text-slate-400 hover:underline pb-2.5">Clear</a>
+        @endif
+    </form>
+
     <x-data-table empty-message="No audit logs recorded yet">
         <x-slot:header>
             <th class="px-4 py-3 text-[10px] font-extrabold text-slate-500 dark:text-slate-500 uppercase tracking-widest">Action</th>
