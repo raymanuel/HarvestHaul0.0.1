@@ -6,12 +6,16 @@
     'centerLng' => 125.5,
     'zoom' => 8,
     'height' => '280px',
+    'lat' => null,
+    'lng' => null,
 ])
 
 @php
     $elId = 'loc-picker-'.\Illuminate\Support\Str::random(8);
-    $oldLat = old($latField);
-    $oldLng = old($lngField);
+    // old() (a failed submission being redisplayed) wins over a saved DB value,
+    // which wins over a blank map.
+    $oldLat = old($latField, $lat);
+    $oldLng = old($lngField, $lng);
 @endphp
 
 <div>

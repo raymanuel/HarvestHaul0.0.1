@@ -109,6 +109,7 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
 
     Route::get('profile', [ProfileController::class, 'show'])->name('profile.show');
     Route::put('profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::put('profile/email', [ProfileController::class, 'updateEmail'])->middleware('throttle:5,1')->name('profile.email');
     Route::put('profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
     Route::post('profile/save-location', [ProfileController::class, 'saveLocation'])->name('profile.save-location');
 

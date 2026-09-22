@@ -39,4 +39,9 @@ return [
         'key' => env('OPENWEATHER_API_KEY'),
     ],
 
+    'nominatim' => [
+        // Nominatim's usage policy requires a real identifying User-Agent on every request.
+        'user_agent' => env('NOMINATIM_USER_AGENT', 'HarvestHaul/1.0 (+https://harvesthaul.example)'),
+    ],
+
 ];

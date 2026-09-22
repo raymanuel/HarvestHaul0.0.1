@@ -23,6 +23,9 @@ class BuyerProfile extends Model
         'business_information',
         'status',
         'is_verified',
+        'latitude',
+        'longitude',
+        'location_label',
     ];
 
     protected $casts = [
