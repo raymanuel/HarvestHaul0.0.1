@@ -227,10 +227,7 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
         Route::prefix('coop')->name('coop.')->middleware('coop_admin.approved')->group(function () {
             Route::get('/', [CoopDashboardController::class, 'index'])->name('dashboard');
 
-            Route::prefix('settings')->name('settings.')->group(function () {
-                Route::get('/', [CoopSettingsController::class, 'edit'])->name('edit');
-                Route::put('/', [CoopSettingsController::class, 'update'])->name('update');
-            });
+            Route::put('settings', [CoopSettingsController::class, 'update'])->name('settings.update');
 
             /*
             | Farmer membership requests (3A)

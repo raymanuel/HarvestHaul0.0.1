@@ -9,13 +9,6 @@ use Illuminate\Support\Facades\Auth;
 
 class SettingsController extends Controller
 {
-    public function edit()
-    {
-        $cooperative = Auth::user()->cooperative;
-
-        return view('coop.settings.edit', compact('cooperative'));
-    }
-
     public function update(Request $request)
     {
         $cooperative = Auth::user()->cooperative;
@@ -37,6 +30,8 @@ class SettingsController extends Controller
                 .($data['max_cluster_radius_km'] ?? 'platform default').'.',
         ]);
 
-        return redirect()->route('coop.settings.edit')->with('success', 'Settings saved.');
+        // Submitted from the pickup planner (the only place this setting
+        // affects) — return there rather than to a dedicated settings page.
+        return back()->with('success', 'Settings saved.');
     }
 }

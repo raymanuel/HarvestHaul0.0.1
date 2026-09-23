@@ -227,13 +227,6 @@ return [
                 'route_url' => 'messages.index',
                 'tooltip' => 'Messages',
             ],
-            [
-                'label' => 'Settings',
-                'letter' => 'S',
-                'route' => 'coop.settings.*',
-                'route_url' => 'coop.settings.edit',
-                'tooltip' => 'Cooperative Settings',
-            ],
         ],
     ],
 

@@ -1,12 +1,28 @@
 <x-layout title="Plan a Pickup Trip — Cooperative">
     <x-page-header variant="back-link" title="Plan a Pickup Trip" :back-href="route('coop.pickups.index')" back-label="← Back to Trips" />
 
-    <form method="GET" action="{{ route('coop.pickups.create') }}" class="mb-6 max-w-xs">
-        <x-input name="date" label="Pickup Date" type="date" :value="$date" onchange="this.form.submit()" />
-    </form>
+    <div class="flex flex-wrap items-end gap-6 mb-6">
+        <form method="GET" action="{{ route('coop.pickups.create') }}" class="max-w-xs">
+            <x-input name="date" label="Pickup Date" type="date" :value="$date" onchange="this.form.submit()" />
+        </form>
+
+        <form method="POST" action="{{ route('coop.settings.update') }}" class="flex items-end gap-2 max-w-xs">
+            @csrf
+            @method('PUT')
+            <x-input
+                name="max_cluster_radius_km"
+                label="Consolidation Radius (km)"
+                type="number"
+                step="any"
+                :value="old('max_cluster_radius_km', $cooperative->max_cluster_radius_km)"
+                placeholder="Default: 20"
+            />
+            <x-button variant="secondary" size="sm">Save</x-button>
+        </form>
+    </div>
 
     <p class="text-sm text-slate-500 dark:text-slate-400 mb-6">
-        Approved requests for {{ \Carbon\Carbon::parse($date)->format('M d, Y') }} are grouped into candidate trips by truck capacity. Review each on the map, adjust the checked stops or truck/driver if needed, then create the ones you want. Picking another date re-runs the plan.
+        Approved requests for {{ \Carbon\Carbon::parse($date)->format('M d, Y') }} are grouped into candidate trips by truck capacity and how close farmers are to each other — within {{ $cooperative->max_cluster_radius_km ?? '20 (default)' }} km. Review each on the map, adjust the checked stops or truck/driver if needed, then create the ones you want. Picking another date re-runs the plan.
     </p>
 
     @if(in_array($plan['weather']['severity'] ?? 'unknown', ['moderate', 'severe']))
