@@ -116,7 +116,7 @@
                 <form method="POST" action="{{ route('profile.save-location') }}" class="space-y-4">
                     @csrf
 
-                    <x-location-picker label="Pin Your Location" :lat="$lat" :lng="$lng" />
+                    <x-location-picker label="Pin Your Location" :lat="$lat" :lng="$lng" :show-coordinate-inputs="true" />
 
                     @if($user->isFarmer())
                         <x-input name="location_label" label="Farm Location Label" :value="$user->farmerProfile?->farm_location" placeholder="e.g. Purok 3, Brgy. San Isidro" />

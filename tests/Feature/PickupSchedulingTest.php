@@ -123,6 +123,40 @@ class PickupSchedulingTest extends TestCase
         $response->assertSessionHasErrors('requests');
     }
 
+    /**
+     * store() throws ValidationException on several real conditions (no
+     * requests selected, date no longer >= today, truck taken, driver
+     * double-booked), but the create page never displayed $errors for any
+     * of them and the site-wide flash banner only reads session('error')
+     * strings — so a rejected submission silently reloaded the same page
+     * with zero visible feedback ("the Create button does nothing").
+     */
+    public function test_rejected_trip_submission_shows_a_visible_error_on_reload(): void
+    {
+        $coop = $this->coopAdmin();
+        $date = today()->addDay()->toDateString();
+        $truck = Truck::factory()->create(['cooperative_id' => $coop->cooperative_id]);
+        $driver = User::factory()->create(['role' => UserRole::DELIVERY_PERSONNEL->value, 'cooperative_id' => $coop->cooperative_id]);
+
+        $pending = HaulRequest::factory()->create([
+            'cooperative_id' => $coop->cooperative_id,
+            'status' => HaulRequest::STATUS_PENDING,
+            'preferred_pickup_date' => $date,
+        ]);
+
+        $response = $this->actingAs($coop)->from(route('coop.pickups.create', ['date' => $date]))
+            ->followingRedirects()
+            ->post(route('coop.pickups.store'), [
+                'date' => $date,
+                'truck_id' => $truck->id,
+                'delivery_personnel_id' => $driver->id,
+                'requests' => [$pending->id],
+            ]);
+
+        $response->assertOk();
+        $response->assertSee('not available to schedule', false);
+    }
+
     public function test_approve_moves_request_from_pending_to_approved(): void
     {
         $coop = $this->coopAdmin();

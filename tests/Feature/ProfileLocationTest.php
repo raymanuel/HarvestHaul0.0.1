@@ -205,4 +205,37 @@ class ProfileLocationTest extends TestCase
 
         $response->assertSessionHasErrors(['password']);
     }
+
+    public function test_profile_page_renders_visible_editable_coordinate_inputs(): void
+    {
+        $farmer = User::factory()->create(['role' => UserRole::FARMER->value]);
+
+        $response = $this->actingAs($farmer)->get(route('profile.show'));
+
+        $response->assertOk();
+        $response->assertSee('name="latitude"', false);
+        $response->assertSee('name="longitude"', false);
+        $response->assertSee('type="number"', false);
+    }
+
+    public function test_other_location_pickers_still_render_coordinates_as_hidden_inputs(): void
+    {
+        $coop = Cooperative::create([
+            'name' => 'GenSan AgCoop', 'type' => 'primary',
+            'contact_number' => '09171234567', 'official_email' => 'coop-hidden@example.com',
+            'status' => Cooperative::STATUS_APPROVED,
+        ]);
+        $farmer = User::factory()->create(['role' => UserRole::FARMER->value]);
+        FarmerProfile::create([
+            'user_id' => $farmer->id,
+            'affiliation_type' => 'cooperative',
+            'cooperative_id' => $coop->id,
+            'membership_status' => 'approved',
+        ]);
+
+        $response = $this->actingAs($farmer)->get(route('farmer.haul-requests.create'));
+
+        $response->assertOk();
+        $response->assertSee('type="hidden" name="pickup_location_lat"', false);
+    }
 }

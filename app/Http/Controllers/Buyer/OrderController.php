@@ -7,11 +7,15 @@ use App\Http\Controllers\Coop\LocationMonitoringController;
 use App\Models\BuyerOrder;
 use App\Models\BuyerOrderItem;
 use App\Models\BuyerProfile;
+use App\Models\Crop;
 use App\Models\CropAvailability;
+use App\Models\CropGrade;
 use App\Models\Notification;
 use App\Models\User;
 use App\Models\UserRole;
+use App\Services\Matching\OrderMatchingService;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -19,14 +23,71 @@ use Illuminate\Validation\ValidationException;
 
 class OrderController extends Controller
 {
-    public function browse()
+    public function browse(Request $request, OrderMatchingService $matcher)
     {
-        $listings = CropAvailability::availableForSale()
-            ->with(['cooperative', 'crop', 'cropVariety', 'cropGrade'])
-            ->latest()
-            ->paginate(20);
+        $filters = $request->validate([
+            'crop_id'       => 'nullable|integer|exists:crops,id',
+            'crop_grade_id' => 'nullable|integer|exists:crop_grades,id',
+            'min_kg'        => 'nullable|numeric|min:0',
+            'max_price'     => 'nullable|numeric|min:0',
+            'sort'          => 'nullable|in:best_match,nearest,cheapest,newest',
+        ]);
 
-        return view('buyer.listings.index', compact('listings'));
+        $sort = $filters['sort'] ?? 'best_match';
+
+        $query = CropAvailability::availableForSale()
+            ->with(['cooperative', 'crop', 'cropVariety', 'cropGrade']);
+
+        if (! empty($filters['crop_id'])) {
+            $query->where('crop_id', $filters['crop_id']);
+        }
+
+        if (! empty($filters['crop_grade_id'])) {
+            $query->where('crop_grade_id', $filters['crop_grade_id']);
+        }
+
+        if (! empty($filters['max_price'])) {
+            $query->where('selling_price_per_kg', '<=', $filters['max_price']);
+        }
+
+        $listings = $query->latest()->limit(500)->get();
+
+        if (! empty($filters['min_kg'])) {
+            $listings = $listings->filter(fn ($listing) => $listing->remaining_kg >= (float) $filters['min_kg'])->values();
+        }
+
+        $buyerProfile = Auth::user()?->buyerProfile;
+        $hasLocation = $buyerProfile && $buyerProfile->latitude !== null && $buyerProfile->longitude !== null;
+
+        $listings = $matcher->rank($listings, $buyerProfile, ['min_kg' => $filters['min_kg'] ?? null]);
+
+        $listings = match ($sort) {
+            'nearest' => $listings->sortBy(fn ($l) => $l->distance_km ?? PHP_FLOAT_MAX)->values(),
+            'cheapest' => $listings->sortBy('selling_price_per_kg')->values(),
+            'newest' => $listings->sortByDesc('created_at')->values(),
+            default => $listings, // already best_match sorted by the matcher
+        };
+
+        $page = LengthAwarePaginator::resolveCurrentPage();
+        $perPage = 20;
+        $listings = (new LengthAwarePaginator(
+            $listings->forPage($page, $perPage),
+            $listings->count(),
+            $perPage,
+            $page,
+            ['path' => LengthAwarePaginator::resolveCurrentPath()]
+        ))->withQueryString();
+
+        $crops = Crop::orderBy('name')->get();
+        $cropGrades = CropGrade::active()->get();
+
+        return view('buyer.listings.index', [
+            'listings' => $listings,
+            'crops' => $crops,
+            'cropGrades' => $cropGrades,
+            'filters' => $filters + ['sort' => $sort],
+            'hasLocation' => $hasLocation,
+        ]);
     }
 
     public function show(CropAvailability $cropAvailability)

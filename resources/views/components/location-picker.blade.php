@@ -8,6 +8,7 @@
     'height' => '280px',
     'lat' => null,
     'lng' => null,
+    'showCoordinateInputs' => false,
 ])
 
 @php
@@ -29,8 +30,22 @@
         <p class="text-xs text-[var(--color-error-text)] mt-1">{{ $message }}</p>
     @enderror
 
-    <input type="hidden" name="{{ $latField }}" id="{{ $elId }}-lat" value="{{ $oldLat }}">
-    <input type="hidden" name="{{ $lngField }}" id="{{ $elId }}-lng" value="{{ $oldLng }}">
+    @if($showCoordinateInputs)
+        <div class="grid grid-cols-2 gap-3 mt-2">
+            <input type="number" step="any" min="-90" max="90" name="{{ $latField }}" id="{{ $elId }}-lat"
+                   value="{{ $oldLat }}" oninput="locPickerOnCoordInput('{{ $elId }}')"
+                   class="w-full border border-slate-200 dark:border-slate-600 rounded-xl px-3 py-2 text-sm bg-slate-50/50 dark:bg-slate-700/50 text-slate-800 dark:text-white" placeholder="Latitude">
+            <input type="number" step="any" min="-180" max="180" name="{{ $lngField }}" id="{{ $elId }}-lng"
+                   value="{{ $oldLng }}" oninput="locPickerOnCoordInput('{{ $elId }}')"
+                   class="w-full border border-slate-200 dark:border-slate-600 rounded-xl px-3 py-2 text-sm bg-slate-50/50 dark:bg-slate-700/50 text-slate-800 dark:text-white" placeholder="Longitude">
+        </div>
+        @error($lngField)
+            <p class="text-xs text-[var(--color-error-text)] mt-1">{{ $message }}</p>
+        @enderror
+    @else
+        <input type="hidden" name="{{ $latField }}" id="{{ $elId }}-lat" value="{{ $oldLat }}">
+        <input type="hidden" name="{{ $lngField }}" id="{{ $elId }}-lng" value="{{ $oldLng }}">
+    @endif
 </div>
 
 @once
@@ -51,11 +66,9 @@
                 });
             }
 
-            function locPickerSetPoint(elId, lat, lng) {
+            function locPickerMoveMarker(elId, lat, lng) {
                 var entry = window.__locPickers[elId];
                 if (!entry) return;
-                document.getElementById(elId + '-lat').value = lat.toFixed(7);
-                document.getElementById(elId + '-lng').value = lng.toFixed(7);
                 if (entry.marker) {
                     entry.marker.setLatLng([lat, lng]);
                 } else {
@@ -65,6 +78,21 @@
                         locPickerSetPoint(elId, ll.lat, ll.lng);
                     });
                 }
+            }
+
+            function locPickerSetPoint(elId, lat, lng) {
+                document.getElementById(elId + '-lat').value = lat.toFixed(7);
+                document.getElementById(elId + '-lng').value = lng.toFixed(7);
+                locPickerMoveMarker(elId, lat, lng);
+            }
+
+            function locPickerOnCoordInput(elId) {
+                var lat = parseFloat(document.getElementById(elId + '-lat').value);
+                var lng = parseFloat(document.getElementById(elId + '-lng').value);
+                if (isNaN(lat) || isNaN(lng) || lat < -90 || lat > 90 || lng < -180 || lng > 180) return;
+                var entry = window.__locPickers[elId];
+                if (entry) entry.map.setView([lat, lng], Math.max(entry.map.getZoom(), 15));
+                locPickerMoveMarker(elId, lat, lng);
             }
         </script>
     @endpush
