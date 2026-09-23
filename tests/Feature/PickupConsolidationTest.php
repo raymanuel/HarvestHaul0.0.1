@@ -218,4 +218,43 @@ class PickupConsolidationTest extends TestCase
 
         $this->assertNull($plan['groups'][0]['route_geometry']);
     }
+
+    /**
+     * Weight alone must not decide who shares a truck. Two requests ~55km
+     * apart both fit one truck by weight (2000+2000=4000 ≤ 5000), but are far
+     * outside any reasonable pickup radius of each other — they must land in
+     * separate groups, not be force-packed together just because they fit.
+     */
+    public function test_bin_packing_does_not_group_requests_that_are_too_far_apart(): void
+    {
+        $coop = $this->cooperative();
+        $date = today()->addDay()->toDateString();
+
+        Truck::factory()->create(['cooperative_id' => $coop->id, 'capacity_kg' => 5000, 'status' => 'available']);
+        Truck::factory()->create(['cooperative_id' => $coop->id, 'capacity_kg' => 5000, 'status' => 'available']);
+
+        HaulRequest::factory()->create([
+            'cooperative_id'        => $coop->id,
+            'status'                => HaulRequest::STATUS_APPROVED,
+            'preferred_pickup_date' => $date,
+            'estimated_weight_kg'   => 2000,
+            'pickup_location_lat'   => 6.12,
+            'pickup_location_lng'   => 125.18,
+        ]);
+        HaulRequest::factory()->create([
+            'cooperative_id'        => $coop->id,
+            'status'                => HaulRequest::STATUS_APPROVED,
+            'preferred_pickup_date' => $date,
+            'estimated_weight_kg'   => 2000,
+            'pickup_location_lat'   => 6.62, // ~55km north of the point above
+            'pickup_location_lng'   => 125.18,
+        ]);
+
+        $plan = app(ConsolidationEngine::class)->planForDate($coop, $date);
+
+        $this->assertCount(2, $plan['groups']);
+        foreach ($plan['groups'] as $group) {
+            $this->assertCount(1, $group['requests']);
+        }
+    }
 }

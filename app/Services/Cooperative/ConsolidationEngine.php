@@ -349,6 +349,8 @@ class ConsolidationEngine
      */
     private function binPackByCapacity(Collection $requests, Collection $trucks): array
     {
+        $maxRadiusKm = (float) config('harvesthaul.consolidation.max_cluster_radius_km', 20);
+
         $bins = $trucks->sortByDesc('capacity_kg')->values()
             ->map(fn ($truck) => ['truck' => $truck, 'requests' => collect(), 'load_kg' => 0.0])
             ->all();
@@ -360,7 +362,11 @@ class ConsolidationEngine
             $placed = false;
 
             foreach ($bins as &$bin) {
-                if ($bin['load_kg'] + $weight <= (float) $bin['truck']->capacity_kg) {
+                $fitsCapacity = $bin['load_kg'] + $weight <= (float) $bin['truck']->capacity_kg;
+                $fitsGeography = $bin['requests']->isEmpty()
+                    || $this->withinClusterRadius($req, $bin['requests'], $maxRadiusKm);
+
+                if ($fitsCapacity && $fitsGeography) {
                     $bin['requests']->push($req);
                     $bin['load_kg'] += $weight;
                     $placed = true;
@@ -377,6 +383,35 @@ class ConsolidationEngine
         $bins = array_values(array_filter($bins, fn ($b) => $b['requests']->isNotEmpty()));
 
         return ['groups' => $bins, 'unassigned' => $unassigned];
+    }
+
+    /**
+     * Weight alone must not decide who shares a truck (spec: consolidation
+     * is not based on capacity alone). Distance is measured from the
+     * request's pickup point to the bin's current centroid — the average
+     * lat/lng of stops already placed in it — rather than to the nearest
+     * individual stop, so a group can't chain its way across a wide span
+     * through a series of "close enough to the last one" hops.
+     */
+    private function withinClusterRadius(HaulRequest $req, Collection $binRequests, float $maxRadiusKm): bool
+    {
+        if ($req->pickup_location_lat === null || $req->pickup_location_lng === null) {
+            return true; // no coordinates to filter on — don't block on missing data
+        }
+
+        $lats = $binRequests->pluck('pickup_location_lat')->filter(fn ($v) => $v !== null);
+        $lngs = $binRequests->pluck('pickup_location_lng')->filter(fn ($v) => $v !== null);
+
+        if ($lats->isEmpty()) {
+            return true;
+        }
+
+        return $this->haversine->distanceKm(
+            (float) $req->pickup_location_lat,
+            (float) $req->pickup_location_lng,
+            (float) $lats->avg(),
+            (float) $lngs->avg(),
+        ) <= $maxRadiusKm;
     }
 
     /**

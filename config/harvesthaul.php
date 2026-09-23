@@ -94,6 +94,14 @@ return [
         'large_load_threshold_kg'    => (float) env('PICKUP_LARGE_LOAD_THRESHOLD_KG', 2000),
     ],
 
+    'consolidation' => [
+        // Requests too far from a truck's already-assigned stops don't join
+        // that group even if the weight would fit — capacity alone must not
+        // decide who shares a truck. Distance is from a request's pickup
+        // point to the group's centroid (ConsolidationEngine::binPackByCapacity).
+        'max_cluster_radius_km' => (float) env('CONSOLIDATION_MAX_CLUSTER_RADIUS_KM', 20),
+    ],
+
     /*
     |--------------------------------------------------------------------------
     | Logistics Monitoring Configuration
