@@ -34,6 +34,17 @@
         </div>
     @endif
 
+    @if($errors->any())
+        <div class="mb-6 rounded-xl border border-[var(--color-error-border)] bg-[var(--color-error-bg)] px-4 py-3 text-sm text-[var(--color-error-text)]">
+            <p class="text-xs font-bold uppercase tracking-wider mb-1">Couldn't create the trip</p>
+            <ul class="list-disc list-inside space-y-0.5">
+                @foreach($errors->all() as $message)
+                    <li>{{ $message }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     @if($plan['groups'] === [])
         <x-empty-state type="first-use" title="No approved requests for this date" description="Approve pending pickup requests for this date first, or pick another date." />
     @endif
@@ -87,7 +98,7 @@
                                         </td>
                                         <td class="px-4 py-3 {{ $eta && ! $eta['window_ok'] ? 'text-amber-700 dark:text-amber-400 font-semibold' : 'text-slate-600 dark:text-slate-300' }}">
                                             @if($eta)
-                                                +{{ $eta['arrival_min'] }} min{{ $eta['window_ok'] ? '' : ' (outside window)' }}
+                                                {{ \Carbon\Carbon::createFromTime(0, 0)->addMinutes((int) $eta['arrival_min'])->format('g:i A') }}{{ $eta['window_ok'] ? '' : ' (outside window)' }}
                                             @else
                                                 —
                                             @endif

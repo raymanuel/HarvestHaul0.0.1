@@ -582,7 +582,12 @@ class ConsolidationEngine
 
         $schedule = [];
         $windowsOk = true;
-        $departure = 0.0;
+        // A farmer's pickup_window_start/end (earliest/latest below) are
+        // clock time as minutes-since-midnight — arrival/departure must
+        // start on that same clock, not at 0 (minutes since the truck left
+        // the depot), or every window comparison compares two different
+        // clocks and produces nonsense wait times.
+        $departure = (float) config('harvesthaul.pickup.dispatch_start_minutes', 360);
         $previousId = 'depot';
 
         foreach ($orderedStopIds as $id) {

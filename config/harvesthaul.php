@@ -92,6 +92,11 @@ return [
         'base_service_minutes'       => (float) env('PICKUP_BASE_SERVICE_MINUTES', 15),
         'large_load_service_minutes' => (float) env('PICKUP_LARGE_LOAD_SERVICE_MINUTES', 30),
         'large_load_threshold_kg'    => (float) env('PICKUP_LARGE_LOAD_THRESHOLD_KG', 2000),
+
+        // What time the truck leaves the cooperative, as minutes since
+        // midnight (360 = 6:00 AM). The arrival/wait schedule is built on
+        // this same clock as each farmer's pickup_window_start/end.
+        'dispatch_start_minutes' => (float) env('PICKUP_DISPATCH_START_MINUTES', 360),
     ],
 
     'consolidation' => [
@@ -145,6 +150,35 @@ return [
             'clear'    => 1.00,
             'moderate' => (float) env('WEATHER_ETA_BUFFER_MODERATE', 1.15),
             'severe'   => (float) env('WEATHER_ETA_BUFFER_SEVERE', 1.30),
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Smart Order Matching Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Ranks buyer-listing browse results by distance, quantity fit, and
+    | grade. Advisory only — buyer still picks the listing. A component
+    | with missing input (no buyer location, no grade) is skipped and the
+    | remaining weights are renormalized (OrderMatchingService).
+    |
+    */
+
+    'matching' => [
+        'weights' => [
+            'distance' => 40,
+            'quantity' => 35,
+            'grade'    => 25,
+        ],
+
+        // Beyond this, distance stops contributing anything to the score.
+        'max_useful_distance_km' => (float) env('MATCHING_MAX_USEFUL_DISTANCE_KM', 100),
+
+        // match_score (0-100) thresholds for the label shown to the buyer.
+        'bands' => [
+            'best' => 80,
+            'good' => 60,
         ],
     ],
 

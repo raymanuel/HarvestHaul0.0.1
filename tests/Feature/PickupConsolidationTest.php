@@ -263,6 +263,88 @@ class PickupConsolidationTest extends TestCase
         $this->assertSame(30.0, $plan['groups'][0]['proposed']['distance_km']);
     }
 
+    /**
+     * arrival_min/wait_min must be on the SAME clock as the farmer's pickup
+     * window (minutes since midnight) — not minutes since the truck left the
+     * depot. Mixing those two clocks produced wait times in the hundreds of
+     * minutes and cascading wrong arrival times for every later stop.
+     */
+    public function test_arrival_and_wait_are_computed_on_minutes_since_midnight(): void
+    {
+        Http::fake([
+            'router.project-osrm.org/table/*' => Http::response([
+                'code' => 'Ok',
+                // 1800s (30 real minutes) each way.
+                'durations' => [[0, 1800], [1800, 0]],
+                'distances' => [[0, 20000], [20000, 0]],
+            ]),
+            // Unrelated to this test — fail closed to the documented 'unknown'/1.0
+            // (no-op) buffer, so weather doesn't scale the travel time here.
+            'api.open-meteo.com/*' => Http::response([], 500),
+        ]);
+
+        $coop = $this->cooperative();
+        $date = today()->addDay()->toDateString();
+        Truck::factory()->create(['cooperative_id' => $coop->id, 'capacity_kg' => 5000, 'status' => 'available']);
+        // Factory default pickup window is 08:00-10:00 (480-600 min since midnight).
+        $this->approvedRequest($coop->id, $date, 1000);
+
+        $plan = app(ConsolidationEngine::class)->planForDate($coop, $date);
+        $schedule = $plan['groups'][0]['proposed']['schedule'][0];
+
+        // Dispatch at the platform default (06:00 = 360 min) + 30 min travel = 390.
+        $this->assertSame(390.0, $schedule['arrival_min']);
+        // Truck arrives before the 08:00 window opens (480) — waits, doesn't
+        // arrive "396.7 minutes late" the way the pre-fix bug reported it.
+        $this->assertSame(90.0, $schedule['wait_min']);
+        $this->assertTrue($schedule['window_ok']);
+    }
+
+    /**
+     * The bug wasn't only a display glitch — PickupTripController::store()
+     * persists HaulJobStop.planned_arrival_at as pickup_date->startOfDay()
+     * ->addMinutes(arrival_min), which already assumed arrival_min was
+     * minutes-since-midnight. Before this fix it wasn't, so every real trip
+     * saved planned_arrival_at around 12:30-1:00 AM regardless of when the
+     * truck actually left.
+     */
+    public function test_created_trip_stop_gets_a_realistic_planned_arrival_time(): void
+    {
+        Http::fake([
+            'router.project-osrm.org/table/*' => Http::response([
+                'code' => 'Ok',
+                'durations' => [[0, 1800], [1800, 0]],
+                'distances' => [[0, 20000], [20000, 0]],
+            ]),
+            'router.project-osrm.org/route/*' => Http::response([
+                'code' => 'Ok',
+                'routes' => [['distance' => 20000, 'duration' => 1800, 'geometry' => ['coordinates' => [[125.18, 6.12], [125.1716, 6.1164]]]]],
+            ]),
+            'api.open-meteo.com/*' => Http::response([], 500),
+        ]);
+
+        $coop = $this->cooperative();
+        $coopAdmin = $this->coopAdmin($coop);
+        $date = today()->addDay()->toDateString();
+
+        $truck = Truck::factory()->create(['cooperative_id' => $coop->id, 'status' => 'available', 'capacity_kg' => 5000]);
+        $driver = User::factory()->create(['role' => UserRole::DELIVERY_PERSONNEL->value, 'cooperative_id' => $coop->id]);
+        $req = $this->approvedRequest($coop->id, $date, 2000);
+
+        $this->actingAs($coopAdmin)->post(route('coop.pickups.store'), [
+            'date' => $date,
+            'truck_id' => $truck->id,
+            'delivery_personnel_id' => $driver->id,
+            'requests' => [$req->id],
+        ]);
+
+        $stop = HaulJob::first()->stops()->first();
+
+        // Dispatch (06:00) + 30 min travel = 06:30 — not ~00:30/01:00.
+        $this->assertSame('06:30:00', $stop->planned_arrival_at->format('H:i:s'));
+        $this->assertSame($date, $stop->planned_arrival_at->toDateString());
+    }
+
     public function test_plan_for_date_route_geometry_is_null_when_osrm_unreachable(): void
     {
         Http::fake(['router.project-osrm.org/*' => Http::response([], 500)]);

@@ -81,8 +81,12 @@ class RouteOptimizationTest extends TestCase
         $normalService = $normalEntry['departure_min'] - $normalEntry['arrival_min'] - $normalEntry['wait_min'];
         $largeService = $largeEntry['departure_min'] - $largeEntry['arrival_min'] - $largeEntry['wait_min'];
 
-        $this->assertEquals(15.0, $normalService);
-        $this->assertEquals(30.0, $largeService);
+        // Delta, not exact equality — these are derived by subtracting three
+        // independently-rounded floats, which can leave IEEE-754 noise in
+        // the last few decimal places without the underlying value being
+        // wrong (e.g. 15.000000000000028, not actually a different number).
+        $this->assertEqualsWithDelta(15.0, $normalService, 0.01);
+        $this->assertEqualsWithDelta(30.0, $largeService, 0.01);
     }
 
     /**

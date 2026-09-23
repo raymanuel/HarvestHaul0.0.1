@@ -68,7 +68,7 @@
                                         <td class="px-4 py-3 text-slate-600 dark:text-slate-300">{{ \Illuminate\Support\Str::limit($order->delivery_address, 40) }}</td>
                                         <td class="px-4 py-3 text-slate-600 dark:text-slate-300">
                                             @if($eta)
-                                                +{{ $eta['arrival_min'] }} min
+                                                {{ \Carbon\Carbon::createFromTime(0, 0)->addMinutes((int) $eta['arrival_min'])->format('g:i A') }}
                                             @else
                                                 —
                                             @endif
