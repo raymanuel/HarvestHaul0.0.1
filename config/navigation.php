@@ -98,13 +98,6 @@ return [
                 'tooltip' => 'Farmer Members',
             ],
             [
-                'label' => 'Drivers',
-                'letter' => 'D',
-                'route' => 'coop.drivers.*',
-                'route_url' => 'coop.drivers.index',
-                'tooltip' => 'Delivery Personnel',
-            ],
-            [
                 'label' => 'Harvest & Pickups',
                 'letter' => 'H',
                 'route' => 'coop.haul-requests.*',
@@ -175,6 +168,13 @@ return [
                         'route_url' => 'coop.facility-receiving.index',
                         'tooltip' => 'Facility Receiving Verification',
                     ],
+                    [
+                        'label' => 'Field Staff',
+                        'letter' => 'S',
+                        'route' => 'coop.staff.*',
+                        'route_url' => 'coop.staff.index',
+                        'tooltip' => 'Field / Receiving Personnel',
+                    ],
                 ],
             ],
             [
@@ -192,11 +192,26 @@ return [
                 'tooltip' => 'Buyer Order Review',
             ],
             [
-                'label' => 'Trucks',
-                'letter' => 'T',
-                'route' => 'coop.trucks.*',
-                'route_url' => 'coop.trucks.index',
-                'tooltip' => 'Truck Fleet',
+                'label' => 'Fleet',
+                'letter' => 'V',
+                'route' => 'coop.drivers.*',
+                'tooltip' => 'Fleet',
+                'children' => [
+                    [
+                        'label' => 'Drivers',
+                        'letter' => 'D',
+                        'route' => 'coop.drivers.*',
+                        'route_url' => 'coop.drivers.index',
+                        'tooltip' => 'Delivery Personnel',
+                    ],
+                    [
+                        'label' => 'Trucks',
+                        'letter' => 'T',
+                        'route' => 'coop.trucks.*',
+                        'route_url' => 'coop.trucks.index',
+                        'tooltip' => 'Truck Fleet',
+                    ],
+                ],
             ],
             [
                 'label' => 'Reports',

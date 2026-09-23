@@ -10,6 +10,6 @@ final class PoolingJobStatus
     public const COMPLETED   = 'completed';
     public const CANCELLED   = 'cancelled';
 
-    public const PLANNED   = self::PENDING talags;
+    public const PLANNED   = self::PENDING;
     public const CONFIRMING = self::CONFIRMED;
 }

@@ -1,5 +1,11 @@
 <x-layout title="Order {{ $buyerOrder->reference }} — HarvestHaul">
     <x-page-header title="Order {{ $buyerOrder->reference }}" :showDate="true">
+        @if($buyerOrder->status === 'delivered')
+            <form method="POST" action="{{ route('buyer.orders.confirm-receipt', $buyerOrder) }}">
+                @csrf
+                <x-button variant="primary" size="sm">Confirm Receipt</x-button>
+            </form>
+        @endif
         @if($buyerOrder->stop)
             <x-button tag="a" variant="secondary" size="sm" href="{{ route('buyer.orders.track', $buyerOrder) }}">Track Delivery</x-button>
         @endif

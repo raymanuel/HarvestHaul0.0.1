@@ -134,6 +134,39 @@ class OrderController extends Controller
             ->with('success', "Order {$order->reference} submitted. The cooperative will review it.");
     }
 
+    public function confirmReceipt(BuyerOrder $buyerOrder)
+    {
+        $this->authorizeBuyer($buyerOrder);
+
+        if ($buyerOrder->status !== BuyerOrder::STATUS_DELIVERED) {
+            throw ValidationException::withMessages([
+                'order' => 'This order cannot be confirmed yet.',
+            ]);
+        }
+
+        $buyerOrder->update([
+            'status' => BuyerOrder::STATUS_COMPLETED,
+            'confirmed_at' => now(),
+        ]);
+
+        \App\Models\AuditLog::create([
+            'admin_id' => Auth::id(),
+            'action' => 'confirm_buyer_order_receipt',
+            'target_type' => 'buyer_order',
+            'target_id' => $buyerOrder->id,
+            'notes' => "Buyer confirmed receipt of order {$buyerOrder->reference}.",
+        ]);
+
+        $this->notifyCoopAdmins($buyerOrder->cooperative_id, [
+            'title'   => 'Order receipt confirmed',
+            'message' => "The buyer confirmed receipt of order {$buyerOrder->reference}.",
+            'link'    => route('coop.buyer-orders.show', $buyerOrder),
+        ]);
+
+        return redirect()->route('buyer.orders.show', $buyerOrder)
+            ->with('success', 'Thanks for confirming — order marked complete.');
+    }
+
     public function track(BuyerOrder $buyerOrder)
     {
         $this->authorizeBuyer($buyerOrder);

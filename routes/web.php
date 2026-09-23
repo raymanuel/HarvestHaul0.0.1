@@ -38,6 +38,7 @@ use App\Http\Controllers\Coop\CropAvailabilityController;
 use App\Http\Controllers\Coop\DashboardController as CoopDashboardController;
 use App\Http\Controllers\Coop\DriverManagementController;
 use App\Http\Controllers\Coop\FacilityReceivingController;
+use App\Http\Controllers\Coop\FieldStaffManagementController;
 use App\Http\Controllers\Coop\FarmerManagementController;
 use App\Http\Controllers\Coop\HaulRequestController as CoopHaulRequestController;
 use App\Http\Controllers\Coop\LocationMonitoringController;
@@ -252,6 +253,15 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
                 Route::get('/', [DriverManagementController::class, 'index'])->name('index');
                 Route::get('/create', [DriverManagementController::class, 'create'])->name('create');
                 Route::post('/', [DriverManagementController::class, 'store'])->name('store');
+            });
+
+            /*
+            | Field/receiving staff
+            */
+            Route::prefix('staff')->name('staff.')->group(function () {
+                Route::get('/', [FieldStaffManagementController::class, 'index'])->name('index');
+                Route::get('/create', [FieldStaffManagementController::class, 'create'])->name('create');
+                Route::post('/', [FieldStaffManagementController::class, 'store'])->name('store');
             });
 
             /*
@@ -485,6 +495,9 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
                     ->name('store');
                 Route::get('/{buyerOrder}/track', [BuyerOrderController::class, 'track'])->name('track');
                 Route::get('/{buyerOrder}/track/location', [BuyerOrderController::class, 'trackLocation'])->name('track.location');
+                Route::post('/{buyerOrder}/confirm-receipt', [BuyerOrderController::class, 'confirmReceipt'])
+                    ->middleware('throttle:20,1')
+                    ->name('confirm-receipt');
             });
         });
 

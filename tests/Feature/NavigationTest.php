@@ -63,6 +63,23 @@ class NavigationTest extends TestCase
         $response->assertSee(route('coop.pickups.calendar'), false);
     }
 
+    public function test_coop_admin_sidebar_groups_drivers_and_trucks_into_fleet(): void
+    {
+        $coop = Cooperative::create([
+            'name' => 'GenSan AgCoop', 'type' => 'primary',
+            'contact_number' => '09171234567', 'official_email' => 'coop-fleet@example.com',
+            'status' => Cooperative::STATUS_APPROVED,
+        ]);
+        $admin = User::factory()->create(['role' => UserRole::COOP_ADMIN->value, 'cooperative_id' => $coop->id]);
+
+        $response = $this->actingAs($admin)->get(route('coop.dashboard'));
+
+        $response->assertOk();
+        $response->assertSee('Fleet');
+        $response->assertSee(route('coop.drivers.index'), false);
+        $response->assertSee(route('coop.trucks.index'), false);
+    }
+
     public function test_super_admin_sidebar_groups_reference_data_into_dropdown(): void
     {
         $admin = User::factory()->create(['role' => UserRole::SUPER_ADMIN->value, 'email_verified_at' => now()]);
