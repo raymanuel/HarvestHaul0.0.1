@@ -205,6 +205,64 @@ class PickupConsolidationTest extends TestCase
         $this->assertNotEmpty($plan['groups'][0]['route_geometry']['geometry']);
     }
 
+    /**
+     * OSRM's /table endpoint returns durations in SECONDS. The matrix must
+     * convert to minutes once, at the boundary — every consumer downstream
+     * (advisory travel time, arrival schedule, time-window check) trusts
+     * the value is already in minutes.
+     */
+    public function test_advisory_travel_time_converts_osrm_seconds_to_minutes(): void
+    {
+        Http::fake([
+            'router.project-osrm.org/table/*' => Http::response([
+                'code' => 'Ok',
+                // 1800 seconds (30 real minutes) each way = 3600s round trip = 60 real minutes.
+                'durations' => [[0, 1800], [1800, 0]],
+                'distances' => [[0, 20000], [20000, 0]],
+            ]),
+        ]);
+
+        $coop = $this->cooperative();
+        $date = today()->addDay()->toDateString();
+        Truck::factory()->create(['cooperative_id' => $coop->id, 'capacity_kg' => 5000, 'status' => 'available']);
+        $this->approvedRequest($coop->id, $date, 2000);
+
+        $plan = app(ConsolidationEngine::class)->planForDate($coop, $date);
+
+        $this->assertSame('1 h 0 m', $plan['groups'][0]['proposed']['travel_time']);
+    }
+
+    /**
+     * The single-stop case above happens to reveal the seconds/minutes bug,
+     * but the leg-summation loop itself (walking $seq by position, not by
+     * value) needs a real multi-stop trip to prove it sums every leg
+     * exactly once. A fully symmetric matrix makes the total independent
+     * of whatever order nearest-neighbor/2-opt pick.
+     */
+    public function test_advisory_travel_time_sums_every_leg_once_for_a_multi_stop_trip(): void
+    {
+        Http::fake([
+            'router.project-osrm.org/table/*' => Http::response([
+                'code' => 'Ok',
+                // 1500s (25 real minutes) between every pair — depot(0), stop(1), stop(2).
+                'durations' => [[0, 1500, 1500], [1500, 0, 1500], [1500, 1500, 0]],
+                'distances' => [[0, 10000, 10000], [10000, 0, 10000], [10000, 10000, 0]],
+            ]),
+        ]);
+
+        $coop = $this->cooperative();
+        $date = today()->addDay()->toDateString();
+        Truck::factory()->create(['cooperative_id' => $coop->id, 'capacity_kg' => 5000, 'status' => 'available']);
+        $this->approvedRequest($coop->id, $date, 1000);
+        $this->approvedRequest($coop->id, $date, 1000);
+
+        $plan = app(ConsolidationEngine::class)->planForDate($coop, $date);
+
+        // depot → stop → stop → depot = 3 legs × 25 real minutes = 75 minutes.
+        $this->assertSame('1 h 15 m', $plan['groups'][0]['proposed']['travel_time']);
+        $this->assertSame(30.0, $plan['groups'][0]['proposed']['distance_km']);
+    }
+
     public function test_plan_for_date_route_geometry_is_null_when_osrm_unreachable(): void
     {
         Http::fake(['router.project-osrm.org/*' => Http::response([], 500)]);
@@ -225,6 +283,40 @@ class PickupConsolidationTest extends TestCase
      * outside any reasonable pickup radius of each other — they must land in
      * separate groups, not be force-packed together just because they fit.
      */
+    public function test_bin_packing_uses_the_cooperatives_own_radius_when_set(): void
+    {
+        // ~25km apart — outside the global 20km default, but inside this
+        // coop's own wider 30km setting. Proves the per-coop override raises
+        // the global default, not just narrows it.
+        $coop = $this->cooperative();
+        $coop->update(['max_cluster_radius_km' => 30]);
+        $date = today()->addDay()->toDateString();
+
+        Truck::factory()->create(['cooperative_id' => $coop->id, 'capacity_kg' => 5000, 'status' => 'available']);
+
+        HaulRequest::factory()->create([
+            'cooperative_id'        => $coop->id,
+            'status'                => HaulRequest::STATUS_APPROVED,
+            'preferred_pickup_date' => $date,
+            'estimated_weight_kg'   => 2000,
+            'pickup_location_lat'   => 6.12,
+            'pickup_location_lng'   => 125.18,
+        ]);
+        HaulRequest::factory()->create([
+            'cooperative_id'        => $coop->id,
+            'status'                => HaulRequest::STATUS_APPROVED,
+            'preferred_pickup_date' => $date,
+            'estimated_weight_kg'   => 2000,
+            'pickup_location_lat'   => 6.345, // ~25km from the point above
+            'pickup_location_lng'   => 125.18,
+        ]);
+
+        $plan = app(ConsolidationEngine::class)->planForDate($coop, $date);
+
+        $this->assertCount(1, $plan['groups']);
+        $this->assertCount(2, $plan['groups'][0]['requests']);
+    }
+
     public function test_bin_packing_does_not_group_requests_that_are_too_far_apart(): void
     {
         $coop = $this->cooperative();

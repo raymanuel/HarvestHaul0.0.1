@@ -33,7 +33,12 @@ class OsrmRoutingService implements RoutingServiceContract
             $res = $this->request()->get($url);
 
             if ($res->ok() && $res->json('code') === 'Ok') {
-                $durations = collect($res->json('durations'));
+                // OSRM returns /table durations in SECONDS. Convert once,
+                // here, so every consumer of $matrix['durations'] (advisory
+                // travel time, arrival schedule, time-window check) can
+                // trust the value is already in minutes.
+                $durations = collect($res->json('durations'))
+                    ->map(fn ($row) => array_map(fn ($v) => $v / 60.0, $row));
                 $distances = collect($res->json('distances'));
 
                 // durations[0]/distances[0] are plain arrays (the depot row),

@@ -24,13 +24,14 @@ class Cooperative extends Model
         'rep_name', 'rep_position', 'rep_contact', 'rep_email',
         'rep_id_type', 'rep_id_number', 'rep_id_document_path', 'rep_authorization_document_path',
         'status', 'reviewer_id', 'reviewed_at', 'rejection_reason', 'admin_notes',
-        'coop_admin_user_id', 'latitude', 'longitude',
+        'coop_admin_user_id', 'latitude', 'longitude', 'max_cluster_radius_km',
     ];
 
     protected $casts = [
         'year_established' => 'integer',
         'registration_date' => 'date',
         'reviewed_at' => 'datetime',
+        'max_cluster_radius_km' => 'float',
     ];
 
     public function coopAdminUser()

@@ -46,6 +46,7 @@ use App\Http\Controllers\Coop\OutboundDeliveryController;
 use App\Http\Controllers\Coop\TruckController;
 use App\Http\Controllers\Coop\PickupTripController;
 use App\Http\Controllers\Coop\ProcurementController;
+use App\Http\Controllers\Coop\SettingsController as CoopSettingsController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Delivery\DashboardController as DeliveryDashboardController;
 use App\Http\Controllers\Delivery\TripController as DeliveryTripController;
@@ -225,6 +226,11 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
 
         Route::prefix('coop')->name('coop.')->middleware('coop_admin.approved')->group(function () {
             Route::get('/', [CoopDashboardController::class, 'index'])->name('dashboard');
+
+            Route::prefix('settings')->name('settings.')->group(function () {
+                Route::get('/', [CoopSettingsController::class, 'edit'])->name('edit');
+                Route::put('/', [CoopSettingsController::class, 'update'])->name('update');
+            });
 
             /*
             | Farmer membership requests (3A)

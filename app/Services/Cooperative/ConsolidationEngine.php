@@ -54,7 +54,7 @@ class ConsolidationEngine
 
         $weatherAdvisory = $this->weatherAdvisory($cooperative, $date);
 
-        $packed = $this->binPackByCapacity($requests, $trucks);
+        $packed = $this->binPackByCapacity($requests, $trucks, $cooperative);
 
         $groups = [];
         foreach ($packed['groups'] as $i => $bin) {
@@ -347,9 +347,12 @@ class ConsolidationEngine
      * available truck is "incompatible" (spec 6.3) and returned unassigned
      * rather than forced into an overloaded trip.
      */
-    private function binPackByCapacity(Collection $requests, Collection $trucks): array
+    private function binPackByCapacity(Collection $requests, Collection $trucks, Cooperative $cooperative): array
     {
-        $maxRadiusKm = (float) config('harvesthaul.consolidation.max_cluster_radius_km', 20);
+        // A cooperative can widen or tighten this from its own settings —
+        // falls back to the platform default when unset.
+        $maxRadiusKm = (float) ($cooperative->max_cluster_radius_km
+            ?? config('harvesthaul.consolidation.max_cluster_radius_km', 20));
 
         $bins = $trucks->sortByDesc('capacity_kg')->values()
             ->map(fn ($truck) => ['truck' => $truck, 'requests' => collect(), 'load_kg' => 0.0])
@@ -448,12 +451,16 @@ class ConsolidationEngine
             $idx = collect($orderedStopIds)->map(fn ($id) => array_search($id, array_column($stops, 'id')));
             // depot(0) → stops → depot
             $seq = [0, ...$idx->values()->all(), 0];
-            foreach ($seq as $i) {
-                $next = $seq[$i + 1] ?? null;
-                if ($next !== null) {
-                    $totalMin += (float) $matrix['durations'][$i][$next];
-                    $totalKm  += ((float) $matrix['distances'][$i][$next]) / 1000.0;
-                }
+            // Walk by POSITION, not by value — $seq holds matrix indices as
+            // its values, and a stop's index can coincide with an earlier
+            // array position, which silently double-counted (or skipped)
+            // legs when this looped "foreach ($seq as $i)" and reused $i as
+            // a position into $seq itself.
+            for ($p = 0; $p < count($seq) - 1; $p++) {
+                $from = $seq[$p];
+                $to   = $seq[$p + 1];
+                $totalMin += (float) ($matrix['durations'][$from][$to] ?? 0);
+                $totalKm  += ((float) ($matrix['distances'][$from][$to] ?? 0)) / 1000.0;
             }
         } else {
             $totalKm = $matrix['total_km'] ?? 0;
