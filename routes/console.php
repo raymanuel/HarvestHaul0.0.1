@@ -13,6 +13,7 @@ Schedule::call(function () {
 })->name('scheduler-heartbeat')->everyMinute();
 
 Schedule::command('haul:detect-delays')->everyFifteenMinutes();
+Schedule::command('haul:detect-weather-risk')->hourly();
 
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());

@@ -10,6 +10,8 @@ use App\Models\User;
 use App\Models\UserRole;
 use App\Services\Routing\HaversineService;
 use App\Services\Routing\RoutingServiceContract;
+use App\Services\Weather\WeatherService;
+use Carbon\Carbon;
 use Illuminate\Support\Collection;
 
 /**
@@ -31,6 +33,7 @@ class ConsolidationEngine
     public function __construct(
         private RoutingServiceContract $routing,
         private HaversineService $haversine,
+        private WeatherService $weather,
     ) {}
 
     public function planForDate(Cooperative $cooperative, string $date): array
@@ -49,13 +52,15 @@ class ConsolidationEngine
         $coopLng = (float) ($cooperative->longitude ?? 0);
         $depot = ['lat' => $coopLat, 'lng' => $coopLng];
 
+        $weatherAdvisory = $this->weatherAdvisory($cooperative, $date);
+
         $packed = $this->binPackByCapacity($requests, $trucks);
 
         $groups = [];
         foreach ($packed['groups'] as $i => $bin) {
             $stops = $this->buildStopPoints($bin['requests'], $depot);
             $matrix = $this->fetchRoadMatrix($stops);
-            $proposed = $this->buildProposedPlan($bin, $stops, $matrix, $depot);
+            $proposed = $this->buildProposedPlan($bin, $stops, $matrix, $depot, $weatherAdvisory['buffer']);
 
             // Spec 7.2: "OSRM Final Route" happens before "Map Display" and
             // "Human Review" — the real road route must be visible while
@@ -89,6 +94,7 @@ class ConsolidationEngine
             'groups'            => $groups,
             'unassigned'        => $packed['unassigned'],
             'capacity'          => $this->capacityBreakdown($packed['groups']),
+            'weather'           => $weatherAdvisory,
         ];
     }
 
@@ -120,13 +126,15 @@ class ConsolidationEngine
         $coopLng = (float) ($cooperative->longitude ?? 0);
         $depot = ['lat' => $coopLat, 'lng' => $coopLng];
 
+        $weatherAdvisory = $this->weatherAdvisory($cooperative, $date);
+
         $packed = $this->binPackOrdersByCapacity($orders, $trucks);
 
         $groups = [];
         foreach ($packed['groups'] as $i => $bin) {
             $stops = $this->buildDeliveryStopPoints($bin['requests'], $depot);
             $matrix = $this->fetchRoadMatrix($stops);
-            $proposed = $this->buildProposedPlan($bin, $stops, $matrix, $depot);
+            $proposed = $this->buildProposedPlan($bin, $stops, $matrix, $depot, $weatherAdvisory['buffer']);
 
             $orderedOrders = collect($proposed['stop_ids'])
                 ->map(fn ($stopId) => $bin['requests']->firstWhere('id', (int) str_replace('ord_', '', $stopId)))
@@ -157,6 +165,7 @@ class ConsolidationEngine
             'groups'            => $groups,
             'unassigned'        => $packed['unassigned'],
             'capacity'          => $this->capacityBreakdown($packed['groups']),
+            'weather'           => $weatherAdvisory,
         ];
     }
 
@@ -370,7 +379,27 @@ class ConsolidationEngine
         return ['groups' => $bins, 'unassigned' => $unassigned];
     }
 
-    private function buildProposedPlan(array $group, array $stops, array $matrix, array $depot): array
+    /**
+     * Weather advisory for a cooperative's depot on a planned date (advisory
+     * only — never blocks planning). weather.severity/forecast feed the
+     * planning-page banner; weather.buffer feeds the ETA calculation below.
+     * A failed/unavailable lookup degrades to 'unknown' severity and a 1.0
+     * (no-op) buffer — planning behaves exactly as it did before this
+     * feature existed.
+     */
+    private function weatherAdvisory(Cooperative $cooperative, string $date): array
+    {
+        $lat = (float) ($cooperative->latitude ?? 0);
+        $lng = (float) ($cooperative->longitude ?? 0);
+
+        $forecast = ($lat && $lng) ? $this->weather->forecastAt($lat, $lng, Carbon::parse($date)) : null;
+        $severity = $forecast ? $this->weather->severity($forecast) : 'unknown';
+        $buffer = $forecast ? $this->weather->etaBufferFor($severity) : 1.0;
+
+        return compact('forecast', 'severity', 'buffer');
+    }
+
+    private function buildProposedPlan(array $group, array $stops, array $matrix, array $depot, float $weatherBuffer = 1.0): array
     {
         $truck = $group['truck'] ?? null;
 
@@ -396,7 +425,7 @@ class ConsolidationEngine
             $totalMin = $matrix['total_min'] ?? 0;
         }
 
-        $arrival = $this->buildArrivalSchedule($orderedStopIds, $stops, $matrix);
+        $arrival = $this->buildArrivalSchedule($orderedStopIds, $stops, $matrix, $weatherBuffer);
         $capacityKg = $truck ? (float) $truck->capacity_kg : 0;
 
         return [
@@ -503,7 +532,7 @@ class ConsolidationEngine
      * aggregate ok/not-ok flag. Service duration per stop is configurable and
      * scales for large loads (spec 7.8) instead of a hardcoded constant.
      */
-    private function buildArrivalSchedule(array $orderedStopIds, array $stops, array $matrix): array
+    private function buildArrivalSchedule(array $orderedStopIds, array $stops, array $matrix, float $weatherBuffer = 1.0): array
     {
         $baseService = (float) config('harvesthaul.pickup.base_service_minutes', 15);
         $largeService = (float) config('harvesthaul.pickup.large_load_service_minutes', 30);
@@ -520,7 +549,11 @@ class ConsolidationEngine
                 continue;
             }
 
-            $travel = $this->legMinutes($stops, $matrix, $previousId, $id);
+            // Weather buffer (1.0 = no change) applied to travel time only,
+            // before the window check below — so a weather-delayed schedule
+            // also makes the existing "misses the farmer's pickup window"
+            // detection more accurate, not just a display number.
+            $travel = $this->legMinutes($stops, $matrix, $previousId, $id) * $weatherBuffer;
             $arrival = $departure + $travel;
 
             $waitMin = 0.0;

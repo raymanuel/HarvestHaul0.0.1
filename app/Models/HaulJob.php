@@ -20,13 +20,14 @@ class HaulJob extends Model
     protected $fillable = [
         'haul_request_id', 'cooperative_id', 'job_type',
         'delivery_personnel_id', 'field_personnel_id', 'truck_id',
-        'pickup_date', 'scheduled_at', 'status', 'completed_at',
+        'pickup_date', 'scheduled_at', 'weather_alerted_at', 'status', 'completed_at',
         'route_distance_km', 'route_duration_min', 'route_geometry',
     ];
 
     protected $casts = [
         'pickup_date' => 'date',
         'scheduled_at' => 'datetime',
+        'weather_alerted_at' => 'datetime',
         'completed_at' => 'datetime',
         'route_distance_km' => 'decimal:2',
         'route_duration_min' => 'decimal:2',

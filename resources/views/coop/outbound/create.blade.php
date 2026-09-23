@@ -9,6 +9,15 @@
         Accepted orders for {{ \Carbon\Carbon::parse($date)->format('M d, Y') }} (or with no delivery-date preference) are grouped into candidate trips by truck capacity. Review each on the map, adjust the checked orders or truck/driver if needed, then create the ones you want.
     </p>
 
+    @if(in_array($plan['weather']['severity'] ?? 'unknown', ['moderate', 'severe']))
+        <div class="mb-6 rounded-xl border px-4 py-3 {{ $plan['weather']['severity'] === 'severe' ? 'bg-[var(--color-error-bg)] border-[var(--color-error-border)] text-[var(--color-error-text)]' : 'bg-[var(--color-warning-bg)] border-[var(--color-warning-border)] text-[var(--color-warning-text)]' }}">
+            <p class="text-xs font-bold uppercase tracking-wider mb-1">{{ $plan['weather']['severity'] === 'severe' ? 'Severe weather forecast' : 'Weather advisory' }}</p>
+            <p class="text-sm">
+                {{ (int) $plan['weather']['forecast']['precipitation_probability'] }}% chance of rain, wind {{ number_format((float) $plan['weather']['forecast']['wind_speed_kmh'], 0) }} km/h forecast for {{ \Carbon\Carbon::parse($date)->format('M d') }}. The estimated times below already include a {{ number_format(($plan['weather']['buffer'] - 1) * 100, 0) }}% buffer for these conditions — review timing carefully before creating trips.
+            </p>
+        </div>
+    @endif
+
     @if($plan['groups'] === [])
         <x-empty-state type="first-use" title="No accepted orders for this date" description="Accept pending buyer orders first, or pick another date." />
     @endif

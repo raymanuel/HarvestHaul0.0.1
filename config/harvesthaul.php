@@ -110,4 +110,34 @@ return [
         'driver_position_max_age_days' => (int) env('DRIVER_POSITION_MAX_AGE_DAYS', 7),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Weather-Aware Logistics Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Open-Meteo (free, keyless) forecast severity thresholds and the ETA
+    | buffer applied when planning a trip under moderate/severe conditions.
+    | Advisory only — never auto-cancels or auto-reschedules a trip.
+    |
+    */
+
+    'weather' => [
+        // Precipitation probability (%) / wind speed (km/h) at or above these
+        // values classify the forecast as 'severe' rather than 'moderate'.
+        'severe_precipitation_probability' => (float) env('WEATHER_SEVERE_PRECIPITATION_PROBABILITY', 70),
+        'severe_wind_speed_kmh'            => (float) env('WEATHER_SEVERE_WIND_SPEED_KMH', 40),
+
+        // Below these, conditions are classified 'moderate' rather than 'clear'.
+        'moderate_precipitation_probability' => (float) env('WEATHER_MODERATE_PRECIPITATION_PROBABILITY', 40),
+        'moderate_wind_speed_kmh'            => (float) env('WEATHER_MODERATE_WIND_SPEED_KMH', 25),
+
+        // ETA travel-time multipliers applied in ConsolidationEngine when
+        // planning a trip under these conditions. 1.0 = no change.
+        'eta_buffer' => [
+            'clear'    => 1.00,
+            'moderate' => (float) env('WEATHER_ETA_BUFFER_MODERATE', 1.15),
+            'severe'   => (float) env('WEATHER_ETA_BUFFER_SEVERE', 1.30),
+        ],
+    ],
+
 ];
