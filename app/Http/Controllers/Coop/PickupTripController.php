@@ -249,6 +249,48 @@ class PickupTripController extends Controller
             ]);
     }
 
+    /**
+     * Live preview (planner page, no trip created yet) — recomputes load,
+     * capacity flag, road order, and schedule for whatever the coop admin
+     * currently has checked + selected, so the page can update without a
+     * full reload as they click. Truck is optional here (store() requires
+     * it) so the weight total still shows before a truck is picked.
+     */
+    public function preview(Request $request, ConsolidationEngine $engine)
+    {
+        $cooperativeId = $this->cooperativeId();
+        $cooperative = Auth::user()->cooperative;
+
+        $requestIds = array_values(array_filter((array) ($request->input('requests') ?? [])));
+        $date = (string) $request->input('date');
+
+        $data = $request->validate([
+            'date' => 'required|date',
+            'truck_id' => [
+                'nullable',
+                Rule::exists('trucks', 'id')->where('cooperative_id', $cooperativeId),
+            ],
+        ]);
+
+        $requests = HaulRequest::whereIn('id', $requestIds)
+            ->where('cooperative_id', $cooperativeId)
+            ->where('status', HaulRequest::STATUS_APPROVED)
+            ->whereDate('preferred_pickup_date', $date)
+            ->get();
+
+        if ($requests->count() !== count($requestIds)) {
+            throw ValidationException::withMessages([
+                'requests' => 'One or more selected requests are not available to schedule for this cooperative.',
+            ]);
+        }
+
+        $truck = ! empty($data['truck_id'])
+            ? Truck::where('id', $data['truck_id'])->where('cooperative_id', $cooperativeId)->first()
+            : null;
+
+        return response()->json($engine->previewGroup($cooperative, $requests, $truck, $date));
+    }
+
     public function show(HaulJob $haulJob, ConsolidationEngine $engine)
     {
         $this->authorizeCoop($haulJob);

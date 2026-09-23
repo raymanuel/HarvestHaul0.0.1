@@ -289,6 +289,9 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
                 Route::get('/calendar', [PickupTripController::class, 'calendar'])->name('calendar');
                 Route::get('/new', [PickupTripController::class, 'create'])->name('create');
                 Route::post('/', [PickupTripController::class, 'store'])->name('store');
+                Route::post('/preview', [PickupTripController::class, 'preview'])
+                    ->middleware('throttle:60,1')
+                    ->name('preview');
                 Route::get('/{haulJob}', [PickupTripController::class, 'show'])->name('show');
                 Route::put('/{haulJob}/reschedule', [PickupTripController::class, 'reschedule'])
                     ->middleware('throttle:30,1')

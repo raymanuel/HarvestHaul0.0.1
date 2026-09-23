@@ -99,6 +99,60 @@ class ConsolidationEngine
     }
 
     /**
+     * Live preview for the pickup planner (checked requests + selected
+     * truck, before a trip is created): reuses the exact same
+     * stops/matrix/order/schedule pipeline planForDate() uses for its real
+     * groups, but for whatever subset the coop admin currently has checked
+     * instead of the server's own bin-packing. No truck selected yet still
+     * returns a weight total so the UI has something to show immediately.
+     */
+    public function previewGroup(Cooperative $cooperative, Collection $requests, ?\App\Models\Truck $truck, string $date): array
+    {
+        $loadKg = round((float) $requests->sum('estimated_weight_kg'), 2);
+        $capacityKg = $truck ? (float) $truck->capacity_kg : null;
+        $overCapacity = $truck !== null && $loadKg > $capacityKg;
+
+        if ($requests->isEmpty()) {
+            return [
+                'load_kg'        => $loadKg,
+                'capacity_kg'    => $capacityKg,
+                'over_capacity'  => $overCapacity,
+                'distance_km'    => 0.0,
+                'travel_time'    => '—',
+                'windows_ok'     => true,
+                'schedule'       => [],
+                'route_geometry' => null,
+            ];
+        }
+
+        $depot = ['lat' => (float) ($cooperative->latitude ?? 0), 'lng' => (float) ($cooperative->longitude ?? 0)];
+        $weatherAdvisory = $this->weatherAdvisory($cooperative, $date);
+
+        $stops = $this->buildStopPoints($requests, $depot);
+        $matrix = $this->fetchRoadMatrix($stops);
+        $proposed = $this->buildProposedPlan(['truck' => $truck, 'load_kg' => $loadKg], $stops, $matrix, $depot, $weatherAdvisory['buffer']);
+
+        $orderedRequests = collect($proposed['stop_ids'])
+            ->map(fn ($stopId) => $requests->firstWhere('id', (int) str_replace('req_', '', $stopId)))
+            ->filter()
+            ->values();
+        $routeGeometry = $orderedRequests->isNotEmpty()
+            ? $this->fetchFinalRoute($orderedRequests, $cooperative)
+            : null;
+
+        return [
+            'load_kg'        => $loadKg,
+            'capacity_kg'    => $capacityKg,
+            'over_capacity'  => $overCapacity,
+            'distance_km'    => $proposed['distance_km'],
+            'travel_time'    => $proposed['travel_time'],
+            'windows_ok'     => $proposed['windows_ok'],
+            'schedule'       => $proposed['schedule'],
+            'route_geometry' => $routeGeometry,
+        ];
+    }
+
+    /**
      * Outbound delivery counterpart to planForDate() (spec 14 — Outbound
      * Delivery Management). Sources accepted BuyerOrders instead of
      * approved HaulRequests; reuses every routing/scheduling primitive
