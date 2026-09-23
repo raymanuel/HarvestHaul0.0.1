@@ -345,6 +345,65 @@ class PickupConsolidationTest extends TestCase
         $this->assertSame($date, $stop->planned_arrival_at->toDateString());
     }
 
+    /**
+     * Real-world case: 2-opt found a route 2 minutes shorter overall by
+     * visiting the FARTHEST stop first, which pushed two other farmers past
+     * their pickup windows. 2-opt must not accept a swap that trades a
+     * small distance saving for new window violations.
+     */
+    public function test_two_opt_does_not_trade_a_farmers_window_for_a_shorter_route(): void
+    {
+        Http::fake([
+            // Real depot/inter-stop durations (minutes) from the reported case.
+            // Order: depot=0, Rosa(heaviest, 5000kg)=1, john(3000kg)=2, Ben(2000kg)=3.
+            'router.project-osrm.org/table/*' => Http::response([
+                'code' => 'Ok',
+                'durations' => [
+                    [0, 48.4, 32.4, 43.8],
+                    [50.7, 0, 45.3, 27.2],
+                    [32.6, 45.4, 0, 31.7],
+                    [44, 27.2, 31.7, 0],
+                ],
+                'distances' => [
+                    [0, 45300, 29000, 38700],
+                    [45300, 0, 45300, 27200],
+                    [29000, 45300, 0, 31700],
+                    [38700, 27200, 31700, 0],
+                ],
+            ]),
+            'api.open-meteo.com/*' => Http::response([], 500),
+        ]);
+
+        $coop = $this->cooperative();
+        $date = today()->addDay()->toDateString();
+        Truck::factory()->create(['cooperative_id' => $coop->id, 'capacity_kg' => 20000, 'status' => 'available']);
+
+        HaulRequest::factory()->create([
+            'cooperative_id' => $coop->id, 'status' => HaulRequest::STATUS_APPROVED,
+            'preferred_pickup_date' => $date, 'estimated_weight_kg' => 5000,
+            'pickup_window_start' => '13:00', 'pickup_window_end' => '14:25',
+            'pickup_location_lat' => 6.37, 'pickup_location_lng' => 124.96,
+        ]);
+        HaulRequest::factory()->create([
+            'cooperative_id' => $coop->id, 'status' => HaulRequest::STATUS_APPROVED,
+            'preferred_pickup_date' => $date, 'estimated_weight_kg' => 3000,
+            'pickup_window_start' => '10:00', 'pickup_window_end' => '11:30',
+            'pickup_location_lat' => 6.30, 'pickup_location_lng' => 125.14,
+        ]);
+        HaulRequest::factory()->create([
+            'cooperative_id' => $coop->id, 'status' => HaulRequest::STATUS_APPROVED,
+            'preferred_pickup_date' => $date, 'estimated_weight_kg' => 2000,
+            'pickup_window_start' => '07:23', 'pickup_window_end' => '09:23',
+            'pickup_location_lat' => 6.33, 'pickup_location_lng' => 125.03,
+        ]);
+
+        $plan = app(ConsolidationEngine::class)->planForDate($coop, $date);
+        $schedule = $plan['groups'][0]['proposed']['schedule'];
+
+        $violations = collect($schedule)->where('window_ok', false)->count();
+        $this->assertSame(0, $violations, 'A 2-minute route saving must not be bought with a broken pickup window.');
+    }
+
     public function test_plan_for_date_route_geometry_is_null_when_osrm_unreachable(): void
     {
         Http::fake(['router.project-osrm.org/*' => Http::response([], 500)]);

@@ -443,7 +443,7 @@ class ConsolidationEngine
 
         // Nearest-neighbor seed from the depot, then a single 2-opt pass.
         $orderedStopIds = $this->nearestNeighbor($stops, $depot, $matrix);
-        $orderedStopIds = $this->twoOpt($orderedStopIds, $stops, $matrix);
+        $orderedStopIds = $this->twoOpt($orderedStopIds, $stops, $matrix, $weatherBuffer);
 
         $totalMin = 0.0;
         $totalKm  = 0.0;
@@ -522,7 +522,7 @@ class ConsolidationEngine
         return $this->haversine->distanceKm($depot['lat'], $depot['lng'], $stop['lat'], $stop['lng']);
     }
 
-    private function twoOpt(array $order, array $stops, array $matrix): array
+    private function twoOpt(array $order, array $stops, array $matrix, float $weatherBuffer = 1.0): array
     {
         if ($matrix['source'] !== 'osrm' || ! $matrix['durations']) {
             return $order;
@@ -532,6 +532,20 @@ class ConsolidationEngine
         $idx = array_map(fn ($id) => array_search($id, $stopIds), $order);
         // Route is depot(0) → stops → depot(0).
         $seq = [0, ...$idx, 0];
+
+        $toStopIds = fn (array $seq): array => array_map(
+            fn ($i) => (string) $stops[$i]['id'],
+            array_slice($seq, 1, count($seq) - 2)
+        );
+        $countViolations = fn (array $seq): int => collect(
+            $this->buildArrivalSchedule($toStopIds($seq), $stops, $matrix, $weatherBuffer)['schedule']
+        )->where('window_ok', false)->count();
+
+        // A shorter total route is worthless if buying it means a farmer
+        // gets missed by hours — a swap is only taken when it's both
+        // faster AND doesn't newly break a pickup window that wasn't
+        // already broken in the order it's replacing.
+        $currentViolations = $countViolations($seq);
 
         $improved = true;
         while ($improved) {
@@ -543,18 +557,26 @@ class ConsolidationEngine
                     $after = ($matrix['durations'][$seq[$i - 1]][$seq[$j]] ?? 0)
                         + ($matrix['durations'][$seq[$i]][$seq[$j + 1]] ?? 0);
 
-                    if ($before - $after > 0.000001) {
-                        $this->reverseSlice($seq, $i, $j);
-                        $improved = true;
+                    if ($before - $after <= 0.000001) {
+                        continue;
                     }
+
+                    $candidate = $seq;
+                    $this->reverseSlice($candidate, $i, $j);
+                    $candidateViolations = $countViolations($candidate);
+
+                    if ($candidateViolations > $currentViolations) {
+                        continue;
+                    }
+
+                    $seq = $candidate;
+                    $currentViolations = $candidateViolations;
+                    $improved = true;
                 }
             }
         }
 
-        return array_map(
-            fn ($i) => (string) $stops[$i]['id'],
-            array_slice($seq, 1, count($seq) - 2)
-        );
+        return $toStopIds($seq);
     }
 
     private function reverseSlice(array &$seq, int $start, int $end): void
