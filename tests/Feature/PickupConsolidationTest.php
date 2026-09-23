@@ -404,6 +404,75 @@ class PickupConsolidationTest extends TestCase
         $this->assertSame(0, $violations, 'A 2-minute route saving must not be bought with a broken pickup window.');
     }
 
+    /**
+     * Real-world follow-up to the 2-opt fix above: the INITIAL route seed
+     * (nearest-neighbor) picked John first because he's geographically
+     * closest — but John's pickup window (10:00-11:30) is later than Ben's
+     * (07:23-09:23). Visiting the nearest farmer first pushed Ben's arrival
+     * to 11:11 AM, hours past his window, even though the 2-opt guard was
+     * working correctly (there was no shorter route available that also
+     * fixed Ben's window, so it had nothing to swap to). The route must be
+     * seeded by deadline urgency, not just distance, or an urgent-but-not-
+     * nearest farmer gets stranded before 2-opt ever runs.
+     */
+    public function test_route_is_seeded_by_window_urgency_not_just_distance(): void
+    {
+        Http::fake([
+            'router.project-osrm.org/table/*' => Http::response([
+                'code' => 'Ok',
+                'durations' => [
+                    [0, 48.4, 32.4, 43.8],
+                    [50.7, 0, 45.3, 27.2],
+                    [32.6, 45.4, 0, 31.7],
+                    [44, 27.2, 31.7, 0],
+                ],
+                'distances' => [
+                    [0, 45300, 29000, 38700],
+                    [45300, 0, 45300, 27200],
+                    [29000, 45300, 0, 31700],
+                    [38700, 27200, 31700, 0],
+                ],
+            ]),
+            'api.open-meteo.com/*' => Http::response([], 500),
+        ]);
+
+        $coop = $this->cooperative();
+        // Matches the reporting cooperative's own radius setting — these 3
+        // real farms are 9-21km apart pairwise, just over the 20km platform
+        // default, so the fixture must use the same override to faithfully
+        // land all 3 in one group like the live case does.
+        $coop->update(['max_cluster_radius_km' => 23]);
+        $date = today()->addDay()->toDateString();
+        Truck::factory()->create(['cooperative_id' => $coop->id, 'capacity_kg' => 20000, 'status' => 'available']);
+
+        HaulRequest::factory()->create([
+            'cooperative_id' => $coop->id, 'status' => HaulRequest::STATUS_APPROVED,
+            'preferred_pickup_date' => $date, 'estimated_weight_kg' => 5000,
+            'pickup_window_start' => '13:00', 'pickup_window_end' => '14:25',
+            'pickup_location_lat' => 6.37070430, 'pickup_location_lng' => 124.95926150,
+        ]);
+        HaulRequest::factory()->create([
+            'cooperative_id' => $coop->id, 'status' => HaulRequest::STATUS_APPROVED,
+            'preferred_pickup_date' => $date, 'estimated_weight_kg' => 3000,
+            'pickup_window_start' => '10:00', 'pickup_window_end' => '11:30',
+            'pickup_location_lat' => 6.30031930, 'pickup_location_lng' => 125.13672170,
+        ]);
+        $ben = HaulRequest::factory()->create([
+            'cooperative_id' => $coop->id, 'status' => HaulRequest::STATUS_APPROVED,
+            'preferred_pickup_date' => $date, 'estimated_weight_kg' => 2000,
+            'pickup_window_start' => '07:23', 'pickup_window_end' => '09:23',
+            'pickup_location_lat' => 6.32891510, 'pickup_location_lng' => 125.03184240,
+        ]);
+
+        $plan = app(ConsolidationEngine::class)->planForDate($coop, $date);
+        $this->assertCount(1, $plan['groups'], 'Fixture coordinates must land all 3 stops in one group to isolate the sequencing question.');
+        $schedule = collect($plan['groups'][0]['proposed']['schedule'])->keyBy('request_id');
+
+        $violations = $schedule->where('window_ok', false)->count();
+        $this->assertSame(0, $violations, 'Ben has the tightest window (closes soonest) — he must not be stranded just because he is not the nearest stop.');
+        $this->assertTrue($schedule[$ben->id]['window_ok']);
+    }
+
     public function test_plan_for_date_route_geometry_is_null_when_osrm_unreachable(): void
     {
         Http::fake(['router.project-osrm.org/*' => Http::response([], 500)]);

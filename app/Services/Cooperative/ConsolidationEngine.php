@@ -491,19 +491,29 @@ class ConsolidationEngine
             $ordered = [];
             $remaining = $ids;
             while ($remaining) {
-                $nearest = null;
-                $best = INF;
-                foreach ($remaining as $i => $id) {
+                $best = null;
+                // [deadline (window close, or +INF when no window), travel
+                // time] — picking the smallest pair puts the tightest
+                // deadline first, falling back to nearest-by-time among
+                // stops with the same (or no) deadline. A farmer whose
+                // window closes soon must not be skipped for a farm that's
+                // merely closer but has hours of slack.
+                $bestKey = null;
+                foreach ($remaining as $id) {
                     $idx = array_search($id, array_column($stops, 'id'));
-                    $d = (float) $matrix['durations'][$current][$idx] ?? INF;
-                    if ($d < $best) {
-                        $best = $d;
-                        $nearest = $id;
+                    $stop = collect($stops)->firstWhere('id', $id);
+                    $deadline = $stop['latest'] ?? INF;
+                    $d = (float) ($matrix['durations'][$current][$idx] ?? INF);
+                    $key = [$deadline, $d];
+
+                    if ($bestKey === null || $key < $bestKey) {
+                        $bestKey = $key;
+                        $best = $id;
                     }
                 }
-                $ordered[] = $nearest;
-                $remaining = array_values(array_diff($remaining, [$nearest]));
-                $current = array_search($nearest, array_column($stops, 'id'));
+                $ordered[] = $best;
+                $remaining = array_values(array_diff($remaining, [$best]));
+                $current = array_search($best, array_column($stops, 'id'));
             }
 
             return $ordered;
