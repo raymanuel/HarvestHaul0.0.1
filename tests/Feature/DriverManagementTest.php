@@ -106,4 +106,27 @@ class DriverManagementTest extends TestCase
 
         $this->actingAs($admin)->get(route('coop.drivers.create'))->assertOk();
     }
+
+    public function test_created_driver_can_actually_log_in_and_reach_their_dashboard(): void
+    {
+        // email_verified_at is not in User::$fillable, so passing it inside
+        // User::create()'s array silently no-ops (mass-assignment drops it).
+        // Every delivery_personnel route sits behind the 'verified'
+        // middleware group (routes/web.php:155) — a driver created without
+        // this set can log in but gets bounced to the email-verification
+        // notice page and can reach nothing.
+        $admin = $this->coopAdmin();
+
+        $this->actingAs($admin)->post(route('coop.drivers.store'), [
+            'name' => 'Ricardo Cruz',
+            'email' => 'ricardo.driver@example.com',
+            'password' => 'password123',
+            'license_no' => 'DL-99998888',
+        ]);
+
+        $driver = User::where('email', 'ricardo.driver@example.com')->first();
+
+        $this->assertTrue($driver->hasVerifiedEmail());
+        $this->actingAs($driver)->get(route('delivery.dashboard'))->assertOk();
+    }
 }

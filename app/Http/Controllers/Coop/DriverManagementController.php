@@ -64,6 +64,9 @@ class DriverManagementController extends Controller
         ]);
 
         $driver = DB::transaction(function () use ($data, $cooperativeId) {
+            // email_verified_at is not in User::$fillable, so passing it
+            // through create()'s mass-assigned array silently drops it —
+            // forceFill() bypasses that guard for this one trusted field.
             $driver = User::create([
                 'name'              => $data['name'],
                 'email'             => strtolower($data['email']),
@@ -73,8 +76,8 @@ class DriverManagementController extends Controller
                 'phone'             => $data['phone'] ?? null,
                 'affiliation_type'  => 'cooperative',
                 'cooperative_id'    => $cooperativeId,
-                'email_verified_at' => now(),
             ]);
+            $driver->forceFill(['email_verified_at' => now()])->save();
 
             DriverProfile::create([
                 'user_id'           => $driver->id,
