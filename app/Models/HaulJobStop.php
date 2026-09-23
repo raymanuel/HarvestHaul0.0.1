@@ -18,15 +18,26 @@ class HaulJobStop extends Model
 
     protected $fillable = [
         'haul_job_id', 'haul_request_id', 'buyer_order_id', 'sequence_no',
-        'status', 'failure_reason', 'planned_arrival_at', 'actual_arrival_at', 'picked_up_at', 'delivered_at',
+        'status', 'failure_reason', 'planned_arrival_at', 'actual_arrival_at', 'delay_notified_at',
+        'picked_up_at', 'delivered_at', 'pod_photo_path',
     ];
 
     protected $casts = [
         'planned_arrival_at' => 'datetime',
         'actual_arrival_at' => 'datetime',
+        'delay_notified_at' => 'datetime',
         'picked_up_at' => 'datetime',
         'delivered_at' => 'datetime',
     ];
+
+    /**
+     * Whether the automated delay check has flagged this stop as running
+     * late (planned_arrival_at passed with no arrival recorded yet).
+     */
+    public function isFlaggedLate(): bool
+    {
+        return $this->delay_notified_at !== null;
+    }
 
     public function haulJob()
     {

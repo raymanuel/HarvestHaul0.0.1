@@ -10,6 +10,8 @@ use App\Models\HaulRequest;
 use App\Models\User;
 use App\Models\UserRole;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class AuditLoggingTest extends TestCase
@@ -57,9 +59,12 @@ class AuditLoggingTest extends TestCase
 
     public function test_trip_completion_writes_audit_log(): void
     {
+        Storage::fake('local');
         $ctx = $this->pickupTrip();
 
-        $this->actingAs($ctx['driver'])->post(route('delivery.trips.stop-status', [$ctx['stop'], 'picked_up']));
+        $this->actingAs($ctx['driver'])->post(route('delivery.trips.stop-status', [$ctx['stop'], 'picked_up']), [
+            'photo' => UploadedFile::fake()->image('proof.jpg'),
+        ]);
 
         $this->assertDatabaseHas('audit_logs', [
             'admin_id' => $ctx['driver']->id, 'action' => 'complete_haul_job',

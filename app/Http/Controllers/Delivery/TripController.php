@@ -11,6 +11,7 @@ use App\Models\HaulRequest;
 use App\Models\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
 class TripController extends Controller
@@ -86,12 +87,25 @@ class TripController extends Controller
             ])['reason'];
         }
 
+        // Proof of delivery: a photo is required to close out the terminal
+        // success state of a stop (panel spec: "force driver to capture").
+        // Not required on 'arrived' or 'failed' — only the states that
+        // actually hand off crop/order to someone.
+        $podPhotoPath = $stop->pod_photo_path;
+        if (in_array($status, ['picked_up', 'delivered'], true)) {
+            $photo = $request->validate([
+                'photo' => 'required|image|max:5120',
+            ])['photo'];
+            $podPhotoPath = Storage::disk('local')->putFile('pod-photos', $photo);
+        }
+
         $stop->update([
             'status' => $status,
             'failure_reason' => $status === 'failed' ? $failureReason : $stop->failure_reason,
             'actual_arrival_at' => $stop->actual_arrival_at ?? (in_array($status, ['arrived', 'failed'], true) ? now() : null),
             'picked_up_at' => $status === 'picked_up' ? now() : $stop->picked_up_at,
             'delivered_at' => $status === 'delivered' ? now() : $stop->delivered_at,
+            'pod_photo_path' => $podPhotoPath,
         ]);
 
         if ($status === 'delivered') {

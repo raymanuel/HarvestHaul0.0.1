@@ -94,4 +94,20 @@ return [
         'large_load_threshold_kg'    => (float) env('PICKUP_LARGE_LOAD_THRESHOLD_KG', 2000),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Logistics Monitoring Configuration
+    |--------------------------------------------------------------------------
+    */
+
+    'logistics' => [
+        // A stop with no arrival recorded this long past its planned_arrival_at
+        // is flagged as delayed (DetectDelayedStops command).
+        'delay_threshold_minutes' => (float) env('HAUL_DELAY_THRESHOLD_MINUTES', 20),
+
+        // A driver's most recent GPS ping older than this is treated as
+        // unreliable for "nearest available driver" sorting, not used.
+        'driver_position_max_age_days' => (int) env('DRIVER_POSITION_MAX_AGE_DAYS', 7),
+    ],
+
 ];

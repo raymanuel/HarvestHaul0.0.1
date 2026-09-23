@@ -256,10 +256,21 @@ class PickupTripController extends Controller
 
         $stops = $haulJob->stops()->orderBy('sequence_no')->get();
 
+        // Sort reassignment candidates by distance from the trip's first
+        // stop when we actually have a coordinate for it — an honest
+        // "nearest available driver," not a fabricated one.
+        $firstStop = $stops->first()?->haulRequest;
+        $nearTo = $firstStop && $firstStop->pickup_location_lat && $firstStop->pickup_location_lng
+            ? ['lat' => (float) $firstStop->pickup_location_lat, 'lng' => (float) $firstStop->pickup_location_lng]
+            : null;
+
         $trucks = Truck::where('cooperative_id', $haulJob->cooperative_id)->orderBy('truck_name')->get();
-        $drivers = $engine->availableDrivers($haulJob->cooperative, $haulJob->pickup_date->toDateString(), $haulJob->id);
+        $drivers = $engine->availableDrivers($haulJob->cooperative, $haulJob->pickup_date->toDateString(), $haulJob->id, $nearTo);
         if ($haulJob->deliveryPersonnel && ! $drivers->contains('id', $haulJob->delivery_personnel_id)) {
-            $drivers = $drivers->push($haulJob->deliveryPersonnel)->sortBy('name')->values();
+            // Already-assigned driver isn't in the "available" list (fully
+            // booked elsewhere, say) — append them rather than re-sorting
+            // alphabetically, which would undo the distance order above.
+            $drivers = $drivers->push($haulJob->deliveryPersonnel)->values();
         }
 
         return view('coop.pickups.show', compact('haulJob', 'stops', 'trucks', 'drivers'));

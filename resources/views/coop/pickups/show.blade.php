@@ -30,6 +30,9 @@
                                         <td class="px-4 py-3 text-slate-800 dark:text-slate-200">{{ $stop->haulRequest?->farmer?->name ?? 'Farmer' }}</td>
                                         <td class="px-4 py-3"><x-badge :status="$stop->status" /></td>
                                         <td class="px-4 py-3 text-right">
+                                            @if($stop->pod_photo_path)
+                                                <a href="{{ route('files.show', ['type' => 'pod-photo', 'id' => $stop->id]) }}" target="_blank" class="text-xs font-bold text-brand-700 dark:text-gold-light hover:underline mr-3">View photo</a>
+                                            @endif
                                             @if(! in_array($haulJob->status, [\App\Models\HaulJob::STATUS_COMPLETED, \App\Models\HaulJob::STATUS_CANCELLED], true))
                                                 <form method="POST" action="{{ route('coop.pickups.stops.remove', $stop) }}" onsubmit="return confirm('Remove this stop? The pickup request goes back to the approved queue.');">
                                                     @csrf

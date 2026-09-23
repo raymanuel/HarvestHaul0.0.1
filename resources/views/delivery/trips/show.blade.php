@@ -54,15 +54,35 @@
                                             </form>
                                         @endif
                                         @if($isDelivery)
-                                            <form method="POST" action="{{ route('delivery.trips.stop-status', [$stop, 'delivered']) }}">
-                                                @csrf
-                                                <button class="px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 text-white hover:bg-emerald-500">Delivered</button>
-                                            </form>
+                                            <x-modal triggerLabel="Delivered" triggerClass="px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 text-white hover:bg-emerald-500">
+                                                <h2 class="text-lg font-bold text-slate-900 dark:text-white mb-4">Confirm Delivery</h2>
+                                                <form method="POST" action="{{ route('delivery.trips.stop-status', [$stop, 'delivered']) }}" enctype="multipart/form-data" class="space-y-4">
+                                                    @csrf
+                                                    <div>
+                                                        <label for="photo-{{ $stop->id }}" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Photo proof of delivery</label>
+                                                        <input type="file" name="photo" id="photo-{{ $stop->id }}" accept="image/*" capture="environment" required class="block w-full text-sm text-slate-500 dark:text-slate-400">
+                                                    </div>
+                                                    <div class="pt-1 flex justify-end gap-2">
+                                                        <button type="button" data-modal-close class="px-4 py-2 rounded-lg text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">Cancel</button>
+                                                        <button class="px-4 py-2 rounded-lg text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-500">Confirm Delivered</button>
+                                                    </div>
+                                                </form>
+                                            </x-modal>
                                         @else
-                                            <form method="POST" action="{{ route('delivery.trips.stop-status', [$stop, 'picked_up']) }}">
-                                                @csrf
-                                                <button class="px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 text-white hover:bg-emerald-500">Picked Up</button>
-                                            </form>
+                                            <x-modal triggerLabel="Picked Up" triggerClass="px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 text-white hover:bg-emerald-500">
+                                                <h2 class="text-lg font-bold text-slate-900 dark:text-white mb-4">Confirm Pickup</h2>
+                                                <form method="POST" action="{{ route('delivery.trips.stop-status', [$stop, 'picked_up']) }}" enctype="multipart/form-data" class="space-y-4">
+                                                    @csrf
+                                                    <div>
+                                                        <label for="photo-{{ $stop->id }}" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Photo proof of pickup</label>
+                                                        <input type="file" name="photo" id="photo-{{ $stop->id }}" accept="image/*" capture="environment" required class="block w-full text-sm text-slate-500 dark:text-slate-400">
+                                                    </div>
+                                                    <div class="pt-1 flex justify-end gap-2">
+                                                        <button type="button" data-modal-close class="px-4 py-2 rounded-lg text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">Cancel</button>
+                                                        <button class="px-4 py-2 rounded-lg text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-500">Confirm Picked Up</button>
+                                                    </div>
+                                                </form>
+                                            </x-modal>
                                             <form method="POST" action="{{ route('delivery.trips.stop-status', [$stop, 'skipped']) }}" onsubmit="return confirm('Skip this stop?');">
                                                 @csrf
                                                 <button class="px-3 py-1.5 rounded-lg text-xs font-bold border-2 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200">Skip</button>

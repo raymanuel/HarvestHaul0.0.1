@@ -121,11 +121,12 @@ class HaulRequestController extends Controller
     public function track(HaulRequest $haulRequest)
     {
         $this->authorizeFarmer($haulRequest);
-        $haulRequest->load('haulJob.cooperative');
+        $haulRequest->load('haulJob.cooperative', 'haulJob.stops');
 
         $haulJob = $haulRequest->haulJob;
+        $stop = $haulJob?->stops->firstWhere('haul_request_id', $haulRequest->id);
 
-        return view('farmer.haul-requests.track', compact('haulRequest', 'haulJob'));
+        return view('farmer.haul-requests.track', compact('haulRequest', 'haulJob', 'stop'));
     }
 
     public function trackLocation(HaulRequest $haulRequest)

@@ -11,7 +11,9 @@ use App\Models\Truck;
 use App\Models\User;
 use App\Models\UserRole;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class PickupTripLifecycleTest extends TestCase
@@ -99,11 +101,14 @@ class PickupTripLifecycleTest extends TestCase
 
     public function test_completing_last_stop_frees_the_truck(): void
     {
+        Storage::fake('local');
         $coop = $this->cooperative();
         $coopAdmin = $this->coopAdmin($coop);
         [$job, $truck, $driver, $stops] = $this->scheduledJobWithStops($coop, 1);
 
-        $this->actingAs($driver)->post(route('delivery.trips.stop-status', [$stops[0], 'picked_up']));
+        $this->actingAs($driver)->post(route('delivery.trips.stop-status', [$stops[0], 'picked_up']), [
+            'photo' => UploadedFile::fake()->image('proof.jpg'),
+        ]);
 
         $this->assertDatabaseHas('trucks', ['id' => $truck->id, 'status' => 'available']);
         $this->assertDatabaseHas('haul_jobs', ['id' => $job->id, 'status' => HaulJob::STATUS_COMPLETED]);
@@ -222,10 +227,13 @@ class PickupTripLifecycleTest extends TestCase
 
     public function test_picked_up_stop_request_still_becomes_completed(): void
     {
+        Storage::fake('local');
         $coop = $this->cooperative();
         [$job, $truck, $driver, $stops] = $this->scheduledJobWithStops($coop, 1);
 
-        $this->actingAs($driver)->post(route('delivery.trips.stop-status', [$stops[0], 'picked_up']));
+        $this->actingAs($driver)->post(route('delivery.trips.stop-status', [$stops[0], 'picked_up']), [
+            'photo' => UploadedFile::fake()->image('proof.jpg'),
+        ]);
 
         $this->assertDatabaseHas('haul_requests', ['id' => $stops[0]->haul_request_id, 'status' => HaulRequest::STATUS_COMPLETED]);
     }

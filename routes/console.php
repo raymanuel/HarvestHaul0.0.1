@@ -12,6 +12,8 @@ Schedule::call(function () {
     Cache::put('scheduler:heartbeat', now()->timestamp, 300);
 })->name('scheduler-heartbeat')->everyMinute();
 
+Schedule::command('haul:detect-delays')->everyFifteenMinutes();
+
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');

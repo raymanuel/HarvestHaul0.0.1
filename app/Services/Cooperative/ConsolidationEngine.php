@@ -235,8 +235,17 @@ class ConsolidationEngine
     /**
      * Delivery personnel not already assigned to another active trip on this
      * date (spec 6.2/6.3 — "available personnel" is a planning input).
+     *
+     * When $nearTo is given (['lat'=>, 'lng'=>]), sorted by distance from
+     * each driver's most recent GPS ping (TrackingRecord — drivers only post
+     * while actively on a trip, so this is "nearest to wherever they last
+     * worked," not a live position). A ping older than
+     * config('harvesthaul.logistics.driver_position_max_age_days') is
+     * treated as unreliable and ignored — those drivers sort after everyone
+     * with a recent position, alphabetically among themselves. No position
+     * data at all is not invented.
      */
-    public function availableDrivers(Cooperative $cooperative, string $date, ?int $excludeHaulJobId = null): Collection
+    public function availableDrivers(Cooperative $cooperative, string $date, ?int $excludeHaulJobId = null, ?array $nearTo = null): Collection
     {
         $bookedDriverIds = HaulJob::where('cooperative_id', $cooperative->id)
             ->whereDate('pickup_date', $date)
@@ -245,11 +254,46 @@ class ConsolidationEngine
             ->whereNotNull('delivery_personnel_id')
             ->pluck('delivery_personnel_id');
 
-        return User::where('role', UserRole::DELIVERY_PERSONNEL->value)
+        $drivers = User::where('role', UserRole::DELIVERY_PERSONNEL->value)
             ->where('cooperative_id', $cooperative->id)
             ->whereNotIn('id', $bookedDriverIds)
             ->orderBy('name')
             ->get(['id', 'name']);
+
+        if (! $nearTo) {
+            return $drivers;
+        }
+
+        $maxAgeDays = (int) config('harvesthaul.logistics.driver_position_max_age_days', 7);
+        $cutoff = now()->subDays($maxAgeDays);
+
+        $lastPositions = \App\Models\TrackingRecord::whereIn('driver_id', $drivers->pluck('id'))
+            ->where('posted_at', '>=', $cutoff)
+            ->orderByDesc('posted_at')
+            ->get()
+            ->unique('driver_id')
+            ->keyBy('driver_id');
+
+        return $drivers->map(function ($driver) use ($lastPositions, $nearTo) {
+            $position = $lastPositions->get($driver->id);
+            $driver->distance_km = $position
+                ? $this->haversine->distanceKm((float) $position->latitude, (float) $position->longitude, (float) $nearTo['lat'], (float) $nearTo['lng'])
+                : null;
+
+            return $driver;
+        })->sort(function ($a, $b) {
+            if ($a->distance_km === null && $b->distance_km === null) {
+                return $a->name <=> $b->name;
+            }
+            if ($a->distance_km === null) {
+                return 1;
+            }
+            if ($b->distance_km === null) {
+                return -1;
+            }
+
+            return $a->distance_km <=> $b->distance_km ?: $a->name <=> $b->name;
+        })->values();
     }
 
     private function buildStopPoints(Collection $requests, array $depot): array

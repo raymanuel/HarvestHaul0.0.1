@@ -15,7 +15,12 @@
                                 <p class="text-sm font-bold text-slate-800 dark:text-slate-100">{{ $stop->sequence_no }}. {{ $stop->buyerOrder?->buyer?->name ?? '—' }}</p>
                                 <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{{ $stop->buyerOrder?->reference }} · {{ number_format((float) ($stop->buyerOrder?->total_kg ?? 0), 2) }} kg · {{ $stop->buyerOrder?->delivery_address }}</p>
                             </div>
-                            <x-badge :status="$stop->status" dot />
+                            <div class="flex items-center gap-3">
+                                @if($stop->pod_photo_path)
+                                    <a href="{{ route('files.show', ['type' => 'pod-photo', 'id' => $stop->id]) }}" target="_blank" class="text-xs font-bold text-brand-700 dark:text-gold-light hover:underline">View photo</a>
+                                @endif
+                                <x-badge :status="$stop->status" dot />
+                            </div>
                         </li>
                     @endforeach
                 </ul>

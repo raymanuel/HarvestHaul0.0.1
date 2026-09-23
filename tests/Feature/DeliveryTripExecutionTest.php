@@ -11,6 +11,8 @@ use App\Models\Truck;
 use App\Models\User;
 use App\Models\UserRole;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class DeliveryTripExecutionTest extends TestCase
@@ -55,9 +57,12 @@ class DeliveryTripExecutionTest extends TestCase
 
     public function test_marking_stop_delivered_updates_order_delivery_and_completes_trip(): void
     {
+        Storage::fake('local');
         $ctx = $this->setUpTrip();
 
-        $response = $this->actingAs($ctx['driver'])->post(route('delivery.trips.stop-status', [$ctx['stop'], 'delivered']));
+        $response = $this->actingAs($ctx['driver'])->post(route('delivery.trips.stop-status', [$ctx['stop'], 'delivered']), [
+            'photo' => UploadedFile::fake()->image('proof.jpg'),
+        ]);
 
         $response->assertRedirect();
         $this->assertEquals(BuyerOrder::STATUS_DELIVERED, $ctx['order']->fresh()->status);

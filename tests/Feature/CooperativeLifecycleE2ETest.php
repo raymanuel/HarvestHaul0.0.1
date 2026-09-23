@@ -20,7 +20,9 @@ use App\Models\Truck;
 use App\Models\User;
 use App\Models\UserRole;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 /**
@@ -39,6 +41,7 @@ class CooperativeLifecycleE2ETest extends TestCase
 
     public function test_full_cooperative_to_buyer_lifecycle(): void
     {
+        Storage::fake('local');
         Http::fake([
             'router.project-osrm.org/table/*' => Http::response(['code' => 'Ok', 'durations' => [[0, 300], [300, 0]], 'distances' => [[0, 5000], [5000, 0]]]),
             'router.project-osrm.org/route/*' => Http::response(['code' => 'Ok', 'routes' => [['distance' => 5000, 'duration' => 300, 'geometry' => ['coordinates' => [[125.17, 6.12]]]]]]),
@@ -119,7 +122,9 @@ class CooperativeLifecycleE2ETest extends TestCase
             ->assertOk()->assertJson(['has_position' => true]);
 
         // ── Module 8: driver executes the trip (single stop -> trip auto-completes) ──
-        $this->actingAs($driver)->post(route('delivery.trips.stop-status', [$stop, 'picked_up']))->assertRedirect();
+        $this->actingAs($driver)->post(route('delivery.trips.stop-status', [$stop, 'picked_up']), [
+            'photo' => UploadedFile::fake()->image('proof.jpg'),
+        ])->assertRedirect();
 
         $this->assertEquals(HaulJob::STATUS_COMPLETED, $job->fresh()->status);
         $this->assertEquals('available', $truck->fresh()->status);
@@ -204,7 +209,9 @@ class CooperativeLifecycleE2ETest extends TestCase
         $deliveryStop = $deliveryJob->stops()->firstOrFail();
 
         // ── Module 8: driver delivers (single stop -> trip auto-completes) ──
-        $this->actingAs($driver)->post(route('delivery.trips.stop-status', [$deliveryStop, 'delivered']))->assertRedirect();
+        $this->actingAs($driver)->post(route('delivery.trips.stop-status', [$deliveryStop, 'delivered']), [
+            'photo' => UploadedFile::fake()->image('proof.jpg'),
+        ])->assertRedirect();
 
         $this->assertEquals(BuyerOrder::STATUS_DELIVERED, $order->fresh()->status);
         $this->assertEquals(HaulJob::STATUS_COMPLETED, $deliveryJob->fresh()->status);

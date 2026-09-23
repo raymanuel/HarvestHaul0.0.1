@@ -140,8 +140,9 @@ class OrderController extends Controller
         $buyerOrder->load('stop.haulJob.cooperative');
 
         $haulJob = $buyerOrder->stop?->haulJob;
+        $stop = $buyerOrder->stop;
 
-        return view('buyer.orders.track', compact('buyerOrder', 'haulJob'));
+        return view('buyer.orders.track', compact('buyerOrder', 'haulJob', 'stop'));
     }
 
     public function trackLocation(BuyerOrder $buyerOrder)
