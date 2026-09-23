@@ -98,6 +98,13 @@ return [
                 'tooltip' => 'Farmer Members',
             ],
             [
+                'label' => 'Drivers',
+                'letter' => 'D',
+                'route' => 'coop.drivers.*',
+                'route_url' => 'coop.drivers.index',
+                'tooltip' => 'Delivery Personnel',
+            ],
+            [
                 'label' => 'Harvest & Pickups',
                 'letter' => 'H',
                 'route' => 'coop.haul-requests.*',

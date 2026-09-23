@@ -36,6 +36,7 @@ use App\Http\Controllers\Coop\BuyerOrderController as CoopBuyerOrderController;
 use App\Http\Controllers\Coop\CoopStatusController;
 use App\Http\Controllers\Coop\CropAvailabilityController;
 use App\Http\Controllers\Coop\DashboardController as CoopDashboardController;
+use App\Http\Controllers\Coop\DriverManagementController;
 use App\Http\Controllers\Coop\FacilityReceivingController;
 use App\Http\Controllers\Coop\FarmerManagementController;
 use App\Http\Controllers\Coop\HaulRequestController as CoopHaulRequestController;
@@ -242,6 +243,15 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
                 Route::post('/{user}/approve', [FarmerManagementController::class, 'approve'])->name('approve');
                 Route::post('/{user}/reject', [FarmerManagementController::class, 'reject'])->name('reject');
                 Route::post('/{user}/remove', [FarmerManagementController::class, 'remove'])->name('remove');
+            });
+
+            /*
+            | Drivers (delivery personnel)
+            */
+            Route::prefix('drivers')->name('drivers.')->group(function () {
+                Route::get('/', [DriverManagementController::class, 'index'])->name('index');
+                Route::get('/create', [DriverManagementController::class, 'create'])->name('create');
+                Route::post('/', [DriverManagementController::class, 'store'])->name('store');
             });
 
             /*
