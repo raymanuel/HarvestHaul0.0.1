@@ -9,6 +9,17 @@
             @if($stop->haulRequest?->estimated_weight_kg) / {{ number_format((float) $stop->haulRequest->estimated_weight_kg, 2) }} kg @endif
         </p>
 
+        @if($errors->any())
+            <div class="mb-4 rounded-xl border border-[var(--color-error-border)] bg-[var(--color-error-bg)] px-4 py-3 text-sm text-[var(--color-error-text)]">
+                <p class="text-xs font-bold uppercase tracking-wider mb-1">Couldn't record receiving</p>
+                <ul class="list-disc list-inside space-y-0.5">
+                    @foreach($errors->all() as $message)
+                        <li>{{ $message }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
         <form method="POST" action="{{ route('field.receiving.store', [$haulJob, $stop]) }}" class="space-y-4">
             @csrf
 

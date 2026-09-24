@@ -123,7 +123,7 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
     Route::put('settings/notifications', [NotificationPreferenceController::class, 'update'])->name('notifications.preferences.update');
 
     Route::get('files/{type}/{id}', [FileController::class, 'show'])
-        ->whereIn('type', ['coop-document', 'delivery-id', 'delivery-selfie', 'load-photo', 'delivery-receipt', 'pod-photo'])
+        ->whereIn('type', ['coop-document', 'delivery-id', 'delivery-selfie', 'load-photo', 'delivery-receipt', 'pod-photo', 'depot-pod-photo'])
         ->middleware('throttle:60,1')
         ->name('files.show');
 

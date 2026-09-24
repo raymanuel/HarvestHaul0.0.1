@@ -21,6 +21,7 @@ class HaulJob extends Model
         'haul_request_id', 'cooperative_id', 'job_type',
         'delivery_personnel_id', 'field_personnel_id', 'truck_id',
         'pickup_date', 'scheduled_at', 'weather_alerted_at', 'status', 'completed_at',
+        'depot_delivered_at', 'depot_pod_photo_path',
         'route_distance_km', 'route_duration_min', 'route_geometry',
     ];
 
@@ -29,6 +30,7 @@ class HaulJob extends Model
         'scheduled_at' => 'datetime',
         'weather_alerted_at' => 'datetime',
         'completed_at' => 'datetime',
+        'depot_delivered_at' => 'datetime',
         'route_distance_km' => 'decimal:2',
         'route_duration_min' => 'decimal:2',
         'route_geometry' => 'array',

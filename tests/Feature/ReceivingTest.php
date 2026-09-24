@@ -160,4 +160,26 @@ class ReceivingTest extends TestCase
 
         $response->assertSessionHasErrors('stop');
     }
+
+    /**
+     * The create form previously had no $errors display for any field — a
+     * rejected submission (missing grade, duplicate record, etc.) silently
+     * reloaded the same page with nothing visible ("the button doesn't work").
+     */
+    public function test_rejected_submission_shows_a_visible_error_on_reload(): void
+    {
+        $coop = $this->cooperative();
+        [$fieldUser, $job, $stop, $grade] = $this->pickedUpStop($coop);
+
+        $response = $this->actingAs($fieldUser)
+            ->from(route('field.receiving.create', [$job, $stop]))
+            ->followingRedirects()
+            ->post(route('field.receiving.store', [$job, $stop]), [
+                'actual_sacks' => 78,
+                'actual_weight_kg' => 3920,
+            ]);
+
+        $response->assertOk();
+        $response->assertSee("Couldn't record receiving", false);
+    }
 }

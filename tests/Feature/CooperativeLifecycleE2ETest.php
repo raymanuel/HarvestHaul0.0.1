@@ -121,9 +121,13 @@ class CooperativeLifecycleE2ETest extends TestCase
         $this->actingAs($coopAdmin)->getJson(route('coop.tracking.location', $job))
             ->assertOk()->assertJson(['has_position' => true]);
 
-        // ── Module 8: driver executes the trip (single stop -> trip auto-completes) ──
+        // ── Module 8: driver executes the trip, then delivers to the co-op to close it out ──
         $this->actingAs($driver)->post(route('delivery.trips.stop-status', [$stop, 'picked_up']), [
             'photo' => UploadedFile::fake()->image('proof.jpg'),
+        ])->assertRedirect();
+
+        $this->actingAs($driver)->post(route('delivery.trips.complete', $job), [
+            'photo' => UploadedFile::fake()->image('depot.jpg'),
         ])->assertRedirect();
 
         $this->assertEquals(HaulJob::STATUS_COMPLETED, $job->fresh()->status);

@@ -7,6 +7,7 @@ use App\Http\Controllers\Coop\LocationMonitoringController;
 use App\Models\Cooperative;
 use App\Models\Crop;
 use App\Models\CropVariety;
+use App\Models\HaulJobStop;
 use App\Models\HaulRequest;
 use App\Models\Notification;
 use App\Models\PackagingType;
@@ -121,19 +122,36 @@ class HaulRequestController extends Controller
     public function track(HaulRequest $haulRequest)
     {
         $this->authorizeFarmer($haulRequest);
-        $haulRequest->load('haulJob.cooperative', 'haulJob.stops');
 
-        $haulJob = $haulRequest->haulJob;
-        $stop = $haulJob?->stops->firstWhere('haul_request_id', $haulRequest->id);
+        // HaulJob.haul_request_id is only ever set for a legacy single-request
+        // job; every trip created by the planner is a consolidated job with
+        // that column null. The reliable link to "this farmer's trip" is
+        // their own stop row, not HaulRequest::haulJob().
+        $stop = HaulJobStop::where('haul_request_id', $haulRequest->id)
+            ->with(['haulJob.cooperative', 'haulJob.stops.haulRequest.farmer'])
+            ->first();
+        $haulJob = $stop?->haulJob;
 
-        return view('farmer.haul-requests.track', compact('haulRequest', 'haulJob', 'stop'));
+        $stopPoints = $haulJob
+            ? $haulJob->stops
+                ->filter(fn ($s) => ! $s->isDeliveryStop() && $s->haulRequest?->pickup_location_lat && $s->haulRequest?->pickup_location_lng)
+                ->map(fn ($s) => [
+                    'lat'   => (float) $s->haulRequest->pickup_location_lat,
+                    'lng'   => (float) $s->haulRequest->pickup_location_lng,
+                    'seq'   => $s->sequence_no,
+                    'label' => ($s->haul_request_id === $haulRequest->id ? 'You — ' : '').($s->haulRequest->farmer?->name ?? 'Farmer'),
+                    'own'   => $s->haul_request_id === $haulRequest->id,
+                ])->values()
+            : collect();
+
+        return view('farmer.haul-requests.track', compact('haulRequest', 'haulJob', 'stop', 'stopPoints'));
     }
 
     public function trackLocation(HaulRequest $haulRequest)
     {
         $this->authorizeFarmer($haulRequest);
 
-        $haulJob = $haulRequest->haulJob;
+        $haulJob = HaulJobStop::where('haul_request_id', $haulRequest->id)->first()?->haulJob;
         if (! $haulJob) {
             return response()->json(['has_position' => false]);
         }

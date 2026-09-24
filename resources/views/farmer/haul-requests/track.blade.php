@@ -1,11 +1,5 @@
 @php
     $depot = $haulJob ? ['lat' => (float) ($haulJob->cooperative->latitude ?? 0), 'lng' => (float) ($haulJob->cooperative->longitude ?? 0)] : null;
-    $stopPoints = [[
-        'lat' => (float) ($haulRequest->pickup_location_lat ?? 0),
-        'lng' => (float) ($haulRequest->pickup_location_lng ?? 0),
-        'seq' => null,
-        'label' => 'Pickup location',
-    ]];
 @endphp
 
 <x-layout title="Track Pickup — HarvestHaul">
@@ -26,10 +20,23 @@
             <x-section-label title="Live Position" width="w-16" />
             <x-live-trip-map
                 :poll-url="route('farmer.haul-requests.track.location', $haulRequest)"
-                :stops="$stopPoints"
+                :stops="$stopPoints->toArray()"
                 :depot="$depot"
                 :active="$haulJob->isActiveForTracking()"
             />
+
+            @if($stopPoints->count() > 1)
+                <div class="mt-5">
+                <x-section-label title="Trip Order" width="w-16" />
+                <ul class="divide-y divide-slate-100 dark:divide-slate-800">
+                    @foreach($stopPoints as $point)
+                        <li class="py-2 flex items-center justify-between text-sm {{ $point['own'] ? 'font-bold text-brand-700 dark:text-gold-light' : 'text-slate-600 dark:text-slate-300' }}">
+                            <span>#{{ $point['seq'] }} — {{ $point['label'] }}</span>
+                        </li>
+                    @endforeach
+                </ul>
+                </div>
+            @endif
         @endif
     </x-card>
 </x-layout>

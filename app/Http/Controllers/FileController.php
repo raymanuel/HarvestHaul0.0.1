@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Cooperative;
 use App\Models\DriverProfile;
+use App\Models\HaulJob;
 use App\Models\HaulJobStop;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -23,6 +24,7 @@ class FileController extends Controller
             'delivery-id' => $this->driverDocument($request, $id, 'id_photo_path'),
             'delivery-selfie' => $this->driverDocument($request, $id, 'selfie_path'),
             'pod-photo' => $this->podPhoto($id),
+            'depot-pod-photo' => $this->depotPodPhoto($id),
             default => abort(404),
         };
 
@@ -70,6 +72,20 @@ class FileController extends Controller
         abort_unless($allowed, 403);
 
         return $stop->pod_photo_path;
+    }
+
+    private function depotPodPhoto(int $id): ?string
+    {
+        $job = HaulJob::findOrFail($id);
+        $user = Auth::user();
+
+        $allowed = $user->isSuperAdmin()
+            || $user->id === $job->delivery_personnel_id
+            || ($user->isCoopAdmin() && $user->cooperative_id === $job->cooperative_id);
+
+        abort_unless($allowed, 403);
+
+        return $job->depot_pod_photo_path;
     }
 
     private function driverDocument(Request $request, int $id, string $column): ?string

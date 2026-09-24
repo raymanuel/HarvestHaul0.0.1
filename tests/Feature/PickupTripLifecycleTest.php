@@ -99,28 +99,46 @@ class PickupTripLifecycleTest extends TestCase
         return [$job, $truck, $driver, $stops];
     }
 
-    public function test_completing_last_stop_frees_the_truck(): void
+    public function test_picked_up_last_stop_does_not_free_the_truck_until_delivered_to_depot(): void
     {
         Storage::fake('local');
         $coop = $this->cooperative();
-        $coopAdmin = $this->coopAdmin($coop);
         [$job, $truck, $driver, $stops] = $this->scheduledJobWithStops($coop, 1);
 
         $this->actingAs($driver)->post(route('delivery.trips.stop-status', [$stops[0], 'picked_up']), [
             'photo' => UploadedFile::fake()->image('proof.jpg'),
         ]);
 
+        // Crop collected, but the trip isn't done — it still has to reach
+        // the co-op (the shared destination for every pickup on the trip).
+        $this->assertDatabaseHas('trucks', ['id' => $truck->id, 'status' => 'in_use']);
+        $job->refresh();
+        $this->assertNotEquals(HaulJob::STATUS_COMPLETED, $job->status);
+
+        $this->actingAs($driver)->post(route('delivery.trips.complete', $job), [
+            'photo' => UploadedFile::fake()->image('depot.jpg'),
+        ]);
+
         $this->assertDatabaseHas('trucks', ['id' => $truck->id, 'status' => 'available']);
         $this->assertDatabaseHas('haul_jobs', ['id' => $job->id, 'status' => HaulJob::STATUS_COMPLETED]);
+        $job->refresh();
+        $this->assertNotNull($job->depot_delivered_at);
+        $this->assertNotNull($job->depot_pod_photo_path);
     }
 
-    public function test_explicit_complete_frees_the_truck(): void
+    public function test_explicit_complete_requires_a_depot_photo_and_frees_the_truck(): void
     {
+        Storage::fake('local');
         $coop = $this->cooperative();
         [$job, $truck, $driver, $stops] = $this->scheduledJobWithStops($coop, 1);
         $stops[0]->update(['status' => HaulJobStop::STATUS_PICKED_UP]);
 
-        $this->actingAs($driver)->post(route('delivery.trips.complete', $job));
+        $noPhoto = $this->actingAs($driver)->post(route('delivery.trips.complete', $job));
+        $noPhoto->assertSessionHasErrors('photo');
+
+        $this->actingAs($driver)->post(route('delivery.trips.complete', $job), [
+            'photo' => UploadedFile::fake()->image('depot.jpg'),
+        ]);
 
         $this->assertDatabaseHas('trucks', ['id' => $truck->id, 'status' => 'available']);
     }
@@ -215,17 +233,19 @@ class PickupTripLifecycleTest extends TestCase
         ]);
     }
 
-    public function test_skipped_stop_request_goes_back_to_approved_not_completed(): void
+    public function test_skipping_a_pickup_stop_is_no_longer_allowed(): void
     {
         $coop = $this->cooperative();
         [$job, $truck, $driver, $stops] = $this->scheduledJobWithStops($coop, 1);
 
-        $this->actingAs($driver)->post(route('delivery.trips.stop-status', [$stops[0], 'skipped']));
+        $response = $this->actingAs($driver)->post(route('delivery.trips.stop-status', [$stops[0], 'skipped']));
 
-        $this->assertDatabaseHas('haul_requests', ['id' => $stops[0]->haul_request_id, 'status' => HaulRequest::STATUS_APPROVED]);
+        $response->assertSessionHasErrors('stop');
+        $stops[0]->refresh();
+        $this->assertEquals(HaulJobStop::STATUS_PENDING, $stops[0]->status);
     }
 
-    public function test_picked_up_stop_request_still_becomes_completed(): void
+    public function test_picked_up_stop_request_becomes_completed_once_delivered_to_depot(): void
     {
         Storage::fake('local');
         $coop = $this->cooperative();
@@ -234,7 +254,105 @@ class PickupTripLifecycleTest extends TestCase
         $this->actingAs($driver)->post(route('delivery.trips.stop-status', [$stops[0], 'picked_up']), [
             'photo' => UploadedFile::fake()->image('proof.jpg'),
         ]);
+        $this->actingAs($driver)->post(route('delivery.trips.complete', $job), [
+            'photo' => UploadedFile::fake()->image('depot.jpg'),
+        ]);
 
         $this->assertDatabaseHas('haul_requests', ['id' => $stops[0]->haul_request_id, 'status' => HaulRequest::STATUS_COMPLETED]);
+    }
+
+    public function test_farmer_is_notified_when_the_truck_arrives_and_when_picked_up(): void
+    {
+        Storage::fake('local');
+        $coop = $this->cooperative();
+        [$job, $truck, $driver, $stops] = $this->scheduledJobWithStops($coop, 1);
+        $farmerId = $stops[0]->haulRequest->farmer_id;
+
+        $this->actingAs($driver)->post(route('delivery.trips.stop-status', [$stops[0], 'arrived']));
+        $this->assertDatabaseHas('notifications', ['user_id' => $farmerId, 'title' => 'Truck has arrived']);
+
+        $this->actingAs($driver)->post(route('delivery.trips.stop-status', [$stops[0], 'picked_up']), [
+            'photo' => UploadedFile::fake()->image('proof.jpg'),
+        ]);
+        $this->assertDatabaseHas('notifications', ['user_id' => $farmerId, 'title' => 'Crop picked up']);
+    }
+
+    public function test_driver_near_next_stop_notifies_that_farmer_once(): void
+    {
+        $coop = $this->cooperative();
+        [$job, $truck, $driver, $stops] = $this->scheduledJobWithStops($coop, 1);
+        $stops[0]->haulRequest->update(['pickup_location_lat' => 6.1200, 'pickup_location_lng' => 125.1800]);
+        $farmerId = $stops[0]->haulRequest->farmer_id;
+
+        $this->actingAs($driver)->postJson(route('delivery.trips.location', $job), [
+            'latitude' => 6.1200, 'longitude' => 125.1800,
+        ])->assertOk();
+
+        $this->assertEquals(1, Notification::where('user_id', $farmerId)->where('title', 'Truck is nearby')->count());
+        $stops[0]->refresh();
+        $this->assertNotNull($stops[0]->proximity_notified_at);
+
+        // Same stop, another ping close by — no second alert.
+        $this->actingAs($driver)->postJson(route('delivery.trips.location', $job), [
+            'latitude' => 6.1201, 'longitude' => 125.1801,
+        ])->assertOk();
+
+        $this->assertEquals(1, Notification::where('user_id', $farmerId)->where('title', 'Truck is nearby')->count());
+    }
+
+    public function test_driver_far_from_next_stop_does_not_notify(): void
+    {
+        $coop = $this->cooperative();
+        [$job, $truck, $driver, $stops] = $this->scheduledJobWithStops($coop, 1);
+        $stops[0]->haulRequest->update(['pickup_location_lat' => 6.1200, 'pickup_location_lng' => 125.1800]);
+        $farmerId = $stops[0]->haulRequest->farmer_id;
+
+        $this->actingAs($driver)->postJson(route('delivery.trips.location', $job), [
+            'latitude' => 7.5, 'longitude' => 126.5,
+        ])->assertOk();
+
+        $this->assertDatabaseMissing('notifications', ['user_id' => $farmerId, 'title' => 'Truck is nearby']);
+        $stops[0]->refresh();
+        $this->assertNull($stops[0]->proximity_notified_at);
+    }
+
+    public function test_proximity_alert_moves_to_the_next_farmer_once_the_first_stop_closes(): void
+    {
+        Storage::fake('local');
+        $coop = $this->cooperative();
+        [$job, $truck, $driver, $stops] = $this->scheduledJobWithStops($coop, 2);
+        $stops[0]->haulRequest->update(['pickup_location_lat' => 6.1200, 'pickup_location_lng' => 125.1800]);
+        $stops[1]->haulRequest->update(['pickup_location_lat' => 6.2000, 'pickup_location_lng' => 125.2500]);
+        $secondFarmerId = $stops[1]->haulRequest->farmer_id;
+
+        // Near stop 1 first.
+        $this->actingAs($driver)->postJson(route('delivery.trips.location', $job), [
+            'latitude' => 6.1200, 'longitude' => 125.1800,
+        ]);
+        $this->assertDatabaseMissing('notifications', ['user_id' => $secondFarmerId, 'title' => 'Truck is nearby']);
+
+        $this->actingAs($driver)->post(route('delivery.trips.stop-status', [$stops[0], 'picked_up']), [
+            'photo' => UploadedFile::fake()->image('proof.jpg'),
+        ]);
+
+        // Now near stop 2 — the second farmer gets their own alert.
+        $this->actingAs($driver)->postJson(route('delivery.trips.location', $job), [
+            'latitude' => 6.2000, 'longitude' => 125.2500,
+        ]);
+        $this->assertDatabaseHas('notifications', ['user_id' => $secondFarmerId, 'title' => 'Truck is nearby']);
+    }
+
+    public function test_farmer_track_page_shows_every_stop_on_the_trip(): void
+    {
+        $coop = $this->cooperative();
+        [$job, $truck, $driver, $stops] = $this->scheduledJobWithStops($coop, 2);
+        $stops[0]->haulRequest->farmer->update(['name' => 'Farmer One']);
+        $stops[1]->haulRequest->farmer->update(['name' => 'Farmer Two']);
+
+        $response = $this->actingAs($stops[0]->haulRequest->farmer)->get(route('farmer.haul-requests.track', $stops[0]->haulRequest));
+
+        $response->assertOk();
+        $response->assertSee('Farmer One');
+        $response->assertSee('Farmer Two');
     }
 }

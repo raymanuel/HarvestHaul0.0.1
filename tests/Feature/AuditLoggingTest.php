@@ -65,6 +65,9 @@ class AuditLoggingTest extends TestCase
         $this->actingAs($ctx['driver'])->post(route('delivery.trips.stop-status', [$ctx['stop'], 'picked_up']), [
             'photo' => UploadedFile::fake()->image('proof.jpg'),
         ]);
+        $this->actingAs($ctx['driver'])->post(route('delivery.trips.complete', $ctx['job']), [
+            'photo' => UploadedFile::fake()->image('depot.jpg'),
+        ]);
 
         $this->assertDatabaseHas('audit_logs', [
             'admin_id' => $ctx['driver']->id, 'action' => 'complete_haul_job',

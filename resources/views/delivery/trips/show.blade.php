@@ -83,10 +83,6 @@
                                                     </div>
                                                 </form>
                                             </x-modal>
-                                            <form method="POST" action="{{ route('delivery.trips.stop-status', [$stop, 'skipped']) }}" onsubmit="return confirm('Skip this stop?');">
-                                                @csrf
-                                                <button class="px-3 py-1.5 rounded-lg text-xs font-bold border-2 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200">Skip</button>
-                                            </form>
                                         @endif
                                         <x-modal triggerLabel="Report Problem">
                                             <h2 class="text-lg font-bold text-slate-900 dark:text-white mb-4">Report a problem at this stop</h2>
@@ -109,10 +105,28 @@
                     </div>
 
                     @if($haulJob->stops->whereIn('status', ['pending', 'arrived'])->isEmpty() && $haulJob->status !== \App\Models\HaulJob::STATUS_COMPLETED)
-                        <form method="POST" action="{{ route('delivery.trips.complete', $haulJob) }}" class="mt-5">
-                            @csrf
-                            <x-button variant="primary" full>Complete Trip</x-button>
-                        </form>
+                        @if($haulJob->job_type === \App\Models\HaulJob::JOB_TYPE_PICKUP)
+                            <x-modal triggerLabel="Delivered to Co-op" triggerClass="w-full mt-5 px-4 py-2.5 rounded-xl text-sm font-bold text-white bg-brand-700 hover:bg-brand-900 text-center">
+                                <h2 class="text-lg font-bold text-slate-900 dark:text-white mb-4">Confirm Delivery to Co-op</h2>
+                                <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">All stops are done. Take a photo showing the crop handed off at the cooperative to close out this trip.</p>
+                                <form method="POST" action="{{ route('delivery.trips.complete', $haulJob) }}" enctype="multipart/form-data" class="space-y-4">
+                                    @csrf
+                                    <div>
+                                        <label for="depot-photo" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Photo proof of delivery to the co-op</label>
+                                        <input type="file" name="photo" id="depot-photo" accept="image/*" capture="environment" required class="block w-full text-sm text-slate-500 dark:text-slate-400">
+                                    </div>
+                                    <div class="pt-1 flex justify-end gap-2">
+                                        <button type="button" data-modal-close class="px-4 py-2 rounded-lg text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">Cancel</button>
+                                        <button class="px-4 py-2 rounded-lg text-sm font-bold text-white bg-brand-700 hover:bg-brand-900">Confirm Delivered</button>
+                                    </div>
+                                </form>
+                            </x-modal>
+                        @else
+                            <form method="POST" action="{{ route('delivery.trips.complete', $haulJob) }}" class="mt-5">
+                                @csrf
+                                <x-button variant="primary" full>Complete Trip</x-button>
+                            </form>
+                        @endif
                     @endif
                 @endif
             </x-card>
@@ -136,6 +150,7 @@
             .pickup-marker-depot { background:#0f172a; }
             .pickup-marker-selected { background:#2563eb; }
             .pickup-marker-completed { background:#16a34a; }
+            .live-truck-marker { display:flex; align-items:center; justify-content:center; width:26px; height:26px; border-radius:9999px; background:#2563eb; box-shadow:0 1px 4px rgba(0,0,0,.45); font-size:14px; }
         </style>
     @endpush
 
@@ -194,6 +209,8 @@
                 }
 
                 map.fitBounds(bounds, { padding: [30, 30] });
+
+                window.__tripMap = map;
             });
         </script>
     @endpush
@@ -215,7 +232,24 @@
                         return;
                     }
 
+                    var ownMarker = null;
+
+                    function showOwnPosition(pos) {
+                        var map = window.__tripMap;
+                        if (!map) return;
+                        var point = [pos.coords.latitude, pos.coords.longitude];
+                        if (ownMarker) {
+                            ownMarker.setLatLng(point);
+                        } else {
+                            ownMarker = L.marker(point, {
+                                icon: L.divIcon({ className: 'live-truck-marker', html: '🚛', iconSize: [26, 26] }),
+                            }).addTo(map);
+                        }
+                    }
+
                     function sendPosition(pos) {
+                        showOwnPosition(pos);
+
                         fetch(postUrl, {
                             method: 'POST',
                             headers: {

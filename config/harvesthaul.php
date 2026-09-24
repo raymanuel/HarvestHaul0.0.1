@@ -121,6 +121,10 @@ return [
         // A driver's most recent GPS ping older than this is treated as
         // unreliable for "nearest available driver" sorting, not used.
         'driver_position_max_age_days' => (int) env('DRIVER_POSITION_MAX_AGE_DAYS', 7),
+
+        // Straight-line distance (km) from a GPS ping to a pickup stop
+        // within which the farmer gets a one-time "truck is near" alert.
+        'proximity_radius_km' => (float) env('PROXIMITY_RADIUS_KM', 2),
     ],
 
     /*

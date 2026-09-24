@@ -9,6 +9,7 @@ use App\Models\HaulJob;
 use App\Models\HaulJobStop;
 use App\Models\HaulRequest;
 use App\Models\Notification;
+use App\Services\Routing\HaversineService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -68,9 +69,10 @@ class TripController extends Controller
                 'failed'    => ['pending', 'arrived'],
             ]
             : [
-                'arrived'   => ['pending', 'arrived', 'skipped'],
+                // No 'skipped' transition — a pickup stop must be arrived,
+                // picked up, or reported as a problem (with a reason).
+                'arrived'   => ['pending', 'arrived'],
                 'picked_up' => ['pending', 'arrived', 'picked_up'],
-                'skipped'   => ['pending', 'arrived', 'skipped'],
                 'failed'    => ['pending', 'arrived'],
             ];
 
@@ -123,6 +125,18 @@ class TripController extends Controller
             }
         }
 
+        if (! $isDelivery && in_array($status, ['arrived', 'picked_up'], true) && $stop->haulRequest?->farmer_id) {
+            Notification::create([
+                'user_id'  => $stop->haulRequest->farmer_id,
+                'title'    => $status === 'arrived' ? 'Truck has arrived' : 'Crop picked up',
+                'message'  => $status === 'arrived'
+                    ? 'The truck has arrived to collect your '.($stop->haulRequest->crop?->name ?? 'crop').'.'
+                    : 'Your '.($stop->haulRequest->crop?->name ?? 'crop').' has been picked up.',
+                'link'     => route('farmer.haul-requests.track', $stop->haulRequest),
+                'category' => 'haul',
+            ]);
+        }
+
         AuditLog::create([
             'admin_id'    => Auth::id(),
             'action'      => 'update_stop_status',
@@ -145,8 +159,15 @@ class TripController extends Controller
             $job->update(['status' => HaulJob::STATUS_PICKED_UP]);
         }
 
-        // When every stop is closed out, the trip is complete.
-        if ($job->stops()->whereIn('status', ['pending', 'arrived'])->doesntExist()) {
+        // When every stop is closed out, the trip is complete — except a
+        // pickup trip that actually collected crop, which still has one
+        // shared final stop left: getting it to the co-op. That's a
+        // separate photo-gated action (complete()), not automatic (panel
+        // spec: "same destination"). A pickup trip where nothing was ever
+        // picked up (every stop failed) has nothing to deliver, so it
+        // still auto-completes exactly like before.
+        if ($job->stops()->whereIn('status', ['pending', 'arrived'])->doesntExist()
+            && ! $this->awaitingDepotDelivery($job)) {
             $this->completeTrip($job);
         }
 
@@ -154,7 +175,6 @@ class TripController extends Controller
             'arrived'   => 'Marked stop as arrived.',
             'picked_up' => 'Marked stop as picked up.',
             'delivered' => 'Marked stop as delivered.',
-            'skipped'   => 'Stop marked as skipped.',
             'failed'    => 'Problem reported. Your cooperative was notified.',
         });
     }
@@ -182,7 +202,63 @@ class TripController extends Controller
             'posted_at' => now(),
         ]));
 
+        $this->notifyFarmerIfNear($haulJob, (float) $data['latitude'], (float) $data['longitude']);
+
         return response()->json(['status' => 'ok']);
+    }
+
+    /**
+     * One-time "truck is near" alert to the farmer at the next open pickup
+     * stop, keyed to that stop's own proximity_notified_at so each farmer
+     * gets their own alert as their turn on the route comes up.
+     */
+    private function notifyFarmerIfNear(HaulJob $haulJob, float $lat, float $lng): void
+    {
+        $stop = $haulJob->stops()
+            ->where('status', HaulJobStop::STATUS_PENDING)
+            ->whereNull('buyer_order_id')
+            ->whereNull('proximity_notified_at')
+            ->orderBy('sequence_no')
+            ->first();
+
+        if (! $stop || ! $stop->haulRequest?->pickup_location_lat || ! $stop->haulRequest?->pickup_location_lng) {
+            return;
+        }
+
+        $distanceKm = app(HaversineService::class)->distanceKm(
+            $lat, $lng,
+            (float) $stop->haulRequest->pickup_location_lat,
+            (float) $stop->haulRequest->pickup_location_lng,
+        );
+
+        if ($distanceKm > (float) config('harvesthaul.logistics.proximity_radius_km')) {
+            return;
+        }
+
+        $stop->update(['proximity_notified_at' => now()]);
+
+        if ($stop->haulRequest->farmer_id) {
+            Notification::create([
+                'user_id'  => $stop->haulRequest->farmer_id,
+                'title'    => 'Truck is nearby',
+                'message'  => "Your cooperative's truck is getting close — have your ".($stop->haulRequest->crop?->name ?? 'crop').' ready.',
+                'link'     => route('farmer.haul-requests.track', $stop->haulRequest),
+                'category' => 'haul',
+            ]);
+        }
+    }
+
+    /**
+     * A pickup trip that actually collected crop still needs one shared
+     * "delivered to the co-op" photo before it can complete. A pickup trip
+     * where every stop failed collected nothing, so there's nothing to
+     * deliver — it completes the normal way. Delivery trips never wait
+     * here; each of their stops already has its own real destination.
+     */
+    private function awaitingDepotDelivery(HaulJob $job): bool
+    {
+        return $job->job_type === HaulJob::JOB_TYPE_PICKUP
+            && $job->stops()->where('status', HaulJobStop::STATUS_PICKED_UP)->exists();
     }
 
     public function complete(Request $request, HaulJob $haulJob)
@@ -192,6 +268,20 @@ class TripController extends Controller
         if ($haulJob->stops()->whereIn('status', ['pending', 'arrived'])->exists()) {
             throw ValidationException::withMessages([
                 'stop' => 'Close every stop before completing the trip.',
+            ]);
+        }
+
+        if ($this->awaitingDepotDelivery($haulJob)) {
+            // All the farmers' crop shares one destination — the co-op —
+            // so the trip needs one final photo proving it actually got
+            // there, same "force driver to capture" rule as each stop.
+            $photo = $request->validate([
+                'photo' => 'required|image|max:5120',
+            ])['photo'];
+
+            $haulJob->update([
+                'depot_delivered_at'     => now(),
+                'depot_pod_photo_path'   => Storage::disk('local')->putFile('pod-photos', $photo),
             ]);
         }
 

@@ -165,6 +165,10 @@ class LocationMonitoringTest extends TestCase
             'haul_request_id' => $haulRequest->id, 'cooperative_id' => $coop->id, 'job_type' => HaulJob::JOB_TYPE_PICKUP,
             'delivery_personnel_id' => $driver->id, 'pickup_date' => today(), 'status' => HaulJob::STATUS_SCHEDULED,
         ]);
+        \App\Models\HaulJobStop::create([
+            'haul_job_id' => $job->id, 'haul_request_id' => $haulRequest->id,
+            'sequence_no' => 1, 'status' => \App\Models\HaulJobStop::STATUS_PENDING,
+        ]);
         $job->tracking()->create(['driver_id' => $driver->id, 'latitude' => 7.0, 'longitude' => 125.5, 'posted_at' => now()]);
 
         $response = $this->actingAs($farmer)->getJson(route('farmer.haul-requests.track.location', $haulRequest));
