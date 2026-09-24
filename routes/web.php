@@ -214,6 +214,9 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
             });
 
             Route::get('/audit-logs', [AdminAuditController::class, 'auditLogs'])->name('audit-logs');
+
+            // Platform-level reports (19) — aggregate counts, not per-cooperative detail.
+            Route::get('/reports', [\App\Http\Controllers\Admin\PlatformReportController::class, 'index'])->name('reports.index');
         });
 
         /*
@@ -406,6 +409,9 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
                 Route::get('/deliveries', [\App\Http\Controllers\Coop\ReportController::class, 'deliveries'])->name('deliveries');
                 Route::get('/deliveries/csv', [\App\Http\Controllers\Coop\ReportController::class, 'deliveriesCsv'])->name('deliveries.csv');
                 Route::get('/deliveries/pdf', [\App\Http\Controllers\Coop\ReportController::class, 'deliveriesPdf'])->name('deliveries.pdf');
+                Route::get('/consolidation', [\App\Http\Controllers\Coop\ReportController::class, 'consolidation'])->name('consolidation');
+                Route::get('/consolidation/csv', [\App\Http\Controllers\Coop\ReportController::class, 'consolidationCsv'])->name('consolidation.csv');
+                Route::get('/consolidation/pdf', [\App\Http\Controllers\Coop\ReportController::class, 'consolidationPdf'])->name('consolidation.pdf');
             });
 
             /*

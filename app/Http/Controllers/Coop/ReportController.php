@@ -234,6 +234,99 @@ class ReportController extends Controller
         );
     }
 
+    public function consolidation(Request $request)
+    {
+        [$from, $to] = $this->dateRange($request);
+        $jobs = $this->consolidationQuery($from, $to)->get();
+
+        return view('coop.reports.consolidation', array_merge(
+            compact('from', 'to'),
+            $this->consolidationSummary($jobs)
+        ));
+    }
+
+    public function consolidationCsv(Request $request)
+    {
+        [$from, $to] = $this->dateRange($request);
+        $jobs = $this->consolidationQuery($from, $to)->get();
+        $rows = $this->consolidationSummary($jobs)['rows'];
+
+        return response()->streamDownload(function () use ($rows) {
+            $out = fopen('php://output', 'w');
+            fputcsv($out, ['Date', 'Truck', 'Driver', 'Stops', 'Load (kg)', 'Capacity (kg)', 'Utilization %', 'Status']);
+            foreach ($rows as $r) {
+                fputcsv($out, [
+                    $r['job']->pickup_date?->format('Y-m-d'), $r['job']->truck?->plate_number, $r['job']->deliveryPersonnel?->name,
+                    $r['stops'], $r['load_kg'], $r['capacity_kg'], $r['utilization'], $r['job']->status,
+                ]);
+            }
+            fclose($out);
+        }, 'consolidation-report.csv');
+    }
+
+    public function consolidationPdf(Request $request)
+    {
+        [$from, $to] = $this->dateRange($request);
+        $jobs = $this->consolidationQuery($from, $to)->get();
+        $summary = $this->consolidationSummary($jobs);
+
+        return $this->renderPdf(
+            'Consolidation Report', $from, $to,
+            ['Date', 'Truck', 'Driver', 'Stops', 'Load (kg)', 'Capacity (kg)', 'Utilization %'],
+            collect($summary['rows'])->map(fn ($r) => [
+                $r['job']->pickup_date?->format('M d, Y'), $r['job']->truck?->plate_number ?? '—', $r['job']->deliveryPersonnel?->name ?? '—',
+                $r['stops'], number_format($r['load_kg'], 2), number_format($r['capacity_kg'], 2), $r['utilization'].'%',
+            ])->all(),
+            [
+                ['Total Trips', (string) $summary['totalTrips']],
+                ['Total Stops', (string) $summary['totalStops']],
+                ['Total Load', number_format($summary['totalLoad'], 2).' kg'],
+                ['Average Utilization', $summary['avgUtilization'].'%'],
+            ],
+            'consolidation-report.pdf'
+        );
+    }
+
+    private function consolidationQuery(Carbon $from, Carbon $to)
+    {
+        return HaulJob::with(['truck', 'deliveryPersonnel', 'stops.haulRequest'])
+            ->where('cooperative_id', $this->cooperativeId())
+            ->where('job_type', HaulJob::JOB_TYPE_PICKUP)
+            ->whereBetween('pickup_date', [$from->toDateString(), $to->toDateString()])
+            ->orderByDesc('pickup_date');
+    }
+
+    /**
+     * Per-trip load/capacity/utilization (spec 19.5 — Consolidation report).
+     * Load is the sum of each stop's haul request weight, not a column on
+     * HaulJob itself — the trip only stores route/truck/status, not the
+     * cargo total, so it has to be derived here same as the planner does.
+     */
+    private function consolidationSummary($jobs): array
+    {
+        $rows = $jobs->map(function ($job) {
+            $loadKg = (float) $job->stops->sum(fn ($s) => (float) ($s->haulRequest?->estimated_weight_kg ?? 0));
+            $capacityKg = $job->truck ? (float) $job->truck->capacity_kg : 0.0;
+            $utilization = $capacityKg > 0 ? round(($loadKg / $capacityKg) * 100, 1) : 0.0;
+
+            return [
+                'job'         => $job,
+                'stops'       => $job->stops->count(),
+                'load_kg'     => round($loadKg, 2),
+                'capacity_kg' => $capacityKg,
+                'utilization' => $utilization,
+            ];
+        });
+
+        return [
+            'rows'           => $rows,
+            'totalTrips'     => $jobs->count(),
+            'totalStops'     => $rows->sum('stops'),
+            'totalLoad'      => round($rows->sum('load_kg'), 2),
+            'avgUtilization' => $rows->isNotEmpty() ? round($rows->avg('utilization'), 1) : 0.0,
+        ];
+    }
+
     private function deliveriesQuery(Carbon $from, Carbon $to)
     {
         return HaulJob::with(['truck', 'deliveryPersonnel', 'stops'])

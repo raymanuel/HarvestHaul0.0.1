@@ -26,5 +26,10 @@
             <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">Trip status, route distance, vehicle activity.</p>
             <x-button tag="a" href="{{ route('coop.reports.deliveries', ['from' => $from->toDateString(), 'to' => $to->toDateString()]) }}">View Report</x-button>
         </x-card>
+        <x-card>
+            <x-section-label title="Consolidation" width="w-24" />
+            <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">Consolidated pickup trips — stops, load, and capacity utilization.</p>
+            <x-button tag="a" href="{{ route('coop.reports.consolidation', ['from' => $from->toDateString(), 'to' => $to->toDateString()]) }}">View Report</x-button>
+        </x-card>
     </div>
 </x-layout>
