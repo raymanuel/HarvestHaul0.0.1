@@ -480,6 +480,12 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
                 Route::get('/{haulRequest}/track/location', [FarmerHaulRequestController::class, 'trackLocation'])->name('track.location');
             });
 
+            Route::prefix('reports')->name('reports.')->group(function () {
+                Route::get('/', [\App\Http\Controllers\Farmer\FarmerReportController::class, 'index'])->name('index');
+                Route::get('/csv', [\App\Http\Controllers\Farmer\FarmerReportController::class, 'csv'])->name('csv');
+                Route::get('/pdf', [\App\Http\Controllers\Farmer\FarmerReportController::class, 'pdf'])->name('pdf');
+            });
+
             Route::prefix('join-cooperative')->name('join-cooperative.')->group(function () {
                 Route::get('/', [\App\Http\Controllers\Farmer\CooperativeMembershipController::class, 'create'])->name('create');
                 Route::post('/', [\App\Http\Controllers\Farmer\CooperativeMembershipController::class, 'store'])

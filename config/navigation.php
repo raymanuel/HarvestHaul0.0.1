@@ -288,6 +288,13 @@ return [
                 'tooltip' => 'Pickup Requests',
             ],
             [
+                'label' => 'My Reports',
+                'letter' => 'R',
+                'route' => 'farmer.reports.*',
+                'route_url' => 'farmer.reports.index',
+                'tooltip' => 'My Harvest & Earnings Report',
+            ],
+            [
                 'label' => 'Messages',
                 'letter' => 'M',
                 'route' => 'messages.*',
