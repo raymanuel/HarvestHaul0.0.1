@@ -23,6 +23,8 @@ return new class extends Migration
                 $table->dropColumn('cooperative_id');
             });
         }
+        // The column is dropped above and re-added nullable (FK to
+        // cooperatives), so no legacy values can survive.
         Schema::table('users', function (Blueprint $table) {
             $table->foreignId('cooperative_id')->nullable()->after('affiliation_type')->constrained('cooperatives')->nullOnDelete();
         });
@@ -30,6 +32,10 @@ return new class extends Migration
         // ── farmer_profiles.cooperative_id: point at cooperatives ──
         if (Schema::hasTable('farmer_profiles') && Schema::hasColumn('farmer_profiles', 'cooperative_id')) {
             $this->dropForeignKey('farmer_profiles', 'cooperative_id');
+            // Same legacy-orphan hazard as users: null the dangling value.
+            DB::table('farmer_profiles')->whereNotNull('cooperative_id')
+                ->whereNotIn('cooperative_id', DB::table('cooperatives')->select('id'))
+                ->update(['cooperative_id' => null]);
             Schema::table('farmer_profiles', function (Blueprint $table) {
                 $table->foreign('cooperative_id')->references('id')->on('cooperatives')->nullOnDelete();
             });
@@ -41,6 +47,12 @@ return new class extends Migration
             Schema::table('driver_profiles', function (Blueprint $table) {
                 $table->renameColumn('partner_id', 'cooperative_id');
             });
+            // partner_id pointed at dropped logistics_profiles; column is NOT
+            // NULL and there is no surviving cooperative to hang orphans on,
+            // so the retired-logistics rows are removed (users stay intact).
+            DB::table('driver_profiles')->whereNotNull('cooperative_id')
+                ->whereNotIn('cooperative_id', DB::table('cooperatives')->select('id'))
+                ->delete();
             Schema::table('driver_profiles', function (Blueprint $table) {
                 $table->foreign('cooperative_id')->references('id')->on('cooperatives')->cascadeOnDelete();
             });
@@ -52,13 +64,18 @@ return new class extends Migration
             Schema::table('trucks', function (Blueprint $table) {
                 $table->renameColumn('logistics_profile_id', 'cooperative_id');
             });
+            // Same legacy-orphan hazard as driver_profiles (NOT NULL column):
+            // remove trucks of the retired logistics era.
+            DB::table('trucks')->whereNotNull('cooperative_id')
+                ->whereNotIn('cooperative_id', DB::table('cooperatives')->select('id'))
+                ->delete();
             Schema::table('trucks', function (Blueprint $table) {
                 $table->foreign('cooperative_id')->references('id')->on('cooperatives')->cascadeOnDelete();
             });
         }
 
         // ── buyer_profiles: capture business identity for B2B ordering ──
-        if (Schema::hasTable('buyer_profiles')) {
+        if (Schema::hasTable('buyer_profiles') && ! Schema::hasColumn('buyer_profiles', 'business_name')) {
             Schema::table('buyer_profiles', function (Blueprint $table) {
                 $table->string('business_name')->nullable()->after('user_id');
                 $table->string('contact_person')->nullable()->after('business_name');
