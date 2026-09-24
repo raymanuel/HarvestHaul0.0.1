@@ -316,12 +316,7 @@
             <nav id="top-navbar" class="top-navbar hidden lg:flex fixed top-0 z-30 h-12 bg-[var(--color-surface)] border-b border-slate-900/5 px-5 items-center justify-between shadow-sm dark:bg-[var(--color-surface-card-dark)] dark:border-black/20">
                 <!-- Left side: collapse toggle + portal indicator -->
                 <div class="flex items-center gap-3">
-                    <!-- Topbar collapse toggle -->
-                    <button onclick="toggleSidebarCollapse()" class="w-8 h-8 rounded-lg bg-slate-900/5 flex items-center justify-center text-slate-600 hover:text-slate-900 hover:bg-slate-900/10 transition dark:bg-white/10 dark:text-white/80 dark:hover:text-white dark:hover:bg-white/20" aria-label="Toggle sidebar">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
-                        </svg>
-                    </button>
+                    
                     @php
                         $roleLabel = Auth::user()->roleLabel();
                     @endphp

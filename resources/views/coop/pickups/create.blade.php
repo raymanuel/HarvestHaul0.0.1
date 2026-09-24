@@ -117,6 +117,12 @@
                             :options="$plan['available_drivers']->mapWithKeys(fn ($d) => [$d->id => $d->name])->all()" />
                     </div>
 
+                    <div class="mt-4">
+                        <x-select name="field_personnel_id" label="Field Staff (optional)" :placeholder="'Not assigned — shared receiving queue'"
+                            :options="$plan['available_field_staff']->mapWithKeys(fn ($f) => [$f->id => $f->name])->all()" />
+                        <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">If assigned, this person rides with the truck and is unavailable for other trips until this one completes. Leave blank to keep receiving on the shared queue.</p>
+                    </div>
+
                     <div class="js-capacity-warning hidden mt-3 rounded-lg border border-[var(--color-warning-border)] bg-[var(--color-warning-bg)] px-3 py-2 text-xs text-[var(--color-warning-text)]"></div>
 
                     <div class="mt-3 flex flex-wrap gap-3 text-xs text-slate-500 dark:text-slate-400">

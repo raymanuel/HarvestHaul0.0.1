@@ -108,6 +108,7 @@ class PickupTripController extends Controller
         }
 
         $availableDriverIds = $engine->availableDrivers($cooperative, $request->input('date'))->pluck('id');
+        $availableFieldStaffIds = $engine->availableFieldPersonnel($cooperative)->pluck('id');
 
         $data = $request->validate([
             'date'                => 'required|date|after_or_equal:today',
@@ -121,10 +122,15 @@ class PickupTripController extends Controller
                 'required',
                 Rule::in($availableDriverIds),
             ],
+            'field_personnel_id' => [
+                'nullable',
+                Rule::in($availableFieldStaffIds),
+            ],
             'sequences'           => 'array',
         ], [
             'truck_id.exists' => 'This truck is not available (already in use, in maintenance, or inactive).',
             'delivery_personnel_id.in' => 'This driver is already assigned to another trip on this date.',
+            'field_personnel_id.in' => 'This field staff member is already assigned to another trip.',
         ]);
 
         $truck = Truck::where('id', $data['truck_id'])->where('cooperative_id', $cooperativeId)->firstOrFail();
@@ -171,6 +177,7 @@ class PickupTripController extends Controller
                 'haul_request_id' => null,
                 'cooperative_id'  => $cooperativeId,
                 'delivery_personnel_id' => $data['delivery_personnel_id'],
+                'field_personnel_id' => $data['field_personnel_id'] ?? null,
                 'truck_id'        => $truck->id,
                 'pickup_date'     => $data['date'],
                 'scheduled_at'    => $data['date'].' 00:00:00',
@@ -306,7 +313,13 @@ class PickupTripController extends Controller
             ? ['lat' => (float) $firstStop->pickup_location_lat, 'lng' => (float) $firstStop->pickup_location_lng]
             : null;
 
-        $trucks = Truck::where('cooperative_id', $haulJob->cooperative_id)->orderBy('truck_name')->get();
+        $trucks = Truck::where('cooperative_id', $haulJob->cooperative_id)->where('status', 'available')->orderBy('truck_name')->get();
+        if ($haulJob->truck && ! $trucks->contains('id', $haulJob->truck_id)) {
+            // Same "keep the incumbent selectable" rule as the driver list
+            // below — the trip's own truck stays in the dropdown even
+            // though it's the reason it isn't 'available' right now.
+            $trucks = $trucks->push($haulJob->truck)->sortBy('truck_name')->values();
+        }
         $drivers = $engine->availableDrivers($haulJob->cooperative, $haulJob->pickup_date->toDateString(), $haulJob->id, $nearTo);
         if ($haulJob->deliveryPersonnel && ! $drivers->contains('id', $haulJob->delivery_personnel_id)) {
             // Already-assigned driver isn't in the "available" list (fully
