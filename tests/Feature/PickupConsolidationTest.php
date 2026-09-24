@@ -120,6 +120,52 @@ class PickupConsolidationTest extends TestCase
         $this->assertTrue($available->contains('id', $freeDriver->id));
     }
 
+    /**
+     * A trip can now run past its own pickup_date waiting on the depot-
+     * delivery step — a driver still mid-trip from an earlier date must
+     * stay excluded from a brand-new trip planned for today/tomorrow, not
+     * just from a second trip on that same original date.
+     */
+    public function test_driver_still_on_an_open_trip_from_an_earlier_date_is_excluded(): void
+    {
+        $coop = $this->cooperative();
+        $busyDriver = User::factory()->create(['role' => UserRole::DELIVERY_PERSONNEL->value, 'cooperative_id' => $coop->id]);
+        $truck = Truck::factory()->create(['cooperative_id' => $coop->id, 'status' => 'in_use']);
+
+        HaulJob::create([
+            'haul_request_id' => null,
+            'cooperative_id' => $coop->id,
+            'delivery_personnel_id' => $busyDriver->id,
+            'truck_id' => $truck->id,
+            'pickup_date' => today()->subDay(),
+            'status' => HaulJob::STATUS_PICKED_UP,
+        ]);
+
+        $available = app(ConsolidationEngine::class)->availableDrivers($coop, today()->addDay()->toDateString());
+
+        $this->assertFalse($available->contains('id', $busyDriver->id));
+    }
+
+    public function test_driver_whose_trip_already_completed_is_available_again(): void
+    {
+        $coop = $this->cooperative();
+        $driver = User::factory()->create(['role' => UserRole::DELIVERY_PERSONNEL->value, 'cooperative_id' => $coop->id]);
+        $truck = Truck::factory()->create(['cooperative_id' => $coop->id, 'status' => 'available']);
+
+        HaulJob::create([
+            'haul_request_id' => null,
+            'cooperative_id' => $coop->id,
+            'delivery_personnel_id' => $driver->id,
+            'truck_id' => $truck->id,
+            'pickup_date' => today()->subDay(),
+            'status' => HaulJob::STATUS_COMPLETED,
+        ]);
+
+        $available = app(ConsolidationEngine::class)->availableDrivers($coop, today()->addDay()->toDateString());
+
+        $this->assertTrue($available->contains('id', $driver->id));
+    }
+
     public function test_store_rejects_a_driver_already_booked_that_date(): void
     {
         $coop = $this->cooperative();

@@ -47,6 +47,7 @@ class ConsolidationEngine
 
         $trucks = $cooperative->trucks()->where('status', 'available')->get();
         $availableDrivers = $this->availableDrivers($cooperative, $date);
+        $availableFieldStaff = $this->availableFieldPersonnel($cooperative);
 
         $coopLat = (float) ($cooperative->latitude ?? 0);
         $coopLng = (float) ($cooperative->longitude ?? 0);
@@ -91,6 +92,7 @@ class ConsolidationEngine
             'date'              => $date,
             'trucks'            => $trucks,
             'available_drivers' => $availableDrivers,
+            'available_field_staff' => $availableFieldStaff,
             'groups'            => $groups,
             'unassigned'        => $packed['unassigned'],
             'capacity'          => $this->capacityBreakdown($packed['groups']),
@@ -310,9 +312,12 @@ class ConsolidationEngine
      */
     public function availableDrivers(Cooperative $cooperative, string $date, ?int $excludeHaulJobId = null, ?array $nearTo = null): Collection
     {
+        // Booked = currently on an OPEN trip, regardless of that trip's own
+        // date — a trip can now run past its nominal pickup_date waiting on
+        // the depot-delivery step, so date-scoping alone let a driver still
+        // mid-trip get double-booked onto a brand-new trip.
         $bookedDriverIds = HaulJob::where('cooperative_id', $cooperative->id)
-            ->whereDate('pickup_date', $date)
-            ->where('status', '!=', HaulJob::STATUS_CANCELLED)
+            ->whereIn('status', [HaulJob::STATUS_SCHEDULED, HaulJob::STATUS_PICKED_UP])
             ->when($excludeHaulJobId, fn ($q) => $q->where('id', '!=', $excludeHaulJobId))
             ->whereNotNull('delivery_personnel_id')
             ->pluck('delivery_personnel_id');
@@ -357,6 +362,27 @@ class ConsolidationEngine
 
             return $a->distance_km <=> $b->distance_km ?: $a->name <=> $b->name;
         })->values();
+    }
+
+    /**
+     * Field/receiving staff optionally assigned to ride along on a pickup
+     * trip (haul_jobs.field_personnel_id). Same "currently on an open trip"
+     * exclusion as availableDrivers() — leaving this unassigned on a trip
+     * is fine, receiving still works off the shared queue as before.
+     */
+    public function availableFieldPersonnel(Cooperative $cooperative, ?int $excludeHaulJobId = null): Collection
+    {
+        $bookedIds = HaulJob::where('cooperative_id', $cooperative->id)
+            ->whereIn('status', [HaulJob::STATUS_SCHEDULED, HaulJob::STATUS_PICKED_UP])
+            ->when($excludeHaulJobId, fn ($q) => $q->where('id', '!=', $excludeHaulJobId))
+            ->whereNotNull('field_personnel_id')
+            ->pluck('field_personnel_id');
+
+        return User::where('role', UserRole::FIELD_RECEIVING->value)
+            ->where('cooperative_id', $cooperative->id)
+            ->whereNotIn('id', $bookedIds)
+            ->orderBy('name')
+            ->get(['id', 'name']);
     }
 
     private function buildStopPoints(Collection $requests, array $depot): array
