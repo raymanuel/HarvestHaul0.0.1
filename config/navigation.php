@@ -64,6 +64,13 @@ return [
                 ],
             ],
             [
+                'label' => 'Platform Reports',
+                'letter' => 'R',
+                'route' => 'admin.reports.*',
+                'route_url' => 'admin.reports.index',
+                'tooltip' => 'Platform Reports',
+            ],
+            [
                 'label' => 'Audit Logs',
                 'letter' => 'A',
                 'route' => 'admin.audit-logs',
